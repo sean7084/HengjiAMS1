@@ -1,0 +1,101 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Login" %} - HengJi AMS{% endblock %}
+
+{% block content %}
+<div class="login-card card fade-in">
+    <div class="card-body p-5">
+        <div class="login-header">
+            <img src="{% static 'images/logo.jpg' %}" alt="HengJi AMS" class="login-logo">
+            <h1>{% trans "HengJi AMS" %}</h1>
+            <p>{% trans "Asset Management System" %}</p>
+        </div>
+        
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.username.id_for_label }}" class="form-label">
+                    <i class="fas fa-user"></i> {{ form.username.label }}
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.username.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.password.id_for_label }}" class="form-label">
+                    <i class="fas fa-lock"></i> {{ form.password.label }}
+                </label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.password.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> {% trans "Login" %}
+                </button>
+            </div>
+            
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    {% trans "Secure login with two-factor authentication" %}
+                </small>
+            </div>
+        </form>
+        
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                {% trans "Having trouble logging in? Contact your administrator." %}
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add client-side validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            const forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+    
+    // Focus on username field
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('{{ form.username.id_for_label }}').focus();
+    });
+</script>
+{% endblock %}
