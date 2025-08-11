@@ -1,0 +1,163 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="fas fa-map-marker-alt"></i> {{ title }}
+        </h1>
+        <div class="btn-group">
+            <a href="{% url 'companies:company_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-building"></i> {% trans "Companies" %}
+            </a>
+            <a href="{% url 'companies:division_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-sitemap"></i> {% trans "Divisions" %}
+            </a>
+            <a href="{% url 'companies:companyuser_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-users"></i> {% trans "Company Users" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               value="{{ search }}" 
+                               class="form-control" 
+                               placeholder="{% trans 'Search locations...' %}">
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-search"></i> {% trans "Search" %}
+                    </button>
+                    <a href="{% url 'companies:location_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> {% trans "Clear" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Locations Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-list"></i> {% trans "Locations" %}
+                <span class="badge bg-secondary ms-2">{{ locations|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if locations %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "Location" %}</th>
+                            <th>{% trans "Company" %}</th>
+                            <th>{% trans "Division" %}</th>
+                            <th>{% trans "Address" %}</th>
+                            <th>{% trans "Manager" %}</th>
+                            <th>{% trans "Created" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for location in locations %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-2"
+                                         style="width: 32px; height: 32px;">
+                                        <i class="fas fa-map-marker-alt text-white"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ location.name }}</div>
+                                        {% if location.description %}
+                                        <small class="text-muted">{{ location.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ location.company.name }}</td>
+                            <td>{{ location.division.name|default:"-" }}</td>
+                            <td>{{ location.address|default:"-"|truncatechars:40 }}</td>
+                            <td>{{ location.manager|default:"-" }}</td>
+                            <td>{{ location.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="#" class="btn btn-outline-primary" title="{% trans 'View Details' %}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-secondary" title="{% trans 'Edit' %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">{% trans "No locations found" %}</h5>
+                <p class="text-muted">{% trans "Try adjusting your search criteria." %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="{% trans 'Locations pagination' %}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">
+                    {{ page_obj.number }} {% trans "of" %} {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -48,10 +48,11 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_static',  # Static OTP tokens for backup
     # Local apps
     'accounts',  # Custom user management with roles and 2FA
-    # 'assets',  # Asset management core functionality - temporarily disabled until Location model is fixed
+    'assets',  # Asset management core functionality
     'companies',  # Company and division management
-    # 'audit',  # Asset audit and tracking - temporarily disabled until Location model is fixed
+    'audit',  # Asset audit and tracking system
     'reports',  # Reporting and analytics
+    'dashboard',  # Main dashboard and overview
     'users',  # User management
 ]
 

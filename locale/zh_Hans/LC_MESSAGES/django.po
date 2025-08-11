@@ -1,0 +1,506 @@
+# LANGUAGE translation of Django.
+# Copyright (C) 2025 HengJi AMS
+# This file is distributed under the same license as the Django package.
+
+msgid ""
+msgstr ""
+"Language: zh-hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+# Dashboard
+msgid "Dashboard"
+msgstr "仪表板"
+
+msgid "Welcome"
+msgstr "欢迎"
+
+msgid "Total Assets"
+msgstr "总资产"
+
+msgid "Active Assets"
+msgstr "活动资产"
+
+msgid "Users"
+msgstr "用户"
+
+msgid "Companies"
+msgstr "公司"
+
+msgid "Recent Activities"
+msgstr "最近活动"
+
+msgid "Asset Status"
+msgstr "资产状态"
+
+msgid "Monthly Trends"
+msgstr "月度趋势"
+
+# Navigation
+msgid "Home"
+msgstr "主页"
+
+msgid "Assets"
+msgstr "资产"
+
+msgid "Audit"
+msgstr "审计"
+
+msgid "Reports"
+msgstr "报告"
+
+msgid "Administrators"
+msgstr "管理员"
+
+msgid "Profile"
+msgstr "个人资料"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Logout"
+msgstr "退出登录"
+
+# Authentication
+msgid "Login"
+msgstr "登录"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Email"
+msgstr "电子邮件"
+
+msgid "First Name"
+msgstr "名"
+
+msgid "Last Name"
+msgstr "姓"
+
+# 2FA
+msgid "Two-Factor Authentication"
+msgstr "双因素认证"
+
+msgid "Setup 2FA"
+msgstr "设置双因素认证"
+
+msgid "Disable 2FA"
+msgstr "禁用双因素认证"
+
+msgid "QR Code"
+msgstr "二维码"
+
+msgid "Backup Tokens"
+msgstr "备份令牌"
+
+# User Management
+msgid "User Management"
+msgstr "用户管理"
+
+msgid "Create User"
+msgstr "创建用户"
+
+msgid "Edit User"
+msgstr "编辑用户"
+
+msgid "User Details"
+msgstr "用户详细信息"
+
+msgid "Active"
+msgstr "活动"
+
+msgid "Inactive"
+msgstr "非活动"
+
+msgid "Role"
+msgstr "角色"
+
+# Company Management
+msgid "Company Management"
+msgstr "公司管理"
+
+msgid "Company List"
+msgstr "公司列表"
+
+msgid "Company Details"
+msgstr "公司详细信息"
+
+msgid "Divisions"
+msgstr "部门"
+
+msgid "Locations"
+msgstr "地点"
+
+msgid "Company Users"
+msgstr "公司用户"
+
+# Asset Management
+msgid "Asset Management"
+msgstr "资产管理"
+
+msgid "Asset List"
+msgstr "资产列表"
+
+msgid "Asset Details"
+msgstr "资产详细信息"
+
+msgid "Asset Type"
+msgstr "资产类型"
+
+msgid "Serial Number"
+msgstr "序列号"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Location"
+msgstr "地点"
+
+msgid "Assigned User"
+msgstr "分配用户"
+
+msgid "Administrators"
+msgstr "管理员"
+
+msgid "Company Users"
+msgstr "公司用户"
+
+msgid "All Administrators"
+msgstr "所有管理员"
+
+msgid "Add Administrator"
+msgstr "添加管理员"
+
+msgid "Admin Panel"
+msgstr "管理面板"
+
+msgid "Employee"
+msgstr "员工"
+
+msgid "Manager"
+msgstr "经理"
+
+msgid "Company Admin"
+msgstr "公司管理员"
+
+msgid "Viewer"
+msgstr "查看者"
+
+msgid "Employee ID"
+msgstr "员工编号"
+
+msgid "Department"
+msgstr "部门"
+
+msgid "Job Title"
+msgstr "职位"
+
+msgid "Hire Date"
+msgstr "入职日期"
+
+msgid "Work Phone"
+msgstr "工作电话"
+
+msgid "Work Email"
+msgstr "工作邮箱"
+
+msgid "Direct Reports"
+msgstr "直接下属"
+
+msgid "Company Start Date"
+msgstr "公司开始日期"
+
+msgid "End Date"
+msgstr "结束日期"
+
+# Common actions
+msgid "Save"
+msgstr "保存"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Add"
+msgstr "添加"
+
+msgid "Create"
+msgstr "创建"
+
+msgid "Update"
+msgstr "更新"
+
+msgid "View"
+msgstr "查看"
+
+msgid "Search"
+msgstr "搜索"
+
+msgid "Filter"
+msgstr "筛选"
+
+msgid "Export"
+msgstr "导出"
+
+msgid "Import"
+msgstr "导入"
+
+# Forms
+msgid "Required field"
+msgstr "必填字段"
+
+msgid "This field is required"
+msgstr "此字段为必填项"
+
+msgid "Invalid input"
+msgstr "无效输入"
+
+# Status messages
+msgid "Successfully saved"
+msgstr "保存成功"
+
+msgid "Successfully deleted"
+msgstr "删除成功"
+
+msgid "Successfully updated"
+msgstr "更新成功"
+
+msgid "Error occurred"
+msgstr "发生错误"
+
+msgid "Permission denied"
+msgstr "权限被拒绝"
+
+msgid "Not found"
+msgstr "未找到"
+
+# Admin Roles
+msgid "Superadmin"
+msgstr "超级管理员"
+
+msgid "IT Specialist"
+msgstr "IT专家"
+
+msgid "Administrator Role"
+msgstr "管理员角色"
+
+msgid "Managed Company"
+msgstr "管理的公司"
+
+msgid "Managed Divisions"
+msgstr "管理的部门"
+
+msgid "Managed Locations"
+msgstr "管理的地点"
+
+msgid "Access Scope"
+msgstr "访问范围"
+
+msgid "All companies and data"
+msgstr "所有公司和数据"
+
+msgid "Company: {company}"
+msgstr "公司：{company}"
+
+msgid "Division: {division}"
+msgstr "部门：{division}"
+
+msgid "Location: {location}"
+msgstr "地点：{location}"
+
+msgid "{count} divisions"
+msgstr "{count} 个部门"
+
+msgid "{count} locations"
+msgstr "{count} 个地点"
+
+msgid "No admin access"
+msgstr "无管理员访问权限"
+
+# Navigation Menu Items
+msgid "All Assets"
+msgstr "所有资产"
+
+msgid "Add Asset"
+msgstr "添加资产"
+
+msgid "Export Assets"
+msgstr "导出资产"
+
+msgid "Manage Companies"
+msgstr "管理公司"
+
+msgid "Manage Divisions"
+msgstr "管理部门"
+
+msgid "Manage Locations"
+msgstr "管理地点"
+
+msgid "Generate Reports"
+msgstr "生成报告"
+
+msgid "Asset Reports"
+msgstr "资产报告"
+
+msgid "Maintenance Reports"
+msgstr "维护报告"
+
+msgid "All Administrators"
+msgstr "所有管理员"
+
+msgid "Add Administrator"
+msgstr "添加管理员"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "English"
+msgstr "English"
+
+msgid "中文"
+msgstr "中文"
+
+# Dashboard Items
+msgid "Available"
+msgstr "可用"
+
+msgid "Assigned"
+msgstr "已分配"
+
+msgid "Maintenance Due"
+msgstr "待维护"
+
+msgid "Asset Status Distribution"
+msgstr "资产状态分布"
+
+msgid "Top Asset Categories"
+msgstr "主要资产类别"
+
+msgid "No categories found"
+msgstr "未找到类别"
+
+msgid "Recent Assets"
+msgstr "最近资产"
+
+msgid "View All"
+msgstr "查看全部"
+
+msgid "Asset Number"
+msgstr "资产编号"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Category"
+msgstr "类别"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Date Added"
+msgstr "添加日期"
+
+msgid "Quick Actions"
+msgstr "快速操作"
+
+msgid "Add New Asset"
+msgstr "添加新资产"
+
+msgid "Import Assets"
+msgstr "导入资产"
+
+msgid "System Health"
+msgstr "系统健康状态"
+
+msgid "All systems operational"
+msgstr "所有系统正常运行"
+
+# Password Management
+msgid "Generate Random Password"
+msgstr "生成随机密码"
+
+msgid "Generate a secure random password instead of manual entry"
+msgstr "生成安全的随机密码，而不是手动输入"
+
+msgid "Require Password Change on First Login"
+msgstr "首次登录时要求修改密码"
+
+msgid "User must change password when they first log in"
+msgstr "用户首次登录时必须修改密码"
+
+msgid "Password has been generated for user"
+msgstr "已为用户生成密码"
+
+msgid "Generated Password"
+msgstr "生成的密码"
+
+msgid "Please save this password securely. It will not be shown again."
+msgstr "请安全保存此密码。它不会再次显示。"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Confirm Password"
+msgstr "确认密码"
+
+msgid "Phone Number"
+msgstr "电话号码"
+
+msgid "Phone Number (optional)"
+msgstr "电话号码（可选）"
+
+msgid "Format: +1234567890"
+msgstr "格式：+1234567890"
+
+msgid "Language Preference"
+msgstr "语言偏好"
+
+msgid "Simplified Chinese"
+msgstr "简体中文"
+
+msgid "Select the administrator role and permissions level"
+msgstr "选择管理员角色和权限级别"
+
+msgid "Create New User"
+msgstr "创建新用户"
+
+msgid "Back to Users"
+msgstr "返回用户"
+
+msgid "User Information"
+msgstr "用户信息"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Create User"
+msgstr "创建用户"
+
+msgid "Are you sure you want to deactivate this user?"
+msgstr "您确定要停用此用户吗？"
+
+msgid "Are you sure you want to activate this user?"
+msgstr "您确定要激活此用户吗？"
+
+msgid "Deactivate"
+msgstr "停用"
+
+msgid "Activate"
+msgstr "激活"
+
+msgid "activated"
+msgstr "已激活"
+
+msgid "deactivated"
+msgstr "已停用"
+
+msgid "User {username} has been {status}."
+msgstr "用户 {username} 已{status}。"

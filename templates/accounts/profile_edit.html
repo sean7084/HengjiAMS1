@@ -1,0 +1,155 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit Profile" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-edit"></i> {% trans "Edit Profile" %}
+                </h1>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back to Profile" %}
+                </a>
+            </div>
+
+            <!-- Profile Edit Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-edit"></i> {% trans "Update Your Information" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Profile Image -->
+                        {% if form.profile_image %}
+                        <div class="row mb-4">
+                            <div class="col-md-3 text-center">
+                                {% if user.profile_image %}
+                                    <img src="{{ user.profile_image.url }}" alt="{% trans 'Profile Image' %}" 
+                                         class="img-fluid rounded-circle" style="max-width: 120px;">
+                                {% else %}
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center"
+                                         style="width: 120px; height: 120px;">
+                                        <i class="fas fa-user fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label for="{{ form.profile_image.id_for_label }}" class="form-label">
+                                        {{ form.profile_image.label }}
+                                    </label>
+                                    {{ form.profile_image }}
+                                    {% if form.profile_image.help_text %}
+                                    <div class="form-text">{{ form.profile_image.help_text }}</div>
+                                    {% endif %}
+                                    {% if form.profile_image.errors %}
+                                    <div class="text-danger">{{ form.profile_image.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- First Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    {{ form.first_name.label }}
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="text-danger">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    {{ form.last_name.label }}
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="text-danger">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    {{ form.email.label }}
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Phone Number -->
+                            {% if form.phone_number %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                    {{ form.phone_number.label }}
+                                </label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                <div class="text-danger">{{ form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <!-- Department -->
+                            {% if form.department %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.department.id_for_label }}" class="form-label">
+                                    {{ form.department.label }}
+                                </label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                <div class="text-danger">{{ form.department.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Job Title -->
+                            {% if form.job_title %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.job_title.id_for_label }}" class="form-label">
+                                    {{ form.job_title.label }}
+                                </label>
+                                {{ form.job_title }}
+                                {% if form.job_title.errors %}
+                                <div class="text-danger">{{ form.job_title.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Changes" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

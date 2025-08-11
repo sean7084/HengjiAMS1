@@ -11,10 +11,13 @@ app_name = 'accounts'
 urlpatterns = [
     # Authentication URLs
     path('login/', views.LoginView.as_view(), name='login'),
-    path('logout/', LogoutView.as_view(next_page='/login/'), name='logout'),
+    path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+    path('dev-login/', views.dev_login, name='dev_login'),  # For testing only
     
     # 2FA Setup URLs
     path('2fa/setup/', views.TwoFactorSetupView.as_view(), name='2fa_setup'),
+    path('2fa/setup-simple/', views.setup_2fa_simple, name='setup_2fa'),
+    path('2fa/disable/', views.disable_2fa, name='disable_2fa'),
     path('2fa/verify/', views.TwoFactorVerifyView.as_view(), name='2fa_verify'),
     path('2fa/backup-tokens/', views.BackupTokensView.as_view(), name='backup_tokens'),
     

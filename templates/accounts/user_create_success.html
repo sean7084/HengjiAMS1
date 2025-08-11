@@ -1,0 +1,139 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "User Created Successfully" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-check-circle"></i> {% trans "User Created Successfully" %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-user-check"></i> {% trans "New User Account Created" %}
+                        </h5>
+                        <p>{% trans "The user account has been created successfully with the following details:" %}</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user"></i> {% trans "Account Information" %}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td><strong>{% trans "Username" %}:</strong></td>
+                                            <td>{{ new_user_username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>{% trans "Email" %}:</strong></td>
+                                            <td>{{ new_user_email }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-key"></i> {% trans "Generated Password" %}
+                                        <span class="badge bg-danger ms-2">{% trans "SECURE" %}</span>
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-warning">
+                                        <strong>{% trans "Important" %}:</strong> {% trans "This password will only be shown once. Please copy it securely." %}
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control font-monospace" id="generatedPassword" 
+                                               value="{{ generated_password }}" readonly style="font-size: 1.1rem; font-weight: bold;">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            <i class="fas fa-eye" id="passwordIcon"></i>
+                                        </button>
+                                        <button class="btn btn-primary" type="button" id="copyPassword">
+                                            <i class="fas fa-copy"></i> {% trans "Copy" %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4" role="alert">
+                        <h6><i class="fas fa-info-circle"></i> {% trans "Next Steps" %}:</h6>
+                        <ul class="mb-0">
+                            <li>{% trans "Share the username and password with the new user through a secure channel" %}</li>
+                            <li>{% trans "The user will be required to change their password on first login" %}</li>
+                            <li>{% trans "Recommend the user to set up two-factor authentication for enhanced security" %}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'accounts:user_create' %}" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i> {% trans "Create Another User" %}
+                        </a>
+                        
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-list"></i> {% trans "Back to User List" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordField = document.getElementById('generatedPassword');
+    const toggleButton = document.getElementById('togglePassword');
+    const passwordIcon = document.getElementById('passwordIcon');
+    const copyButton = document.getElementById('copyPassword');
+    
+    // Toggle password visibility
+    toggleButton.addEventListener('click', function() {
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            passwordIcon.className = 'fas fa-eye-slash';
+        } else {
+            passwordField.type = 'password';
+            passwordIcon.className = 'fas fa-eye';
+        }
+    });
+    
+    // Copy password to clipboard
+    copyButton.addEventListener('click', function() {
+        passwordField.select();
+        passwordField.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+            document.execCommand('copy');
+            copyButton.innerHTML = '<i class="fas fa-check"></i> {% trans "Copied!" %}';
+            copyButton.classList.remove('btn-primary');
+            copyButton.classList.add('btn-success');
+            
+            setTimeout(function() {
+                copyButton.innerHTML = '<i class="fas fa-copy"></i> {% trans "Copy" %}';
+                copyButton.classList.remove('btn-success');
+                copyButton.classList.add('btn-primary');
+            }, 2000);
+        } catch (err) {
+            console.error('Failed to copy password: ', err);
+        }
+    });
+});
+</script>
+{% endblock %}

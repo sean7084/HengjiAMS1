@@ -1,0 +1,297 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Dashboard" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .metric-card .card-body {
+        padding: 1.5rem;
+    }
+    .metric-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    .metric-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    .recent-item {
+        border-left: 3px solid #007bff;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100">
+                <div class="card-body text-center">
+                    <div class="metric-number">{{ total_assets }}</div>
+                    <div class="metric-label">{% trans "Total Assets" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-center">
+                    <div class="metric-number">{{ available_assets }}</div>
+                    <div class="metric-label">{% trans "Available" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100" style="background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);">
+                <div class="card-body text-center">
+                    <div class="metric-number">{{ assigned_assets }}</div>
+                    <div class="metric-label">{% trans "Assigned" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card h-100" style="background: linear-gradient(135deg, #fbc2eb 0%, #a18cd1 100%);">
+                <div class="card-body text-center">
+                    <div class="metric-number">{{ pending_maintenance }}</div>
+                    <div class="metric-label">{% trans "Maintenance Due" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Details Row -->
+    <div class="row">
+        <!-- Asset Status Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">{% trans "Asset Status Distribution" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">{% trans "Top Asset Categories" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if assets_by_category %}
+                        {% for category in assets_by_category %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <strong>{{ category.category__name|default:"Uncategorized" }}</strong>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary">{{ category.count }}</span>
+                            </div>
+                        </div>
+                        <div class="progress mb-3" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: {% widthratio category.count total_assets 100 %}%"></div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "No categories found" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity and Quick Actions -->
+    <div class="row">
+        <!-- Recent Assets -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{% trans "Recent Assets" %}</h5>
+                    <a href="{% url 'admin:assets_asset_changelist' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_assets %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Asset Number" %}</th>
+                                        <th>{% trans "Name" %}</th>
+                                        <th>{% trans "Category" %}</th>
+                                        <th>{% trans "Status" %}</th>
+                                        <th>{% trans "Date Added" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for asset in recent_assets %}
+                                    <tr>
+                                        <td><code>{{ asset.asset_number }}</code></td>
+                                        <td>{{ asset.name }}</td>
+                                        <td>{{ asset.category.name }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if asset.status == 'available' %}success{% elif asset.status == 'assigned' %}info{% elif asset.status == 'maintenance' %}warning{% else %}secondary{% endif %}">
+                                                {{ asset.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ asset.created_at|date:"M d, Y" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">{% trans "No assets found" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">{% trans "Quick Actions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'admin:assets_asset_add' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>{% trans "Add New Asset" %}
+                        </a>
+                        <a href="{% url 'admin:assets_assetassignment_changelist' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-check me-2"></i>{% trans "Manage Assignments" %}
+                        </a>
+                        <a href="{% url 'admin:assets_assetmaintenance_changelist' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-tools me-2"></i>{% trans "Schedule Maintenance" %}
+                        </a>
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-cog me-2"></i>{% trans "Admin Panel" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Stats -->
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">{% trans "System Statistics" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="h4 mb-0 text-primary">{{ total_users }}</div>
+                            <small class="text-muted">{% trans "Users" %}</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="h4 mb-0 text-success">{{ total_companies }}</div>
+                            <small class="text-muted">{% trans "Companies" %}</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 mb-0 text-info">{{ total_categories }}</div>
+                            <small class="text-muted">{% trans "Categories" %}</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 mb-0 text-warning">{{ total_brands }}</div>
+                            <small class="text-muted">{% trans "Brands" %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page Footer -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="text-muted">{% trans "Last updated" %}: {% now "M d, Y H:i" %}</span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Asset Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            '{% trans "Available" %}',
+            '{% trans "Assigned" %}',
+            '{% trans "Maintenance" %}',
+            '{% trans "Retired" %}'
+        ],
+        datasets: [{
+            data: [
+                {{ available_assets }},
+                {{ assigned_assets }},
+                {{ maintenance_assets }},
+                {{ retired_assets }}
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#17a2b8',
+                '#ffc107',
+                '#6c757d'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            }
+        }
+    }
+});
+
+// Auto-refresh stats every 30 seconds
+setInterval(function() {
+    fetch('{% url "dashboard:quick_stats" %}')
+        .then(response => response.text())
+        .then(html => {
+            // Update could be implemented here for real-time updates
+            console.log('Stats refreshed');
+        })
+        .catch(error => console.error('Error refreshing stats:', error));
+}, 30000);
+</script>
+{% endblock %}

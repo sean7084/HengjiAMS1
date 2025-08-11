@@ -4,6 +4,8 @@ This module defines forms for authentication, user management, and profile handl
 Includes 2FA forms, multi-language support, and validation.
 """
 
+import secrets
+import string
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.utils.translation import gettext_lazy as _
@@ -74,13 +76,13 @@ class UserRegistrationForm(UserCreationForm):
         }),
         label=_('Last Name')
     )
-    role = forms.ChoiceField(
-        choices=User.UserRole.choices,
+    admin_role = forms.ChoiceField(
+        choices=User.AdminRole.choices,
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
-        label=_('Role'),
-        help_text=_('Select the user role and permissions level')
+        label=_('Administrator Role'),
+        help_text=_('Select the administrator role and permissions level')
     )
     phone_number = forms.CharField(
         max_length=17,
@@ -104,12 +106,35 @@ class UserRegistrationForm(UserCreationForm):
         initial='en'
     )
     
+    # Password generation options
+    use_random_password = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'id': 'use_random_password'
+        }),
+        label=_('Generate Random Password'),
+        help_text=_('Generate a secure random password instead of manual entry')
+    )
+    
+    must_change_password = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            'id': 'must_change_password'
+        }),
+        label=_('Require Password Change on First Login'),
+        help_text=_('User must change password when they first log in')
+    )
+    
     class Meta:
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name', 
-            'password1', 'password2', 'role', 'phone_number', 
-            'language_preference'
+            'password1', 'password2', 'admin_role', 'phone_number', 
+            'language_preference', 'use_random_password', 'must_change_password'
         )
     
     def __init__(self, *args, **kwargs):
@@ -132,15 +157,54 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['username'].label = _('Username')
         self.fields['password1'].label = _('Password')
         self.fields['password2'].label = _('Confirm Password')
+        
+        # Make password fields not required when using random password
+        self.fields['password1'].required = False
+        self.fields['password2'].required = False
+        
+        # Add help text for random password
+        self.fields['password1'].help_text = _('Leave blank to use random password')
+        self.fields['password2'].help_text = _('Leave blank to use random password')
+    
+    def generate_random_password(self, length=12):
+        """Generate a secure random password."""
+        # Include uppercase, lowercase, digits, and some safe special characters
+        characters = string.ascii_letters + string.digits + "!@#$%^&*"
+        return ''.join(secrets.choice(characters) for _ in range(length))
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        use_random_password = cleaned_data.get('use_random_password')
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if not use_random_password:
+            # If not using random password, require manual password entry
+            if not password1:
+                raise ValidationError(_('Password is required when not using random password generation.'))
+            if not password2:
+                raise ValidationError(_('Password confirmation is required when not using random password generation.'))
+            if password1 != password2:
+                raise ValidationError(_('Passwords do not match.'))
+        else:
+            # Generate random password
+            random_password = self.generate_random_password()
+            cleaned_data['password1'] = random_password
+            cleaned_data['password2'] = random_password
+            # Store the generated password for later use
+            self.generated_password = random_password
+        
+        return cleaned_data
     
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.role = self.cleaned_data['role']
+        user.admin_role = self.cleaned_data['admin_role']
         user.phone_number = self.cleaned_data['phone_number']
         user.language_preference = self.cleaned_data['language_preference']
+        user.must_change_password = self.cleaned_data['must_change_password']
         
         if commit:
             user.save()

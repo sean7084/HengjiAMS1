@@ -1,0 +1,133 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Audit Management" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-check"></i> {% trans "Audit Management" %}
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'audit:audit_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> {% trans "New Audit" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>{{ audit_count|default:0 }}</h3>
+                                    <p>{% trans "Total Audits" %}</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>{{ completed_audits|default:0 }}</h3>
+                                    <p>{% trans "Completed Audits" %}</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>{{ pending_audits|default:0 }}</h3>
+                                    <p>{% trans "Pending Audits" %}</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-danger">
+                                <div class="inner">
+                                    <h3>{{ overdue_audits|default:0 }}</h3>
+                                    <p>{% trans "Overdue Audits" %}</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title">{% trans "Recent Audits" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if audits %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>{% trans "Audit Name" %}</th>
+                                                <th>{% trans "Type" %}</th>
+                                                <th>{% trans "Status" %}</th>
+                                                <th>{% trans "Start Date" %}</th>
+                                                <th>{% trans "Actions" %}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for audit in audits %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'audit:audit_detail' audit.pk %}">
+                                                        {{ audit.name }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ audit.get_audit_type_display|default:audit.audit_type }}</td>
+                                                <td>
+                                                    <span class="badge {% if audit.status == 'completed' %}badge-success{% elif audit.status == 'in_progress' %}badge-warning{% else %}badge-secondary{% endif %}">
+                                                        {{ audit.get_status_display|default:audit.status }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ audit.start_date|date:"M d, Y" }}</td>
+                                                <td>
+                                                    <a href="{% url 'audit:audit_detail' audit.pk %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i> {% trans "View" %}
+                                                    </a>
+                                                    {% if audit.status != 'completed' %}
+                                                    <a href="{% url 'audit:audit_edit' audit.pk %}" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-edit"></i> {% trans "Edit" %}
+                                                    </a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-clipboard-check fa-3x mb-3"></i>
+                                    <h5>{% trans "No audits available" %}</h5>
+                                    <p>{% trans "Create your first audit to get started with asset auditing." %}</p>
+                                    <a href="{% url 'audit:audit_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> {% trans "Create Audit" %}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

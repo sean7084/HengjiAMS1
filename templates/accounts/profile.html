@@ -1,0 +1,110 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "User Profile" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Profile Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user"></i> {% trans "Profile Information" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3"><strong>{% trans "Username:" %}</strong></div>
+                        <div class="col-sm-9">{{ user.username }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3"><strong>{% trans "Full Name:" %}</strong></div>
+                        <div class="col-sm-9">{{ user.get_full_name|default:"-" }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3"><strong>{% trans "Email:" %}</strong></div>
+                        <div class="col-sm-9">{{ user.email|default:"-" }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3"><strong>{% trans "Role:" %}</strong></div>
+                        <div class="col-sm-9">{{ user.get_role_display|default:"-" }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3"><strong>{% trans "Company:" %}</strong></div>
+                        <div class="col-sm-9">{{ user.company.name|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Security Settings -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shield-alt"></i> {% trans "Security" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- 2FA Status -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong>{% trans "Two-Factor Authentication" %}</strong><br>
+                            <small class="text-muted">
+                                {% if user.two_factor_enabled %}
+                                    <i class="fas fa-check-circle text-success"></i> {% trans "Enabled" %}
+                                {% else %}
+                                    <i class="fas fa-times-circle text-danger"></i> {% trans "Disabled" %}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div>
+                            {% if user.two_factor_enabled %}
+                                <a href="{% url 'accounts:disable_2fa' %}" class="btn btn-outline-danger btn-sm">
+                                    {% trans "Disable" %}
+                                </a>
+                            {% else %}
+                                <a href="{% url 'accounts:setup_2fa' %}" class="btn btn-success btn-sm">
+                                    {% trans "Enable" %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Change Password -->
+                    <div class="d-grid">
+                        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-key"></i> {% trans "Change Password" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt"></i> {% trans "Quick Actions" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> {% trans "Edit Profile" %}
+                        </a>
+                        <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-cog"></i> {% trans "Settings" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

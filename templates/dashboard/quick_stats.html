@@ -1,0 +1,10 @@
+{% load i18n %}
+{
+    "total_assets": {{ stats.total_assets|default:0 }},
+    "active_assets": {{ stats.active_assets|default:0 }},
+    "inactive_assets": {{ stats.inactive_assets|default:0 }},
+    "total_users": {{ stats.total_users|default:0 }},
+    "active_users": {{ stats.active_users|default:0 }},
+    "total_companies": {{ stats.total_companies|default:0 }},
+    "recent_activities": {{ stats.recent_activities|default:0 }}
+}

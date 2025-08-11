@@ -1,0 +1,329 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% if object %}
+        {% trans "Edit Asset" %} - {{ object.name }}
+    {% else %}
+        {% trans "Add New Asset" %}
+    {% endif %}
+    - {{ block.super }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+    .required-field label::after {
+        content: " *";
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
+                    {% if object %}
+                        <li class="breadcrumb-item"><a href="{% url 'assets:asset_detail' object.pk %}">{{ object.asset_tag }}</a></li>
+                        <li class="breadcrumb-item active">{% trans "Edit" %}</li>
+                    {% else %}
+                        <li class="breadcrumb-item active">{% trans "Add New" %}</li>
+                    {% endif %}
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">
+                {% if object %}
+                    {% trans "Edit Asset" %}: {{ object.name }}
+                {% else %}
+                    {% trans "Add New Asset" %}
+                {% endif %}
+            </h1>
+        </div>
+        <div>
+            <a href="{% if object %}{% url 'assets:asset_detail' object.pk %}{% else %}{% url 'assets:asset_list' %}{% endif %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Cancel" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Asset Form -->
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-info-circle"></i> {% trans "Basic Information" %}
+            </h5>
+            <div class="row">
+                <div class="col-md-6 required-field">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 required-field">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }}</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.category.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="{{ form.brand.id_for_label }}" class="form-label">{{ form.brand.label }}</label>
+                    {{ form.brand }}
+                    {% if form.brand.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.brand.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.model.id_for_label }}" class="form-label">{{ form.model.label }}</label>
+                    {{ form.model }}
+                    {% if form.model.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.model.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.description.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Identification -->
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-tag"></i> {% trans "Identification" %}
+            </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="{{ form.serial_number.id_for_label }}" class="form-label">{{ form.serial_number.label }}</label>
+                    {{ form.serial_number }}
+                    {% if form.serial_number.help_text %}
+                        <div class="form-text">{{ form.serial_number.help_text }}</div>
+                    {% endif %}
+                    {% if form.serial_number.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.serial_number.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 required-field">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.status.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-map-marker-alt"></i> {% trans "Location" %}
+            </h5>
+            <div class="row">
+                <div class="col-md-12 required-field">
+                    <label for="{{ form.location.id_for_label }}" class="form-label">{{ form.location.label }}</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.location.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-dollar-sign"></i> {% trans "Financial Information" %}
+            </h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="{{ form.purchase_date.id_for_label }}" class="form-label">{{ form.purchase_date.label }}</label>
+                    {{ form.purchase_date }}
+                    {% if form.purchase_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.purchase_date.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.purchase_price.id_for_label }}" class="form-label">{{ form.purchase_price.label }}</label>
+                    {{ form.purchase_price }}
+                    {% if form.purchase_price.help_text %}
+                        <div class="form-text">{{ form.purchase_price.help_text }}</div>
+                    {% endif %}
+                    {% if form.purchase_price.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.purchase_price.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.supplier.id_for_label }}" class="form-label">{{ form.supplier.label }}</label>
+                    {{ form.supplier }}
+                    {% if form.supplier.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.supplier.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="{{ form.warranty_expiry.id_for_label }}" class="form-label">{{ form.warranty_expiry.label }}</label>
+                    {{ form.warranty_expiry }}
+                    {% if form.warranty_expiry.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.warranty_expiry.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="form-section">
+            <h5 class="mb-3">
+                <i class="fas fa-plus-circle"></i> {% trans "Additional Information" %}
+            </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="{{ form.image.id_for_label }}" class="form-label">{{ form.image.label }}</label>
+                    {{ form.image }}
+                    {% if object and object.image %}
+                        <div class="mt-2">
+                            <img src="{{ object.image.url }}" class="image-preview" alt="{% trans 'Current image' %}">
+                            <div class="form-text">{% trans "Current image - select a new file to replace" %}</div>
+                        </div>
+                    {% endif %}
+                    {% if form.image.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.image.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+                    <a href="{% if object %}{% url 'assets:asset_detail' object.pk %}{% else %}{% url 'assets:asset_list' %}{% endif %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> {% trans "Cancel" %}
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 
+                        {% if object %}
+                            {% trans "Update Asset" %}
+                        {% else %}
+                            {% trans "Create Asset" %}
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Bootstrap form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Image preview
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Remove existing preview
+                    const existingPreview = document.querySelector('.new-image-preview');
+                    if (existingPreview) {
+                        existingPreview.remove();
+                    }
+                    
+                    // Create new preview
+                    const preview = document.createElement('div');
+                    preview.className = 'new-image-preview mt-2';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" class="image-preview" alt="New image preview">
+                        <div class="form-text">{% trans "New image preview" %}</div>
+                    `;
+                    imageInput.parentNode.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -28,17 +28,21 @@ urlpatterns = [
 
 # Internationalized URLs
 urlpatterns += i18n_patterns(
-    # Home page - redirect to login for now
-    path('', RedirectView.as_view(url='/login/', permanent=False), name='home'),
+    # Dashboard URLs
+    path('dashboard/', include('dashboard.urls')),
+    
+    # Home page redirect to dashboard
+    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
     
     # Authentication URLs
     path('accounts/', include('accounts.urls')),
     
-    # Main application URLs (temporarily commented out until views are implemented)
-    # path('assets/', include('assets.urls')),
-    # path('companies/', include('companies.urls')),
-    # path('audit/', include('audit.urls')),
-    # path('reports/', include('reports.urls')),
+    # Main application URLs
+    path('assets/', include('assets.urls')),
+    path('companies/', include('companies.urls')),
+    path('audit/', include('audit.urls')),
+    path('reports/', include('reports.urls')),
+    path('users/', include('users.urls')),
     
     # Login/logout shortcuts
     path('login/', RedirectView.as_view(url='/accounts/login/', permanent=False)),

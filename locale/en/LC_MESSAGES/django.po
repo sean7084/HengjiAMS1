@@ -1,0 +1,506 @@
+# LANGUAGE translation of Django.
+# Copyright (C) 2025 HengJi AMS
+# This file is distributed under the same license as the Django package.
+
+msgid ""
+msgstr ""
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+# Dashboard
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Welcome"
+msgstr "Welcome"
+
+msgid "Total Assets"
+msgstr "Total Assets"
+
+msgid "Active Assets"
+msgstr "Active Assets"
+
+msgid "Users"
+msgstr "Users"
+
+msgid "Companies"
+msgstr "Companies"
+
+msgid "Recent Activities"
+msgstr "Recent Activities"
+
+msgid "Asset Status"
+msgstr "Asset Status"
+
+msgid "Monthly Trends"
+msgstr "Monthly Trends"
+
+# Navigation
+msgid "Home"
+msgstr "Home"
+
+msgid "Assets"
+msgstr "Assets"
+
+msgid "Audit"
+msgstr "Audit"
+
+msgid "Reports"
+msgstr "Reports"
+
+msgid "Administrators"
+msgstr "Administrators"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Logout"
+msgstr "Logout"
+
+# Authentication
+msgid "Login"
+msgstr "Login"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "First Name"
+msgstr "First Name"
+
+msgid "Last Name"
+msgstr "Last Name"
+
+# 2FA
+msgid "Two-Factor Authentication"
+msgstr "Two-Factor Authentication"
+
+msgid "Setup 2FA"
+msgstr "Setup 2FA"
+
+msgid "Disable 2FA"
+msgstr "Disable 2FA"
+
+msgid "QR Code"
+msgstr "QR Code"
+
+msgid "Backup Tokens"
+msgstr "Backup Tokens"
+
+# User Management
+msgid "User Management"
+msgstr "User Management"
+
+msgid "Create User"
+msgstr "Create User"
+
+msgid "Edit User"
+msgstr "Edit User"
+
+msgid "User Details"
+msgstr "User Details"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Role"
+msgstr "Role"
+
+# Company Management
+msgid "Company Management"
+msgstr "Company Management"
+
+msgid "Company List"
+msgstr "Company List"
+
+msgid "Company Details"
+msgstr "Company Details"
+
+msgid "Divisions"
+msgstr "Divisions"
+
+msgid "Locations"
+msgstr "Locations"
+
+msgid "Company Users"
+msgstr "Company Users"
+
+# Asset Management
+msgid "Asset Management"
+msgstr "Asset Management"
+
+msgid "Asset List"
+msgstr "Asset List"
+
+msgid "Asset Details"
+msgstr "Asset Details"
+
+msgid "Asset Type"
+msgstr "Asset Type"
+
+msgid "Serial Number"
+msgstr "Serial Number"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Location"
+msgstr "Location"
+
+msgid "Assigned User"
+msgstr "Assigned User"
+
+msgid "Administrators"
+msgstr "Administrators"
+
+msgid "Company Users"
+msgstr "Company Users"
+
+msgid "All Administrators"
+msgstr "All Administrators"
+
+msgid "Add Administrator"
+msgstr "Add Administrator"
+
+msgid "Admin Panel"
+msgstr "Admin Panel"
+
+msgid "Employee"
+msgstr "Employee"
+
+msgid "Manager"
+msgstr "Manager"
+
+msgid "Company Admin"
+msgstr "Company Admin"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Employee ID"
+msgstr "Employee ID"
+
+msgid "Department"
+msgstr "Department"
+
+msgid "Job Title"
+msgstr "Job Title"
+
+msgid "Hire Date"
+msgstr "Hire Date"
+
+msgid "Work Phone"
+msgstr "Work Phone"
+
+msgid "Work Email"
+msgstr "Work Email"
+
+msgid "Direct Reports"
+msgstr "Direct Reports"
+
+msgid "Company Start Date"
+msgstr "Company Start Date"
+
+msgid "End Date"
+msgstr "End Date"
+
+# Common actions
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Add"
+msgstr "Add"
+
+msgid "Create"
+msgstr "Create"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "View"
+msgstr "View"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Import"
+msgstr "Import"
+
+# Forms
+msgid "Required field"
+msgstr "Required field"
+
+msgid "This field is required"
+msgstr "This field is required"
+
+msgid "Invalid input"
+msgstr "Invalid input"
+
+# Status messages
+msgid "Successfully saved"
+msgstr "Successfully saved"
+
+msgid "Successfully deleted"
+msgstr "Successfully deleted"
+
+msgid "Successfully updated"
+msgstr "Successfully updated"
+
+msgid "Error occurred"
+msgstr "Error occurred"
+
+msgid "Permission denied"
+msgstr "Permission denied"
+
+msgid "Not found"
+msgstr "Not found"
+
+# Admin Roles
+msgid "Superadmin"
+msgstr "Superadmin"
+
+msgid "IT Specialist"
+msgstr "IT Specialist"
+
+msgid "Administrator Role"
+msgstr "Administrator Role"
+
+msgid "Managed Company"
+msgstr "Managed Company"
+
+msgid "Managed Divisions"
+msgstr "Managed Divisions"
+
+msgid "Managed Locations"
+msgstr "Managed Locations"
+
+msgid "Access Scope"
+msgstr "Access Scope"
+
+msgid "All companies and data"
+msgstr "All companies and data"
+
+msgid "Company: {company}"
+msgstr "Company: {company}"
+
+msgid "Division: {division}"
+msgstr "Division: {division}"
+
+msgid "Location: {location}"
+msgstr "Location: {location}"
+
+msgid "{count} divisions"
+msgstr "{count} divisions"
+
+msgid "{count} locations"
+msgstr "{count} locations"
+
+msgid "No admin access"
+msgstr "No admin access"
+
+# Navigation Menu Items
+msgid "All Assets"
+msgstr "All Assets"
+
+msgid "Add Asset"
+msgstr "Add Asset"
+
+msgid "Export Assets"
+msgstr "Export Assets"
+
+msgid "Manage Companies"
+msgstr "Manage Companies"
+
+msgid "Manage Divisions"
+msgstr "Manage Divisions"
+
+msgid "Manage Locations"
+msgstr "Manage Locations"
+
+msgid "Generate Reports"
+msgstr "Generate Reports"
+
+msgid "Asset Reports"
+msgstr "Asset Reports"
+
+msgid "Maintenance Reports"
+msgstr "Maintenance Reports"
+
+msgid "All Administrators"
+msgstr "All Administrators"
+
+msgid "Add Administrator"
+msgstr "Add Administrator"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "English"
+msgstr "English"
+
+msgid "中文"
+msgstr "中文"
+
+# Dashboard Items
+msgid "Available"
+msgstr "Available"
+
+msgid "Assigned"
+msgstr "Assigned"
+
+msgid "Maintenance Due"
+msgstr "Maintenance Due"
+
+msgid "Asset Status Distribution"
+msgstr "Asset Status Distribution"
+
+msgid "Top Asset Categories"
+msgstr "Top Asset Categories"
+
+msgid "No categories found"
+msgstr "No categories found"
+
+msgid "Recent Assets"
+msgstr "Recent Assets"
+
+msgid "View All"
+msgstr "View All"
+
+msgid "Asset Number"
+msgstr "Asset Number"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Category"
+msgstr "Category"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Date Added"
+msgstr "Date Added"
+
+msgid "Quick Actions"
+msgstr "Quick Actions"
+
+msgid "Add New Asset"
+msgstr "Add New Asset"
+
+msgid "Import Assets"
+msgstr "Import Assets"
+
+msgid "System Health"
+msgstr "System Health"
+
+msgid "All systems operational"
+msgstr "All systems operational"
+
+# Password Management
+msgid "Generate Random Password"
+msgstr "Generate Random Password"
+
+msgid "Generate a secure random password instead of manual entry"
+msgstr "Generate a secure random password instead of manual entry"
+
+msgid "Require Password Change on First Login"
+msgstr "Require Password Change on First Login"
+
+msgid "User must change password when they first log in"
+msgstr "User must change password when they first log in"
+
+msgid "Password has been generated for user"
+msgstr "Password has been generated for user"
+
+msgid "Generated Password"
+msgstr "Generated Password"
+
+msgid "Please save this password securely. It will not be shown again."
+msgstr "Please save this password securely. It will not be shown again."
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Confirm Password"
+msgstr "Confirm Password"
+
+msgid "Phone Number"
+msgstr "Phone Number"
+
+msgid "Phone Number (optional)"
+msgstr "Phone Number (optional)"
+
+msgid "Format: +1234567890"
+msgstr "Format: +1234567890"
+
+msgid "Language Preference"
+msgstr "Language Preference"
+
+msgid "Simplified Chinese"
+msgstr "Simplified Chinese"
+
+msgid "Select the administrator role and permissions level"
+msgstr "Select the administrator role and permissions level"
+
+msgid "Create New User"
+msgstr "Create New User"
+
+msgid "Back to Users"
+msgstr "Back to Users"
+
+msgid "User Information"
+msgstr "User Information"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Create User"
+msgstr "Create User"
+
+msgid "Are you sure you want to deactivate this user?"
+msgstr "Are you sure you want to deactivate this user?"
+
+msgid "Are you sure you want to activate this user?"
+msgstr "Are you sure you want to activate this user?"
+
+msgid "Deactivate"
+msgstr "Deactivate"
+
+msgid "Activate"
+msgstr "Activate"
+
+msgid "activated"
+msgstr "activated"
+
+msgid "deactivated"
+msgstr "deactivated"
+
+msgid "User {username} has been {status}."
+msgstr "User {username} has been {status}."

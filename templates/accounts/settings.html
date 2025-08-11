@@ -1,0 +1,105 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Account Settings" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-cog"></i> {% trans "Account Settings" %}
+                </h1>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back to Profile" %}
+                </a>
+            </div>
+
+            <!-- Settings Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-cog"></i> {% trans "Preferences" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- Language Preference -->
+                            {% if form.language_preference %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.language_preference.id_for_label }}" class="form-label">
+                                    {{ form.language_preference.label }}
+                                </label>
+                                {{ form.language_preference }}
+                                {% if form.language_preference.help_text %}
+                                <div class="form-text">{{ form.language_preference.help_text }}</div>
+                                {% endif %}
+                                {% if form.language_preference.errors %}
+                                <div class="text-danger">{{ form.language_preference.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Timezone -->
+                            {% if form.timezone %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.timezone.id_for_label }}" class="form-label">
+                                    {{ form.timezone.label }}
+                                </label>
+                                {{ form.timezone }}
+                                {% if form.timezone.help_text %}
+                                <div class="form-text">{{ form.timezone.help_text }}</div>
+                                {% endif %}
+                                {% if form.timezone.errors %}
+                                <div class="text-danger">{{ form.timezone.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Notifications -->
+                        {% if form.email_notifications %}
+                        <div class="mb-3">
+                            <h6>{% trans "Email Notifications" %}</h6>
+                            <div class="form-check">
+                                {{ form.email_notifications }}
+                                <label class="form-check-label" for="{{ form.email_notifications.id_for_label }}">
+                                    {{ form.email_notifications.label }}
+                                </label>
+                            </div>
+                            {% if form.email_notifications.help_text %}
+                            <div class="form-text">{{ form.email_notifications.help_text }}</div>
+                            {% endif %}
+                            {% if form.email_notifications.errors %}
+                            <div class="text-danger">{{ form.email_notifications.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Settings" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

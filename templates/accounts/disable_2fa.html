@@ -1,0 +1,48 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Disable Two-Factor Authentication" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="h3 text-warning">{% trans "Disable Two-Factor Authentication" %}</h1>
+                <p class="text-muted">{% trans "This will reduce your account security" %}</p>
+            </div>
+
+            <!-- Warning Card -->
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> {% trans "Security Warning" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "Disabling two-factor authentication will make your account less secure." %}</p>
+                    <p class="mb-0">{% trans "Are you sure you want to continue?" %}</p>
+                </div>
+            </div>
+
+            <!-- Confirmation Form -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-times"></i> {% trans "Yes, Disable 2FA" %}
+                            </button>
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
