@@ -1,0 +1,95 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% if object %}{% trans "Edit Brand" %} - {{ object.name }}{% else %}{% trans "Add Brand" %}{% endif %} - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'assets:brands_models' %}">{% trans "Brands & Models" %}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'assets:brand_list' %}">{% trans "Brands" %}</a></li>
+                    {% if object %}
+                        <li class="breadcrumb-item active">{% trans "Edit" %}</li>
+                    {% else %}
+                        <li class="breadcrumb-item active">{% trans "Add New" %}</li>
+                    {% endif %}
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">
+                {% if object %}{% trans "Edit Brand" %}{% else %}{% trans "Add New Brand" %}{% endif %}
+            </h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="text-danger">{{ form.name.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.code.id_for_label }}" class="form-label">{{ form.code.label }} <span class="text-danger">*</span></label>
+                                {{ form.code }}
+                                {% if form.code.help_text %}<div class="form-text">{{ form.code.help_text }}</div>{% endif %}
+                                {% if form.code.errors %}<div class="text-danger">{{ form.code.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}<div class="text-danger">{{ form.description.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.website.id_for_label }}" class="form-label">{{ form.website.label }}</label>
+                            {{ form.website }}
+                            {% if form.website.errors %}<div class="text-danger">{{ form.website.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.support_email.id_for_label }}" class="form-label">{{ form.support_email.label }}</label>
+                                {{ form.support_email }}
+                                {% if form.support_email.errors %}<div class="text-danger">{{ form.support_email.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.support_phone.id_for_label }}" class="form-label">{{ form.support_phone.label }}</label>
+                                {{ form.support_phone }}
+                                {% if form.support_phone.errors %}<div class="text-danger">{{ form.support_phone.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'assets:brand_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if object %}{% trans "Update Brand" %}{% else %}{% trans "Create Brand" %}{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

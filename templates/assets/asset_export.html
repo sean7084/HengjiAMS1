@@ -1,0 +1,320 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Export Assets" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .export-section {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .filter-section {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .format-option {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+    .format-option:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    .format-option input[type="radio"]:checked + label .format-option {
+        border-color: #007bff;
+        background-color: #e3f2fd;
+    }
+    .field-checkbox {
+        margin-bottom: 0.5rem;
+    }
+    .preview-stats {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
+                    <li class="breadcrumb-item active">{% trans "Export" %}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">{% trans "Export Assets" %}</h1>
+            <p class="text-muted">{% trans "Configure filters and export format for your asset data" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'assets:asset_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Assets" %}
+            </a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Export Configuration -->
+            <div class="col-lg-8">
+                <!-- Export Format -->
+                <div class="export-section">
+                    <h5 class="mb-3">
+                        <i class="fas fa-file-export text-primary"></i>
+                        {% trans "Export Format" %}
+                    </h5>
+                    <div class="row">
+                        {% for choice in form.export_format %}
+                        <div class="col-md-4">
+                            <div class="format-option">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}" class="form-check-label ms-2">
+                                    <strong>{{ choice.choice_label }}</strong><br>
+                                    <small class="text-muted">
+                                        {% if choice.data.value == 'csv' %}
+                                            {% trans "Best for spreadsheet applications" %}
+                                        {% elif choice.data.value == 'excel' %}
+                                            {% trans "Native Excel format with formatting" %}
+                                        {% elif choice.data.value == 'pdf' %}
+                                            {% trans "Printable report format" %}
+                                        {% endif %}
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-section">
+                    <h5 class="mb-3">
+                        <i class="fas fa-filter text-success"></i>
+                        {% trans "Filters" %}
+                    </h5>
+                    
+                    <div class="row">
+                        <!-- Status Filter -->
+                        <div class="col-md-6 mb-4">
+                            <h6>{{ form.status.label }}</h6>
+                            <div class="row">
+                                {% for choice in form.status %}
+                                <div class="col-sm-6 field-checkbox">
+                                    {{ choice.tag }}
+                                    <label for="{{ choice.id_for_label }}" class="form-check-label ms-2">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">{% trans "Leave empty to include all statuses" %}</small>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="col-md-6 mb-4">
+                            <h6>{{ form.category.label }}</h6>
+                            <div style="max-height: 150px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px;">
+                                {% for choice in form.category %}
+                                <div class="field-checkbox">
+                                    {{ choice.tag }}
+                                    <label for="{{ choice.id_for_label }}" class="form-check-label ms-2">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                                {% if not form.category %}
+                                <small class="text-muted">{% trans "No categories available" %}</small>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{% trans "Leave empty to include all categories" %}</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Brand Filter -->
+                        <div class="col-md-6 mb-4">
+                            <h6>{{ form.brand.label }}</h6>
+                            <div style="max-height: 150px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px;">
+                                {% for choice in form.brand %}
+                                <div class="field-checkbox">
+                                    {{ choice.tag }}
+                                    <label for="{{ choice.id_for_label }}" class="form-check-label ms-2">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                                {% if not form.brand %}
+                                <small class="text-muted">{% trans "No brands available" %}</small>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{% trans "Leave empty to include all brands" %}</small>
+                        </div>
+
+                        <!-- Date Filters -->
+                        <div class="col-md-6 mb-4">
+                            <h6>{% trans "Date Filters" %}</h6>
+                            <div class="row">
+                                <div class="col-sm-6 mb-2">
+                                    <label for="{{ form.created_date_from.id_for_label }}" class="form-label">{{ form.created_date_from.label }}</label>
+                                    {{ form.created_date_from }}
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="{{ form.created_date_to.id_for_label }}" class="form-label">{{ form.created_date_to.label }}</label>
+                                    {{ form.created_date_to }}
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="{{ form.purchase_date_from.id_for_label }}" class="form-label">{{ form.purchase_date_from.label }}</label>
+                                    {{ form.purchase_date_from }}
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label for="{{ form.purchase_date_to.id_for_label }}" class="form-label">{{ form.purchase_date_to.label }}</label>
+                                    {{ form.purchase_date_to }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Field Selection -->
+                <div class="filter-section">
+                    <h5 class="mb-3">
+                        <i class="fas fa-columns text-info"></i>
+                        {{ form.include_fields.label }}
+                    </h5>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-2" id="selectAllFields">
+                                {% trans "Select All" %}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllFields">
+                                {% trans "Clear All" %}
+                            </button>
+                        </div>
+                        {% for choice in form.include_fields %}
+                        <div class="col-md-4 col-sm-6 field-checkbox">
+                            {{ choice.tag }}
+                            <label for="{{ choice.id_for_label }}" class="form-check-label ms-2">
+                                {{ choice.choice_label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Preview/Stats -->
+            <div class="col-lg-4">
+                <div class="preview-stats mb-4">
+                    <i class="fas fa-database fa-2x mb-3"></i>
+                    <h5>{% trans "Export Preview" %}</h5>
+                    <div class="h3 mb-2">{{ total_assets }}</div>
+                    <p class="mb-0">{% trans "Total Assets Available" %}</p>
+                </div>
+
+                <!-- Export Actions -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="card-title">{% trans "Ready to Export?" %}</h6>
+                        <p class="text-muted small mb-3">
+                            {% trans "Review your filters and field selections, then click export to generate your file." %}
+                        </p>
+                        
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="fas fa-download"></i>
+                            {% trans "Generate Export" %}
+                        </button>
+                        
+                        <hr>
+                        
+                        <h6 class="mt-3">{% trans "Quick Export Options" %}</h6>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'assets:asset_export_csv' %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-file-csv"></i> {% trans "Simple CSV Export" %}
+                            </a>
+                        </div>
+                        
+                        <hr>
+                        
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            {% trans "Large exports may take a few moments to generate." %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select/Clear all fields functionality
+    const selectAllBtn = document.getElementById('selectAllFields');
+    const clearAllBtn = document.getElementById('clearAllFields');
+    const fieldCheckboxes = document.querySelectorAll('input[name="include_fields"]');
+    
+    selectAllBtn.addEventListener('click', function() {
+        fieldCheckboxes.forEach(checkbox => checkbox.checked = true);
+    });
+    
+    clearAllBtn.addEventListener('click', function() {
+        fieldCheckboxes.forEach(checkbox => checkbox.checked = false);
+    });
+    
+    // Format selection styling
+    const formatRadios = document.querySelectorAll('input[name="export_format"]');
+    formatRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Remove active styling from all format options
+            document.querySelectorAll('.format-option').forEach(option => {
+                option.classList.remove('border-primary', 'bg-light');
+            });
+            
+            // Add active styling to selected option
+            if (this.checked) {
+                this.closest('.format-option').classList.add('border-primary', 'bg-light');
+            }
+        });
+        
+        // Set initial state
+        if (radio.checked) {
+            radio.closest('.format-option').classList.add('border-primary', 'bg-light');
+        }
+    });
+    
+    // Form submission loading state
+    document.querySelector('form').addEventListener('submit', function() {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {% trans "Generating..." %}';
+        
+        // Re-enable after 10 seconds as fallback
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }, 10000);
+    });
+});
+</script>
+{% endblock %}

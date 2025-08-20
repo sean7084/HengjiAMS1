@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 
-{% block title %}{{ asset.name }} - {% trans "Asset Details" %} - {{ block.super }}{% endblock %}
+{% block title %}{{ asset.asset_number }} - {% trans "Asset Details" %} - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -15,10 +15,15 @@
         font-size: 0.875rem;
         padding: 0.5rem 1rem;
     }
-    .status-available { background-color: #28a745; }
-    .status-assigned { background-color: #007bff; }
+    .status-available { background-color: #28a745; color: white; }
+    .status-assigned { background-color: #007bff; color: white; }
+    .status-in_use { background-color: #17a2b8; color: white; }
     .status-maintenance { background-color: #ffc107; color: #000; }
-    .status-retired { background-color: #6c757d; }
+    .status-repair { background-color: #fd7e14; color: white; }
+    .status-retired { background-color: #6c757d; color: white; }
+    .status-disposed { background-color: #dc3545; color: white; }
+    .status-lost { background-color: #e83e8c; color: white; }
+    .status-stolen { background-color: #6f42c1; color: white; }
     .info-card {
         border-left: 4px solid #007bff;
     }
@@ -52,7 +57,7 @@
                     <li class="breadcrumb-item active">{{ asset.asset_tag }}</li>
                 </ol>
             </nav>
-            <h1 class="h3 mb-1">{{ asset.name }}</h1>
+            <h1 class="h3 mb-1">{{ asset.asset_number }}</h1>
             <div>
                 <span class="badge status-{{ asset.status }} me-2">{{ asset.get_status_display }}</span>
                 <span class="text-muted">{% trans "Asset Tag:" %} {{ asset.asset_tag }}</span>
@@ -98,7 +103,7 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <td class="fw-bold">{% trans "Name:" %}</td>
-                                    <td>{{ asset.name }}</td>
+                                    <td>{{ asset.asset_number }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Asset Tag:" %}</td>
@@ -192,7 +197,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h6 class="mb-1">
-                                    {% if assignment.returned_at %}
+                                    {% if assignment.returned_date %}
                                         {% trans "Returned from" %} {{ assignment.assigned_to.get_display_name }}
                                     {% else %}
                                         {% trans "Assigned to" %} {{ assignment.assigned_to.get_display_name }}
@@ -200,9 +205,9 @@
                                 </h6>
                                 <p class="text-muted small mb-1">
                                     {% trans "Assigned by" %} {{ assignment.assigned_by.get_display_name }}
-                                    {% trans "on" %} {{ assignment.assigned_at|date:"M d, Y" }}
-                                    {% if assignment.returned_at %}
-                                        | {% trans "Returned on" %} {{ assignment.returned_at|date:"M d, Y" }}
+                                    {% trans "on" %} {{ assignment.assigned_date|date:"M d, Y" }}
+                                    {% if assignment.returned_date %}
+                                        | {% trans "Returned on" %} {{ assignment.returned_date|date:"M d, Y" }}
                                     {% endif %}
                                 </p>
                                 {% if assignment.assignment_notes %}
@@ -210,7 +215,7 @@
                                 {% endif %}
                             </div>
                             <small class="text-muted">
-                                {% if assignment.returned_at %}
+                                {% if assignment.returned_date %}
                                     <i class="fas fa-check-circle text-success"></i> {% trans "Returned" %}
                                 {% else %}
                                     <i class="fas fa-clock text-warning"></i> {% trans "Active" %}
@@ -238,10 +243,20 @@
                             <div>
                                 <h6 class="mb-1">{{ record.get_maintenance_type_display }}</h6>
                                 <p class="text-muted small mb-1">
-                                    {{ record.maintenance_date|date:"M d, Y" }} | 
-                                    {% trans "By" %} {{ record.performed_by }}
-                                    {% if record.cost %}
-                                        | {% trans "Cost:" %} ${{ record.cost|floatformat:2 }}
+                                    {% if record.status == 'completed' and record.completed_date %}
+                                        {% trans "Completed:" %} {{ record.completed_date|date:"M d, Y" }}
+                                    {% elif record.status == 'in_progress' and record.started_date %}
+                                        {% trans "Started:" %} {{ record.started_date|date:"M d, Y" }}
+                                    {% else %}
+                                        {% trans "Scheduled:" %} {{ record.scheduled_date|date:"M d, Y" }}
+                                    {% endif %}
+                                    {% if record.assigned_to %}
+                                        | {% trans "Assigned to" %} {{ record.assigned_to.get_display_name }}
+                                    {% endif %}
+                                    {% if record.actual_cost %}
+                                        | {% trans "Cost:" %} ${{ record.actual_cost|floatformat:2 }}
+                                    {% elif record.estimated_cost %}
+                                        | {% trans "Estimated:" %} ${{ record.estimated_cost|floatformat:2 }}
                                     {% endif %}
                                 </p>
                                 <p class="text-muted small">{{ record.description }}</p>
@@ -264,7 +279,7 @@
                 </div>
                 <div class="card-body text-center">
                     {% if asset.image %}
-                        <img src="{{ asset.image.url }}" class="asset-image" alt="{{ asset.name }}">
+                        <img src="{{ asset.image.url }}" class="asset-image" alt="{{ asset.asset_number }}">
                     {% else %}
                         <div class="d-flex align-items-center justify-content-center" style="height: 300px; background: #f8f9fa; border-radius: 8px;">
                             <div class="text-center">
@@ -361,7 +376,7 @@ function printAssetLabel() {
         <body>
             <div class="label">
                 <div class="asset-tag">{{ asset.asset_tag }}</div>
-                <div class="asset-name">{{ asset.name }}</div>
+                <div class="asset-name">{{ asset.asset_number }}</div>
                 <div class="details">
                     {% if asset.category %}Category: {{ asset.category.name }}<br>{% endif %}
                     {% if asset.location %}Location: {{ asset.location.name }}<br>{% endif %}

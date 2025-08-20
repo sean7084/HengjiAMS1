@@ -1,0 +1,290 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        border-left: 4px solid #007bff;
+        padding-left: 1rem;
+        margin-bottom: 2rem;
+    }
+    .form-section h5 {
+        color: #007bff;
+        margin-bottom: 1rem;
+    }
+    .required-field {
+        color: #dc3545;
+    }
+    .form-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-check"></i> {{ title }}
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'audit:assetaudit_list' %}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-arrow-left"></i> {% trans "Back to List" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle"></i> {% trans "Basic Information" %}</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.audit_number.id_for_label }}" class="form-label">
+                                            {% trans "Audit Number" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.audit_number }}
+                                        {% if form.audit_number.help_text %}
+                                            <div class="form-help">{{ form.audit_number.help_text }}</div>
+                                        {% endif %}
+                                        {% if form.audit_number.errors %}
+                                            <div class="text-danger">{{ form.audit_number.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.audit_type.id_for_label }}" class="form-label">
+                                            {% trans "Audit Type" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.audit_type }}
+                                        {% if form.audit_type.errors %}
+                                            <div class="text-danger">{{ form.audit_type.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                                            {% trans "Audit Name" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.name }}
+                                        {% if form.name.help_text %}
+                                            <div class="form-help">{{ form.name.help_text }}</div>
+                                        {% endif %}
+                                        {% if form.name.errors %}
+                                            <div class="text-danger">{{ form.name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                                            {% trans "Description" %}
+                                        </label>
+                                        {{ form.description }}
+                                        {% if form.description.help_text %}
+                                            <div class="form-help">{{ form.description.help_text }}</div>
+                                        {% endif %}
+                                        {% if form.description.errors %}
+                                            <div class="text-danger">{{ form.description.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scope Configuration -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-building"></i> {% trans "Audit Scope" %}</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.company.id_for_label }}" class="form-label">
+                                            {% trans "Company" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.company }}
+                                        {% if form.company.errors %}
+                                            <div class="text-danger">{{ form.company.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.divisions.id_for_label }}" class="form-label">
+                                            {% trans "Divisions" %}
+                                        </label>
+                                        {{ form.divisions }}
+                                        <div class="form-help">{% trans "Leave empty to include all divisions" %}</div>
+                                        {% if form.divisions.errors %}
+                                            <div class="text-danger">{{ form.divisions.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.locations.id_for_label }}" class="form-label">
+                                            {% trans "Locations" %}
+                                        </label>
+                                        {{ form.locations }}
+                                        <div class="form-help">{% trans "Leave empty to include all locations" %}</div>
+                                        {% if form.locations.errors %}
+                                            <div class="text-danger">{{ form.locations.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.categories.id_for_label }}" class="form-label">
+                                            {% trans "Asset Categories" %}
+                                        </label>
+                                        {{ form.categories }}
+                                        <div class="form-help">{% trans "Leave empty to include all categories" %}</div>
+                                        {% if form.categories.errors %}
+                                            <div class="text-danger">{{ form.categories.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auditor Assignment -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-users"></i> {% trans "Auditor Assignment" %}</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.primary_auditor.id_for_label }}" class="form-label">
+                                            {% trans "Primary Auditor" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.primary_auditor }}
+                                        {% if form.primary_auditor.errors %}
+                                            <div class="text-danger">{{ form.primary_auditor.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.auditors.id_for_label }}" class="form-label">
+                                            {% trans "Additional Auditors" %}
+                                        </label>
+                                        {{ form.auditors }}
+                                        <div class="form-help">{% trans "Hold Ctrl to select multiple users" %}</div>
+                                        {% if form.auditors.errors %}
+                                            <div class="text-danger">{{ form.auditors.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scheduling -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-calendar"></i> {% trans "Audit Schedule" %}</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.planned_start_date.id_for_label }}" class="form-label">
+                                            {% trans "Planned Start Date" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.planned_start_date }}
+                                        {% if form.planned_start_date.errors %}
+                                            <div class="text-danger">{{ form.planned_start_date.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.planned_end_date.id_for_label }}" class="form-label">
+                                            {% trans "Planned End Date" %} <span class="required-field">*</span>
+                                        </label>
+                                        {{ form.planned_end_date }}
+                                        {% if form.planned_end_date.errors %}
+                                            <div class="text-danger">{{ form.planned_end_date.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'audit:assetaudit_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {{ submit_text|default:_("Save") }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Dynamic loading of divisions and locations based on company selection
+    $('#{{ form.company.id_for_label }}').change(function() {
+        const companyId = $(this).val();
+        if (companyId) {
+            // Update divisions
+            $.get(`/api/companies/${companyId}/divisions/`, function(data) {
+                const divisionsSelect = $('#{{ form.divisions.id_for_label }}');
+                divisionsSelect.empty();
+                data.forEach(function(division) {
+                    divisionsSelect.append(`<option value="${division.id}">${division.name}</option>`);
+                });
+            });
+            
+            // Update locations
+            $.get(`/api/companies/${companyId}/locations/`, function(data) {
+                const locationsSelect = $('#{{ form.locations.id_for_label }}');
+                locationsSelect.empty();
+                data.forEach(function(location) {
+                    locationsSelect.append(`<option value="${location.id}">${location.name}</option>`);
+                });
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

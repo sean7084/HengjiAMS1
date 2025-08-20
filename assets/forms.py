@@ -5,9 +5,12 @@ Provides forms for creating, updating, and searching assets.
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+import csv
+import io
 
 from .models import Asset, AssetCategory, AssetBrand, AssetAssignment
-from companies.models import Location, Division
+from companies.models import Location, Division, Company
 
 User = get_user_model()
 
@@ -18,15 +21,15 @@ class AssetForm(forms.ModelForm):
     class Meta:
         model = Asset
         fields = [
-            'name', 'category', 'brand', 'model', 'serial_number',
+            'asset_number', 'category', 'brand', 'model', 'serial_number',
             'description', 'current_location', 'status', 'purchase_date',
             'purchase_price', 'warranty_provider', 'warranty_end_date',
             'notes', 'photo'
         ]
         widgets = {
-            'name': forms.TextInput(attrs={
+            'asset_number': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': _('Enter asset name')
+                'placeholder': _('Leave blank for auto-generation')
             }),
             'model': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -84,12 +87,15 @@ class AssetForm(forms.ModelForm):
             # Add company filter if needed
             pass
         
-        # Make fields required
-        self.fields['name'].required = True
+        # Make required fields
         self.fields['category'].required = True
         self.fields['current_location'].required = True
         
+        # Asset number is optional (auto-generated if blank)
+        self.fields['asset_number'].required = False
+        
         # Add help text
+        self.fields['asset_number'].help_text = _('Leave blank for auto-generation based on company and category')
         self.fields['serial_number'].help_text = _('Leave blank for auto-generation')
         self.fields['purchase_price'].help_text = _('Purchase price in company currency')
 
@@ -101,7 +107,7 @@ class AssetSearchForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': _('Search by asset number, name, or serial number'),
+            'placeholder': _('Search by asset number or serial number'),
             'autofocus': True
         })
     )
@@ -123,8 +129,6 @@ class AssetSearchForm(forms.Form):
         choices=[
             ('-created_at', _('Newest First')),
             ('created_at', _('Oldest First')),
-            ('name', _('Name A-Z')),
-            ('-name', _('Name Z-A')),
             ('asset_number', _('Asset Number A-Z')),
             ('-asset_number', _('Asset Number Z-A')),
             ('status', _('Status')),
@@ -285,7 +289,7 @@ class AssetMaintenanceForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
     
-    maintenance_date = forms.DateField(
+    scheduled_date = forms.DateField(
         widget=forms.DateInput(attrs={
             'class': 'form-control',
             'type': 'date'
@@ -300,7 +304,7 @@ class AssetMaintenanceForm(forms.Form):
         })
     )
     
-    cost = forms.DecimalField(
+    estimated_cost = forms.DecimalField(
         required=False,
         max_digits=10,
         decimal_places=2,
@@ -311,7 +315,7 @@ class AssetMaintenanceForm(forms.Form):
         })
     )
     
-    performed_by = forms.CharField(
+    assigned_to = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': _('Technician or company name')
@@ -335,3 +339,278 @@ class AssetMaintenanceForm(forms.Form):
             'placeholder': _('Additional notes')
         })
     )
+
+
+class AssetImportForm(forms.Form):
+    """
+    Form for importing assets from CSV or Excel files.
+    Supports bulk asset creation with validation and error reporting.
+    """
+    
+    # File upload field
+    file = forms.FileField(
+        label=_('Import File'),
+        help_text=_('Upload CSV or Excel file (.csv, .xlsx) containing asset data'),
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.csv,.xlsx,.xls'
+        })
+    )
+    
+    # Company assignment for all imported assets
+    company = forms.ModelChoiceField(
+        queryset=Company.objects.all(),
+        label=_('Default Company'),
+        help_text=_('Company to assign all imported assets to (can be overridden in file)'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    # Asset number generation mode
+    ASSET_NUMBER_CHOICES = [
+        ('auto', _('Auto-generate asset numbers')),
+        ('from_file', _('Use asset numbers from file')),
+        ('prefix', _('Add prefix to existing numbers')),
+    ]
+    
+    asset_number_mode = forms.ChoiceField(
+        choices=ASSET_NUMBER_CHOICES,
+        initial='auto',
+        label=_('Asset Number Generation'),
+        widget=forms.RadioSelect()
+    )
+    
+    # Prefix for asset numbers (when using prefix mode)
+    asset_number_prefix = forms.CharField(
+        max_length=10,
+        required=False,
+        label=_('Asset Number Prefix'),
+        help_text=_('Prefix to add to asset numbers (e.g., "ACME-")'),
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': _('ACME-')
+        })
+    )
+    
+    # Options for handling duplicate assets
+    DUPLICATE_CHOICES = [
+        ('skip', _('Skip duplicates (recommended)')),
+        ('update', _('Update existing assets')),
+        ('create_new', _('Create new assets with different numbers')),
+    ]
+    
+    duplicate_handling = forms.ChoiceField(
+        choices=DUPLICATE_CHOICES,
+        initial='skip',
+        label=_('Duplicate Handling'),
+        help_text=_('How to handle assets that already exist (based on serial number)'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    # Validation options
+    validate_only = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=_('Validation Only'),
+        help_text=_('Check this to validate the file without importing (preview mode)'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    def __init__(self, *args, **kwargs):
+        """Initialize form with user-specific company filtering."""
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filter companies based on user access
+        if self.user and not self.user.is_superuser:
+            accessible_companies = self.user.get_accessible_companies()
+            self.fields['company'].queryset = accessible_companies
+        
+        # Set default company if user has only one accessible company
+        if self.user and hasattr(self.user, 'company') and self.user.company:
+            self.fields['company'].initial = self.user.company
+    
+    def clean_file(self):
+        """Validate uploaded file format and size."""
+        file = self.cleaned_data.get('file')
+        if not file:
+            return file
+        
+        # Check file size (limit to 10MB)
+        if file.size > 10 * 1024 * 1024:
+            raise ValidationError(_('File size must be less than 10MB'))
+        
+        # Check file extension
+        file_extension = file.name.lower().split('.')[-1]
+        allowed_extensions = ['csv', 'xlsx', 'xls']
+        
+        if file_extension not in allowed_extensions:
+            raise ValidationError(
+                _('Invalid file format. Please upload CSV (.csv) or Excel (.xlsx, .xls) files only.')
+            )
+        
+        return file
+    
+    def clean(self):
+        """Additional form validation."""
+        cleaned_data = super().clean()
+        asset_number_mode = cleaned_data.get('asset_number_mode')
+        asset_number_prefix = cleaned_data.get('asset_number_prefix')
+        
+        # Validate prefix is provided when prefix mode is selected
+        if asset_number_mode == 'prefix' and not asset_number_prefix:
+            raise ValidationError({
+                'asset_number_prefix': _('Prefix is required when using prefix mode')
+            })
+        
+        return cleaned_data
+
+
+class AssetExportForm(forms.Form):
+    """Form for asset export with filters and file format selection."""
+    
+    EXPORT_FORMAT_CHOICES = [
+        ('csv', _('CSV (Comma Separated Values)')),
+        ('excel', _('Excel Workbook (.xlsx)')),
+        ('pdf', _('PDF Report')),
+    ]
+    
+    # File format selection
+    export_format = forms.ChoiceField(
+        choices=EXPORT_FORMAT_CHOICES,
+        initial='csv',
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        label=_('Export Format')
+    )
+    
+    # Filter options
+    status = forms.MultipleChoiceField(
+        choices=[],  # Will be populated in __init__
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        label=_('Status Filter')
+    )
+    
+    category = forms.ModelMultipleChoiceField(
+        queryset=AssetCategory.objects.none(),  # Will be populated in __init__
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        label=_('Category Filter')
+    )
+    
+    brand = forms.ModelMultipleChoiceField(
+        queryset=AssetBrand.objects.none(),  # Will be populated in __init__
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        label=_('Brand Filter')
+    )
+    
+    # Date range filters
+    created_date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        }),
+        label=_('Created Date From')
+    )
+    
+    created_date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        }),
+        label=_('Created Date To')
+    )
+    
+    purchase_date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        }),
+        label=_('Purchase Date From')
+    )
+    
+    purchase_date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        }),
+        label=_('Purchase Date To')
+    )
+    
+    # Field selection
+    include_fields = forms.MultipleChoiceField(
+        choices=[
+            ('asset_number', _('Asset Number')),
+            ('category', _('Category')),
+            ('brand', _('Brand')),
+            ('model', _('Model')),
+            ('serial_number', _('Serial Number')),
+            ('description', _('Description')),
+            ('status', _('Status')),
+            ('current_location', _('Current Location')),
+            ('assigned_to', _('Assigned To')),
+            ('purchase_date', _('Purchase Date')),
+            ('purchase_price', _('Purchase Price')),
+            ('warranty_end_date', _('Warranty End Date')),
+            ('created_at', _('Created At')),
+            ('updated_at', _('Updated At')),
+        ],
+        initial=[
+            'asset_number', 'category', 'brand', 'model', 'serial_number',
+            'status', 'current_location', 'assigned_to', 'purchase_date'
+        ],
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        label=_('Fields to Include')
+    )
+    
+    def __init__(self, user=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Populate status choices from Asset model
+        from .models import Asset
+        self.fields['status'].choices = Asset.AssetStatus.choices
+        
+        if user and user.company:
+            # Filter categories and brands by user's company
+            self.fields['category'].queryset = AssetCategory.objects.filter(
+                is_active=True
+            ).order_by('name')
+            
+            self.fields['brand'].queryset = AssetBrand.objects.filter(
+                is_active=True
+            ).order_by('name')
+    
+    def get_filtered_queryset(self, base_queryset):
+        """Apply filters to the queryset based on form data."""
+        cleaned_data = self.cleaned_data
+        
+        # Status filter
+        if cleaned_data.get('status'):
+            base_queryset = base_queryset.filter(status__in=cleaned_data['status'])
+        
+        # Category filter
+        if cleaned_data.get('category'):
+            base_queryset = base_queryset.filter(category__in=cleaned_data['category'])
+        
+        # Brand filter
+        if cleaned_data.get('brand'):
+            base_queryset = base_queryset.filter(brand__in=cleaned_data['brand'])
+        
+        # Date range filters
+        if cleaned_data.get('created_date_from'):
+            base_queryset = base_queryset.filter(created_at__date__gte=cleaned_data['created_date_from'])
+        
+        if cleaned_data.get('created_date_to'):
+            base_queryset = base_queryset.filter(created_at__date__lte=cleaned_data['created_date_to'])
+        
+        if cleaned_data.get('purchase_date_from'):
+            base_queryset = base_queryset.filter(purchase_date__gte=cleaned_data['purchase_date_from'])
+        
+        if cleaned_data.get('purchase_date_to'):
+            base_queryset = base_queryset.filter(purchase_date__lte=cleaned_data['purchase_date_to'])
+        
+        return base_queryset

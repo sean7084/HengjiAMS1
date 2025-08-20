@@ -155,7 +155,7 @@ class Command(BaseCommand):
                     asset.save()
 
                 created_count += 1
-                self.stdout.write(f'Created asset: {asset.name} ({asset.serial_number})')
+                self.stdout.write(f'Created asset: {asset.asset_number} ({asset.serial_number})')
 
             except Exception as e:
                 self.stdout.write(

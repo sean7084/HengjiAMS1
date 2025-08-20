@@ -17,8 +17,7 @@ class User(AbstractUser):
     # Administrator role choices
     class AdminRole(models.TextChoices):
         SUPERADMIN = 'superadmin', _('Superadmin')
-        MANAGER = 'manager', _('Manager')
-        IT_SPECIALIST = 'it_specialist', _('IT Specialist')
+        IT_ADMINISTRATOR = 'it_administrator', _('IT Administrator')
         VIEWER = 'viewer', _('Viewer')
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -128,24 +127,24 @@ class User(AbstractUser):
     )
     
     # Administrator access control
-    # For Manager role: company-wide access
+    # For IT Administrator role: company and/or division access
     managed_company = models.ForeignKey(
         'companies.Company',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='managers',
+        related_name='it_administrators',
         verbose_name=_('Managed Company'),
-        help_text=_('Company this manager has access to (for Manager role)')
+        help_text=_('Company this IT administrator has access to')
     )
     
-    # For IT Specialist role: division-specific access
+    # For IT Administrator role: division-specific access
     managed_divisions = models.ManyToManyField(
         'companies.Division',
         blank=True,
-        related_name='it_specialists',
+        related_name='it_administrators',
         verbose_name=_('Managed Divisions'),
-        help_text=_('Divisions this IT specialist has access to')
+        help_text=_('Divisions this IT administrator has access to')
     )
     
     # For Viewer role: location-specific access
@@ -186,13 +185,9 @@ class User(AbstractUser):
         return (self.is_superuser or 
                 self.admin_role == self.AdminRole.SUPERADMIN)
     
-    def is_manager_admin(self):
-        """Check if user is a manager with company-wide access."""
-        return self.admin_role == self.AdminRole.MANAGER
-    
-    def is_it_specialist(self):
-        """Check if user is an IT specialist with division access."""
-        return self.admin_role == self.AdminRole.IT_SPECIALIST
+    def is_it_administrator(self):
+        """Check if user is an IT administrator with division/company access."""
+        return self.admin_role == self.AdminRole.IT_ADMINISTRATOR
     
     def is_viewer_admin(self):
         """Check if user is a viewer with location read-only access."""
@@ -203,10 +198,11 @@ class User(AbstractUser):
         if self.is_superadmin():
             from companies.models import Company
             return Company.objects.all()
-        elif self.is_manager_admin() and self.managed_company:
-            return [self.managed_company]
-        elif self.is_it_specialist():
+        elif self.is_it_administrator():
+            # IT Administrator can access companies through managed_company or managed_divisions
             companies = set()
+            if self.managed_company:
+                companies.add(self.managed_company)
             for division in self.managed_divisions.all():
                 companies.add(division.company)
             return list(companies)
@@ -222,10 +218,14 @@ class User(AbstractUser):
         if self.is_superadmin():
             from companies.models import Division
             return Division.objects.all()
-        elif self.is_manager_admin() and self.managed_company:
-            return self.managed_company.divisions.all()
-        elif self.is_it_specialist():
-            return self.managed_divisions.all()
+        elif self.is_it_administrator():
+            # IT Administrator can access divisions through managed_company or managed_divisions
+            from companies.models import Division
+            divisions = Division.objects.none()
+            if self.managed_company:
+                divisions = divisions | self.managed_company.divisions.all()
+            divisions = divisions | self.managed_divisions.all()
+            return divisions.distinct()
         elif self.is_viewer_admin():
             divisions = set()
             for location in self.managed_locations.all():
@@ -239,14 +239,15 @@ class User(AbstractUser):
         if self.is_superadmin():
             from companies.models import Location
             return Location.objects.all()
-        elif self.is_manager_admin() and self.managed_company:
-            return self.managed_company.locations.all()
-        elif self.is_it_specialist():
+        elif self.is_it_administrator():
+            # IT Administrator can access locations through managed_company or managed_divisions
             from companies.models import Location
             locations = Location.objects.none()
+            if self.managed_company:
+                locations = locations | self.managed_company.locations.all()
             for division in self.managed_divisions.all():
                 locations = locations | division.locations.all()
-            return locations
+            return locations.distinct()
         elif self.is_viewer_admin():
             return self.managed_locations.all()
         return []
@@ -256,15 +257,15 @@ class User(AbstractUser):
         if self.is_superadmin():
             from assets.models import Asset
             return Asset.objects.all()
-        elif self.is_manager_admin() and self.managed_company:
-            from assets.models import Asset
-            return Asset.objects.filter(company=self.managed_company)
-        elif self.is_it_specialist():
+        elif self.is_it_administrator():
+            # IT Administrator can access assets through managed_company or managed_divisions
             from assets.models import Asset
             assets = Asset.objects.none()
+            if self.managed_company:
+                assets = assets | Asset.objects.filter(company=self.managed_company)
             for division in self.managed_divisions.all():
                 assets = assets | Asset.objects.filter(division=division)
-            return assets
+            return assets.distinct()
         elif self.is_viewer_admin():
             from assets.models import Asset
             assets = Asset.objects.none()
@@ -276,23 +277,20 @@ class User(AbstractUser):
     def can_manage_assets(self):
         """Check if user can manage assets."""
         return (self.is_superadmin() or 
-                self.is_manager_admin() or 
-                self.is_it_specialist() or
+                self.is_it_administrator() or
                 self.has_perm('assets.add_asset'))
     
     def can_view_assets(self):
         """Check if user can view assets (including read-only)."""
         return (self.is_superadmin() or 
-                self.is_manager_admin() or 
-                self.is_it_specialist() or
+                self.is_it_administrator() or
                 self.is_viewer_admin() or
                 self.has_perm('assets.view_asset'))
     
     def can_edit_assets(self):
         """Check if user can edit assets (excludes viewers)."""
         return (self.is_superadmin() or 
-                self.is_manager_admin() or 
-                self.is_it_specialist())
+                self.is_it_administrator())
     
     def can_manage_companies(self):
         """Check if user can manage companies."""
@@ -302,15 +300,41 @@ class User(AbstractUser):
     def can_view_audit(self):
         """Check if user can view audit logs."""
         return (self.is_superadmin() or 
-                self.is_manager_admin() or 
-                self.is_it_specialist() or
+                self.is_it_administrator() or
                 self.has_perm('audit.view_auditlog'))
+    
+    def can_create_audit(self):
+        """Check if user can create asset audits."""
+        return (self.is_superadmin() or 
+                self.is_it_administrator() or
+                self.has_perm('audit.add_assetaudit'))
+    
+    def can_edit_audit(self, audit=None):
+        """Check if user can edit a specific audit."""
+        if self.is_superadmin():
+            return True
+        if self.is_it_administrator():
+            if audit and hasattr(audit, 'company'):
+                # Check if user has access to the audit's company
+                return audit.company in self.get_accessible_companies()
+            return True
+        return self.has_perm('audit.change_assetaudit')
+    
+    def can_view_audit(self, audit=None):
+        """Check if user can view a specific audit or audit logs."""
+        if self.is_superadmin():
+            return True
+        if self.is_it_administrator():
+            if audit and hasattr(audit, 'company'):
+                # Check if user has access to the audit's company
+                return audit.company in self.get_accessible_companies()
+            return True
+        return self.has_perm('audit.view_assetaudit') or self.has_perm('audit.view_auditlog')
     
     def can_view_reports(self):
         """Check if user can view reports."""
         return (self.is_superadmin() or 
-                self.is_manager_admin() or 
-                self.is_it_specialist() or
+                self.is_it_administrator() or
                 self.is_viewer_admin() or
                 self.has_perm('reports.view_report'))
     
@@ -321,8 +345,7 @@ class User(AbstractUser):
     
     def can_manage_company_users(self):
         """Check if user can manage company users."""
-        return (self.is_superadmin() or 
-                self.is_manager_admin())
+        return self.is_superadmin()
     
     def get_role_display_name(self):
         """Get the display name for the user's admin role."""
@@ -335,14 +358,17 @@ class User(AbstractUser):
         """Get a description of the user's access scope."""
         if self.is_superadmin():
             return _("All companies and data")
-        elif self.is_manager_admin() and self.managed_company:
-            return _("Company: {company}").format(company=self.managed_company.name)
-        elif self.is_it_specialist():
+        elif self.is_it_administrator():
+            # Show scope based on managed_company and/or managed_divisions
+            scopes = []
+            if self.managed_company:
+                scopes.append(_("Company: {company}").format(company=self.managed_company.name))
             divisions = self.managed_divisions.all()
             if divisions.count() == 1:
-                return _("Division: {division}").format(division=divisions.first().name)
-            else:
-                return _("{count} divisions").format(count=divisions.count())
+                scopes.append(_("Division: {division}").format(division=divisions.first().name))
+            elif divisions.count() > 1:
+                scopes.append(_("{count} divisions").format(count=divisions.count()))
+            return ", ".join(scopes) if scopes else _("No access configured")
         elif self.is_viewer_admin():
             locations = self.managed_locations.all()
             if locations.count() == 1:

@@ -39,7 +39,7 @@ from django.contrib.auth.views import LogoutView as DjangoLogoutView
 
 from .models import User, UserSession
 from .forms import (
-    CustomLoginForm, UserRegistrationForm, UserProfileForm, 
+    CustomLoginForm, UserRegistrationForm, SuperuserUserForm, UserProfileForm, 
     UserSettingsForm, TwoFactorSetupForm, TwoFactorVerifyForm
 )
 
@@ -422,11 +422,18 @@ class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     """
     View for creating new users (admin only).
+    Uses different forms based on user permissions.
     """
     model = User
-    form_class = UserRegistrationForm
     template_name = 'accounts/user_create.html'
     success_url = reverse_lazy('accounts:user_list')
+    
+    def get_form_class(self):
+        """Return different form classes based on user permissions."""
+        if self.request.user.is_superuser:
+            return SuperuserUserForm
+        else:
+            return UserRegistrationForm
     
     def test_func(self):
         return self.request.user.can_manage_users()
@@ -452,6 +459,7 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Create User')
+        context['is_superuser'] = self.request.user.is_superuser
         return context
 
 
@@ -488,11 +496,18 @@ class UserCreateSuccessView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
 class UserEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """
     View for editing users (admin only).
+    Uses different forms based on user permissions.
     """
     model = User
-    form_class = UserRegistrationForm
     template_name = 'accounts/user_edit.html'
     success_url = reverse_lazy('accounts:user_list')
+    
+    def get_form_class(self):
+        """Return different form classes based on user permissions."""
+        if self.request.user.is_superuser:
+            return SuperuserUserForm
+        else:
+            return UserRegistrationForm
     
     def test_func(self):
         return self.request.user.can_manage_users()
@@ -504,6 +519,7 @@ class UserEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Edit User')
+        context['is_superuser'] = self.request.user.is_superuser
         return context
 
 

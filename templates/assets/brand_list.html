@@ -1,0 +1,126 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Asset Brands" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'assets:brands_models' %}">{% trans "Brands & Models" %}</a></li>
+                    <li class="breadcrumb-item active">{% trans "Brands" %}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">{% trans "Asset Brands" %}</h1>
+        </div>
+        <div>
+            <a href="{% url 'assets:brand_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> {% trans "Add Brand" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="{% trans 'Search brands...' %}" 
+                           value="{{ search_query }}">
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="fas fa-search"></i> {% trans "Search" %}
+                    </button>
+                    {% if search_query %}
+                        <a href="{% url 'assets:brand_list' %}" class="btn btn-outline-secondary ms-2">
+                            {% trans "Clear" %}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brands Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if brands %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Brand" %}</th>
+                                <th>{% trans "Code" %}</th>
+                                <th>{% trans "Description" %}</th>
+                                <th>{% trans "Contact" %}</th>
+                                <th>{% trans "Models" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for brand in brands %}
+                            <tr>
+                                <td><strong>{{ brand.name }}</strong></td>
+                                <td><code>{{ brand.code }}</code></td>
+                                <td>{{ brand.description|default:"-"|truncatechars:40 }}</td>
+                                <td>
+                                    {% if brand.support_email or brand.support_phone %}
+                                        <small>
+                                            {% if brand.support_email %}
+                                                <i class="fas fa-envelope"></i> {{ brand.support_email }}<br>
+                                            {% endif %}
+                                            {% if brand.support_phone %}
+                                                <i class="fas fa-phone"></i> {{ brand.support_phone }}
+                                            {% endif %}
+                                        </small>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ brand.models.count }}</span>
+                                </td>
+                                <td>
+                                    {% if brand.is_active %}
+                                        <span class="badge bg-success">{% trans "Active" %}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'assets:brand_update' brand.pk %}" 
+                                           class="btn btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'assets:brand_delete' brand.pk %}" 
+                                           class="btn btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-industry fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">{% trans "No brands found" %}</h5>
+                    <a href="{% url 'assets:brand_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> {% trans "Add Brand" %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

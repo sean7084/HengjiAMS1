@@ -138,7 +138,23 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Role -->
+                            <!-- Administrator Role -->
+                            {% if form.admin_role %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.admin_role.id_for_label }}" class="form-label">
+                                    {{ form.admin_role.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.admin_role }}
+                                {% if form.admin_role.help_text %}
+                                <div class="form-text">{{ form.admin_role.help_text }}</div>
+                                {% endif %}
+                                {% if form.admin_role.errors %}
+                                <div class="text-danger">{{ form.admin_role.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Role (legacy field) -->
                             {% if form.role %}
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.role.id_for_label }}" class="form-label">
@@ -210,6 +226,92 @@
                             </div>
                             {% endif %}
                         </div>
+
+                        <!-- Company and Division Management -->
+                        {% if form.managed_company or form.managed_divisions or form.managed_locations %}
+                        <hr class="my-4">
+                        <h6 class="mb-3">{% trans "Access Management" %}</h6>
+                        
+                        <div class="row">
+                            <!-- Managed Company -->
+                            {% if form.managed_company %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.managed_company.id_for_label }}" class="form-label">
+                                    {{ form.managed_company.label }}
+                                </label>
+                                {{ form.managed_company }}
+                                {% if form.managed_company.help_text %}
+                                <div class="form-text">{{ form.managed_company.help_text }}</div>
+                                {% endif %}
+                                {% if form.managed_company.errors %}
+                                <div class="text-danger">{{ form.managed_company.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Division -->
+                            {% if form.division %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.division.id_for_label }}" class="form-label">
+                                    {{ form.division.label }}
+                                </label>
+                                {{ form.division }}
+                                {% if form.division.errors %}
+                                <div class="text-danger">{{ form.division.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <!-- Managed Divisions -->
+                            {% if form.managed_divisions %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.managed_divisions.id_for_label }}" class="form-label">
+                                    {{ form.managed_divisions.label }}
+                                </label>
+                                {{ form.managed_divisions }}
+                                {% if form.managed_divisions.help_text %}
+                                <div class="form-text">{{ form.managed_divisions.help_text }}</div>
+                                {% endif %}
+                                {% if form.managed_divisions.errors %}
+                                <div class="text-danger">{{ form.managed_divisions.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Managed Locations -->
+                            {% if form.managed_locations %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.managed_locations.id_for_label }}" class="form-label">
+                                    {{ form.managed_locations.label }}
+                                </label>
+                                {{ form.managed_locations }}
+                                {% if form.managed_locations.help_text %}
+                                <div class="form-text">{{ form.managed_locations.help_text }}</div>
+                                {% endif %}
+                                {% if form.managed_locations.errors %}
+                                <div class="text-danger">{{ form.managed_locations.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <!-- Manager -->
+                            {% if form.manager %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.manager.id_for_label }}" class="form-label">
+                                    {{ form.manager.label }}
+                                </label>
+                                {{ form.manager }}
+                                {% if form.manager.errors %}
+                                <div class="text-danger">{{ form.manager.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
 
                         <!-- Account Status -->
                         {% if form.is_active or form.is_staff %}

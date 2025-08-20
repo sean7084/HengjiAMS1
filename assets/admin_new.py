@@ -27,9 +27,9 @@ class AssetBrandAdmin(admin.ModelAdmin):
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
     """Admin interface for Asset model."""
-    list_display = ('asset_tag', 'name', 'category', 'brand', 'status', 'created_at')
+    list_display = ('asset_number', 'category', 'brand', 'status', 'created_at')
     list_filter = ('status', 'category', 'brand', 'created_at')
-    search_fields = ('asset_tag', 'name', 'serial_number', 'description')
+    search_fields = ('asset_number', 'serial_number', 'description')
     readonly_fields = ('id', 'created_at', 'updated_at')
 
 
@@ -38,7 +38,7 @@ class AssetAssignmentAdmin(admin.ModelAdmin):
     """Admin interface for AssetAssignment model."""
     list_display = ('asset', 'assigned_to', 'assigned_date', 'returned_date')
     list_filter = ('assigned_date', 'returned_date')
-    search_fields = ('asset__asset_tag', 'asset__name', 'assigned_to__username')
+    search_fields = ('asset__asset_number', 'assigned_to__username')
     readonly_fields = ('id', 'assigned_date')
 
 
@@ -47,5 +47,5 @@ class AssetMaintenanceAdmin(admin.ModelAdmin):
     """Admin interface for AssetMaintenance model."""
     list_display = ('asset', 'maintenance_type', 'status', 'scheduled_date', 'completed_date')
     list_filter = ('maintenance_type', 'status', 'scheduled_date')
-    search_fields = ('asset__asset_tag', 'asset__name', 'description')
+    search_fields = ('asset__asset_number', 'description')
     readonly_fields = ('id', 'created_at', 'updated_at')

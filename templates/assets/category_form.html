@@ -1,0 +1,165 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% if object %}
+        {% trans "Edit Category" %} - {{ object.name }}
+    {% else %}
+        {% trans "Add Category" %}
+    {% endif %}
+    - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'assets:category_list' %}">{% trans "Categories" %}</a></li>
+                    {% if object %}
+                        <li class="breadcrumb-item"><span>{{ object.name }}</span></li>
+                        <li class="breadcrumb-item active">{% trans "Edit" %}</li>
+                    {% else %}
+                        <li class="breadcrumb-item active">{% trans "Add New" %}</li>
+                    {% endif %}
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">
+                {% if object %}
+                    {% trans "Edit Category" %}: {{ object.name }}
+                {% else %}
+                    {% trans "Add New Category" %}
+                {% endif %}
+            </h1>
+        </div>
+        <div>
+            <a href="{% url 'assets:category_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Categories" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    {{ form.name.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.help_text %}
+                                    <div class="form-text">{{ form.name.help_text }}</div>
+                                {% endif %}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Code -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.code.id_for_label }}" class="form-label">
+                                    {{ form.code.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.code }}
+                                {% if form.code.help_text %}
+                                    <div class="form-text">{{ form.code.help_text }}</div>
+                                {% endif %}
+                                {% if form.code.errors %}
+                                    <div class="text-danger">{{ form.code.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                {{ form.description.label }}
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.help_text %}
+                                <div class="form-text">{{ form.description.help_text }}</div>
+                            {% endif %}
+                            {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <!-- Parent Category -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.parent.id_for_label }}" class="form-label">
+                                    {{ form.parent.label }}
+                                </label>
+                                {{ form.parent }}
+                                {% if form.parent.help_text %}
+                                    <div class="form-text">{{ form.parent.help_text }}</div>
+                                {% endif %}
+                                {% if form.parent.errors %}
+                                    <div class="text-danger">{{ form.parent.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Depreciation Rate -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.depreciation_rate.id_for_label }}" class="form-label">
+                                    {{ form.depreciation_rate.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.depreciation_rate }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% if form.depreciation_rate.help_text %}
+                                    <div class="form-text">{{ form.depreciation_rate.help_text }}</div>
+                                {% endif %}
+                                {% if form.depreciation_rate.errors %}
+                                    <div class="text-danger">{{ form.depreciation_rate.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    {{ form.is_active.label }}
+                                </label>
+                            </div>
+                            {% if form.is_active.help_text %}
+                                <div class="form-text">{{ form.is_active.help_text }}</div>
+                            {% endif %}
+                            {% if form.is_active.errors %}
+                                <div class="text-danger">{{ form.is_active.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'assets:category_list' %}" class="btn btn-secondary">
+                                {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if object %}
+                                    <i class="fas fa-save"></i> {% trans "Update Category" %}
+                                {% else %}
+                                    <i class="fas fa-plus"></i> {% trans "Create Category" %}
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

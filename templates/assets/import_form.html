@@ -1,0 +1,216 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Import Assets" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-upload"></i> {% trans "Import Assets" %}
+                </h1>
+                <div>
+                    <a href="{{ sample_csv_url }}" class="btn btn-outline-info">
+                        <i class="fas fa-download"></i> {% trans "Download Sample CSV" %}
+                    </a>
+                    <a href="{% url 'assets:asset_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> {% trans "Back to Assets" %}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Import Instructions -->
+            <div class="alert alert-info">
+                <h5><i class="fas fa-info-circle"></i> {% trans "Import Instructions" %}</h5>
+                <ul class="mb-0">
+                    <li>{% trans "Supported formats: CSV (.csv), Excel (.xlsx, .xls)" %}</li>
+                    <li>{% trans "Maximum file size: 10MB" %}</li>
+                    <li>{% trans "Required columns: name" %}</li>
+                    <li>{% trans "Optional columns: category, brand, model, serial_number, description, purchase_price, purchase_date, warranty_end_date, current_location, status, condition, notes, asset_number" %}</li>
+                    <li>{% trans "Use 'Validation Only' mode to preview import results before committing" %}</li>
+                </ul>
+            </div>
+
+            <!-- Import Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-upload"></i> {% trans "Asset Import Configuration" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- File Upload -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="{{ form.file.id_for_label }}" class="form-label">
+                                    {{ form.file.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.file }}
+                                {% if form.file.help_text %}
+                                <div class="form-text">{{ form.file.help_text }}</div>
+                                {% endif %}
+                                {% if form.file.errors %}
+                                <div class="text-danger">{{ form.file.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Default Company -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.company.id_for_label }}" class="form-label">
+                                    {{ form.company.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.company }}
+                                {% if form.company.help_text %}
+                                <div class="form-text">{{ form.company.help_text }}</div>
+                                {% endif %}
+                                {% if form.company.errors %}
+                                <div class="text-danger">{{ form.company.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Duplicate Handling -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.duplicate_handling.id_for_label }}" class="form-label">
+                                    {{ form.duplicate_handling.label }}
+                                </label>
+                                {{ form.duplicate_handling }}
+                                {% if form.duplicate_handling.help_text %}
+                                <div class="form-text">{{ form.duplicate_handling.help_text }}</div>
+                                {% endif %}
+                                {% if form.duplicate_handling.errors %}
+                                <div class="text-danger">{{ form.duplicate_handling.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Asset Number Generation -->
+                        <div class="mb-4">
+                            <label class="form-label">{{ form.asset_number_mode.label }}</label>
+                            <div class="mt-2">
+                                {% for radio in form.asset_number_mode %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.asset_number_mode.errors %}
+                            <div class="text-danger">{{ form.asset_number_mode.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Asset Number Prefix -->
+                        <div class="row mb-4" id="prefix-field" style="display: none;">
+                            <div class="col-md-6">
+                                <label for="{{ form.asset_number_prefix.id_for_label }}" class="form-label">
+                                    {{ form.asset_number_prefix.label }}
+                                </label>
+                                {{ form.asset_number_prefix }}
+                                {% if form.asset_number_prefix.help_text %}
+                                <div class="form-text">{{ form.asset_number_prefix.help_text }}</div>
+                                {% endif %}
+                                {% if form.asset_number_prefix.errors %}
+                                <div class="text-danger">{{ form.asset_number_prefix.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Validation Only Option -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.validate_only }}
+                                <label class="form-check-label" for="{{ form.validate_only.id_for_label }}">
+                                    {{ form.validate_only.label }}
+                                </label>
+                            </div>
+                            {% if form.validate_only.help_text %}
+                            <div class="form-text">{{ form.validate_only.help_text }}</div>
+                            {% endif %}
+                            {% if form.validate_only.errors %}
+                            <div class="text-danger">{{ form.validate_only.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'assets:asset_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> {% trans "Import Assets" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- File Format Examples -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">{% trans "CSV Format Example" %}</h6>
+                        </div>
+                        <div class="card-body">
+                            <pre class="bg-light p-2 small">name,category,brand,model,serial_number
+Dell Laptop,Laptop,Dell,XPS 13,DL123456
+iPhone 14,Mobile,Apple,iPhone 14 Pro,IP987654</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">{% trans "Status & Condition Values" %}</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>{% trans "Status:" %}</strong> available, assigned, maintenance, retired, disposed</p>
+                            <p><strong>{% trans "Condition:" %}</strong> excellent, good, fair, poor, broken</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const assetNumberModeRadios = document.querySelectorAll('input[name="asset_number_mode"]');
+    const prefixField = document.getElementById('prefix-field');
+    
+    function togglePrefixField() {
+        const selectedMode = document.querySelector('input[name="asset_number_mode"]:checked');
+        if (selectedMode && selectedMode.value === 'prefix') {
+            prefixField.style.display = 'block';
+        } else {
+            prefixField.style.display = 'none';
+        }
+    }
+    
+    // Initial state
+    togglePrefixField();
+    
+    // Toggle on radio button change
+    assetNumberModeRadios.forEach(radio => {
+        radio.addEventListener('change', togglePrefixField);
+    });
+});
+</script>
+{% endblock %}

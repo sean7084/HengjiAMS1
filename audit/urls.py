@@ -17,6 +17,9 @@ urlpatterns = [
     
     # Asset Audits (current implementation)
     path('assetaudit/', views.AssetAuditListView.as_view(), name='assetaudit_list'),
+    path('assetaudit/create/', views.AssetAuditCreateView.as_view(), name='assetaudit_create'),
+    path('assetaudit/<uuid:pk>/', views.AssetAuditDetailView.as_view(), name='assetaudit_detail'),
+    path('assetaudit/<uuid:pk>/edit/', views.AssetAuditUpdateView.as_view(), name='assetaudit_update'),
     
     # Legacy audit log management (maintained for backward compatibility)
     path('auditlog/', views.AuditLogListView.as_view(), name='auditlog_list'),

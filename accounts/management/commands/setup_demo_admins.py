@@ -83,94 +83,105 @@ class Command(BaseCommand):
         )
         
         # Create locations
-        sf_office, created = Location.objects.get_or_create(
-            company=company1,
-            division=it_division,
-            code='SF-HQ',
-            defaults={
-                'name': 'San Francisco Headquarters',
-                'location_type': Location.LocationType.OFFICE,
-                'address_line1': '123 Tech Street',
-                'city': 'San Francisco',
-                'state_province': 'CA',
-                'postal_code': '94105',
-                'country': 'United States'
-            }
-        )
+        try:
+            sf_office, created = Location.objects.get_or_create(
+                company=company1,
+                code='SF-HQ',
+                defaults={
+                    'name': 'San Francisco Headquarters',
+                    'location_type': Location.LocationType.OFFICE,
+                    'division': it_division,
+                    'address_line1': '123 Tech Street',
+                    'city': 'San Francisco',
+                    'state_province': 'CA',
+                    'postal_code': '94105',
+                    'country': 'United States'
+                }
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created location: {sf_office.name}'))
+            else:
+                self.stdout.write(f'Location already exists: {sf_office.name}')
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'Location SF-HQ might already exist: {e}'))
+            sf_office = Location.objects.filter(company=company1, code='SF-HQ').first()
         
-        chicago_warehouse, created = Location.objects.get_or_create(
-            company=company2,
-            division=ops_division,
-            code='CHI-WH',
-            defaults={
-                'name': 'Chicago Warehouse',
-                'location_type': Location.LocationType.WAREHOUSE,
-                'address_line1': '456 Industrial Ave',
-                'city': 'Chicago',
-                'state_province': 'IL',
-                'postal_code': '60601',
-                'country': 'United States'
-            }
-        )
+        try:
+            chicago_warehouse, created = Location.objects.get_or_create(
+                company=company2,
+                code='CHI-WH',
+                defaults={
+                    'name': 'Chicago Warehouse',
+                    'location_type': Location.LocationType.WAREHOUSE,
+                    'division': ops_division,
+                    'address_line1': '456 Industrial Ave',
+                    'city': 'Chicago',
+                    'state_province': 'IL',
+                    'postal_code': '60601',
+                    'country': 'United States'
+                }
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created location: {chicago_warehouse.name}'))
+            else:
+                self.stdout.write(f'Location already exists: {chicago_warehouse.name}')
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'Location CHI-WH might already exist: {e}'))
+            chicago_warehouse = Location.objects.filter(company=company2, code='CHI-WH').first()
         
-        # Create Manager admin
-        manager_user, created = User.objects.get_or_create(
-            username='manager1',
-            defaults={
-                'email': 'manager@acme.com',
-                'first_name': 'John',
-                'last_name': 'Manager',
-                'admin_role': User.AdminRole.MANAGER,
-                'is_active': True,
-                'is_staff': True
-            }
-        )
-        if created:
-            manager_user.set_password('manager123')
-            manager_user.save()
-        manager_user.managed_company = company1
-        manager_user.save()
-        self.stdout.write(self.style.SUCCESS(f'Created Manager: {manager_user.username}'))
-        
-        # Create IT Specialist admin
-        it_specialist, created = User.objects.get_or_create(
-            username='itspecialist1',
-            defaults={
-                'email': 'it@acme.com',
-                'first_name': 'Alice',
-                'last_name': 'Tech',
-                'admin_role': User.AdminRole.IT_SPECIALIST,
-                'is_active': True,
-                'is_staff': True
-            }
-        )
-        if created:
-            it_specialist.set_password('itspec123')
-            it_specialist.save()
-        it_specialist.managed_divisions.set([it_division, hr_division])
-        self.stdout.write(self.style.SUCCESS(f'Created IT Specialist: {it_specialist.username}'))
+        # Create IT Administrator admin
+        try:
+            it_administrator, created = User.objects.get_or_create(
+                username='itadmin1',
+                defaults={
+                    'email': 'it@acme.com',
+                    'first_name': 'Alice',
+                    'last_name': 'Tech',
+                    'admin_role': User.AdminRole.IT_ADMINISTRATOR,
+                    'is_active': True,
+                    'is_staff': True
+                }
+            )
+            if created:
+                it_administrator.set_password('itadmin123')
+                it_administrator.save()
+                self.stdout.write(self.style.SUCCESS(f'Created IT Administrator: {it_administrator.username}'))
+            else:
+                self.stdout.write(f'IT Administrator already exists: {it_administrator.username}')
+            
+            # Set managed divisions (this is safe to run multiple times)
+            it_administrator.managed_divisions.set([it_division, hr_division])
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Error creating IT Administrator: {e}'))
         
         # Create Viewer admin
-        viewer_user, created = User.objects.get_or_create(
-            username='viewer1',
-            defaults={
-                'email': 'viewer@global.com',
-                'first_name': 'Bob',
-                'last_name': 'Observer',
-                'admin_role': User.AdminRole.VIEWER,
-                'is_active': True,
-                'is_staff': True
-            }
-        )
-        if created:
-            viewer_user.set_password('viewer123')
-            viewer_user.save()
-        viewer_user.managed_locations.set([chicago_warehouse])
-        self.stdout.write(self.style.SUCCESS(f'Created Viewer: {viewer_user.username}'))
+        try:
+            viewer_user, created = User.objects.get_or_create(
+                username='viewer1',
+                defaults={
+                    'email': 'viewer@global.com',
+                    'first_name': 'Bob',
+                    'last_name': 'Observer',
+                    'admin_role': User.AdminRole.VIEWER,
+                    'is_active': True,
+                    'is_staff': True
+                }
+            )
+            if created:
+                viewer_user.set_password('viewer123')
+                viewer_user.save()
+                self.stdout.write(self.style.SUCCESS(f'Created Viewer: {viewer_user.username}'))
+            else:
+                self.stdout.write(f'Viewer already exists: {viewer_user.username}')
+            
+            # Set managed locations (this is safe to run multiple times)
+            if chicago_warehouse:
+                viewer_user.managed_locations.set([chicago_warehouse])
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Error creating Viewer: {e}'))
         
         self.stdout.write(self.style.SUCCESS('\nDemo admin users created successfully!'))
         self.stdout.write('Users created:')
         self.stdout.write(f'  - admin (superadmin): full access')
-        self.stdout.write(f'  - manager1 (manager): access to ACME Corporation')
-        self.stdout.write(f'  - itspecialist1 (IT specialist): access to IT and HR divisions')
+        self.stdout.write(f'  - itadmin1 (IT Administrator): access to IT and HR divisions')
         self.stdout.write(f'  - viewer1 (viewer): read-only access to Chicago Warehouse')

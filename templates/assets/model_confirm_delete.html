@@ -1,0 +1,38 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Delete Model" %} - {{ object.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">{% trans "Confirm Deletion" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "Are you sure you want to delete the model" %} <strong>"{{ object.brand.name }} {{ object.name }}"</strong>?</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>{% trans "Model Details:" %}</strong><br>
+                        {% trans "Brand:" %} {{ object.brand.name }}<br>
+                        {% trans "Model Number:" %} {{ object.model_number }}<br>
+                        {% if object.description %}{% trans "Description:" %} {{ object.description|truncatechars:100 }}{% endif %}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'assets:model_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> {% trans "Yes, Delete Model" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -5,32 +5,89 @@
 
 {% block extra_css %}
 <style>
-    .asset-card {
-        transition: transform 0.2s;
-        border: 1px solid #dee2e6;
-    }
-    .asset-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
     .status-badge {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
+        border-radius: 12px;
     }
-    .status-available { background-color: #28a745; }
-    .status-assigned { background-color: #007bff; }
+    .status-available { background-color: #28a745; color: white; }
+    .status-assigned { background-color: #007bff; color: white; }
+    .status-in_use { background-color: #17a2b8; color: white; }
     .status-maintenance { background-color: #ffc107; color: #000; }
-    .status-retired { background-color: #6c757d; }
+    .status-repair { background-color: #fd7e14; color: white; }
+    .status-retired { background-color: #6c757d; color: white; }
+    .status-disposed { background-color: #dc3545; color: white; }
+    .status-lost { background-color: #e83e8c; color: white; }
+    .status-stolen { background-color: #6f42c1; color: white; }
     .asset-image {
-        width: 100%;
-        height: 150px;
+        width: 40px;
+        height: 40px;
         object-fit: cover;
-        background: #f8f9fa;
+        border-radius: 6px;
     }
     .stats-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
+    }
+    .table-responsive {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .table thead th {
+        border-top: none;
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        letter-spacing: 0.5px;
+        vertical-align: middle;
+    }
+    .table tbody tr:hover {
+        background-color: rgba(0,123,255,0.1);
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.775rem;
+    }
+    .column-filter {
+        width: 100%;
+        max-width: 120px;
+        font-size: 0.875rem;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem;
+        margin-top: 0.25rem;
+    }
+    .column-visibility-panel {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .form-check {
+        margin-bottom: 0.5rem;
+    }
+    .form-check-input:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .toggle-panel {
+        cursor: pointer;
+        user-select: none;
+    }
+    .toggle-panel:hover {
+        background-color: #e9ecef;
+    }
+    .filter-row {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .clear-filters-btn {
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
 </style>
 {% endblock %}
@@ -47,6 +104,9 @@
             <a href="{% url 'assets:asset_create' %}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> {% trans "Add Asset" %}
             </a>
+            <a href="{% url 'assets:asset_import' %}" class="btn btn-success ms-2">
+                <i class="fas fa-upload"></i> {% trans "Import Assets" %}
+            </a>
             <div class="btn-group ms-2">
                 <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
                     <i class="fas fa-download"></i> {% trans "Export" %}
@@ -54,6 +114,9 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{% url 'assets:asset_export_csv' %}">
                         <i class="fas fa-file-csv"></i> {% trans "Export to CSV" %}
+                    </a></li>
+                    <li><a class="dropdown-item" href="{% url 'assets:sample_csv' %}">
+                        <i class="fas fa-file-download"></i> {% trans "Download Sample CSV" %}
                     </a></li>
                 </ul>
             </div>
@@ -96,94 +159,224 @@
         </div>
     </div>
 
-    <!-- Search and Filters -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title mb-0">
-                <i class="fas fa-search"></i> {% trans "Search & Filters" %}
-            </h5>
-        </div>
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    {{ search_form.search }}
+    <!-- Column Visibility Controls -->
+    <div class="column-visibility-panel" id="columnPanel" style="display: none;">
+        <div class="row">
+            <div class="col-md-12">
+                <h6 class="mb-3">
+                    <i class="fas fa-columns"></i> {% trans "Customize Columns" %}
+                    <button type="button" class="btn btn-outline-secondary btn-sm float-end clear-filters-btn" onclick="clearAllFilters()">
+                        <i class="fas fa-times"></i> {% trans "Clear All Filters" %}
+                    </button>
+                </h6>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-image" checked onchange="toggleColumn('image')">
+                            <label class="form-check-label" for="col-image">{% trans "Image" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-name" checked onchange="toggleColumn('name')">
+                            <label class="form-check-label" for="col-name">{% trans "Asset Number" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-tag" checked onchange="toggleColumn('tag')">
+                            <label class="form-check-label" for="col-tag">{% trans "Asset Tag" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-category" checked onchange="toggleColumn('category')">
+                            <label class="form-check-label" for="col-category">{% trans "Category" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-status" checked onchange="toggleColumn('status')">
+                            <label class="form-check-label" for="col-status">{% trans "Status" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-location" checked onchange="toggleColumn('location')">
+                            <label class="form-check-label" for="col-location">{% trans "Location" %}</label>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    {{ search_form.category }}
-                </div>
-                <div class="col-md-2">
-                    {{ search_form.status }}
-                </div>
-                <div class="col-md-2">
-                    {{ search_form.location }}
-                </div>
-                <div class="col-md-2">
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i> {% trans "Search" %}
+                <div class="row mt-2">
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-assigned" checked onchange="toggleColumn('assigned')">
+                            <label class="form-check-label" for="col-assigned">{% trans "Assigned To" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="col-actions" checked onchange="toggleColumn('actions')">
+                            <label class="form-check-label" for="col-actions">{% trans "Actions" %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-8 text-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="saveColumnPreferences()">
+                            <i class="fas fa-save"></i> {% trans "Save Preferences" %}
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetColumns()">
+                            <i class="fas fa-undo"></i> {% trans "Reset" %}
                         </button>
                     </div>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-table"></i> {% trans "Assets List" %}
+                </h5>
+                <button type="button" class="btn btn-outline-secondary btn-sm toggle-panel" onclick="toggleColumnPanel()">
+                    <i class="fas fa-cog"></i> {% trans "Customize View" %}
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Assets List -->
-    <div class="row">
-        {% for asset in assets %}
-        <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
-            <div class="card asset-card h-100">
-                <div class="position-relative">
-                    {% if asset.image %}
-                        <img src="{{ asset.image.url }}" class="card-img-top asset-image" alt="{{ asset.name }}">
-                    {% else %}
-                        <div class="asset-image d-flex align-items-center justify-content-center">
-                            <i class="fas fa-box fa-3x text-muted"></i>
-                        </div>
-                    {% endif %}
-                    <span class="badge status-{{ asset.status }} position-absolute top-0 end-0 m-2">
-                        {{ asset.get_status_display }}
-                    </span>
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <h6 class="card-title">{{ asset.name }}</h6>
-                    <p class="card-text small text-muted mb-2">
-                        <strong>{% trans "Tag:" %}</strong> {{ asset.asset_tag }}<br>
-                        <strong>{% trans "Category:" %}</strong> {{ asset.category.name|default:"-" }}<br>
-                        <strong>{% trans "Location:" %}</strong> {{ asset.location.name|default:"-" }}
-                    </p>
-                    {% if asset.assigned_to %}
-                    <p class="card-text small">
-                        <i class="fas fa-user"></i> {{ asset.assigned_to.get_display_name }}
-                    </p>
-                    {% endif %}
-                    <div class="mt-auto">
-                        <div class="btn-group w-100" role="group">
-                            <a href="{% url 'assets:asset_detail' asset.pk %}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye"></i> {% trans "View" %}
-                            </a>
-                            <a href="{% url 'assets:asset_update' asset.pk %}" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-edit"></i> {% trans "Edit" %}
-                            </a>
-                        </div>
-                    </div>
-                </div>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="assetsTable">
+                    <thead>
+                        <tr>
+                            <th class="col-image" width="60">{% trans "Image" %}</th>
+                            <th class="col-name">{% trans "Asset Number" %}</th>
+                            <th class="col-tag">{% trans "Asset Tag" %}</th>
+                            <th class="col-category">{% trans "Category" %}</th>
+                            <th class="col-status">{% trans "Status" %}</th>
+                            <th class="col-location">{% trans "Location" %}</th>
+                            <th class="col-assigned">{% trans "Assigned To" %}</th>
+                            <th class="col-actions" width="120">{% trans "Actions" %}</th>
+                        </tr>
+                        <tr class="filter-row">
+                            <td class="col-image"></td>
+                            <td class="col-name">
+                                <input type="text" class="column-filter" placeholder="{% trans 'Filter by name...' %}" onkeyup="filterTable('name', this.value)">
+                            </td>
+                            <td class="col-tag">
+                                <input type="text" class="column-filter" placeholder="{% trans 'Filter by tag...' %}" onkeyup="filterTable('tag', this.value)">
+                            </td>
+                            <td class="col-category">
+                                <select class="column-filter" onchange="filterTable('category', this.value)">
+                                    <option value="">{% trans "All Categories" %}</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.name }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="col-status">
+                                <select class="column-filter" onchange="filterTable('status', this.value)">
+                                    <option value="">{% trans "All Statuses" %}</option>
+                                    <option value="available">{% trans "Available" %}</option>
+                                    <option value="assigned">{% trans "Assigned" %}</option>
+                                    <option value="maintenance">{% trans "Maintenance" %}</option>
+                                    <option value="retired">{% trans "Retired" %}</option>
+                                </select>
+                            </td>
+                            <td class="col-location">
+                                <select class="column-filter" onchange="filterTable('location', this.value)">
+                                    <option value="">{% trans "All Locations" %}</option>
+                                    {% for location in locations %}
+                                    <option value="{{ location.name }}">{{ location.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="col-assigned">
+                                <input type="text" class="column-filter" placeholder="{% trans 'Filter by user...' %}" onkeyup="filterTable('assigned', this.value)">
+                            </td>
+                            <td class="col-actions"></td>
+                        </tr>
+                    </thead>
+                    <tbody id="assetsTableBody">
+                        {% for asset in assets %}
+                        <tr class="asset-row" 
+                            data-name="{{ asset.asset_number|lower }}" 
+                            data-tag="{{ asset.asset_number|lower }}" 
+                            data-category="{{ asset.category.name|default:''|lower }}" 
+                            data-status="{{ asset.status|lower }}" 
+                            data-location="{{ asset.current_location.name|default:''|lower }}" 
+                            data-assigned="{{ asset.assigned_to.get_display_name|default:''|lower }}">
+                            <td class="col-image">
+                                {% if asset.photo %}
+                                    <img src="{{ asset.photo.url }}" class="asset-image" alt="{{ asset.asset_number }}">
+                                {% else %}
+                                    <div class="asset-image d-flex align-items-center justify-content-center bg-light">
+                                        <i class="fas fa-box text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="col-name">
+                                <div class="fw-bold">{{ asset.asset_number }}</div>
+                                {% if asset.brand %}
+                                <small class="text-muted">{{ asset.brand.name }}</small>
+                                {% endif %}
+                            </td>
+                            <td class="col-tag">
+                                <code class="bg-light px-2 py-1 rounded">{{ asset.asset_number }}</code>
+                            </td>
+                            <td class="col-category">{{ asset.category.name|default:"-" }}</td>
+                            <td class="col-status">
+                                <span class="badge status-{{ asset.status }}">
+                                    {{ asset.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="col-location">{{ asset.current_location.name|default:"-" }}</td>
+                            <td class="col-assigned">
+                                {% if asset.assigned_to %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user text-muted me-1"></i>
+                                        {{ asset.assigned_to.get_display_name }}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="col-actions">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'assets:asset_detail' asset.pk %}" 
+                                       class="btn btn-outline-primary btn-sm"
+                                       title="{% trans 'View Details' %}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'assets:asset_update' asset.pk %}" 
+                                       class="btn btn-outline-secondary btn-sm"
+                                       title="{% trans 'Edit Asset' %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr id="emptyRow">
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">{% trans "No assets found" %}</h5>
+                                <p class="text-muted">{% trans "No assets match your search criteria or no assets have been added yet." %}</p>
+                                <a href="{% url 'assets:asset_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> {% trans "Add First Asset" %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-box fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">{% trans "No assets found" %}</h5>
-                    <p class="text-muted">{% trans "No assets match your search criteria or no assets have been added yet." %}</p>
-                    <a href="{% url 'assets:asset_create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> {% trans "Add First Asset" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
     </div>
 
     <!-- Pagination -->
@@ -229,14 +422,214 @@
 
 {% block extra_js %}
 <script>
-// Auto-submit search form on filter change
-document.addEventListener('DOMContentLoaded', function() {
-    const filterSelects = document.querySelectorAll('select[name="category"], select[name="status"], select[name="location"]');
-    filterSelects.forEach(select => {
-        select.addEventListener('change', function() {
-            this.form.submit();
+// Column visibility management
+let columnVisibility = {
+    image: true,
+    name: true,
+    tag: true,
+    category: true,
+    status: true,
+    location: true,
+    assigned: true,
+    actions: true
+};
+
+// Active filters
+let activeFilters = {};
+
+// Load saved preferences
+function loadColumnPreferences() {
+    const saved = localStorage.getItem('assets_column_preferences');
+    if (saved) {
+        columnVisibility = JSON.parse(saved);
+        applyColumnVisibility();
+        updateCheckboxes();
+    }
+}
+
+// Save preferences to localStorage
+function saveColumnPreferences() {
+    localStorage.setItem('assets_column_preferences', JSON.stringify(columnVisibility));
+    showNotification('{% trans "Column preferences saved!" %}', 'success');
+}
+
+// Update checkbox states
+function updateCheckboxes() {
+    Object.keys(columnVisibility).forEach(column => {
+        const checkbox = document.getElementById('col-' + column);
+        if (checkbox) {
+            checkbox.checked = columnVisibility[column];
+        }
+    });
+}
+
+// Toggle column visibility
+function toggleColumn(columnName) {
+    columnVisibility[columnName] = !columnVisibility[columnName];
+    applyColumnVisibility();
+}
+
+// Apply column visibility
+function applyColumnVisibility() {
+    Object.keys(columnVisibility).forEach(column => {
+        const elements = document.querySelectorAll('.col-' + column);
+        elements.forEach(element => {
+            element.style.display = columnVisibility[column] ? '' : 'none';
         });
     });
+    
+    // Update empty row colspan
+    const emptyRow = document.getElementById('emptyRow');
+    if (emptyRow) {
+        const visibleColumns = Object.values(columnVisibility).filter(v => v).length;
+        emptyRow.children[0].setAttribute('colspan', visibleColumns);
+    }
+}
+
+// Reset columns to default
+function resetColumns() {
+    columnVisibility = {
+        image: true,
+        name: true,
+        tag: true,
+        category: true,
+        status: true,
+        location: true,
+        assigned: true,
+        actions: true
+    };
+    updateCheckboxes();
+    applyColumnVisibility();
+    showNotification('{% trans "Columns reset to default!" %}', 'info');
+}
+
+// Toggle column panel
+function toggleColumnPanel() {
+    const panel = document.getElementById('columnPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+// Filter table by column
+function filterTable(column, value) {
+    activeFilters[column] = value.toLowerCase();
+    applyFilters();
+}
+
+// Apply all active filters
+function applyFilters() {
+    const rows = document.querySelectorAll('.asset-row');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        let show = true;
+        
+        // Check each active filter
+        Object.keys(activeFilters).forEach(column => {
+            const filterValue = activeFilters[column];
+            if (filterValue && filterValue.trim() !== '') {
+                const cellData = row.getAttribute('data-' + column) || '';
+                if (!cellData.includes(filterValue)) {
+                    show = false;
+                }
+            }
+        });
+        
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+    
+    // Show/hide empty message
+    const emptyRow = document.getElementById('emptyRow');
+    if (emptyRow) {
+        emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+    }
+    
+    // Update results count
+    updateResultsCount(visibleCount);
+}
+
+// Clear all filters
+function clearAllFilters() {
+    activeFilters = {};
+    
+    // Clear all filter inputs
+    document.querySelectorAll('.column-filter').forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+        } else {
+            input.value = '';
+        }
+    });
+    
+    // Show all rows
+    document.querySelectorAll('.asset-row').forEach(row => {
+        row.style.display = '';
+    });
+    
+    // Hide empty message
+    const emptyRow = document.getElementById('emptyRow');
+    if (emptyRow) {
+        emptyRow.style.display = 'none';
+    }
+    
+    const totalRows = document.querySelectorAll('.asset-row').length;
+    updateResultsCount(totalRows);
+    
+    showNotification('{% trans "All filters cleared!" %}', 'info');
+}
+
+// Update results count
+function updateResultsCount(count) {
+    // You can implement a results counter here if needed
+    console.log('Showing ' + count + ' assets');
+}
+
+// Show notification
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadColumnPreferences();
+    
+    // Hide empty row initially if there are assets
+    const emptyRow = document.getElementById('emptyRow');
+    const assetRows = document.querySelectorAll('.asset-row');
+    if (emptyRow && assetRows.length > 0) {
+        emptyRow.style.display = 'none';
+    }
+});
+
+// Handle keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl + H to toggle column panel
+    if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        toggleColumnPanel();
+    }
+    
+    // Ctrl + R to reset filters
+    if (e.ctrlKey && e.key === 'r') {
+        e.preventDefault();
+        clearAllFilters();
+    }
 });
 </script>
 {% endblock %}

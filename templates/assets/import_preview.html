@@ -1,0 +1,170 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Asset Import Preview" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-eye"></i> {% trans "Asset Import Preview" %}
+                </h1>
+                <div>
+                    <a href="{% url 'assets:asset_import' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> {% trans "Back to Import" %}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Import Summary -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">{{ result.imported_count }}</h5>
+                            <p class="card-text">{% trans "Valid Assets" %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger">{{ result.errors|length }}</h5>
+                            <p class="card-text">{% trans "Errors" %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">{{ result.warnings|length }}</h5>
+                            <p class="card-text">{% trans "Warnings" %}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">{{ result.processed_assets|length }}</h5>
+                            <p class="card-text">{% trans "Total Rows" %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Errors -->
+            {% if result.errors %}
+            <div class="card border-danger mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> {% trans "Import Errors" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for error in result.errors %}
+                    <div class="alert alert-danger mb-2">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Warnings -->
+            {% if result.warnings %}
+            <div class="card border-warning mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-circle"></i> {% trans "Warnings" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for warning in result.warnings %}
+                    <div class="alert alert-warning mb-2">{{ warning }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Processed Assets -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list"></i> {% trans "Processed Assets" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if result.processed_assets %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Row" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Asset Number" %}</th>
+                                    <th>{% trans "Details" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in result.processed_assets %}
+                                <tr>
+                                    <td>{{ asset.row_number }}</td>
+                                    <td>
+                                        {% if asset.status == 'success' %}
+                                        <span class="badge bg-success">{% trans "Success" %}</span>
+                                        {% elif asset.status == 'error' %}
+                                        <span class="badge bg-danger">{% trans "Error" %}</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">{% trans "Warning" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ asset.asset_number|default:"-" }}</td>
+                                    <td>
+                                        {% if asset.errors %}
+                                        <ul class="list-unstyled mb-0 text-danger">
+                                            {% for error in asset.errors %}
+                                            <li><small>{{ error }}</small></li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% else %}
+                                        <span class="text-muted">{% trans "No issues" %}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>{% trans "No assets were processed." %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            {% if result.imported_count > 0 and not result.errors %}
+            <div class="d-flex justify-content-center mt-4">
+                <form method="post" action="{% url 'assets:asset_import' %}">
+                    {% csrf_token %}
+                    <!-- Re-submit form with validate_only=False -->
+                    {{ form.file.as_hidden }}
+                    {{ form.company.as_hidden }}
+                    {{ form.asset_number_mode.as_hidden }}
+                    {{ form.asset_number_prefix.as_hidden }}
+                    {{ form.duplicate_handling.as_hidden }}
+                    <input type="hidden" name="validate_only" value="false">
+                    
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check"></i> {% trans "Proceed with Import" %}
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

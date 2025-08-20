@@ -101,20 +101,20 @@ class UserAdmin(BaseUserAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         """Customize foreign key fields."""
         if db_field.name == "managed_company":
-            # Only show companies for manager role
+            # Only show companies for IT administrator role
             if hasattr(request, '_editing_user'):
                 user = request._editing_user
-                if user and user.admin_role != User.AdminRole.MANAGER:
+                if user and user.admin_role != User.AdminRole.IT_ADMINISTRATOR:
                     kwargs["queryset"] = kwargs["queryset"].none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         """Customize many-to-many fields."""
         if db_field.name == "managed_divisions":
-            # Only show divisions for IT specialist role
+            # Only show divisions for IT administrator role
             if hasattr(request, '_editing_user'):
                 user = request._editing_user
-                if user and user.admin_role != User.AdminRole.IT_SPECIALIST:
+                if user and user.admin_role != User.AdminRole.IT_ADMINISTRATOR:
                     kwargs["queryset"] = kwargs["queryset"].none()
         elif db_field.name == "managed_locations":
             # Only show locations for viewer role

@@ -33,8 +33,7 @@
                     <select class="form-select" id="admin_role" name="admin_role">
                         <option value="">{% trans "All Admin Roles" %}</option>
                         <option value="superadmin" {% if admin_role == 'superadmin' %}selected{% endif %}>{% trans "Superadmin" %}</option>
-                        <option value="manager" {% if admin_role == 'manager' %}selected{% endif %}>{% trans "Manager" %}</option>
-                        <option value="it_specialist" {% if admin_role == 'it_specialist' %}selected{% endif %}>{% trans "IT Specialist" %}</option>
+                        <option value="it_administrator" {% if admin_role == 'it_administrator' %}selected{% endif %}>{% trans "IT Administrator" %}</option>
                         <option value="viewer" {% if admin_role == 'viewer' %}selected{% endif %}>{% trans "Viewer" %}</option>
                     </select>
                 </div>
@@ -97,7 +96,7 @@
                             </td>
                             <td>
                                 {% if user.admin_role %}
-                                <span class="badge bg-{% if user.admin_role == 'superadmin' %}danger{% elif user.admin_role == 'manager' %}warning{% elif user.admin_role == 'it_specialist' %}info{% elif user.admin_role == 'viewer' %}secondary{% else %}dark{% endif %}">
+                                <span class="badge bg-{% if user.admin_role == 'superadmin' %}danger{% elif user.admin_role == 'it_administrator' %}info{% elif user.admin_role == 'viewer' %}secondary{% else %}dark{% endif %}">
                                     {{ user.get_admin_role_display }}
                                 </span>
                                 <div class="small text-muted mt-1">

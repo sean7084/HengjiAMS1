@@ -219,12 +219,9 @@ class Asset(models.Model):
     asset_number = models.CharField(
         max_length=100,
         unique=True,
+        blank=True,  # Allow blank for auto-generation
         verbose_name=_('Asset Number'),
-        help_text=_('Unique identifier for the asset')
-    )
-    name = models.CharField(
-        max_length=255,
-        verbose_name=_('Asset Name')
+        help_text=_('Unique identifier for the asset (auto-generated if left blank)')
     )
     description = models.TextField(
         blank=True,
@@ -403,8 +400,48 @@ class Asset(models.Model):
             models.Index(fields=['company']),
         ]
     
+    def save(self, *args, **kwargs):
+        """Override save to auto-generate asset number if not provided."""
+        if not self.asset_number:
+            self.asset_number = self.generate_asset_number()
+        super().save(*args, **kwargs)
+    
+    def generate_asset_number(self):
+        """
+        Generate a unique asset number based on company and category.
+        Format: {COMPANY_CODE}-{CATEGORY_CODE}-{SEQUENCE}
+        Example: ACME-LAPTOP-001
+        """
+        # Get company code (first 4 characters of company name, uppercase)
+        company_code = self.company.name[:4].upper().replace(' ', '')
+        
+        # Get category code (first 3 characters of category code, uppercase)
+        category_code = self.category.code[:3].upper()
+        
+        # Find the next sequence number for this company-category combination
+        prefix = f"{company_code}-{category_code}-"
+        
+        # Get existing assets with the same prefix
+        existing_assets = Asset.objects.filter(
+            asset_number__startswith=prefix
+        ).order_by('-asset_number')
+        
+        if existing_assets.exists():
+            # Extract the sequence number from the last asset
+            last_number = existing_assets.first().asset_number
+            try:
+                sequence = int(last_number.split('-')[-1]) + 1
+            except (ValueError, IndexError):
+                sequence = 1
+        else:
+            sequence = 1
+        
+        # Format sequence with leading zeros (3 digits)
+        return f"{prefix}{sequence:03d}"
+    
     def __str__(self):
-        return f"{self.asset_number} - {self.name}"
+        """Return asset number as string representation."""
+        return self.asset_number
     
     def get_absolute_url(self):
         return reverse('assets:detail', kwargs={'pk': self.pk})

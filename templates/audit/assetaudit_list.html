@@ -1,0 +1,181 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Asset Audits" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-check"></i> {% trans "Asset Audits" %}
+                    </h3>
+                    <div class="card-tools">
+                        <div class="btn-group mr-2">
+                            <a href="{% url 'audit:assetaudit_create' %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-plus"></i> {% trans "New Audit" %}
+                            </a>
+                        </div>
+                        <form class="form-inline" method="get">
+                            <input type="text" name="search" class="form-control form-control-sm mr-2" 
+                                   placeholder="{% trans 'Search audits...' %}" value="{{ request.GET.search }}">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if asset_audits %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Audit Number" %}</th>
+                                        <th>{% trans "Name" %}</th>
+                                        <th>{% trans "Type" %}</th>
+                                        <th>{% trans "Status" %}</th>
+                                        <th>{% trans "Primary Auditor" %}</th>
+                                        <th>{% trans "Company" %}</th>
+                                        <th>{% trans "Planned Dates" %}</th>
+                                        <th>{% trans "Progress" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for audit in asset_audits %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ audit.audit_number }}</strong>
+                                        </td>
+                                        <td>{{ audit.name }}</td>
+                                        <td>
+                                            <span class="badge badge-info">{{ audit.get_audit_type_display }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{% if audit.status == 'completed' %}success{% elif audit.status == 'in_progress' %}warning{% elif audit.status == 'planned' %}info{% else %}secondary{% endif %}">
+                                                {{ audit.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if audit.primary_auditor %}
+                                                {{ audit.primary_auditor.get_full_name|default:audit.primary_auditor.username }}
+                                            {% else %}
+                                                <span class="text-muted">{% trans "Not assigned" %}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ audit.company.name }}</td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ audit.planned_start_date|date:"M d, Y" }} - {{ audit.planned_end_date|date:"M d, Y" }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if audit.total_assets_expected > 0 %}
+                                                {% with completion=audit.get_completion_percentage %}
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar" role="progressbar" 
+                                                             style="width: {{ completion }}%" 
+                                                             aria-valuenow="{{ completion }}" 
+                                                             aria-valuemin="0" aria-valuemax="100">
+                                                            {{ completion }}%
+                                                        </div>
+                                                    </div>
+                                                {% endwith %}
+                                            {% else %}
+                                                <span class="text-muted">{% trans "Not started" %}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'audit:assetaudit_detail' audit.pk %}" class="btn btn-outline-primary" title="{% trans 'View Details' %}">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if audit.status != 'completed' %}
+                                                    <a href="{% url 'audit:assetaudit_update' audit.pk %}" class="btn btn-outline-warning" title="{% trans 'Edit Audit' %}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if audit.status == 'completed' and not audit.report_generated %}
+                                                    <a href="#" class="btn btn-outline-success" title="{% trans 'Generate Report' %}">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if is_paginated %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page=1">{% trans "First" %}</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ page_obj.paginator.num_pages }}
+                                    </span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Next" %}</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}page={{ page_obj.paginator.num_pages }}">{% trans "Last" %}</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">{% trans "No asset audits found" %}</h5>
+                            <p class="text-muted">
+                                {% if request.GET.search %}
+                                    {% trans "No audits match your search criteria." %}
+                                    <br>
+                                    <a href="?" class="btn btn-sm btn-outline-secondary mt-2">
+                                        <i class="fas fa-times"></i> {% trans "Clear search" %}
+                                    </a>
+                                {% else %}
+                                    {% trans "Create your first asset audit to get started." %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Add any JavaScript functionality here
+    $('.table').DataTable({
+        "paging": false,
+        "searching": false,
+        "info": false,
+        "ordering": true,
+        "order": [[ 0, "desc" ]]
+    });
+});
+</script>
+{% endblock %}
