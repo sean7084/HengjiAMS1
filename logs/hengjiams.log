@@ -7707,3 +7707,2551 @@ Watching for file changes with StatReloader
 "GET /companies/ HTTP/1.1" 200 20402
 "GET /companies/locations/ HTTP/1.1" 200 19864
 "GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/users/ HTTP/1.1" 200 19871
+"GET /companies/divisions/ HTTP/1.1" 200 19857
+"GET /companies/ HTTP/1.1" 200 20402
+"GET /companies/divisions/ HTTP/1.1" 200 19857
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/users/ HTTP/1.1" 200 19871
+"GET /companies/ HTTP/1.1" 200 20402
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/ HTTP/1.1" 200 20402
+"GET /companies/divisions/ HTTP/1.1" 200 19857
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/divisions/ HTTP/1.1" 200 19857
+"GET /companies/divisions/ HTTP/1.1" 200 19857
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/ HTTP/1.1" 200 20402
+"GET /companies/divisions/ HTTP/1.1" 200 19857
+Internal Server Error: /assets/brands-models/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py", line 1300, in brands_models_view
+    return render(request, 'assets/brands_models.html', context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 228, in do_block
+    raise TemplateSyntaxError(
+        "'%s' tag with name '%s' appears more than once" % (bits[0], block_name)
+    )
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'title' appears more than once
+"GET /assets/brands-models/ HTTP/1.1" 500 221272
+"GET /assets/categories/ HTTP/1.1" 200 30280
+Internal Server Error: /assets/brands-models/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py", line 1300, in brands_models_view
+    return render(request, 'assets/brands_models.html', context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 228, in do_block
+    raise TemplateSyntaxError(
+        "'%s' tag with name '%s' appears more than once" % (bits[0], block_name)
+    )
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'title' appears more than once
+"GET /assets/brands-models/ HTTP/1.1" 500 221270
+"GET /assets/brands-models/ HTTP/1.1" 200 81911
+"GET /assets/models/ HTTP/1.1" 200 22209
+"GET /assets/models/create/ HTTP/1.1" 200 22770
+"GET /assets/ HTTP/1.1" 200 37797
+"GET /assets/create/ HTTP/1.1" 200 28870
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/models/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/models/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/locations/ HTTP/1.1" 200 19864
+"GET /companies/ HTTP/1.1" 200 20402
+Internal Server Error: /admin/companies/company/add/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 840, in get_form
+    return modelform_factory(self.model, **defaults)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 654, in modelform_factory
+    return type(form)(class_name, (form,), form_class_attrs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 334, in __new__
+    raise FieldError(message)
+django.core.exceptions.FieldError: Unknown field(s) (phone, asset_numbering_type, is_active) specified for Company
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1984, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1840, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1878, in _changeform_view
+    ModelForm = self.get_form(
+        request, obj, change=not add, fields=flatten_fieldsets(fieldsets)
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 842, in get_form
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Unknown field(s) (phone, asset_numbering_type, is_active) specified for Company. Check fields/fieldsets/exclude attributes of class CompanyAdmin.
+"GET /admin/companies/company/add/ HTTP/1.1" 500 150495
+"GET /companies/divisions/ HTTP/1.1" 200 20148
+"GET /companies/divisions/ HTTP/1.1" 200 20148
+Internal Server Error: /companies/divisions/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 178, in get
+    return super().get(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 142, in get
+    return self.render_to_response(self.get_context_data())
+                                   ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py", line 99, in get_context_data
+    context = super().get_context_data(**kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 72, in get_context_data
+    kwargs["form"] = self.get_form()
+                     ~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 37, in get_form
+    return form_class(**self.get_form_kwargs())
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py", line 98, in __init__
+    self.fields['manager'].queryset = self.fields['manager'].queryset.filter(
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        role__in=['superadmin', 'it_administrator']
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1523, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1330, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1802, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'role' into field. Choices are: accessible_reports, admin_role, approved_reports, asset_assignments, assigned_assets, assignments_made, audit_follow_ups, audit_logs, audit_records, audits, backup_tokens, company, company_id, company_memberships, created_assets, created_at, created_audits, created_report_templates, created_schedules, date_joined, department, direct_reports, division, division_id, division_manager_for, email, employee_id, first_name, groups, id, is_active, is_staff, is_superuser, job_title, language_preference, last_login, last_name, location_manager_for, logentry, maintenance_assignments, maintenance_created, managed_company, managed_company_id, managed_divisions, managed_locations, manager, manager_id, must_change_password, password, phone_number, primary_audits, profile_image, report_shares, reports_shared_by_user, requested_reports, resolved_system_events, returns_processed, sessions_history, staticdevice, system_events, timezone, totpdevice, two_factor_enabled, updated_at, user_permissions, username
+"GET /companies/divisions/create/ HTTP/1.1" 500 155020
+"GET /companies/locations/ HTTP/1.1" 200 20155
+"GET /companies/ HTTP/1.1" 200 20402
+Internal Server Error: /admin/companies/company/add/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 840, in get_form
+    return modelform_factory(self.model, **defaults)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 654, in modelform_factory
+    return type(form)(class_name, (form,), form_class_attrs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 334, in __new__
+    raise FieldError(message)
+django.core.exceptions.FieldError: Unknown field(s) (phone, asset_numbering_type, is_active) specified for Company
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1984, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1840, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1878, in _changeform_view
+    ModelForm = self.get_form(
+        request, obj, change=not add, fields=flatten_fieldsets(fieldsets)
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 842, in get_form
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Unknown field(s) (phone, asset_numbering_type, is_active) specified for Company. Check fields/fieldsets/exclude attributes of class CompanyAdmin.
+"GET /admin/companies/company/add/ HTTP/1.1" 500 150495
+Internal Server Error: /admin/companies/company/add/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 840, in get_form
+    return modelform_factory(self.model, **defaults)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 654, in modelform_factory
+    return type(form)(class_name, (form,), form_class_attrs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 334, in __new__
+    raise FieldError(message)
+django.core.exceptions.FieldError: Unknown field(s) (phone, asset_numbering_type, is_active) specified for Company
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1984, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1840, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1878, in _changeform_view
+    ModelForm = self.get_form(
+        request, obj, change=not add, fields=flatten_fieldsets(fieldsets)
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 842, in get_form
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Unknown field(s) (phone, asset_numbering_type, is_active) specified for Company. Check fields/fieldsets/exclude attributes of class CompanyAdmin.
+"GET /admin/companies/company/add/ HTTP/1.1" 500 150495
+"GET /companies/divisions/ HTTP/1.1" 200 20148
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /companies/divisions/ HTTP/1.1" 200 20148
+"GET /companies/locations/ HTTP/1.1" 200 20155
+"GET /companies/users/ HTTP/1.1" 200 19871
+"GET /companies/ HTTP/1.1" 302 0
+"GET /login/?next=/companies/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 23620
+"GET /companies/ HTTP/1.1" 200 20402
+"GET /companies/divisions/ HTTP/1.1" 200 20148
+"GET /companies/locations/ HTTP/1.1" 200 19616
+"GET /companies/locations/create/ HTTP/1.1" 200 30629
+"GET /companies/locations/create/ HTTP/1.1" 200 30629
+"GET /companies/divisions/ HTTP/1.1" 200 19602
+"GET /audit/logs/ HTTP/1.1" 200 24091
+"GET /audit/assetaudit/ HTTP/1.1" 200 19340
+"GET /audit/events/ HTTP/1.1" 200 21836
+"GET /audit/ HTTP/1.1" 200 24086
+"GET /audit/ HTTP/1.1" 200 23875
+"GET /audit/logs/ HTTP/1.1" 200 23880
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\audit\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /audit/logs/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\list.py", line 158, in get
+    self.object_list = self.get_queryset()
+                       ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\audit\views.py", line 35, in get_queryset
+    queryset = queryset.filter(
+        Q(action__icontains=search) |
+    ...<3 lines>...
+        Q(user__last_name__icontains=search)
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1500, in build_filter
+    return self._add_q(
+           ~~~~~~~~~~~^
+        filter_expr,
+        ^^^^^^^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1523, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1330, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1802, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'model_name' into field. Choices are: action, change_logs, company, company_id, content_object, content_type, content_type_id, description, id, ip_address, metadata, object_id, timestamp, user, user_agent, user_id
+"GET /audit/logs/?search=Jul+08%2C+2025 HTTP/1.1" 500 147725
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\audit\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /audit/logs/?search=Jul+08%2C+2025 HTTP/1.1" 200 18424
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/import/ HTTP/1.1" 200 27858
+"GET /dashboard/ HTTP/1.1" 200 23003
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/export/ HTTP/1.1" 200 40662
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/import/ HTTP/1.1" 200 27858
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/ HTTP/1.1" 200 37586
+"GET /assets/ HTTP/1.1" 200 36890
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/import/ HTTP/1.1" 200 27858
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/ HTTP/1.1" 200 36890
+"GET /assets/ HTTP/1.1" 200 36890
+"GET /assets/import/ HTTP/1.1" 200 27858
+"GET /assets/create/ HTTP/1.1" 200 28659
+"GET /assets/create/ HTTP/1.1" 200 28659
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\audit\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 29721
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/ HTTP/1.1" 200 36890
+"GET /assets/create/ HTTP/1.1" 200 29652
+"GET /audit/assetaudit/ HTTP/1.1" 200 19129
+"GET /audit/logs/ HTTP/1.1" 200 23880
+"GET /audit/assetaudit/ HTTP/1.1" 200 19129
+"GET /audit/assetaudit/create/ HTTP/1.1" 200 31941
+"GET /audit/logs/ HTTP/1.1" 200 23880
+"GET /audit/assetaudit/ HTTP/1.1" 200 19129
+"GET /companies/divisions/ HTTP/1.1" 200 19391
+Internal Server Error: /companies/divisions/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\auth\mixins.py", line 135, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 178, in get
+    return super().get(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 142, in get
+    return self.render_to_response(self.get_context_data())
+                                   ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py", line 99, in get_context_data
+    context = super().get_context_data(**kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 72, in get_context_data
+    kwargs["form"] = self.get_form()
+                     ~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\generic\edit.py", line 37, in get_form
+    return form_class(**self.get_form_kwargs())
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py", line 98, in __init__
+    self.fields['manager'].queryset = self.fields['manager'].queryset.filter(
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        role__in=['superadmin', 'it_administrator']
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1523, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1330, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1802, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'role' into field. Choices are: accessible_reports, admin_role, approved_reports, asset_assignments, assigned_assets, assignments_made, audit_follow_ups, audit_logs, audit_records, audits, backup_tokens, company, company_id, company_memberships, created_assets, created_at, created_audits, created_report_templates, created_schedules, date_joined, department, direct_reports, division, division_id, division_manager_for, email, employee_id, first_name, groups, id, is_active, is_staff, is_superuser, job_title, language_preference, last_login, last_name, location_manager_for, logentry, maintenance_assignments, maintenance_created, managed_company, managed_company_id, managed_divisions, managed_locations, manager, manager_id, must_change_password, password, phone_number, primary_audits, profile_image, report_shares, reports_shared_by_user, requested_reports, resolved_system_events, returns_processed, sessions_history, staticdevice, system_events, timezone, totpdevice, two_factor_enabled, updated_at, user_permissions, username
+"GET /companies/divisions/create/ HTTP/1.1" 500 155020
+"GET /companies/ HTTP/1.1" 200 20191
+Internal Server Error: /admin/companies/company/add/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 840, in get_form
+    return modelform_factory(self.model, **defaults)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 654, in modelform_factory
+    return type(form)(class_name, (form,), form_class_attrs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\models.py", line 334, in __new__
+    raise FieldError(message)
+django.core.exceptions.FieldError: Unknown field(s) (asset_numbering_type, phone, is_active) specified for Company
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1984, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1840, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 1878, in _changeform_view
+    ModelForm = self.get_form(
+        request, obj, change=not add, fields=flatten_fieldsets(fieldsets)
+    )
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\contrib\admin\options.py", line 842, in get_form
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Unknown field(s) (asset_numbering_type, phone, is_active) specified for Company. Check fields/fieldsets/exclude attributes of class CompanyAdmin.
+"GET /admin/companies/company/add/ HTTP/1.1" 500 150495
+"GET /companies/locations/ HTTP/1.1" 200 19405
+"GET /companies/locations/create/ HTTP/1.1" 200 30418
+"GET /assets/import/ HTTP/1.1" 200 27858
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\admin.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 29652
+"POST /assets/create/ HTTP/1.1" 200 29661
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\admin.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /assets/create/ HTTP/1.1" 200 29661
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23244
+"GET /companies/locations/ HTTP/1.1" 200 19405
+"GET /companies/locations/create/ HTTP/1.1" 200 30418
+"GET /companies/divisions/ HTTP/1.1" 200 19391
+"GET /companies/divisions/create/ HTTP/1.1" 200 28922
+"GET /companies/locations/ HTTP/1.1" 200 19405
+"GET /companies/locations/create/ HTTP/1.1" 200 30418
+"GET /companies/ HTTP/1.1" 200 20191
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/js/inlines.js HTTP/1.1" 200 15628
+"GET /static/admin/img/icon-unknown.svg HTTP/1.1" 200 655
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /companies/divisions/ HTTP/1.1" 200 19391
+"GET /companies/divisions/create/ HTTP/1.1" 200 28922
+"GET /assets/import/ HTTP/1.1" 200 27858
+"GET /companies/locations/ HTTP/1.1" 200 19405
+"GET /companies/locations/create/ HTTP/1.1" 200 30418
+"GET /companies/users/ HTTP/1.1" 200 19660
+"GET /companies/ HTTP/1.1" 200 20191
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /companies/ HTTP/1.1" 200 20191
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+Not Found: /admin/companies/add
+"GET /admin/companies/add HTTP/1.1" 404 10941
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Not Found: /admin/companies/add
+"GET /admin/companies/add HTTP/1.1" 404 10941
+Not Found: /admin/companies/add
+"GET /admin/companies/add HTTP/1.1" 404 10941
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/companies/company/add/ HTTP/1.1" 200 49676
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /companies/ HTTP/1.1" 200 20551
+"GET /companies/add/ HTTP/1.1" 200 28991
+"POST /companies/add/ HTTP/1.1" 302 0
+Internal Server Error: /companies/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_update' not found. 'company_update' is not a valid view function or pattern name.
+"GET /companies/ HTTP/1.1" 500 186980
+"GET /companies/add/ HTTP/1.1" 200 28991
+"POST /companies/add/ HTTP/1.1" 200 29549
+"GET /assets/ HTTP/1.1" 200 36890
+"GET /assets/create/ HTTP/1.1" 200 29652
+"GET /companies/locations/ HTTP/1.1" 200 19405
+"GET /companies/locations/create/ HTTP/1.1" 200 30460
+Not Found: /api/companies/3/divisions/
+Not Found: /api/companies/3/locations/
+"GET /api/companies/3/divisions/ HTTP/1.1" 404 5142
+"GET /api/companies/3/locations/ HTTP/1.1" 404 5142
+"POST /companies/locations/create/ HTTP/1.1" 200 30718
+"GET /admin/ HTTP/1.1" 200 26181
+"GET /admin/companies/location/ HTTP/1.1" 200 22570
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/companies/location/add/ HTTP/1.1" 200 41971
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /companies/locations/create/ HTTP/1.1" 302 0
+"GET /login/?next=/companies/locations/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\models.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/import/ HTTP/1.1" 200 27900
+"GET /companies/locations/ HTTP/1.1" 200 19405
+"GET /companies/locations/create/ HTTP/1.1" 200 30451
+Not Found: /api/companies/3/divisions/
+Not Found: /api/companies/3/locations/
+"GET /api/companies/3/divisions/ HTTP/1.1" 404 5142
+"GET /api/companies/3/locations/ HTTP/1.1" 404 5142
+"POST /companies/locations/create/ HTTP/1.1" 302 0
+"GET /companies/locations/ HTTP/1.1" 200 21958
+"GET /assets/create/ HTTP/1.1" 200 29652
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 29676
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/models/create/?brand=449d646f-ce55-4e55-ba98-b32eb11a50ea HTTP/1.1" 200 22602
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23244
+"GET /dashboard/ HTTP/1.1" 200 23003
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/ HTTP/1.1" 200 37022
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23244
+"GET /assets/categories/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/categories/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/categories/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/categories/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/models/create/ HTTP/1.1" 200 22559
+"GET /assets/models/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/models/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/brands/create/ HTTP/1.1" 200 21277
+"GET /assets/brands/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/brands/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/brands/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/brands/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23244
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/brands/create/ HTTP/1.1" 200 22453
+"GET /assets/brands/create/ HTTP/1.1" 200 22453
+"GET /assets/brands/create/ HTTP/1.1" 200 22453
+"GET /assets/brands/create/ HTTP/1.1" 200 22453
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/brands/create/ HTTP/1.1" 200 22453
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23371
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/models/create/ HTTP/1.1" 200 23752
+"GET /assets/models/create/ HTTP/1.1" 200 23752
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/ HTTP/1.1" 200 37022
+"GET /dashboard/ HTTP/1.1" 200 23003
+"GET /assets/create/ HTTP/1.1" 200 29691
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23371
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/create/ HTTP/1.1" 200 29691
+"GET /assets/categories/ HTTP/1.1" 200 30069
+- Broken pipe from ('127.0.0.1', 51066)
+"GET /admin/companies/location/add/ HTTP/1.1" 200 42006
+"GET /static/admin/css/base.css HTTP/1.1" 200 22154
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+"GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+"GET /static/admin/css/responsive.css HTTP/1.1" 200 16632
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+"GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+"GET /static/admin/js/core.js HTTP/1.1" 200 6208
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+"GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+"GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+"GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+"GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+"GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23371
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/models/create/ HTTP/1.1" 200 23752
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 302 0
+"GET /login/?next=/assets/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 23409
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/create/ HTTP/1.1" 200 29691
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+"GET /assets/models/create/ HTTP/1.1" 200 23782
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+"GET /assets/models/create/ HTTP/1.1" 200 23782
+"GET /assets/models/create/ HTTP/1.1" 200 24198
+"GET /assets/models/create/ HTTP/1.1" 200 24198
+"GET /assets/models/ HTTP/1.1" 200 21998
+"GET /assets/models/create/ HTTP/1.1" 200 24198
+"GET /assets/models/create/ HTTP/1.1" 200 24198
+"GET /assets/models/create/ HTTP/1.1" 200 24198
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+Watching for file changes with StatReloader
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+"GET /assets/models/create/ HTTP/1.1" 200 23851
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/create/ HTTP/1.1" 200 29704
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23855
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 23855
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5208
+"GET /assets/models/create/ HTTP/1.1" 200 23855
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 24544
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/models/create/ HTTP/1.1" 200 24544
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 23959
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /assets/categories/create/ HTTP/1.1" 200 24294
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/categories/create/ HTTP/1.1" 200 24294
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/brands/create/ HTTP/1.1" 200 23529
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/models/create/ HTTP/1.1" 200 24860
+"GET /assets/create/ HTTP/1.1" 200 29704
+"GET /assets/brands-models/ HTTP/1.1" 200 81700
+"GET /assets/models/create/ HTTP/1.1" 200 24860
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/models/create/ HTTP/1.1" 200 24862
+"GET /assets/models/create/ HTTP/1.1" 200 24862
+"GET /assets/models/create/ HTTP/1.1" 200 24847
+"POST /assets/models/create/ HTTP/1.1" 302 0
+"GET /assets/models/ HTTP/1.1" 200 24162
+"GET /assets/categories/ HTTP/1.1" 200 30069
+"GET /assets/brands-models/ HTTP/1.1" 200 83953
+"GET /assets/create/ HTTP/1.1" 200 29704
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 29791
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /assets/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2766, in to_python
+    return uuid.UUID(**{input_form: value})
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\uuid.py", line 178, in __init__
+    hex = hex.replace('urn:', '').replace('uuid:', '')
+          ^^^^^^^^^^^
+AttributeError: 'ModelChoiceIteratorValue' object has no attribute 'replace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1081, in render
+    return render_value_in_context(output, context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1058, in render_value_in_context
+    value = str(value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\utils.py", line 79, in __str__
+    return self.as_widget()
+           ~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\boundfield.py", line 108, in as_widget
+    return widget.render(
+           ~~~~~~~~~~~~~^
+        name=self.html_initial_name if only_initial else self.html_name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        renderer=self.form.renderer,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 329, in render
+    context = self.get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 830, in get_context
+    context = super().get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 781, in get_context
+    context["widget"]["optgroups"] = self.optgroups(
+                                     ~~~~~~~~~~~~~~^
+        name, context["widget"]["value"], attrs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 742, in optgroups
+    self.create_option(
+    ~~~~~~~~~~~~~~~~~~^
+        name,
+        ^^^^^
+    ...<5 lines>...
+        attrs=attrs,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py", line 25, in create_option
+    model = AssetModel.objects.select_related('brand').get(pk=value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2750, in get_prep_value
+    return self.to_python(value)
+           ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2768, in to_python
+    raise exceptions.ValidationError(
+    ...<3 lines>...
+    )
+django.core.exceptions.ValidationError: ['¡°bf1e4367-c63d-40ad-95f3-611ffa5de03d¡± is not a valid UUID.']
+"GET /assets/create/ HTTP/1.1" 500 272412
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+Internal Server Error: /assets/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2766, in to_python
+    return uuid.UUID(**{input_form: value})
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\uuid.py", line 178, in __init__
+    hex = hex.replace('urn:', '').replace('uuid:', '')
+          ^^^^^^^^^^^
+AttributeError: 'ModelChoiceIteratorValue' object has no attribute 'replace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1081, in render
+    return render_value_in_context(output, context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1058, in render_value_in_context
+    value = str(value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\utils.py", line 79, in __str__
+    return self.as_widget()
+           ~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\boundfield.py", line 108, in as_widget
+    return widget.render(
+           ~~~~~~~~~~~~~^
+        name=self.html_initial_name if only_initial else self.html_name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        renderer=self.form.renderer,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 329, in render
+    context = self.get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 830, in get_context
+    context = super().get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 781, in get_context
+    context["widget"]["optgroups"] = self.optgroups(
+                                     ~~~~~~~~~~~~~~^
+        name, context["widget"]["value"], attrs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 742, in optgroups
+    self.create_option(
+    ~~~~~~~~~~~~~~~~~~^
+        name,
+        ^^^^^
+    ...<5 lines>...
+        attrs=attrs,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py", line 25, in create_option
+    model = AssetModel.objects.select_related('brand').get(pk=value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2750, in get_prep_value
+    return self.to_python(value)
+           ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2768, in to_python
+    raise exceptions.ValidationError(
+    ...<3 lines>...
+    )
+django.core.exceptions.ValidationError: ['¡°bf1e4367-c63d-40ad-95f3-611ffa5de03d¡± is not a valid UUID.']
+"GET /assets/create/ HTTP/1.1" 500 272284
+Internal Server Error: /assets/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2766, in to_python
+    return uuid.UUID(**{input_form: value})
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\uuid.py", line 178, in __init__
+    hex = hex.replace('urn:', '').replace('uuid:', '')
+          ^^^^^^^^^^^
+AttributeError: 'ModelChoiceIteratorValue' object has no attribute 'replace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1081, in render
+    return render_value_in_context(output, context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1058, in render_value_in_context
+    value = str(value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\utils.py", line 79, in __str__
+    return self.as_widget()
+           ~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\boundfield.py", line 108, in as_widget
+    return widget.render(
+           ~~~~~~~~~~~~~^
+        name=self.html_initial_name if only_initial else self.html_name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        renderer=self.form.renderer,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 329, in render
+    context = self.get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 830, in get_context
+    context = super().get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 781, in get_context
+    context["widget"]["optgroups"] = self.optgroups(
+                                     ~~~~~~~~~~~~~~^
+        name, context["widget"]["value"], attrs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 742, in optgroups
+    self.create_option(
+    ~~~~~~~~~~~~~~~~~~^
+        name,
+        ^^^^^
+    ...<5 lines>...
+        attrs=attrs,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py", line 25, in create_option
+    model = AssetModel.objects.select_related('brand').get(pk=value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2750, in get_prep_value
+    return self.to_python(value)
+           ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2768, in to_python
+    raise exceptions.ValidationError(
+    ...<3 lines>...
+    )
+django.core.exceptions.ValidationError: ['¡°bf1e4367-c63d-40ad-95f3-611ffa5de03d¡± is not a valid UUID.']
+"GET /assets/create/ HTTP/1.1" 500 271975
+"GET /assets/ HTTP/1.1" 200 37022
+Internal Server Error: /assets/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2766, in to_python
+    return uuid.UUID(**{input_form: value})
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\uuid.py", line 178, in __init__
+    hex = hex.replace('urn:', '').replace('uuid:', '')
+          ^^^^^^^^^^^
+AttributeError: 'ModelChoiceIteratorValue' object has no attribute 'replace'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1081, in render
+    return render_value_in_context(output, context)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\template\base.py", line 1058, in render_value_in_context
+    value = str(value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\utils.py", line 79, in __str__
+    return self.as_widget()
+           ~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\boundfield.py", line 108, in as_widget
+    return widget.render(
+           ~~~~~~~~~~~~~^
+        name=self.html_initial_name if only_initial else self.html_name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        renderer=self.form.renderer,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 329, in render
+    context = self.get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 830, in get_context
+    context = super().get_context(name, value, attrs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 781, in get_context
+    context["widget"]["optgroups"] = self.optgroups(
+                                     ~~~~~~~~~~~~~~^
+        name, context["widget"]["value"], attrs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\forms\widgets.py", line 742, in optgroups
+    self.create_option(
+    ~~~~~~~~~~~~~~~~~~^
+        name,
+        ^^^^^
+    ...<5 lines>...
+        attrs=attrs,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py", line 25, in create_option
+    model = AssetModel.objects.select_related('brand').get(pk=value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 619, in get
+    clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+                                                        ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1481, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1499, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\query.py", line 1506, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1643, in add_q
+    clause, _ = self._add_q(q_object, can_reuse)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1675, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1585, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\sql\query.py", line 1412, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 38, in __init__
+    self.rhs = self.get_prep_lookup()
+               ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 410, in get_prep_lookup
+    return super().get_prep_lookup()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\lookups.py", line 96, in get_prep_lookup
+    return self.lhs.output_field.get_prep_value(self.rhs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2750, in get_prep_value
+    return self.to_python(value)
+           ~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1_3.13\Lib\site-packages\django\db\models\fields\__init__.py", line 2768, in to_python
+    raise exceptions.ValidationError(
+    ...<3 lines>...
+    )
+django.core.exceptions.ValidationError: ['¡°bf1e4367-c63d-40ad-95f3-611ffa5de03d¡± is not a valid UUID.']
+"GET /assets/create/ HTTP/1.1" 500 272133
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 29924
+"GET /assets/create/ HTTP/1.1" 200 29924
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 30108
+"GET /companies/locations/ HTTP/1.1" 200 21542
+"GET /assets/create/ HTTP/1.1" 200 30108
+"GET /companies/ HTTP/1.1" 200 22461
+"GET /companies/divisions/ HTTP/1.1" 200 19391
+"GET /companies/divisions/create/ HTTP/1.1" 200 28964
+Not Found: /api/companies/3/divisions/
+"GET /api/companies/3/divisions/ HTTP/1.1" 404 5142
+"POST /companies/divisions/create/ HTTP/1.1" 200 29224
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /companies/locations/ HTTP/1.1" 200 21542
+"GET /companies/locations/3/edit/ HTTP/1.1" 200 30472
+"POST /companies/locations/3/edit/ HTTP/1.1" 302 0
+"GET /companies/locations/ HTTP/1.1" 200 21961
+Watching for file changes with StatReloader
+"GET /companies/divisions/ HTTP/1.1" 200 19391
+"GET /companies/divisions/create/ HTTP/1.1" 200 28975
+Not Found: /api/companies/3/divisions/
+"GET /api/companies/3/divisions/ HTTP/1.1" 404 5142
+"POST /companies/divisions/create/ HTTP/1.1" 302 0
+"GET /companies/divisions/ HTTP/1.1" 200 21929
+"GET /assets/create/ HTTP/1.1" 200 30108
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /assets/create/ HTTP/1.1" 200 30108
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /admin/companies/location/add/ HTTP/1.1" 302 0
+"GET /admin/login/?next=/admin/companies/location/add/ HTTP/1.1" 200 4238
+"GET /static/admin/css/login.css HTTP/1.1" 200 951
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"GET /assets/create/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+Not Found: /assets/divisions/
+"GET /assets/divisions/ HTTP/1.1" 404 14092
+"POST /admin/login/?next=/admin/companies/location/add/ HTTP/1.1" 302 0
+"GET /admin/companies/location/add/ HTTP/1.1" 200 42059
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /login/?next=/dashboard/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 9969
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5097
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 23409
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 23158
+"GET /zh-hans/assets/ HTTP/1.1" 200 37204
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 23158
+"GET /zh-hans/dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /zh-hans/accounts/logout/ HTTP/1.1" 302 0
+"GET /login/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 10393
+"POST /accounts/login/ HTTP/1.1" 200 10157
+"POST /accounts/login/ HTTP/1.1" 200 10161
+"POST /accounts/login/ HTTP/1.1" 200 10161
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 23409
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+Internal Server Error: /dashboard/quick-stats/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: accounts_user.force_2fa_setup
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 56, in _view_wrapper
+    test_pass = test_func(request.user)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 79, in <lambda>
+    lambda u: u.is_authenticated,
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 311, in get_user
+    user = backend.get_user(user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\backends.py", line 232, in get_user
+    user = UserModel._default_manager.get(pk=user_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: accounts_user.force_2fa_setup
+"GET /dashboard/quick-stats/ HTTP/1.1" 500 195121
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\reports\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/quick-stats/ HTTP/1.1" 200 176
+"GET /dashboard/ HTTP/1.1" 200 23003
+"GET /assets/ HTTP/1.1" 200 37028
+"GET /assets/create/ HTTP/1.1" 200 30108
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/assets/create/ HTTP/1.1" 200 30291
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 23158
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 23158
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 23158
+"GET /zh-hans/companies/ HTTP/1.1" 200 22656
+"GET /zh-hans/companies/divisions/ HTTP/1.1" 200 21723
+"GET /zh-hans/companies/locations/ HTTP/1.1" 200 21746
+"GET /zh-hans/accounts/users/ HTTP/1.1" 200 38611
+"GET /zh-hans/assets/ HTTP/1.1" 200 37204
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 27404
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27404
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27404
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /dashboard/docs
+"GET /dashboard/docs HTTP/1.1" 404 6129
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /docs/ HTTP/1.1" 200 46461
+"GET /api/v1/ HTTP/1.1" 200 6645
+"GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+"GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3426
+"GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1793
+"GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+"GET /static/rest_framework/js/jquery-3.7.1.min.js HTTP/1.1" 200 87533
+"GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+"GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+"GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3796
+"GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+"GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+"GET /static/rest_framework/js/load-ajax-form.js HTTP/1.1" 200 59
+"GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+"OPTIONS /api/v1/ HTTP/1.1" 200 5583
+"GET /accounts/settings/ HTTP/1.1" 200 19780
+"GET /dashboard/ HTTP/1.1" 200 27404
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /audit/logs/ HTTP/1.1" 200 23880
+"GET /accounts/users/ HTTP/1.1" 200 38368
+"GET /dashboard/ HTTP/1.1" 200 27404
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /docs/ HTTP/1.1" 200 46661
+"GET /accounts/users/ HTTP/1.1" 200 38568
+"GET /accounts/users/9193aa3c-bd09-4715-bf18-3e568828df5c/edit/ HTTP/1.1" 200 27817
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /assets/ HTTP/1.1" 200 37228
+"GET /companies/ HTTP/1.1" 200 22661
+"GET /audit/logs/ HTTP/1.1" 200 24080
+"GET /companies/divisions/ HTTP/1.1" 200 21713
+"GET /companies/ HTTP/1.1" 200 22661
+"GET /companies/divisions/ HTTP/1.1" 200 21713
+"GET /companies/locations/ HTTP/1.1" 200 21745
+"GET /companies/ HTTP/1.1" 200 22661
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /assets/brands-models/ HTTP/1.1" 200 84153
+"GET /assets/models/ HTTP/1.1" 200 23949
+"GET /assets/models/bf1e4367-c63d-40ad-95f3-611ffa5de03d/edit/ HTTP/1.1" 200 25095
+"GET /companies/users/ HTTP/1.1" 200 19860
+"GET /accounts/users/ HTTP/1.1" 200 38579
+"GET /companies/users/ HTTP/1.1" 200 19860
+"GET /accounts/users/ HTTP/1.1" 200 38579
+"GET /companies/users/ HTTP/1.1" 200 19860

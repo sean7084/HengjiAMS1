@@ -1,0 +1,240 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Asset Inventory Report" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">{% trans "Asset Inventory Report" %}</h1>
+            <p class="text-muted">{% trans "View and filter assets with detailed information" %}</p>
+        </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-filter me-2"></i>{% trans "Filters" %}
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-2">
+                    <label for="status" class="form-label">{% trans "Status" %}</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">{% trans "All Statuses" %}</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="category" class="form-label">{% trans "Category" %}</label>
+                    <select name="category" id="category" class="form-select">
+                        <option value="">{% trans "All Categories" %}</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if current_filters.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="brand" class="form-label">{% trans "Brand" %}</label>
+                    <select name="brand" id="brand" class="form-select">
+                        <option value="">{% trans "All Brands" %}</option>
+                        {% for b in brands %}
+                        <option value="{{ b.id }}" {% if current_filters.brand == b.id|stringformat:"s" %}selected{% endif %}>
+                            {{ b.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="company" class="form-label">{% trans "Company" %}</label>
+                    <select name="company" id="company" class="form-select">
+                        <option value="">{% trans "All Companies" %}</option>
+                        {% for comp in companies %}
+                        <option value="{{ comp.id }}" {% if current_filters.company == comp.id|stringformat:"s" %}selected{% endif %}>
+                            {{ comp.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="assignment" class="form-label">{% trans "Assignment" %}</label>
+                    <select name="assignment" id="assignment" class="form-select">
+                        <option value="">{% trans "All" %}</option>
+                        <option value="assigned" {% if current_filters.assignment == 'assigned' %}selected{% endif %}>
+                            {% trans "Assigned" %}
+                        </option>
+                        <option value="unassigned" {% if current_filters.assignment == 'unassigned' %}selected{% endif %}>
+                            {% trans "Unassigned" %}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="date_from" class="form-label">{% trans "Date From" %}</label>
+                    <input type="date" name="date_from" id="date_from" class="form-control"
+                           value="{{ current_filters.date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="date_to" class="form-label">{% trans "Date To" %}</label>
+                    <input type="date" name="date_to" id="date_to" class="form-control"
+                           value="{{ current_filters.date_to }}">
+                </div>
+                <div class="col-md-12 mt-3">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i> {% trans "Apply Filters" %}
+                    </button>
+                    <a href="{% url 'reports:asset_inventory' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> {% trans "Clear Filters" %}
+                    </a>
+                    <button type="button" class="btn btn-outline-success float-end" onclick="exportTable()">
+                        <i class="fas fa-download me-1"></i> {% trans "Export CSV" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                {% trans "Results" %} ({{ page_obj.paginator.count|default:assets|length }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "Asset Number" %}</th>
+                            <th>{% trans "Category" %}</th>
+                            <th>{% trans "Brand" %}</th>
+                            <th>{% trans "Serial Number" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Condition" %}</th>
+                            <th>{% trans "Assigned To" %}</th>
+                            <th>{% trans "Location" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td>
+                                <code>{{ asset.asset_number }}</code>
+                            </td>
+                            <td>{{ asset.category.name }}</td>
+                            <td>{{ asset.brand.name }}</td>
+                            <td>{{ asset.serial_number|default:"-" }}</td>
+                            <td>
+                                <span class="badge bg-{% if asset.status == 'available' %}success{% elif asset.status == 'assigned' %}primary{% elif asset.status == 'in_use' %}info{% elif asset.status == 'maintenance' %}warning{% elif asset.status == 'retired' %}secondary{% else %}dark{% endif %}">
+                                    {{ asset.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {{ asset.get_condition_display }}
+                            </td>
+                            <td>
+                                {% if asset.assigned_to %}
+                                    {{ asset.assigned_to.get_full_name|default:asset.assigned_to.username }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if asset.location %}
+                                    {{ asset.location.name }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'assets:detail' asset.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4">
+                                <p class="text-muted mb-0">{% trans "No assets found matching your criteria." %}</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{{ filter_params }}">{% trans "First" %}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ filter_params }}">{% trans "Previous" %}</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            {% trans "Page" %} {{ page_obj.number }} {% trans "of" %} {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{{ filter_params }}">{% trans "Next" %}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{{ filter_params }}">{% trans "Last" %}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function exportTable() {
+    // Simple CSV export
+    const table = document.querySelector('table');
+    const rows = table.querySelectorAll('tr');
+    let csv = [];
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('td, th');
+        const rowData = [];
+        cols.forEach(col => {
+            let text = col.innerText.replace(/"/g, '""');
+            rowData.push('"' + text + '"');
+        });
+        csv.push(rowData.join(','));
+    });
+
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'asset_inventory_{{ now|date:"Y-m-d" }}.csv';
+    link.click();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "API Documentation" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .endpoint-card {
+        border-left: 4px solid #007bff;
+        margin-bottom: 1rem;
+    }
+    .method-badge {
+        font-weight: bold;
+        min-width: 70px;
+        display: inline-block;
+        text-align: center;
+    }
+    .method-get { color: #28a745; }
+    .method-post { color: #007bff; }
+    .method-put { color: #ffc107; }
+    .method-delete { color: #dc3545; }
+    .method-patch { color: #6f42c1; }
+    code {
+        background: #f4f4f4;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+    .param-name {
+        color: #6610f2;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">{% trans "API Documentation" %}</h1>
+            <p class="text-muted">
+                {% trans "REST API for HengJi Asset Management System" %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Quick Reference" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>{% trans "Base URL" %}:</strong> <code>/api/v1/</code></p>
+                            <p><strong>{% trans "Authentication" %}:</strong> {% trans "Session-based (login required)" %}</p>
+                            <p><strong>{% trans "Response Format" %}:</strong> JSON</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>{% trans "Browseable API" %}:</strong> <a href="{{ browseable_api_url }}">{{ browseable_api_url }}</a></p>
+                            <p><strong>{% trans "API Version" %}:</strong> 1.0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Authentication" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "All API endpoints require authentication. Login via the web interface to get a session cookie, or use the browsable API at" %} <a href="/api/v1/">/api/v1/</a>.</p>
+                    <p>{% trans "For token-based authentication, contact your system administrator." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtering Parameters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Common Filtering Parameters" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "Assets API supports the following query parameters:" %}</p>
+                    <ul>
+                        <li><code class="param-name">status</code> - Filter by asset status (available, assigned, in_use, maintenance, etc.)</li>
+                        <li><code class="param-name">category</code> - Filter by category ID</li>
+                        <li><code class="param-name">brand</code> - Filter by brand ID</li>
+                        <li><code class="param-name">company</code> - Filter by company ID</li>
+                        <li><code class="param-name">location</code> - Filter by location ID</li>
+                        <li><code class="param-name">division</code> - Filter by division ID</li>
+                        <li><code class="param-name">assigned_to</code> - Filter by assigned user ID</li>
+                        <li><code class="param-name">barcode</code> - Exact barcode match</li>
+                        <li><code class="param-name">search</code> - Search across asset_number, serial_number, barcode</li>
+                        <li><code class="param-name">ordering</code> - Order by field (e.g., -created_at, asset_number)</li>
+                        <li><code class="param-name">page</code> - Pagination page number</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Endpoints -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3">{% trans "Endpoints" %}</h4>
+        </div>
+    </div>
+
+    {% for category in endpoints %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h5 class="text-primary mb-3">{{ category.category }}</h5>
+
+            {% for endpoint in category.items %}
+            <div class="card endpoint-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-2">
+                        <span class="method-badge method-{{ endpoint.method|lower }}">{{ endpoint.method }}</span>
+                        <code class="ms-3">{{ endpoint.url }}</code>
+                    </div>
+                    <p class="mb-2">{{ endpoint.description }}</p>
+                    {% if endpoint.params %}
+                    <p class="mb-0 small">
+                        <strong>{% trans "Query Parameters" %}:</strong>
+                        {% for param in endpoint.params %}
+                        <code class="param-name">{{ param }}</code>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Response Format -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Response Format" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p>{% trans "All responses return JSON format:" %}</p>
+                    <pre style="background: #f4f4f4; padding: 1rem; border-radius: 8px;">{
+    "id": "uuid",
+    "asset_number": "ACME-LAPTOP-001",
+    "serial_number": "SN123456",
+    "status": "available",
+    "category": "uuid",
+    "brand": "uuid",
+    ...
+}</pre>
+
+                    <p class="mt-3">{% trans "List responses are paginated:" %}</p>
+                    <pre style="background: #f4f4f4; padding: 1rem; border-radius: 8px;">{
+    "count": 100,
+    "next": "/api/v1/assets/?page=2",
+    "previous": null,
+    "results": [...]
+}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Codes -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Error Codes" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Code" %}</th>
+                                <th>{% trans "Description" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>400</code></td>
+                                <td>{% trans "Bad Request - Invalid parameters" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>401</code></td>
+                                <td>{% trans "Unauthorized - Authentication required" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>403</code></td>
+                                <td>{% trans "Forbidden - Insufficient permissions" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>404</code></td>
+                                <td>{% trans "Not Found - Resource does not exist" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>500</code></td>
+                                <td>{% trans "Internal Server Error" %}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

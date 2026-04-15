@@ -1,0 +1,138 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Two-Factor Verification" %} - HengJi AMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verify-card {
+        max-width: 420px;
+        margin: 0 auto;
+    }
+    .verify-icon {
+        font-size: 4rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+    }
+    .code-input {
+        font-size: 1.5rem;
+        letter-spacing: 0.5rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-card card fade-in verify-card">
+    <div class="card-body p-5">
+        <div class="text-center">
+            <div class="verify-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>{% trans "Two-Factor Verification" %}</h2>
+            <p class="text-muted mb-4">
+                {% trans "Enter the 6-digit code from your authenticator app" %}
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label for="id_token" class="form-label visually-hidden">
+                    {% trans "Verification Code" %}
+                </label>
+                <input type="text"
+                       name="token"
+                       id="id_token"
+                       class="form-control code-input {% if form.token.errors %}is-invalid{% endif %}"
+                       placeholder="000000"
+                       maxlength="6"
+                       pattern="[0-9]{6}"
+                       autocomplete="one-time-code"
+                       inputmode="numeric"
+                       required
+                       autofocus>
+                {% if form.token.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.token.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg" id="verify-btn">
+                    <i class="fas fa-check"></i> {% trans "Verify" %}
+                </button>
+            </div>
+        </form>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+            <p class="small text-muted mb-2">
+                {% trans "Enter the 6-digit code from your authenticator app (e.g., Google Authenticator, Microsoft Authenticator)." %}
+            </p>
+            <a href="{% url 'accounts:login' %}" class="text-decoration-none">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Login" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-format and focus verification code input
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeInput = document.getElementById('id_token');
+        if (codeInput) {
+            // Focus on page load
+            codeInput.focus();
+
+            // Auto-format input to numbers only
+            codeInput.addEventListener('input', function(e) {
+                // Remove any non-numeric characters
+                let value = e.target.value.replace(/\D/g, '');
+
+                // Limit to 6 digits
+                if (value.length > 6) {
+                    value = value.substring(0, 6);
+                }
+
+                e.target.value = value;
+            });
+
+            // Prevent form submission if code is incomplete
+            codeInput.closest('form').addEventListener('submit', function(e) {
+                if (codeInput.value.length !== 6) {
+                    e.preventDefault();
+                    codeInput.classList.add('is-invalid');
+                    return false;
+                }
+
+                // Show loading state
+                const btn = document.getElementById('verify-btn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {% trans "Verifying..." %}';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

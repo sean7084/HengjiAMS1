@@ -78,6 +78,11 @@ class User(AbstractUser):
         default=False,
         verbose_name=_('Two-Factor Authentication Enabled')
     )
+    force_2fa_setup = models.BooleanField(
+        default=False,
+        verbose_name=_('Force 2FA Setup'),
+        help_text=_('User must set up 2FA on next login')
+    )
     backup_tokens = models.JSONField(
         default=list,
         blank=True,

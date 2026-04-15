@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 from .models import Company, Division, Location, CompanyUser
+from .forms import CompanyForm, DivisionForm, LocationForm
 from accounts.models import User
 
 
@@ -42,6 +43,73 @@ class CompanyListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Company Management')
         context['search'] = self.request.GET.get('search', '')
+        return context
+
+
+class CompanyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """
+    View for creating new companies.
+    """
+    model = Company
+    form_class = CompanyForm
+    template_name = 'companies/company_form.html'
+    success_url = reverse_lazy('companies:company_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Company created successfully.'))
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Create Company')
+        context['action'] = _('Create')
+        return context
+
+
+class CompanyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating companies.
+    """
+    model = Company
+    form_class = CompanyForm
+    template_name = 'companies/company_form.html'
+    success_url = reverse_lazy('companies:company_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Company updated successfully.'))
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Edit Company')
+        context['action'] = _('Update')
+        return context
+
+
+class CompanyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    View for deleting companies.
+    """
+    model = Company
+    template_name = 'companies/company_confirm_delete.html'
+    success_url = reverse_lazy('companies:company_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, _('Company deleted successfully.'))
+        return super().delete(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Delete Company')
         return context
 
 
@@ -78,6 +146,73 @@ class DivisionListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return context
 
 
+class DivisionCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """
+    View for creating new divisions.
+    """
+    model = Division
+    form_class = DivisionForm
+    template_name = 'companies/division_form.html'
+    success_url = reverse_lazy('companies:division_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Division created successfully.'))
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Create Division')
+        context['action'] = _('Create')
+        return context
+
+
+class DivisionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating divisions.
+    """
+    model = Division
+    form_class = DivisionForm
+    template_name = 'companies/division_form.html'
+    success_url = reverse_lazy('companies:division_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Division updated successfully.'))
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Edit Division')
+        context['action'] = _('Update')
+        return context
+
+
+class DivisionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    View for deleting divisions.
+    """
+    model = Division
+    template_name = 'companies/division_confirm_delete.html'
+    success_url = reverse_lazy('companies:division_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, _('Division deleted successfully.'))
+        return super().delete(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Delete Division')
+        return context
+
+
 class LocationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     """
     View for listing locations.
@@ -109,6 +244,73 @@ class LocationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Location Management')
         context['search'] = self.request.GET.get('search', '')
+        return context
+
+
+class LocationCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """
+    View for creating new locations.
+    """
+    model = Location
+    form_class = LocationForm
+    template_name = 'companies/location_form.html'
+    success_url = reverse_lazy('companies:location_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Location created successfully.'))
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Create Location')
+        context['action'] = _('Create')
+        return context
+
+
+class LocationUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    View for updating locations.
+    """
+    model = Location
+    form_class = LocationForm
+    template_name = 'companies/location_form.html'
+    success_url = reverse_lazy('companies:location_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def form_valid(self, form):
+        messages.success(self.request, _('Location updated successfully.'))
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Edit Location')
+        context['action'] = _('Update')
+        return context
+
+
+class LocationDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    View for deleting locations.
+    """
+    model = Location
+    template_name = 'companies/location_confirm_delete.html'
+    success_url = reverse_lazy('companies:location_list')
+    
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, _('Location deleted successfully.'))
+        return super().delete(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Delete Location')
         return context
 
 

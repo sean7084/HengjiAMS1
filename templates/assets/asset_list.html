@@ -107,19 +107,6 @@
             <a href="{% url 'assets:asset_import' %}" class="btn btn-success ms-2">
                 <i class="fas fa-upload"></i> {% trans "Import Assets" %}
             </a>
-            <div class="btn-group ms-2">
-                <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-download"></i> {% trans "Export" %}
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{% url 'assets:asset_export_csv' %}">
-                        <i class="fas fa-file-csv"></i> {% trans "Export to CSV" %}
-                    </a></li>
-                    <li><a class="dropdown-item" href="{% url 'assets:sample_csv' %}">
-                        <i class="fas fa-file-download"></i> {% trans "Download Sample CSV" %}
-                    </a></li>
-                </ul>
-            </div>
         </div>
     </div>
 

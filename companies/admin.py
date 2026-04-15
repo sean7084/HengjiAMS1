@@ -19,16 +19,19 @@ class CompanyAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('name', 'code', 'email', 'phone')
+            'fields': ('name', 'code', 'description')
+        }),
+        (_('Contact Information'), {
+            'fields': ('email', 'phone_number', 'website')
         }),
         (_('Address'), {
             'fields': ('address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country')
         }),
         (_('Asset Numbering'), {
-            'fields': ('asset_numbering_type', 'asset_prefix', 'next_asset_number')
+            'fields': ('asset_prefix', 'next_asset_number')
         }),
-        (_('Status'), {
-            'fields': ('is_active',)
+        (_('Settings'), {
+            'fields': ('status', 'logo')
         }),
     )
     
@@ -50,7 +53,7 @@ class CompanyUserInline(admin.TabularInline):
     """
     model = CompanyUser
     extra = 0
-    fields = ('user', 'role', 'division', 'location', 'department', 'job_title', 'status')
+    fields = ('user', 'role', 'division', 'location', 'employee_id', 'status')
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'division', 'location')

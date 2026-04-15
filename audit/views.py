@@ -27,14 +27,15 @@ class AuditLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.can_view_audit()
     
     def get_queryset(self):
-        queryset = AuditLog.objects.select_related('user').all()
+        queryset = AuditLog.objects.select_related('user', 'content_type').all()
         
         # Search functionality
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
                 Q(action__icontains=search) |
-                Q(model_name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(content_type__model__icontains=search) |
                 Q(user__username__icontains=search) |
                 Q(user__first_name__icontains=search) |
                 Q(user__last_name__icontains=search)

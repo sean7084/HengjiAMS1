@@ -62,14 +62,28 @@ class LoginView(FormView):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = authenticate(self.request, username=username, password=password)
-        
+
         if user is not None:
             if user.is_active:
-                # Check if 2FA is required - for now, skip 2FA and just log in
-                # TODO: Implement 2FA properly in next version
+                # Check if 2FA is enabled or required
+                if user.two_factor_enabled:
+                    # 2FA is enabled - store user ID in session and redirect to verification
+                    self.request.session['pre_2fa_user_id'] = str(user.id)
+                    self.request.session['pre_2fa_username'] = user.username
+                    messages.info(self.request, _('Please verify your identity with two-factor authentication.'))
+                    return redirect('accounts:2fa_verify')
+
+                if user.force_2fa_setup:
+                    # 2FA setup is required - redirect to setup page
+                    self.request.session['pre_2fa_user_id'] = str(user.id)
+                    self.request.session['pre_2fa_username'] = user.username
+                    messages.info(self.request, _('You are required to set up two-factor authentication.'))
+                    return redirect('accounts:2fa_setup')
+
+                # No 2FA required - proceed with login
                 auth_login(self.request, user)
                 messages.success(self.request, _(f'Welcome back, {user.get_display_name()}!'))
-                
+
                 # Redirect to next page or dashboard
                 next_url = self.request.GET.get('next') or self.request.POST.get('next')
                 if next_url:
@@ -79,7 +93,7 @@ class LoginView(FormView):
                 messages.error(self.request, _('Your account is disabled.'))
         else:
             messages.error(self.request, _('Invalid username or password.'))
-        
+
         return self.form_invalid(form)
     
     def get_context_data(self, **kwargs):
@@ -145,7 +159,7 @@ class TwoFactorSetupView(FormView):
             device.confirmed = True
             device.save()
             
-            user.is_2fa_enabled = True
+            user.two_factor_enabled = True
             user.force_2fa_setup = False
             user.save()
             
@@ -161,8 +175,11 @@ class TwoFactorSetupView(FormView):
                 token = StaticToken.random_token()
                 StaticToken.objects.create(device=static_device, token=token)
                 tokens.append(token)
-            
+
+            # Store backup tokens in both session and user's backup_tokens field
             self.request.session['backup_tokens'] = tokens
+            user.backup_tokens = tokens
+            user.save()
             messages.success(self.request, _('Two-factor authentication has been set up successfully.'))
             return redirect('accounts:backup_tokens')
         else:
@@ -592,67 +609,127 @@ class SessionTerminateView(LoginRequiredMixin, View):
 
 @login_required
 def setup_2fa_simple(request):
-    """Simple 2FA setup view."""
+    """Simple 2FA setup view for users enabling 2FA from their profile."""
     from django_otp.plugins.otp_totp.models import TOTPDevice
+    from django_otp.plugins.otp_static.models import StaticDevice, StaticToken
     import qrcode
     from io import BytesIO
     import base64
     import pyotp
-    
+
+    user = request.user
+
+    # Check if user already has 2FA enabled
+    if user.two_factor_enabled:
+        messages.info(request, _('Two-factor authentication is already enabled.'))
+        return redirect('accounts:profile')
+
     if request.method == 'POST':
         verification_code = request.POST.get('verification_code')
-        if verification_code:
-            # For now, just enable 2FA without actual TOTP validation
-            # TODO: Implement proper TOTP validation in next version
-            request.user.two_factor_enabled = True
-            request.user.save()
-            
-            messages.success(request, _('Two-factor authentication has been enabled successfully!'))
-            return redirect('accounts:profile')
+        secret = request.session.get('totp_secret')
+
+        if verification_code and secret:
+            # Verify the TOTP token
+            totp = pyotp.TOTP(secret)
+            if totp.verify(verification_code):
+                # Enable 2FA
+                user.two_factor_enabled = True
+                user.force_2fa_setup = False
+                user.save()
+
+                # Confirm the TOTP device
+                device = TOTPDevice.objects.get(user=user, name='default')
+                device.confirmed = True
+                device.save()
+
+                # Generate backup tokens
+                static_device, created = StaticDevice.objects.get_or_create(
+                    user=user,
+                    name='backup'
+                )
+
+                # Generate 10 backup tokens
+                tokens = []
+                for _ in range(10):
+                    token = StaticToken.random_token()
+                    StaticToken.objects.create(device=static_device, token=token)
+                    tokens.append(token)
+
+                # Store backup tokens
+                user.backup_tokens = tokens
+                user.save()
+
+                # Store in session for display
+                request.session['backup_tokens'] = tokens
+
+                messages.success(request, _('Two-factor authentication has been enabled successfully!'))
+                return redirect('accounts:backup_tokens')
+            else:
+                messages.error(request, _('Invalid verification code. Please try again.'))
         else:
             messages.error(request, _('Please enter a verification code.'))
-    
-    # Generate TOTP secret
-    secret = pyotp.random_base32()
-    
+
+    # Get or create TOTP device
+    device, created = TOTPDevice.objects.get_or_create(
+        user=user,
+        name='default',
+        defaults={'confirmed': False}
+    )
+
+    # Use existing secret or generate new one
+    secret = device.key if device.key else pyotp.random_base32()
+    if created or not device.key:
+        device.key = secret
+        device.save()
+
+    # Store secret in session for verification
+    request.session['totp_secret'] = secret
+
     # Create TOTP URI for QR code
     totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
-        name=request.user.email or request.user.username,
+        name=user.email or user.username,
         issuer_name="HengJi AMS"
     )
-    
+
     # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(totp_uri)
     qr.make(fit=True)
-    
+
     # Create QR code image
     qr_img = qr.make_image(fill_color="black", back_color="white")
-    
+
     # Convert to base64 for display
     buffer = BytesIO()
     qr_img.save(buffer, format='PNG')
     qr_code_data = base64.b64encode(buffer.getvalue()).decode()
     qr_code_url = f"data:image/png;base64,{qr_code_data}"
-    
+
     context = {
         'secret_key': secret,
         'qr_code_url': qr_code_url,
     }
-    
+
     return render(request, 'accounts/setup_2fa.html', context)
 
 
-@login_required  
+@login_required
 def disable_2fa(request):
     """Disable 2FA for the user."""
     if request.method == 'POST':
-        request.user.two_factor_enabled = False
-        request.user.save()
-        
+        user = request.user
+
+        # Disable 2FA flags
+        user.two_factor_enabled = False
+        user.backup_tokens = []
+        user.save()
+
+        # Remove all OTP devices
+        Device.objects.filter(user=user).delete()
+
         messages.success(request, _('Two-factor authentication has been disabled.'))
         return redirect('accounts:profile')
-    
+
     return render(request, 'accounts/disable_2fa.html')
 
 

@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 import csv
 import io
 
-from .models import Asset, AssetCategory, AssetBrand, AssetAssignment
+from .models import Asset, AssetCategory, AssetBrand, AssetAssignment, AssetModel
 from companies.models import Location, Division, Company
 
 User = get_user_model()
@@ -22,7 +22,7 @@ class AssetForm(forms.ModelForm):
         model = Asset
         fields = [
             'asset_number', 'category', 'brand', 'model', 'serial_number',
-            'description', 'current_location', 'status', 'purchase_date',
+            'description', 'location', 'status', 'purchase_date',
             'purchase_price', 'warranty_provider', 'warranty_end_date',
             'notes', 'photo'
         ]
@@ -31,10 +31,7 @@ class AssetForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': _('Leave blank for auto-generation')
             }),
-            'model': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('Enter model number/name')
-            }),
+            'model': forms.Select(attrs={'class': 'form-select'}),
             'serial_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': _('Enter serial number')
@@ -68,10 +65,7 @@ class AssetForm(forms.ModelForm):
             }),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'brand': forms.Select(attrs={'class': 'form-select'}),
-            'current_location': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('Enter current location')
-            }),
+            'location': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'photo': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -87,9 +81,42 @@ class AssetForm(forms.ModelForm):
             # Add company filter if needed
             pass
         
+        # Set up model choices with brand information
+        models_qs = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        
+        # Create custom choices that include brand name in the display
+        model_choices = [('', _('Select model'))]
+        for model in models_qs:
+            try:
+                model_choices.append((str(model.pk), f"{model.brand.name} - {model.name}"))
+            except AttributeError:
+                # Handle case where model might not have a brand
+                model_choices.append((str(model.pk), model.name))
+        
+        self.fields['model'].choices = model_choices
+        # Make sure the field is not required (it's optional in the model)
+        self.fields['model'].required = False
+        
         # Make required fields
         self.fields['category'].required = True
-        self.fields['current_location'].required = True
+        self.fields['location'].required = True
+        
+        if self.user and hasattr(self.user, 'company'):
+            company = self.user.company
+            # Filter locations by company
+            location_qs = Location.objects.filter(company=company, status=Location.LocationStatus.ACTIVE)
+        else:
+            # If no company context, show all active locations
+            location_qs = Location.objects.filter(status=Location.LocationStatus.ACTIVE)
+        
+        # Set up location choices
+        self.fields['location'].queryset = location_qs.order_by('name')
+        self.fields['location'].empty_label = _('Select location')
+        
+        # If no locations available, make field not required and show helpful message
+        if not location_qs.exists():
+            self.fields['location'].required = False
+            self.fields['location'].help_text = _('No locations available. Please create locations first.')
         
         # Asset number is optional (auto-generated if blank)
         self.fields['asset_number'].required = False
@@ -551,7 +578,7 @@ class AssetExportForm(forms.Form):
             ('serial_number', _('Serial Number')),
             ('description', _('Description')),
             ('status', _('Status')),
-            ('current_location', _('Current Location')),
+            ('location', _('Location')),
             ('assigned_to', _('Assigned To')),
             ('purchase_date', _('Purchase Date')),
             ('purchase_price', _('Purchase Price')),
@@ -561,7 +588,7 @@ class AssetExportForm(forms.Form):
         ],
         initial=[
             'asset_number', 'category', 'brand', 'model', 'serial_number',
-            'status', 'current_location', 'assigned_to', 'purchase_date'
+            'status', 'location', 'assigned_to', 'purchase_date'
         ],
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         label=_('Fields to Include')
@@ -614,3 +641,118 @@ class AssetExportForm(forms.Form):
             base_queryset = base_queryset.filter(purchase_date__lte=cleaned_data['purchase_date_to'])
         
         return base_queryset
+
+
+class BrandForm(forms.ModelForm):
+    """Form for creating and editing asset brands."""
+    
+    class Meta:
+        model = AssetBrand
+        fields = ['name', 'code', 'description', 'website', 'support_email', 'support_phone', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter brand name')
+            }),
+            'code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter brand code (e.g., DELL, HP)')
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': _('Enter brand description (optional)')
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter website URL (optional)')
+            }),
+            'support_email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter support email (optional)')
+            }),
+            'support_phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter support phone (optional)')
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+
+
+class CategoryForm(forms.ModelForm):
+    """Form for creating and editing asset categories."""
+    
+    class Meta:
+        model = AssetCategory
+        fields = ['name', 'code', 'description', 'parent', 'depreciation_rate', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter category name')
+            }),
+            'code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter category code (e.g., LAPTOP, PHONE)')
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': _('Enter category description (optional)')
+            }),
+            'parent': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'depreciation_rate': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': '0',
+                'max': '100',
+                'placeholder': _('Enter depreciation rate (0-100%)')
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+
+
+class ModelForm(forms.ModelForm):
+    """Form for creating and editing asset models."""
+    
+    class Meta:
+        model = AssetModel
+        fields = ['brand', 'name', 'model_number', 'description', 'specifications', 'is_active']
+        widgets = {
+            'brand': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter model name')
+            }),
+            'model_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter official model number (optional)')
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': _('Enter model description (optional)')
+            }),
+            'specifications': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 6,
+                'placeholder': _('Enter technical specifications as JSON (optional)')
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['brand'].queryset = AssetBrand.objects.filter(is_active=True).order_by('name')
+        self.fields['brand'].empty_label = _('Select brand')
+        self.fields['model_number'].required = False

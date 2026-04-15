@@ -21,7 +21,7 @@ import io
 from decimal import Decimal, InvalidOperation
 
 from .models import Asset, AssetCategory, AssetBrand, AssetModel, AssetAssignment, AssetMaintenance
-from .forms import AssetForm, AssetSearchForm, AssetAssignmentForm, AssetImportForm, AssetExportForm
+from .forms import AssetForm, AssetSearchForm, AssetAssignmentForm, AssetImportForm, AssetExportForm, BrandForm, CategoryForm, ModelForm
 from companies.models import Company, Division, Location
 from audit.models import AuditLog
 
@@ -1107,8 +1107,8 @@ class CategoryListView(LoginRequiredMixin, ListView):
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     """Create view for asset categories."""
     model = AssetCategory
+    form_class = CategoryForm
     template_name = 'assets/category_form.html'
-    fields = ['name', 'code', 'description', 'parent', 'depreciation_rate', 'is_active']
     success_url = reverse_lazy('assets:category_list')
 
     def form_valid(self, form):
@@ -1119,8 +1119,8 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     """Update view for asset categories."""
     model = AssetCategory
+    form_class = CategoryForm
     template_name = 'assets/category_form.html'
-    fields = ['name', 'code', 'description', 'parent', 'depreciation_rate', 'is_active']
     success_url = reverse_lazy('assets:category_list')
 
     def form_valid(self, form):
@@ -1171,8 +1171,8 @@ class BrandListView(LoginRequiredMixin, ListView):
 class BrandCreateView(LoginRequiredMixin, CreateView):
     """Create view for asset brands."""
     model = AssetBrand
+    form_class = BrandForm
     template_name = 'assets/brand_form.html'
-    fields = ['name', 'code', 'description', 'website', 'support_email', 'support_phone', 'is_active']
     success_url = reverse_lazy('assets:brand_list')
 
     def form_valid(self, form):
@@ -1183,8 +1183,8 @@ class BrandCreateView(LoginRequiredMixin, CreateView):
 class BrandUpdateView(LoginRequiredMixin, UpdateView):
     """Update view for asset brands."""
     model = AssetBrand
+    form_class = BrandForm
     template_name = 'assets/brand_form.html'
-    fields = ['name', 'code', 'description', 'website', 'support_email', 'support_phone', 'is_active']
     success_url = reverse_lazy('assets:brand_list')
 
     def form_valid(self, form):
@@ -1244,8 +1244,8 @@ class ModelListView(LoginRequiredMixin, ListView):
 class ModelCreateView(LoginRequiredMixin, CreateView):
     """Create view for asset models."""
     model = AssetModel
+    form_class = ModelForm
     template_name = 'assets/model_form.html'
-    fields = ['brand', 'name', 'model_number', 'description', 'specifications', 'is_active']
     success_url = reverse_lazy('assets:model_list')
 
     def form_valid(self, form):
@@ -1261,8 +1261,8 @@ class ModelCreateView(LoginRequiredMixin, CreateView):
 class ModelUpdateView(LoginRequiredMixin, UpdateView):
     """Update view for asset models."""
     model = AssetModel
+    form_class = ModelForm
     template_name = 'assets/model_form.html'
-    fields = ['brand', 'name', 'model_number', 'description', 'specifications', 'is_active']
     success_url = reverse_lazy('assets:model_list')
 
     def form_valid(self, form):

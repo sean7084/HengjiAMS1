@@ -1,0 +1,309 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {% trans "HengJi AMS" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h5 {
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .required::after {
+        content: " *";
+        color: red;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-sitemap text-primary me-2"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted mb-0">{% trans "Manage division information and structure" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'companies:division_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                {% trans "Back to Divisions" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h5><i class="fas fa-info-circle me-2"></i>{% trans "Basic Information" %}</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.company.id_for_label }}" class="form-label required">
+                                {% trans "Company" %}
+                            </label>
+                            {{ form.company }}
+                            {% if form.company.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.company.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label required">
+                                {% trans "Division Name" %}
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.code.id_for_label }}" class="form-label">
+                                {% trans "Division Code" %}
+                            </label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.code.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Optional: Unique code for this division (e.g., IT, HR, FIN)" %}</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.parent_division.id_for_label }}" class="form-label">
+                                {% trans "Parent Division" %}
+                            </label>
+                            {{ form.parent_division }}
+                            {% if form.parent_division.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.parent_division.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Select parent division if this is a sub-division" %}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            {% trans "Description" %}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.description.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <h5><i class="fas fa-address-card me-2"></i>{% trans "Contact Information" %}</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.manager.id_for_label }}" class="form-label">
+                                {% trans "Division Manager" %}
+                            </label>
+                            {{ form.manager }}
+                            {% if form.manager.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.manager.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                {% trans "Phone Number" %}
+                            </label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.phone_number.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            {% trans "Email" %}
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Location Information -->
+                <div class="form-section">
+                    <h5><i class="fas fa-map-marker-alt me-2"></i>{% trans "Location Information" %}</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">
+                                {% trans "Location" %}
+                            </label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.location.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.building.id_for_label }}" class="form-label">
+                                {% trans "Building" %}
+                            </label>
+                            {{ form.building }}
+                            {% if form.building.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.building.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.floor.id_for_label }}" class="form-label">
+                                {% trans "Floor" %}
+                            </label>
+                            {{ form.floor }}
+                            {% if form.floor.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.floor.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.room.id_for_label }}" class="form-label">
+                                {% trans "Room" %}
+                            </label>
+                            {{ form.room }}
+                            {% if form.room.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.room.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Settings -->
+                <div class="form-section">
+                    <h5><i class="fas fa-cogs me-2"></i>{% trans "Settings" %}</h5>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">
+                            {% trans "Status" %}
+                        </label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.status.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.budget_code.id_for_label }}" class="form-label">
+                            {% trans "Budget Code" %}
+                        </label>
+                        {{ form.budget_code }}
+                        {% if form.budget_code.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.budget_code.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">{% trans "Budget or cost center code for this division" %}</div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="form-section">
+                    <h5><i class="fas fa-tasks me-2"></i>{% trans "Actions" %}</h5>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            {{ action }}
+                        </button>
+                        
+                        <a href="{% url 'companies:division_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>
+                            {% trans "Cancel" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Dynamic form updates -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companySelect = document.getElementById('{{ form.company.id_for_label }}');
+    const parentDivisionSelect = document.getElementById('{{ form.parent_division.id_for_label }}');
+    
+    if (companySelect) {
+        companySelect.addEventListener('change', function() {
+            const companyId = this.value;
+            
+            // Clear parent division options
+            parentDivisionSelect.innerHTML = '<option value="">{% trans "Select parent division (optional)" %}</option>';
+            
+            if (companyId) {
+                // Fetch divisions for the selected company
+                fetch(`/api/companies/${companyId}/divisions/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(division => {
+                            const option = document.createElement('option');
+                            option.value = division.id;
+                            option.textContent = division.name;
+                            parentDivisionSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching divisions:', error));
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

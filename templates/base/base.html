@@ -282,9 +282,6 @@
                                 <li><a class="dropdown-item" href="{% url 'audit:system_event_list' %}">
                                     <i class="fas fa-exclamation-triangle"></i> {% trans "System Events" %}
                                 </a></li>
-                                <li><a class="dropdown-item" href="{% url 'audit:audit_list' %}">
-                                    <i class="fas fa-clipboard-check"></i> {% trans "Audit Management" %}
-                                </a></li>
                             </ul>
                         </li>
                         {% endif %}
@@ -345,6 +342,9 @@
                                 </a></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:settings' %}">
                                     <i class="fas fa-cog"></i> {% trans "Settings" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'api-docs' %}">
+                                    <i class="fas fa-book"></i> {% trans "API Documentation" %}
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">

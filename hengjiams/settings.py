@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_otp',  # Two-factor authentication support
     'django_otp.plugins.otp_totp',  # TOTP (Time-based OTP) support
     'django_otp.plugins.otp_static',  # Static OTP tokens for backup
+    'rest_framework',  # REST API framework
     # Local apps
     'accounts',  # Custom user management with roles and 2FA
     'assets',  # Asset management core functionality
@@ -54,6 +55,8 @@ INSTALLED_APPS = [
     'reports',  # Reporting and analytics
     'dashboard',  # Main dashboard and overview
     'users',  # User management
+    'api',  # REST API
+    'mobile',  # Mobile interface
 ]
 
 MIDDLEWARE = [
@@ -134,6 +137,23 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# Django REST Framework configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
 
 
 # Internationalization

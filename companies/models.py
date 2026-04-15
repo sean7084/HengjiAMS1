@@ -196,8 +196,9 @@ class Division(models.Model):
     
     code = models.CharField(
         max_length=20,
+        blank=True,
         verbose_name=_('Division Code'),
-        help_text=_('Unique identifier code for the division within the company')
+        help_text=_('Unique identifier code for the division within the company (optional)')
     )
     
     description = models.TextField(
@@ -327,6 +328,7 @@ class Location(models.Model):
     
     code = models.CharField(
         max_length=50,
+        blank=True,
         verbose_name=_('Location Code'),
         help_text=_('Unique code for the location (e.g., B1-F3-R101)')
     )

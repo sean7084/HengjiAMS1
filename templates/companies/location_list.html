@@ -10,16 +10,13 @@
         <h1 class="h3">
             <i class="fas fa-map-marker-alt"></i> {{ title }}
         </h1>
-        <div class="btn-group">
-            <a href="{% url 'companies:company_list' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-building"></i> {% trans "Companies" %}
+        <div class="d-flex gap-2">
+            {% if user.can_manage_companies %}
+            <a href="{% url 'companies:location_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                {% trans "Add Location" %}
             </a>
-            <a href="{% url 'companies:division_list' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-sitemap"></i> {% trans "Divisions" %}
-            </a>
-            <a href="{% url 'companies:companyuser_list' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-users"></i> {% trans "Company Users" %}
-            </a>
+            {% endif %}
         </div>
     </div>
 
@@ -98,12 +95,16 @@
                             <td>{{ location.created_at|date:"M d, Y" }}</td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="#" class="btn btn-outline-primary" title="{% trans 'View Details' %}">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="#" class="btn btn-outline-secondary" title="{% trans 'Edit' %}">
+                                    {% if user.can_manage_companies %}
+                                    <a href="{% url 'companies:location_edit' location.pk %}" class="btn btn-outline-primary" title="{% trans 'Edit' %}">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <a href="{% url 'companies:location_delete' location.pk %}" class="btn btn-outline-danger" title="{% trans 'Delete' %}">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted small">{% trans "No actions available" %}</span>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>

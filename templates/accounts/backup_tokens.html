@@ -1,0 +1,123 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Backup Codes" %} - HengJi AMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .backup-card {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .backup-codes-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        font-family: monospace;
+        font-size: 1.1rem;
+    }
+    .backup-code {
+        background: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+    @media (max-width: 576px) {
+        .backup-codes-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="backup-card card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-key"></i> {% trans "Backup Codes" %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>{% trans "Two-factor authentication is now enabled!" %}</strong>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>{% trans "Important: Save these codes safely!" %}</strong>
+                        <p class="mb-0 mt-2">
+                            {% trans "Each code can only be used once. If you lose access to your authenticator app, you can use one of these codes to sign in." %}
+                        </p>
+                    </div>
+
+                    <h5 class="mb-3">{% trans "Your Backup Codes" %}</h5>
+                    <div class="backup-codes-list mb-4">
+                        {% for token in backup_tokens %}
+                        <div class="backup-code">{{ token }}</div>
+                        {% empty %}
+                        <div class="alert alert-info mb-0">
+                            {% trans "No backup codes available." %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> {% trans "Print Codes" %}
+                        </button>
+                    </div>
+
+                    <hr>
+
+                    <h5 class="mb-3">{% trans "Tips for Keeping Your Codes Safe" %}</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            {% trans "Write them down and store in a secure location" %}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            {% trans "Keep them in a password manager" %}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            {% trans "Store in a secure physical location (safe, lockbox)" %}
+                        </li>
+                        <li class="mb-0 text-muted">
+                            <i class="fas fa-times text-danger me-2"></i>
+                            {% trans "Do not store in your phone or computer" %}
+                        </li>
+                    </ul>
+
+                    <hr>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-arrow-right"></i> {% trans "Continue to Dashboard" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Clear backup tokens from session after user acknowledges
+    document.addEventListener('DOMContentLoaded', function() {
+        // User has seen the codes, session can be cleared
+        console.log('Backup codes displayed');
+    });
+</script>
+{% endblock %}

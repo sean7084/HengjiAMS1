@@ -6,7 +6,18 @@
 {% block extra_css %}
 <style>
     .company-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        transition: trans            <p class="text-muted text-center">
+                {% trans "No companies have been created yet." %}
+                {% if user.can_manage_companies %}
+                <br>{% trans "Create your first company to get started." %}
+                {% endif %}
+            </p>
+            {% if user.can_manage_companies %}
+            <a href="{% url 'companies:company_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                {% trans "Add First Company" %}
+            </a>
+            {% endif %}se-in-out, box-shadow 0.2s ease-in-out;
         border: none;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
@@ -47,7 +58,7 @@
         </div>
         {% if user.can_manage_companies %}
         <div>
-            <a href="{% url 'admin:companies_company_add' %}" class="btn btn-primary btn-action">
+            <a href="{% url 'companies:company_create' %}" class="btn btn-primary btn-action">
                 <i class="fas fa-plus me-1"></i>
                 {% trans "Add Company" %}
             </a>
@@ -90,7 +101,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h5 class="card-title mb-0">
-                            <a href="{% url 'admin:companies_company_change' company.pk %}" 
+                            <a href="{% url 'companies:company_edit' company.pk %}" 
                                class="text-decoration-none text-dark">
                                 {{ company.name }}
                             </a>
@@ -148,7 +159,7 @@
                 {% if user.can_manage_companies %}
                 <div class="card-footer bg-transparent border-top-0">
                     <div class="btn-group w-100" role="group">
-                        <a href="{% url 'admin:companies_company_change' company.pk %}" 
+                        <a href="{% url 'companies:company_edit' company.pk %}" 
                            class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-edit me-1"></i>{% trans "Edit" %}
                         </a>
@@ -228,7 +239,7 @@
                 {% endif %}
             </p>
             {% if user.can_manage_companies %}
-            <a href="{% url 'admin:companies_company_add' %}" class="btn btn-primary">
+            <a href="{% url 'companies:company_create' %}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i>
                 {% trans "Add First Company" %}
             </a>

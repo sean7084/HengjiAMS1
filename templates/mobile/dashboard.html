@@ -1,0 +1,157 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Mobile Dashboard" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #dee2e6;
+        padding: 0.5rem;
+        z-index: 1000;
+    }
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #6c757d;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+    .mobile-nav-item.active {
+        color: #007bff;
+    }
+    .mobile-nav-item i {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    .content-area {
+        padding-bottom: 80px;
+    }
+    .quick-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.2s;
+    }
+    .quick-action:hover {
+        background: #e9ecef;
+    }
+    .quick-action i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container content-area">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h4">{% trans "Dashboard" %}</h1>
+            <p class="text-muted small">{{ user.get_full_name|default:user.username }}</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body py-3">
+                    <h3 class="mb-0">{{ total_assets|default:0 }}</h3>
+                    <small class="text-muted">{% trans "Total Assets" %}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 mb-3">
+            <div class="card text-center">
+                <div class="card-body py-3">
+                    <h3 class="mb-0">{{ available_assets|default:0 }}</h3>
+                    <small class="text-muted">{% trans "Available" %}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-6 mb-3">
+            <a href="{% url 'mobile:scan' %}" class="quick-action">
+                <i class="fas fa-qrcode"></i>
+                <span>{% trans "Scan Asset" %}</span>
+            </a>
+        </div>
+        <div class="col-6 mb-3">
+            <a href="{% url 'reports:asset_inventory' %}" class="quick-action">
+                <i class="fas fa-search"></i>
+                <span>{% trans "Find Asset" %}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Assets -->
+    <div class="row">
+        <div class="col-12">
+            <h5 class="mb-3">{% trans "Recent Assets" %}</h5>
+            {% if recent_assets %}
+                {% for asset in recent_assets %}
+                <div class="card mb-2">
+                    <div class="card-body py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ asset.asset_number }}</strong>
+                                <br>
+                                <small class="text-muted">{{ asset.category.name }}</small>
+                            </div>
+                            <span class="badge bg-{% if asset.status == 'available' %}success{% elif asset.status == 'assigned' %}primary{% else %}secondary{% endif %}">
+                                {{ asset.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">{% trans "No assets found" %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Navigation -->
+<nav class="mobile-nav">
+    <div class="row text-center">
+        <div class="col-4">
+            <a href="{% url 'mobile:dashboard' %}" class="mobile-nav-item active">
+                <i class="fas fa-home"></i>
+                <span>{% trans "Home" %}</span>
+            </a>
+        </div>
+        <div class="col-4">
+            <a href="{% url 'mobile:scan' %}" class="mobile-nav-item">
+                <i class="fas fa-qrcode"></i>
+                <span>{% trans "Scan" %}</span>
+            </a>
+        </div>
+        <div class="col-4">
+            <a href="{% url 'accounts:profile' %}" class="mobile-nav-item">
+                <i class="fas fa-user"></i>
+                <span>{% trans "Profile" %}</span>
+            </a>
+        </div>
+    </div>
+</nav>
+{% endblock %}

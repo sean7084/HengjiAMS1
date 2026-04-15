@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py check)",
+      "Bash(conda activate:*)",
+      "Bash(C:\\\\Users\\\\sean_\\\\miniconda3\\\\shell\\\\condabin\\\\conda-hook.ps1)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe manage.py check)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe manage.py makemigrations accounts)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe manage.py migrate accounts)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe manage.py check --deploy)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/Scripts/conda.exe install:*)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/Scripts/pip.exe install:*)",
+      "Bash(C:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe manage.py makemigrations --dry-run)"
+    ]
+  }
+}

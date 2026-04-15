@@ -1,0 +1,150 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {% trans "HengJi AMS" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted mb-0">{% trans "Confirm location deletion" %}</p>
+        </div>
+        <div>
+            <a href="{% url 'companies:location_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>
+                {% trans "Back to Locations" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% trans "Delete Location" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>{% trans "Warning!" %}</strong>
+                        {% trans "You are about to delete this location permanently. This action cannot be undone." %}
+                    </div>
+                    
+                    <h6 class="mb-3">{% trans "Location Details:" %}</h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Location Name:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.name }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Company:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.company.name }}</div>
+                    </div>
+                    
+                    {% if object.division %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Division:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.division.name }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if object.code %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Location Code:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.code }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Location Type:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.get_location_type_display }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Status:" %}</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge {% if object.status == 'active' %}bg-success{% elif object.status == 'inactive' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                                {{ object.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if object.description %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Description:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.description }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if object.area_size %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Area Size:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.area_size }} {% trans "sq meters" %}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if object.capacity %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Capacity:" %}</strong></div>
+                        <div class="col-sm-8">{{ object.capacity }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if object.address_line1 %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>{% trans "Address:" %}</strong></div>
+                        <div class="col-sm-8">
+                            {{ object.address_line1 }}<br>
+                            {% if object.address_line2 %}{{ object.address_line2 }}<br>{% endif %}
+                            {% if object.city %}{{ object.city }}{% if object.state_province %}, {{ object.state_province }}{% endif %}<br>{% endif %}
+                            {% if object.postal_code %}{{ object.postal_code }}{% endif %}
+                            {% if object.country %}<br>{{ object.country }}{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Related Information -->
+                    <div class="mt-4">
+                        <h6 class="text-danger">{% trans "Impact of Deletion:" %}</h6>
+                        
+                        {% if object.child_locations.exists %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>{% trans "Child Locations:" %}</strong>
+                            {% trans "This location has" %} {{ object.child_locations.count }} {% trans "child location(s). They will also be deleted." %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% trans "All associated assets and company users will be reassigned or updated accordingly." %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger me-2">
+                            <i class="fas fa-trash me-1"></i>
+                            {% trans "Yes, Delete Location" %}
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'companies:location_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i>
+                        {% trans "Cancel" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -11,19 +11,27 @@ from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.views.generic import RedirectView
 
+from api.views import APIDocumentationView
+
 # Non-internationalized URLs (API, admin, etc.)
 urlpatterns = [
     # Admin interface
     path('admin/', admin.site.urls),
-    
+
     # Media files (development only)
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
-    
+
     # Static files (development only)
     *static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
-    
+
     # Language switching
     path('i18n/', include('django.conf.urls.i18n')),
+
+    # API Documentation
+    path('docs/', APIDocumentationView.as_view(), name='api-docs'),
+
+    # REST API
+    path('api/v1/', include('api.urls')),
 ]
 
 # Internationalized URLs
@@ -43,7 +51,10 @@ urlpatterns += i18n_patterns(
     path('audit/', include('audit.urls')),
     path('reports/', include('reports.urls')),
     path('users/', include('users.urls')),
-    
+
+    # Mobile interface
+    path('m/', include('mobile.urls', namespace='mobile')),
+
     # Login/logout shortcuts
     path('login/', RedirectView.as_view(url='/accounts/login/', permanent=False)),
     path('logout/', RedirectView.as_view(url='/accounts/logout/', permanent=False)),

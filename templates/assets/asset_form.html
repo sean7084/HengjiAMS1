@@ -28,6 +28,45 @@
         content: " *";
         color: #dc3545;
     }
+    
+    /* Enhanced cancel button visibility */
+    .btn-cancel {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: #ffffff !important;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .btn-cancel:hover {
+        background-color: #5a6268 !important;
+        border-color: #545b62 !important;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .btn-cancel:focus {
+        background-color: #5a6268 !important;
+        border-color: #545b62 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.5);
+    }
+    
+    /* Make form action buttons more prominent */
+    .form-actions {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .form-actions .btn {
+        min-width: 120px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+    }
 </style>
 {% endblock %}
 
@@ -56,8 +95,8 @@
             </h1>
         </div>
         <div>
-            <a href="{% if object %}{% url 'assets:asset_detail' object.pk %}{% else %}{% url 'assets:asset_list' %}{% endif %}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> {% trans "Cancel" %}
+            <a href="{% if object %}{% url 'assets:asset_detail' object.pk %}{% else %}{% url 'assets:asset_list' %}{% endif %}" class="btn btn-cancel">
+                <i class="fas fa-arrow-left me-2"></i> {% trans "Cancel" %}
             </a>
         </div>
     </div>
@@ -71,6 +110,7 @@
             <h5 class="mb-3">
                 <i class="fas fa-info-circle"></i> {% trans "Basic Information" %}
             </h5>
+
             <div class="row">
                 <div class="col-md-6">
                     <label for="{{ form.asset_number.id_for_label }}" class="form-label">{{ form.asset_number.label }}</label>
@@ -94,7 +134,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="row mt-3">
+            <div class="row mt-3 required-field">
                 <div class="col-md-6">
                     <label for="{{ form.brand.id_for_label }}" class="form-label">{{ form.brand.label }}</label>
                     {{ form.brand }}
@@ -133,7 +173,7 @@
                 <i class="fas fa-tag"></i> {% trans "Identification" %}
             </h5>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6 required-field">
                     <label for="{{ form.serial_number.id_for_label }}" class="form-label">{{ form.serial_number.label }}</label>
                     {{ form.serial_number }}
                     {% if form.serial_number.help_text %}
@@ -259,21 +299,19 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between">
-                    <a href="{% if object %}{% url 'assets:asset_detail' object.pk %}{% else %}{% url 'assets:asset_list' %}{% endif %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times"></i> {% trans "Cancel" %}
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> 
-                        {% if object %}
-                            {% trans "Update Asset" %}
-                        {% else %}
-                            {% trans "Create Asset" %}
-                        {% endif %}
-                    </button>
-                </div>
+        <div class="form-actions">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% if object %}{% url 'assets:asset_detail' object.pk %}{% else %}{% url 'assets:asset_list' %}{% endif %}" class="btn btn-cancel">
+                    <i class="fas fa-times me-2"></i> {% trans "Cancel" %}
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i> 
+                    {% if object %}
+                        {% trans "Update Asset" %}
+                    {% else %}
+                        {% trans "Create Asset" %}
+                    {% endif %}
+                </button>
             </div>
         </div>
     </form>
@@ -327,6 +365,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Note: Model dropdown now shows "Brand - Model" format for better UX
+    // Future enhancement: Add brand-based filtering if needed
 });
 </script>
 {% endblock %}
