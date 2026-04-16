@@ -1,0 +1,145 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Receive Stock" %} - {{ purchase_order.po_number }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0">{{ purchase_order.po_number }}</h1>
+                <small class="text-muted">{{ purchase_order.quotation.quotation_number }} / {{ purchase_order.quotation.customer.name }}</small>
+            </div>
+            <div>
+                <a href="{% url 'quotations:detail' purchase_order.quotation.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back to Quotation" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Receipt Items" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Receipt Location" %}</label>
+                                <select name="location" class="form-select" required>
+                                    <option value="">-- {% trans "Select location" %} --</option>
+                                    {% for loc in locations %}
+                                    <option value="{{ loc.pk }}">{{ loc.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Received By" %}</label>
+                                <input type="text" name="received_by" class="form-control" value="{{ request.user.username }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Notes" %}</label>
+                                <input type="text" name="notes" class="form-control" placeholder="{% trans 'Optional' %}">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{% trans "Product" %}</th>
+                                        <th class="text-center">{% trans "Ordered" %}</th>
+                                        <th class="text-center">{% trans "Received" %}</th>
+                                        <th class="text-center">{% trans "Remaining" %}</th>
+                                        <th style="min-width: 120px;">{% trans "Receive Now" %}</th>
+                                        <th style="min-width: 260px;">{% trans "Serial Numbers" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <strong>{{ item.brand.name|default:"-" }}</strong><br>
+                                            <span class="text-muted small">{{ item.product_description|default:"-" }}</span>
+                                        </td>
+                                        <td class="text-center">{{ item.quantity_ordered }}</td>
+                                        <td class="text-center">{{ item.quantity_received }}</td>
+                                        <td class="text-center"><span class="badge bg-warning text-dark">{{ item.quantity_remaining }}</span></td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max="{{ item.quantity_remaining }}"
+                                                name="qty_{{ item.pk }}"
+                                                class="form-control form-control-sm"
+                                                value="0"
+                                                {% if item.quantity_remaining == 0 %}readonly{% endif %}
+                                            >
+                                        </td>
+                                        <td>
+                                            <textarea
+                                                name="serials_{{ item.pk }}"
+                                                class="form-control form-control-sm"
+                                                rows="2"
+                                                placeholder="{% trans 'One serial per line or comma-separated' %}"
+                                                {% if item.quantity_remaining == 0 %}readonly{% endif %}
+                                            ></textarea>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> {% trans "Submit Receipt" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Purchase Order Summary" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <th>{% trans "PO Number" %}</th>
+                            <td>{{ purchase_order.po_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Quotation" %}</th>
+                            <td>{{ purchase_order.quotation.quotation_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Status" %}</th>
+                            <td><span class="badge bg-info">{{ purchase_order.get_status_display }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Total Items" %}</th>
+                            <td>{{ purchase_order.total_items }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Received" %}</th>
+                            <td>{{ purchase_order.total_received }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

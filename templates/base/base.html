@@ -285,7 +285,57 @@
                             </ul>
                         </li>
                         {% endif %}
-                        
+
+                        <!-- Products & Sales -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-shopping-cart"></i> {% trans "Products & Sales" %}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'products:price_list' %}">
+                                    <i class="fas fa-tags"></i> {% trans "Product Price List" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'customers:profile_list' %}">
+                                    <i class="fas fa-users"></i> {% trans "Customer Profiles" %}
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'quotations:list' %}">
+                                    <i class="fas fa-file-invoice"></i> {% trans "Quotations" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'purchases:list' %}">
+                                    <i class="fas fa-shopping-cart"></i> {% trans "Purchases" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'purchases:stock' %}">
+                                    <i class="fas fa-warehouse"></i> {% trans "Stock Overview" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'deliveries:list' %}">
+                                    <i class="fas fa-truck"></i> {% trans "Delivery Orders" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'invoices:batch_list' %}">
+                                    <i class="fas fa-file-alt"></i> {% trans "Weekly Invoice Batches" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'invoices:batch_import' %}">
+                                    <i class="fas fa-file-import"></i> {% trans "Import Sharepoint Batch" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'invoices:invoice_list' %}">
+                                    <i class="fas fa-file-invoice-dollar"></i> {% trans "Invoice Information" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'invoices:email_dispatch_list' %}">
+                                    <i class="fas fa-envelope"></i> {% trans "Email Dispatch History" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'invoices:email_dispatch_compose' %}">
+                                    <i class="fas fa-paper-plane"></i> {% trans "Compose Dispatch Email" %}
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'dashboard:workflow_dashboard' %}">
+                                    <i class="fas fa-columns"></i> {% trans "Workflow Dashboard" %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'dashboard:workflow_search' %}">
+                                    <i class="fas fa-search"></i> {% trans "Workflow Search" %}
+                                </a></li>
+                            </ul>
+                        </li>
+
                         <!-- Reports -->
                         {% if user.can_view_reports %}
                         <li class="nav-item dropdown">

@@ -342,8 +342,17 @@ class Asset(models.Model):
         blank=True,
         verbose_name=_('Purchase Date')
     )
-    
-    # Warranty information
+
+    # Source tracking
+    source_quotation = models.ForeignKey(
+        'quotations.Quotation',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='purchased_assets',
+        verbose_name=_('Source Quotation')
+    )
+
     warranty_start_date = models.DateField(
         null=True,
         blank=True,

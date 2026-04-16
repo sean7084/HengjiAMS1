@@ -18,6 +18,8 @@ urlpatterns = [
     path('charts/category/', views.AssetCategoryChartView.as_view(), name='chart_category'),
     path('charts/brand/', views.AssetBrandChartView.as_view(), name='chart_brand'),
     path('charts/warranty/', views.WarrantyStatusChartView.as_view(), name='chart_warranty'),
+    path('charts/quotation-status/', views.QuotationStatusChartView.as_view(), name='chart_quotation_status'),
+    path('charts/purchase-summary/', views.PurchaseSummaryChartView.as_view(), name='chart_purchase_summary'),
 
     # Quick stats
     path('quick-stats/', views.QuickStatsView.as_view(), name='quick_stats'),

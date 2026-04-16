@@ -1,0 +1,170 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Product Price List" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .price-display {
+        font-weight: 600;
+        color: #28a745;
+    }
+    .price-with-tax {
+        color: #17a2b8;
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{% trans "Product Price List" %}</h1>
+            <div>
+                <a href="{% url 'products:price_import' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-file-import"></i> {% trans "Import" %}
+                </a>
+                <a href="{% url 'products:price_add' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> {% trans "Add Price" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Brand" %}</label>
+                            <select name="brand" class="form-select">
+                                <option value="">-- {% trans "All Brands" %} --</option>
+                                {% for brand in brands %}
+                                <option value="{{ brand.id }}" {% if selected_brand == brand.id|stringformat:'s' %}selected{% endif %}>
+                                    {{ brand.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{% trans "Search" %}</label>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="{% trans 'Search by brand or model...' %}"
+                                   value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search"></i> {% trans "Filter" %}
+                            </button>
+                            <a href="{% url 'products:price_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if prices %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Brand" %}</th>
+                                    <th>{% trans "Model" %}</th>
+                                    <th>{% trans "Model Number" %}</th>
+                                    <th>{% trans "Unit" %}</th>
+                                    <th>{% trans "Price (excl. tax)" %}</th>
+                                    <th>{% trans "Tax Rate" %}</th>
+                                    <th>{% trans "Price (incl. tax)" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for price in prices %}
+                                <tr>
+                                    <td>{{ price.brand.name }}</td>
+                                    <td>{{ price.model.name }}</td>
+                                    <td>{{ price.model.model_number|default:"-" }}</td>
+                                    <td>{{ price.unit }}</td>
+                                    <td class="price-display">¥{{ price.price_without_tax|floatformat:2 }}</td>
+                                    <td>{{ price.tax_rate }}%</td>
+                                    <td class="price-with-tax">¥{{ price.price_with_tax|floatformat:2 }}</td>
+                                    <td>
+                                        {% if price.is_current %}
+                                        <span class="badge bg-success">{% trans "Current" %}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'products:price_edit' price.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'products:price_delete' price.pk %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Price list pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {% trans "Previous" %}
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {% trans "Next" %}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans "No product prices found." %}</p>
+                        <a href="{% url 'products:price_add' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> {% trans "Add First Price" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

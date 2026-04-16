@@ -1,0 +1,105 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ batch.batch_id }} - {% trans "Weekly Batch" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">{{ batch.batch_id }}</h1>
+            <div class="d-flex gap-2">
+                <a href="{% url 'invoices:batch_import' %}" class="btn btn-primary">
+                    <i class="fas fa-file-import"></i> {% trans "Import Another Batch" %}
+                </a>
+                <a href="{% url 'invoices:batch_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back to List" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">{% trans "Status" %}</div>
+                <div class="h5 mb-0">{{ batch.get_status_display }}</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">{% trans "Uploaded At" %}</div>
+                <div class="h6 mb-0">{{ batch.uploaded_at|date:"Y-m-d H:i" }}</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">{% trans "Processed At" %}</div>
+                <div class="h6 mb-0">{% if batch.processed_at %}{{ batch.processed_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}</div>
+            </div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">{% trans "Created Rows" %}</div>
+                <div class="h5 mb-0">{{ batch.created_rows }}/{{ batch.total_rows }}</div>
+            </div></div>
+        </div>
+    </div>
+
+    {% if batch.status == 'failed' %}
+    <div class="alert alert-danger">
+        <strong>{% trans "Import Failed" %}</strong>
+        {% if batch.failed_row_number %}
+        <div>{% trans "Failed row" %}: {{ batch.failed_row_number }}</div>
+        {% endif %}
+        {% if batch.failure_reason %}
+        <div>{{ batch.failure_reason }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">{% trans "Imported Invoice Candidates" %}</h5>
+        </div>
+        <div class="card-body">
+            {% if invoice_infos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Row" %}</th>
+                            <th>{% trans "Invoice Number" %}</th>
+                            <th>{% trans "Invoice Date" %}</th>
+                            <th>{% trans "PO Number" %}</th>
+                            <th>{% trans "Internal Order" %}</th>
+                            <th>{% trans "SAP Cost Center" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in invoice_infos %}
+                        <tr>
+                            <td>{{ item.source_row_number }}</td>
+                            <td><a href="{% url 'invoices:invoice_detail' item.pk %}">{{ item.invoice_number }}</a></td>
+                            <td>{{ item.invoice_date|date:"Y-m-d" }}</td>
+                            <td>{{ item.kering_group_po_number }}</td>
+                            <td>{{ item.internal_order }}</td>
+                            <td>{{ item.sap_cost_center }}</td>
+                            <td>
+                                <a href="{% url 'invoices:invoice_detail' item.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">{% trans "No invoice candidates were created for this batch." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

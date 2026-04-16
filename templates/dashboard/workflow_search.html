@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load workflow_tags %}
+
+{% block title %}{% trans "Workflow Search" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">{% trans "Workflow Search" %}</h1>
+            <a href="{% url 'dashboard:workflow_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-columns"></i> {% trans "Workflow Dashboard" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <input type="text" class="form-control" name="q" value="{{ query }}" placeholder="{% trans 'Search quotation #, delivery #, invoice #, customer, PO, IO, SAP...' %}">
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> {% trans "Search" %}</button>
+                </div>
+            </form>
+            {% if query %}
+            <small class="text-muted mt-2 d-block">{% trans "Total results" %}: {{ result_count }}</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-light"><h5 class="card-title mb-0">{% trans "Quotations" %}</h5></div>
+                <div class="card-body">
+                    {% if quotation_results %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in quotation_results %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold"><a href="{% url 'quotations:detail' item.pk %}">{{ item.quotation_number }}</a></div>
+                            <div class="small">{{ item.customer.name }}</div>
+                            <span class="badge {{ item.status|workflow_badge_class:'quotation' }}">{{ item.get_status_display }}</span>
+                            <div class="text-muted small">{% trans "Next" %}: {{ item|quotation_next_action }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% elif query %}
+                    <p class="text-muted mb-0">{% trans "No quotation matches." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-light"><h5 class="card-title mb-0">{% trans "Deliveries" %}</h5></div>
+                <div class="card-body">
+                    {% if delivery_results %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in delivery_results %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold"><a href="{% url 'deliveries:detail' item.pk %}">{{ item.delivery_number }}</a></div>
+                            <div class="small">{{ item.quotation.quotation_number }} - {{ item.quotation.customer.name }}</div>
+                            <span class="badge {{ item.status|workflow_badge_class:'delivery' }}">{{ item.get_status_display }}</span>
+                            <div class="text-muted small">{% trans "Next" %}: {{ item|delivery_next_action }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% elif query %}
+                    <p class="text-muted mb-0">{% trans "No delivery matches." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-light"><h5 class="card-title mb-0">{% trans "Invoices" %}</h5></div>
+                <div class="card-body">
+                    {% if invoice_results %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in invoice_results %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold"><a href="{% url 'invoices:invoice_detail' item.pk %}">{{ item.invoice_number }}</a></div>
+                            <div class="small">{{ item.bill_to|default:'-' }}</div>
+                            <span class="badge bg-success">{% trans "Invoiced" %}</span>
+                            <div class="text-muted small">{% trans "Next" %}: {{ item|invoice_next_action }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% elif query %}
+                    <p class="text-muted mb-0">{% trans "No invoice matches." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

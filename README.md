@@ -286,9 +286,9 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 | v0.0.2 | August 2025 | Major Features - Asset models, audit system, RBAC |
 | v0.0.3 | August 2025 | Consolidation - Category/Brand management, export, UI fixes |
 | v0.0.4 | April 2026 | 2FA, Reporting, Mobile API, REST API |
-| v0.1.0 | In Progress | Quotation & Invoice Management System |
+| v0.1.0 | April 2026 | Quotation & Invoice Management System |
 
-### Current Status (v0.0.4)
+### Current Status (v0.1.0)
 
 #### Fully Operational Features
 
@@ -307,6 +307,7 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Advanced Reporting** - Charts and analytics dashboard with Chart.js
 - **Enhanced Mobile Features** - Barcode scanning with Html5-QRCode
 - **REST API** - Full API endpoints at /api/v1/ with documentation at /docs/
+- **Quotation & Invoice Management System** - End-to-end quotation -> purchase -> delivery -> invoice -> dispatch workflow
 
 #### Database Schema
 
@@ -333,7 +334,7 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - [x] **Advanced Reporting** - Charts and analytics dashboard with filtering
 - [x] **Enhanced Mobile Features** - Barcode scanning and offline capability
 - [x] **REST API Development** - API endpoints for mobile integration
-- [ ] **Quotation & Invoice System** - Full workflow from quotation to invoice (see [Quotation & Invoice Management System](#quotation--invoice-management-system))
+- [x] **Quotation & Invoice System** - Full workflow from quotation to invoice (see [Quotation & Invoice Management System](#quotation--invoice-management-system))
 
 ### Medium Priority
 
@@ -365,6 +366,15 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 A complete business workflow for managing quotations, purchase orders, deliveries, and invoices, integrated with the asset management system. Products are purchased after client confirms quotations, then added to inventory as assets upon receipt, and dispatched to stores/offices with delivery orders.
 
+### Future Reference Summary
+
+- Scope delivered in v0.1.0: end-to-end workflow from quotation creation to client dispatch and Esker forwarding.
+- Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
+- Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
+- Key automation paths: quotation PDF generation, delivery template document generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.
+- Workflow governance: dashboard Kanban, cross-entity workflow search, status badge standardization, and status-change audit trail.
+- Operational validation baseline: full smoke transition run verified quotation -> purchase -> delivery -> invoice -> dispatch transitions in Django test client flow.
+
 ### Integration with Asset Management
 
 The system leverages existing HengJi AMS infrastructure:
@@ -374,7 +384,7 @@ The system leverages existing HengJi AMS infrastructure:
 | `assets.AssetBrand` | Product brands (repurposed for product catalog) |
 | `assets.AssetModel` | Product models with pricing |
 | `companies.Company` | Customer companies |
-| `companies.CompanyUser` | Customer contacts (attn, tel) |
+| `customers.CustomerProfile` | Customer contacts and delivery defaults (attn, tel, address) |
 | `assets.Asset` | Purchased products added as assets |
 | `assets.AssetAssignment` | Dispatch to stores/offices |
 
@@ -482,143 +492,143 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 
 #### Phase Q1: Database Extension - Products & Customers
 
-- [ ] **Q1.1** - Create `ProductPrice` model extending `AssetBrand`/`AssetModel`
+- [x] **Q1.1** - Create `ProductPrice` model extending `AssetBrand`/`AssetModel`
   - Add `price_without_tax`, `price_with_tax`, `tax_rate`, `unit`, `is_current` fields
   - Create admin interface for price management
 
-- [ ] **Q1.2** - Create `CustomerProfile` model extending `Company`
+- [x] **Q1.2** - Create `CustomerProfile` model extending `Company`
   - Add delivery info fields: `delivery_address`, `delivery_city`, `delivery_contact`, `delivery_phone`, `delivery_method`
   - Add contact fields: `contact_person`, `phone`, `email`
 
-- [ ] **Q1.3** - Create product price list view with filtering by brand
-- [ ] **Q1.4** - Create customer profile view linked to Company
-- [ ] **Q1.5** - Add Excel import for bulk product pricing updates
+- [x] **Q1.3** - Create product price list view with filtering by brand
+- [x] **Q1.4** - Create customer profile view linked to Company
+- [x] **Q1.5** - Add Excel import for bulk product pricing updates
 
 #### Phase Q2: Quotation System
 
-- [ ] **Q2.1** - Create `Quotation` model
+- [x] **Q2.1** - Create `Quotation` model
   - Auto-generate `quotation_number` (QT-YYYYMMDD-### format)
   - Fields: `customer`, `quotation_date`, `valid_until`, `attn`, `tel`, `status`, `total_without_tax`, `total_with_tax`, `notes`
   - Status: `draft`, `sent`, `confirmed`, `expired`, `cancelled`
 
-- [ ] **Q2.2** - Create `QuotationItem` model
+- [x] **Q2.2** - Create `QuotationItem` model
   - Link to `ProductPrice` for product info
   - Calculate line totals with tax
 
-- [ ] **Q2.3** - Create quotation creation view
+- [x] **Q2.3** - Create quotation creation view
   - Select customer → Auto-fill attn/tel from CustomerProfile
   - Add line items with product selection
   - Auto-calculate totals
 
-- [ ] **Q2.4** - Generate quotation PDF from template
+- [x] **Q2.4** - Generate quotation PDF from template
   - Map fields: date, quote date, validity, attn, tel
   - Map products: brand, description, user's brand, user, unit, prices, amounts
   - Calculate: total without tax, total with tax
 
-- [ ] **Q2.5** - Create quotation list view with status filtering and search
-- [ ] **Q2.6** - Add quotation actions: Edit, Duplicate, Cancel, Generate PDF
+- [x] **Q2.5** - Create quotation list view with status filtering and search
+- [x] **Q2.6** - Add quotation actions: Edit, Duplicate, Cancel, Generate PDF
 
 #### Phase Q3: Attachment Management
 
-- [ ] **Q3.1** - Create `QuotationAttachment` model
+- [x] **Q3.1** - Create `QuotationAttachment` model
   - Attachment types: `invoice_pdf`, `invoice_ofd`, `invoice_xml`, `email_confirmation`
   - Store file path and upload timestamp
 
-- [ ] **Q3.2** - Add attachment upload interface on quotation detail
-- [ ] **Q3.3** - Add attachment preview and download
-- [ ] **Q3.4** - Validate file types (PDF, OFD, ZIP only)
+- [x] **Q3.2** - Add attachment upload interface on quotation detail
+- [x] **Q3.3** - Add attachment preview and download
+- [x] **Q3.4** - Validate file types (PDF, OFD, ZIP only)
 
 #### Phase Q4: Purchase & Stock Management
 
-- [ ] **Q4.1** - Create "Convert to Purchase Order" action
+- [x] **Q4.1** - Create "Convert to Purchase Order" action
   - Copy confirmed quotation items
   - Create Asset entries from products (using AssetModel)
 
-- [ ] **Q4.2** - Add purchase receipt view
+- [x] **Q4.2** - Add purchase receipt view
   - Input serial numbers for each asset
   - Set initial location/status (received → ready for dispatch)
 
-- [ ] **Q4.3** - Link purchased assets back to source quotation
-- [ ] **Q4.4** - Add stock overview dashboard showing received products
+- [x] **Q4.3** - Link purchased assets back to source quotation
+- [x] **Q4.4** - Add stock overview dashboard showing received products
 
 #### Phase Q5: Delivery Order (签收单)
 
-- [ ] **Q5.1** - Create `DeliveryOrder` model
+- [x] **Q5.1** - Create `DeliveryOrder` model
   - Auto-generate `delivery_number` (DO-YYYYMMDD-###)
   - Pull customer delivery info from `CustomerProfile`
   - Status: `pending`, `prepared`, `dispatched`, `completed`
 
-- [ ] **Q5.2** - Create `DeliveryItem` model
+- [x] **Q5.2** - Create `DeliveryItem` model
   - Link to `Asset` for serial number tracking
 
-- [ ] **Q5.3** - Generate 签收单 PDF from template
+- [x] **Q5.3** - Generate 签收单 PDF from template
   - Map fields: 订货方, 收货人, 电话, 序列号, 品牌, 商品描述, 采购方品牌, 采购方用户, 数量, 交货地址, 交货方式
 
-- [ ] **Q5.4** - Add serial number input for each delivery item
-- [ ] **Q5.5** - Add signed 签收单 upload functionality
-- [ ] **Q5.6** - Create delivery order list with status tracking
+- [x] **Q5.4** - Add serial number input for each delivery item
+- [x] **Q5.5** - Add signed 签收单 upload functionality
+- [x] **Q5.6** - Create delivery order list with status tracking
 
 #### Phase Q6: Weekly Sharepoint Processing
 
-- [ ] **Q6.1** - Create `WeeklyOrderBatch` model
+- [x] **Q6.1** - Create `WeeklyOrderBatch` model
   - Store Sharepoint Excel file reference
   - Track: `uploaded_at`, `processed_at`, `status`
 
-- [ ] **Q6.2** - Create Sharepoint Excel import view
+- [x] **Q6.2** - Create Sharepoint Excel import view
   - Parse Excel for completed orders
   - Extract: Kering Group PO Number, Internal Order, SAP Cost Center
 
-- [ ] **Q6.3** - Implement invoice number auto-generation
+- [x] **Q6.3** - Implement invoice number auto-generation
   - Format: `yymmdd+##` (e.g., 26041501 for first invoice on Apr 15, 2026)
   - Track daily counter for `##` increment
 
-- [ ] **Q6.4** - Auto-fill invoice date from processing date
-- [ ] **Q6.5** - Create weekly batch list view showing processing status
+- [x] **Q6.4** - Auto-fill invoice date from processing date
+- [x] **Q6.5** - Create weekly batch list view showing processing status
 
 #### Phase Q7: Invoice Information Sheet
 
-- [ ] **Q7.1** - Create `InvoiceInfo` model
+- [x] **Q7.1** - Create `InvoiceInfo` model
   - Generate `invoice_number` (yymmdd+##)
   - Fields: `bill_to` (from brand), `kering_group_po_number`, `internal_order`, `sap_cost_center`
   - Amount fields: `total_amount`, `net_amount`, `tax_amount`, `gross_amount`, `tax_rate`
 
-- [ ] **Q7.2** - Create `InvoiceInfoItem` model
+- [x] **Q7.2** - Create `InvoiceInfoItem` model
   - Line items: description, unit_price, quantity, totals
 
-- [ ] **Q7.3** - Generate invoice info PDF from template
+- [x] **Q7.3** - Generate invoice info PDF from template
   - All invoice fields with proper formatting
   - Line item table with tax breakdown
 
-- [ ] **Q7.4** - Auto-calculate totals from linked delivery items
-- [ ] **Q7.5** - Create invoice info list with export functionality
+- [x] **Q7.4** - Auto-calculate totals from linked delivery items
+- [x] **Q7.5** - Create invoice info list with export functionality
 
 #### Phase Q8: Email Integration
 
-- [ ] **Q8.1** - Create email template for client dispatch
+- [x] **Q8.1** - Create email template for client dispatch
   - Include all attachments (quotation, delivery, invoice)
   - Support multiple recipients, CC, BCC
 
-- [ ] **Q8.2** - Create `EmailDispatch` model for tracking
+- [x] **Q8.2** - Create `EmailDispatch` model for tracking
   - Store: `sent_to`, `cc`, `sent_at`, `attachments`, `status`
   - Track Esker forwarding separately
 
-- [ ] **Q8.3** - Add email composition and sending interface
+- [x] **Q8.3** - Add email composition and sending interface
   - Preview email before sending
   - Attach all related documents automatically
 
-- [ ] **Q8.4** - Add "Client Confirmed" button to trigger Esker send
-- [ ] **Q8.5** - Create email history log per quotation
+- [x] **Q8.4** - Add "Client Confirmed" button to trigger Esker send
+- [x] **Q8.5** - Create email history log per quotation
 
 #### Phase Q9: Integration & Workflow Dashboard
 
-- [ ] **Q9.1** - Create workflow dashboard
+- [x] **Q9.1** - Create workflow dashboard
   - Visual Kanban: Quotations → Confirmed → Purchased → Dispatched → Delivered → Invoiced
   - Show counts and values at each stage
 
-- [ ] **Q9.2** - Add "Next Action" suggestions on each entity
-- [ ] **Q9.3** - Add status badges with color coding throughout UI
-- [ ] **Q9.4** - Create audit trail for all status changes
-- [ ] **Q9.5** - Add search across quotations, deliveries, invoices
+- [x] **Q9.2** - Add "Next Action" suggestions on each entity
+- [x] **Q9.3** - Add status badges with color coding throughout UI
+- [x] **Q9.4** - Create audit trail for all status changes
+- [x] **Q9.5** - Add search across quotations, deliveries, invoices
 
 ---
 
@@ -669,4 +679,4 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 ---
 
 *Last Updated: April 2026*
-*HengJi Asset Management System v0.0.4*
+*HengJi Asset Management System v0.1.0*

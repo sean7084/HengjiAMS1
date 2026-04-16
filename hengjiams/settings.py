@@ -57,6 +57,12 @@ INSTALLED_APPS = [
     'users',  # User management
     'api',  # REST API
     'mobile',  # Mobile interface
+    'products',  # Product price list
+    'customers',  # Customer profiles
+    'quotations',  # Quotation management
+    'purchases',  # Purchase and stock management
+    'deliveries',  # Delivery order management
+    'invoices',  # Weekly sharepoint processing and invoice staging
 ]
 
 MIDDLEWARE = [
@@ -163,8 +169,8 @@ LANGUAGE_CODE = 'en-us'
 
 # List of supported languages
 LANGUAGES = [
-    ('en', 'English'),
-    ('zh-hans', 'Simplified Chinese'),
+    ('en-us', 'English (US)'),
+    ('zh-cn', 'Simplified Chinese'),
 ]
 
 # Directory containing translation files

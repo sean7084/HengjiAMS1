@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Customer Profiles" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{% trans "Customer Profiles" %}</h1>
+        </div>
+    </div>
+
+    <!-- Profile List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if profiles %}
+                    <div class="row">
+                        {% for profile in profiles %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">{{ profile.company.name }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-1">
+                                        <i class="fas fa-user text-muted"></i>
+                                        {{ profile.contact_person }}
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-phone text-muted"></i>
+                                        {{ profile.phone }}
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-envelope text-muted"></i>
+                                        {{ profile.email }}
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-map-marker-alt text-muted"></i>
+                                        {{ profile.delivery_city }}
+                                    </p>
+                                    <span class="badge bg-info">{{ profile.get_delivery_method_display }}</span>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="{% url 'customers:profile_detail' profile.company_id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> {% trans "View" %}
+                                    </a>
+                                    <a href="{% url 'customers:profile_edit' profile.company_id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> {% trans "Edit" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Profile list pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Previous" %}</a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Next" %}</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans "No customer profiles found." %}</p>
+                        <p class="small">{% trans "Customer profiles are created from the Companies page." %}</p>
+                        <a href="{% url 'companies:company_list' %}" class="btn btn-primary">
+                            <i class="fas fa-building"></i> {% trans "Go to Companies" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 
 from assets.models import Asset, AssetCategory, AssetBrand, AssetAssignment, AssetMaintenance
 from companies.models import Company, Division, Location
+from quotations.models import Quotation
 from .models import ReportTemplate, GeneratedReport
 
 
@@ -352,3 +353,70 @@ class QuickStatsView(LoginRequiredMixin, TemplateView):
         }
 
         return JsonResponse(stats)
+
+
+class QuotationStatusChartView(LoginRequiredMixin, TemplateView):
+    """
+    API view for quotation status chart data (JSON).
+    """
+    template_name = 'reports/charts/quotation_status_chart.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        status_counts = Quotation.objects.values('status').annotate(
+            count=Count('id')
+        ).order_by('status')
+
+        data = {
+            'labels': [],
+            'datasets': [{
+                'data': [],
+                'backgroundColor': []
+            }]
+        }
+
+        color_map = {
+            'draft': '#6c757d',
+            'sent': '#17a2b8',
+            'confirmed': '#28a745',
+            'cancelled': '#dc3545',
+        }
+
+        for item in status_counts:
+            status_display = dict(Quotation.QuotationStatus.choices).get(item['status'], item['status'])
+            data['labels'].append(status_display)
+            data['datasets'][0]['data'].append(item['count'])
+            data['datasets'][0]['backgroundColor'].append(
+                color_map.get(item['status'], '#6c757d')
+            )
+
+        return JsonResponse(data)
+
+
+class PurchaseSummaryChartView(LoginRequiredMixin, TemplateView):
+    """
+    API view for purchase summary chart data (JSON).
+    """
+    template_name = 'reports/charts/purchase_summary_chart.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        # Get quotation totals by status
+        quotations = Quotation.objects.filter(status='confirmed')
+        total_quotation_value = sum(q.total_with_tax for q in quotations)
+
+        # Get purchased assets value
+        purchased_assets = Asset.objects.filter(source_quotation__isnull=False)
+        total_purchased_value = sum(float(a.purchase_price or 0) for a in purchased_assets)
+
+        data = {
+            'labels': [
+                _('Quotation Value'),
+                _('Purchased Value'),
+                _('Pending Value')
+            ],
+            'datasets': [{
+                'data': [total_quotation_value, total_purchased_value, total_quotation_value - total_purchased_value],
+                'backgroundColor': ['#28a745', '#17a2b8', '#ffc107']
+            }]
+        }
+
+        return JsonResponse(data)

@@ -1,0 +1,99 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Compose Dispatch Email" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">{% trans "Compose Dispatch Email" %}</h1>
+            <div class="d-flex gap-2">
+                <a href="{% url 'invoices:email_dispatch_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-history"></i> {% trans "Email History" %}
+                </a>
+                {% if quotation %}
+                <a href="{% url 'quotations:detail' quotation.pk %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back to Quotation" %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Email Composition" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="text-muted d-block">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="text-danger mt-1">{{ field.errors|join:', ' }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="action" value="preview" class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> {% trans "Preview" %}
+                            </button>
+                            <button type="submit" name="action" value="send" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> {% trans "Send Email" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Preview" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if preview_dispatch %}
+                    <div class="mb-2"><strong>{% trans "Subject" %}:</strong> {{ preview_dispatch.subject }}</div>
+                    <div class="mb-2"><strong>{% trans "To" %}:</strong> {{ preview_dispatch.sent_to }}</div>
+                    <div class="mb-2"><strong>{% trans "CC" %}:</strong> {{ preview_dispatch.cc|default:'-' }}</div>
+                    <div class="mb-2"><strong>{% trans "BCC" %}:</strong> {{ preview_dispatch.bcc|default:'-' }}</div>
+                    <hr>
+                    <pre class="small" style="white-space: pre-wrap;">{{ preview_dispatch.body }}</pre>
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans "Use Preview to inspect recipients, body, and attachments before sending." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Auto Attachments" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if preview_files %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in preview_files %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">{{ item.label }}</div>
+                            <div class="text-muted small">{{ item.name }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans "Preview to load quotation, delivery, and invoice attachments automatically." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% if is_edit %}{% trans "Edit Quotation" %}{% else %}{% trans "Create Quotation" %}{% endif %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">
+                {% if is_edit %}
+                {% trans "Edit Quotation" %} - {{ quotation.quotation_number }}
+                {% else %}
+                {% trans "Create Quotation" %}
+                {% endif %}
+            </h1>
+        </div>
+    </div>
+
+    <form method="post" id="quotation-form">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Basic Info -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">{% trans "Quotation Details" %}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">{% trans "Customer" %} *</label>
+                                {{ form.customer }}
+                                {% if form.customer.errors %}
+                                <div class="text-danger">{{ form.customer.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{% trans "Quotation Date" %} *</label>
+                                {{ form.quotation_date }}
+                                {% if form.quotation_date.errors %}
+                                <div class="text-danger">{{ form.quotation_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{% trans "Valid Until" %} *</label>
+                                {{ form.valid_until }}
+                                {% if form.valid_until.errors %}
+                                <div class="text-danger">{{ form.valid_until.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Attention" %}</label>
+                                {{ form.attn }}
+                                {% if form.attn.errors %}
+                                <div class="text-danger">{{ form.attn.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Telephone" %}</label>
+                                {{ form.tel }}
+                                {% if form.tel.errors %}
+                                <div class="text-danger">{{ form.tel.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Status" %}</label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                <div class="text-danger">{{ form.status.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Notes" %}</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{% trans "Items" %}</h5>
+                        <button type="button" class="btn btn-sm btn-primary" id="add-item-btn">
+                            <i class="fas fa-plus"></i> {% trans "Add Item" %}
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm" id="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Product" %}</th>
+                                        <th>{% trans "User Brand" %}</th>
+                                        <th>{% trans "User" %}</th>
+                                        <th class="text-center">{% trans "Qty" %}</th>
+                                        <th class="text-end">{% trans "Unit Price" %}</th>
+                                        <th class="text-end">{% trans "Amount" %}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items-tbody">
+                                    {% for item in items %}
+                                    <tr class="item-row" data-item-id="{{ item.pk }}">
+                                        <input type="hidden" name="items" value="item_{{ item.pk }}|{{ item.product_price.pk }}|{{ item.quantity }}|{{ item.user_brand }}|{{ item.user_name }}">
+                                        <td>{{ item.brand_name }} - {{ item.product_description|truncatechars:30 }}</td>
+                                        <td>{{ item.user_brand|default:"" }}</td>
+                                        <td>{{ item.user_name|default:"" }}</td>
+                                        <td class="text-center">{{ item.quantity }}</td>
+                                        <td class="text-end">¥{{ item.unit_price|floatformat:2 }}</td>
+                                        <td class="text-end">¥{{ item.line_total_without_tax|floatformat:2 }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-muted small">{% trans "Click 'Add Item' to add products to this quotation." %}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Actions -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% if is_edit %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %}
+                            </button>
+                            <a href="{% if is_edit %}{% url 'quotations:detail' quotation.pk %}{% else %}{% url 'quotations:list' %}{% endif %}" class="btn btn-outline-secondary">
+                                {% trans "Cancel" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Selection -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">{% trans "Select Product" %}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Product" %}</label>
+                            <select id="product-select" class="form-select">
+                                <option value="">-- {% trans "Select a product" %} --</option>
+                                {% for product in products %}
+                                <option value="{{ product.pk }}"
+                                        data-brand="{{ product.brand.name }}"
+                                        data-model="{{ product.model.name }}"
+                                        data-description="{{ product.model.description }}"
+                                        data-price="{{ product.price_without_tax }}"
+                                        data-tax="{{ product.tax_rate }}"
+                                        data-unit="{{ product.unit }}">
+                                    {{ product.brand.name }} - {{ product.model.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <label class="form-label small">{% trans "User Brand" %}</label>
+                                <input type="text" id="item-user-brand" class="form-control form-control-sm" placeholder="{% trans 'User brand' %}">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">{% trans "User" %}</label>
+                                <input type="text" id="item-user-name" class="form-control form-control-sm" placeholder="{% trans 'User name' %}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">{% trans "Quantity" %}</label>
+                            <input type="number" id="item-qty" class="form-control form-control-sm" value="1" min="1">
+                        </div>
+                        <button type="button" id="add-to-quotation" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-plus"></i> {% trans "Add to Quotation" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-fill attn/tel when customer is selected
+    document.querySelector('#id_customer').addEventListener('change', function() {
+        // This would be handled by form submission with proper customer profile lookup
+    });
+
+    // Add item to quotation
+    document.querySelector('#add-to-quotation').addEventListener('click', function() {
+        const select = document.querySelector('#product-select');
+        const option = select.options[select.selectedIndex];
+        if (!option.value) {
+            alert('{% trans "Please select a product" %}');
+            return;
+        }
+
+        const brand = option.dataset.brand;
+        const description = option.dataset.description;
+        const price = parseFloat(option.dataset.price);
+        const tax = parseFloat(option.dataset.tax);
+        const unit = option.dataset.unit;
+        const productId = option.value;
+        const qty = parseInt(document.querySelector('#item-qty').value) || 1;
+        const userBrand = document.querySelector('#item-user-brand').value;
+        const userName = document.querySelector('#item-user-name').value;
+
+        const amount = price * qty;
+        const amountStr = amount.toFixed(2);
+
+        // Create hidden input
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'items';
+        hiddenInput.value = `new|${productId}|${qty}|${userBrand}|${userName}`;
+
+        // Add row to table
+        const tbody = document.querySelector('#items-tbody');
+        const row = document.createElement('tr');
+        row.className = 'item-row';
+        row.innerHTML = `
+            <td>${brand} - ${description.substring(0, 30)}...</td>
+            <td>${userBrand || '-'}</td>
+            <td>${userName || '-'}</td>
+            <td class="text-center">${qty}</td>
+            <td class="text-end">¥${price.toFixed(2)}</td>
+            <td class="text-end">¥${amountStr}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        row.appendChild(hiddenInput);
+        tbody.appendChild(row);
+
+        // Clear selection
+        select.value = '';
+        document.querySelector('#item-qty').value = '1';
+        document.querySelector('#item-user-brand').value = '';
+        document.querySelector('#item-user-name').value = '';
+    });
+
+    // Remove item from quotation
+    document.querySelector('#items-tbody').addEventListener('click', function(e) {
+        if (e.target.closest('.remove-item')) {
+            const row = e.target.closest('tr');
+            row.remove();
+        }
+    });
+});
+</script>
+{% endblock %}

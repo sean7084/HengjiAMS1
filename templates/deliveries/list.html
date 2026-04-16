@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load workflow_tags %}
+
+{% block title %}{% trans "Delivery Orders" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{% trans "Delivery Orders" %}</h1>
+            <a href="{% url 'purchases:stock' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-warehouse"></i> {% trans "Back to Stock" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Status" %}</label>
+                    <select name="status" class="form-select">
+                        <option value="">-- {% trans "All" %} --</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{% trans "Quotation" %}</label>
+                    <select name="quotation" class="form-select">
+                        <option value="">-- {% trans "All Quotations" %} --</option>
+                        {% for q in quotations %}
+                        <option value="{{ q.pk }}" {% if selected_quotation == q.pk|stringformat:'s' %}selected{% endif %}>
+                            {{ q.quotation_number }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{% trans "Search" %}</label>
+                    <input type="text" class="form-control" name="search" value="{{ search_query }}"
+                           placeholder="{% trans 'Delivery #, Quotation #, Customer...' %}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search"></i></button>
+                    <a href="{% url 'deliveries:list' %}" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if deliveries %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Delivery #" %}</th>
+                            <th>{% trans "Quotation" %}</th>
+                            <th>{% trans "Customer" %}</th>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Receiver" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Next Action" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in deliveries %}
+                        <tr>
+                            <td><a href="{% url 'deliveries:detail' d.pk %}">{{ d.delivery_number }}</a></td>
+                            <td><a href="{% url 'quotations:detail' d.quotation.pk %}">{{ d.quotation.quotation_number }}</a></td>
+                            <td>{{ d.quotation.customer.name }}</td>
+                            <td>{{ d.delivery_date|date:"Y-m-d" }}</td>
+                            <td>{{ d.receiver_name }}</td>
+                            <td><span class="badge {{ d.status|workflow_badge_class:'delivery' }}">{{ d.get_status_display }}</span></td>
+                            <td class="small text-muted">{{ d|delivery_next_action }}</td>
+                            <td>
+                                <a href="{% url 'deliveries:detail' d.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'deliveries:pdf' d.pk %}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-4">{% trans "No delivery orders found." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

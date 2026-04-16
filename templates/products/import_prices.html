@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Import Product Prices" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{% trans "Import Product Prices" %}</h1>
+            <a href="{% url 'products:price_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to List" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Upload Form -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Upload Excel File" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label">{% trans "Select Excel File" %}</label>
+                            <input type="file" name="file" class="form-control" accept=".xlsx" required>
+                            <small class="text-muted">{% trans "Supported format: .xlsx (Excel 2007+)" %}</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> {% trans "Import" %}
+                            </button>
+                            <a href="{% url 'products:price_import_template' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-download"></i> {% trans "Download Template" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Instructions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <h6>{% trans "File Format" %}</h6>
+                    <p class="small">{% trans "The Excel file should have the following columns:" %}</p>
+                    <table class="table table-sm small">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Column" %}</th>
+                                <th>{% trans "Description" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Brand_Code</code></td>
+                                <td>{% trans "Brand code (e.g., DELL, HP)" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>Model_Number</code></td>
+                                <td>{% trans "Model number" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>Unit</code></td>
+                                <td>{% trans "Unit (e.g., PCS)" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>Price_Without_Tax</code></td>
+                                <td>{% trans "Price before tax" %}</td>
+                            </tr>
+                            <tr>
+                                <td><code>Tax_Rate</code></td>
+                                <td>{% trans "Tax percentage (e.g., 13)" %}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <hr>
+
+                    <h6>{% trans "Notes" %}</h6>
+                    <ul class="small">
+                        <li>{% trans "First row should be headers" %}</li>
+                        <li>{% trans "Brand and Model must already exist in the system" %}</li>
+                        <li>{% trans "Existing prices will be updated, new prices will be created" %}</li>
+                        <li>{% trans "Tax rate should be a number (e.g., 13 for 13%)" %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

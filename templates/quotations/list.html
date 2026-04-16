@@ -1,0 +1,167 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load workflow_tags %}
+
+{% block title %}{% trans "Quotations" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{% trans "Quotations" %}</h1>
+            <a href="{% url 'quotations:create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> {% trans "Create Quotation" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">{% trans "Status" %}</label>
+                            <select name="status" class="form-select">
+                                <option value="">-- {% trans "All" %} --</option>
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Customer" %}</label>
+                            <select name="customer" class="form-select">
+                                <option value="">-- {% trans "All Customers" %} --</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}" {% if selected_customer == customer.id|stringformat:'s' %}selected{% endif %}>
+                                    {{ customer.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Search" %}</label>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="{% trans 'Quote number, customer, attn...' %}"
+                                   value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <a href="{% url 'quotations:list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quotation List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if quotations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Quote #" %}</th>
+                                    <th>{% trans "Date" %}</th>
+                                    <th>{% trans "Customer" %}</th>
+                                    <th>{% trans "Attn" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Next Action" %}</th>
+                                    <th class="text-end">{% trans "Total (incl. tax)" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quote in quotations %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'quotations:detail' quote.pk %}">
+                                            {{ quote.quotation_number }}
+                                        </a>
+                                    </td>
+                                    <td>{{ quote.quotation_date|date:"Y-m-d" }}</td>
+                                    <td>{{ quote.customer.name }}</td>
+                                    <td>{{ quote.attn|default:"-" }}</td>
+                                    <td>
+                                        <span class="badge {{ quote.status|workflow_badge_class:'quotation' }}">{{ quote.get_status_display }}</span>
+                                    </td>
+                                    <td class="small text-muted">{{ quote|quotation_next_action }}</td>
+                                    <td class="text-end">¥{{ quote.total_with_tax|floatformat:2 }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'quotations:detail' quote.pk %}" class="btn btn-outline-primary" title="{% trans 'View' %}">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'quotations:pdf' quote.pk %}" class="btn btn-outline-info" title="{% trans 'PDF' %}" target="_blank">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            <a href="{% url 'quotations:edit' quote.pk %}" class="btn btn-outline-secondary" title="{% trans 'Edit' %}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Quotation list pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_customer %}&customer={{ selected_customer }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {% trans "Previous" %}
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_customer %}&customer={{ selected_customer }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_customer %}&customer={{ selected_customer }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {% trans "Next" %}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans "No quotations found." %}</p>
+                        <a href="{% url 'quotations:create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> {% trans "Create First Quotation" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

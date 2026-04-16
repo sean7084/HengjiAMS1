@@ -16,6 +16,12 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 from .models import User
 
 
+LANGUAGE_PREFERENCE_CHOICES = [
+    ('en-us', _('English (US)')),
+    ('zh-cn', _('Simplified Chinese')),
+]
+
+
 class CustomLoginForm(AuthenticationForm):
     """
     Custom login form with enhanced styling and validation.
@@ -95,15 +101,12 @@ class UserRegistrationForm(UserCreationForm):
         help_text=_('Format: +1234567890')
     )
     language_preference = forms.ChoiceField(
-        choices=[
-            ('en', _('English')),
-            ('zh-hans', _('Simplified Chinese')),
-        ],
+        choices=LANGUAGE_PREFERENCE_CHOICES,
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
         label=_('Language Preference'),
-        initial='en'
+        initial='en-us'
     )
     
     # Password generation options
@@ -351,15 +354,12 @@ class SuperuserUserForm(UserCreationForm):
     
     # Additional settings
     language_preference = forms.ChoiceField(
-        choices=[
-            ('en', _('English')),
-            ('zh-hans', _('Simplified Chinese')),
-        ],
+        choices=LANGUAGE_PREFERENCE_CHOICES,
         widget=forms.Select(attrs={
             'class': 'form-control',
         }),
         label=_('Language Preference'),
-        initial='en'
+        initial='en-us'
     )
     timezone = forms.CharField(
         max_length=50,
@@ -505,7 +505,7 @@ class SuperuserUserForm(UserCreationForm):
         user.manager = self.cleaned_data.get('manager')
         user.admin_role = self.cleaned_data.get('admin_role')
         user.managed_company = self.cleaned_data.get('managed_company')
-        user.language_preference = self.cleaned_data.get('language_preference', 'en')
+        user.language_preference = self.cleaned_data.get('language_preference', 'en-us')
         user.timezone = self.cleaned_data.get('timezone', 'UTC')
         user.is_active = self.cleaned_data.get('is_active', True)
         user.is_staff = self.cleaned_data.get('is_staff', False)
@@ -642,10 +642,7 @@ class LanguageSwitchForm(forms.Form):
     Simple form for language switching.
     """
     language = forms.ChoiceField(
-        choices=[
-            ('en', _('English')),
-            ('zh-hans', _('简体中文')),
-        ],
+        choices=LANGUAGE_PREFERENCE_CHOICES,
         widget=forms.Select(attrs={
             'class': 'form-control form-control-sm',
             'onchange': 'this.form.submit();'

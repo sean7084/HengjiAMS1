@@ -1,0 +1,62 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Import Weekly Sharepoint Orders" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">{% trans "Import Weekly Sharepoint Orders" %}</h1>
+            <a href="{% url 'invoices:batch_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Weekly Batches" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Upload Excel File" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_sharepoint_file" class="form-label">{{ form.sharepoint_file.label }}</label>
+                            {{ form.sharepoint_file }}
+                            {% if form.sharepoint_file.help_text %}
+                            <small class="text-muted d-block mt-1">{{ form.sharepoint_file.help_text }}</small>
+                            {% endif %}
+                            {% if form.sharepoint_file.errors %}
+                            <div class="text-danger mt-2">{{ form.sharepoint_file.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> {% trans "Upload and Process" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Required Columns" %}</h5>
+                </div>
+                <div class="card-body small">
+                    <ul>
+                        <li>{% trans "Kering Group PO Number" %}</li>
+                        <li>{% trans "Internal Order" %}</li>
+                        <li>{% trans "SAP Cost Center" %}</li>
+                    </ul>
+                    <hr>
+                    <p class="mb-0 text-muted">{% trans "Import runs in strict mode. Duplicate entries stop the import and mark the batch as failed." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

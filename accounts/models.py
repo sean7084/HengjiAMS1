@@ -19,6 +19,19 @@ class User(AbstractUser):
         SUPERADMIN = 'superadmin', _('Superadmin')
         IT_ADMINISTRATOR = 'it_administrator', _('IT Administrator')
         VIEWER = 'viewer', _('Viewer')
+
+    LANGUAGE_CHOICES = [
+        ('en-us', _('English (US)')),
+        ('zh-cn', _('Chinese (Simplified)')),
+    ]
+
+    LANGUAGE_CODE_ALIASES = {
+        'en': 'en-us',
+        'en-us': 'en-us',
+        'zh-cn': 'zh-cn',
+        'zh-hans': 'zh-cn',
+        'zh-hant': 'zh-cn',
+    }
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
@@ -99,12 +112,8 @@ class User(AbstractUser):
     # Profile settings
     language_preference = models.CharField(
         max_length=10,
-        default='en',
-        choices=[
-            ('en', _('English')),
-            ('zh-hans', _('Chinese (Simplified)')),
-            ('zh-hant', _('Chinese (Traditional)')),
-        ],
+        default='en-us',
+        choices=LANGUAGE_CHOICES,
         verbose_name=_('Language Preference')
     )
     timezone = models.CharField(
@@ -172,6 +181,17 @@ class User(AbstractUser):
     
     def __str__(self):
         return f"{self.get_full_name()} ({self.username})" if self.get_full_name() else self.username
+
+    @classmethod
+    def normalize_language_code(cls, language_code):
+        """Normalize legacy language codes to currently supported settings."""
+        if not language_code:
+            return 'en-us'
+        return cls.LANGUAGE_CODE_ALIASES.get(language_code.lower(), 'en-us')
+
+    def save(self, *args, **kwargs):
+        self.language_preference = self.normalize_language_code(self.language_preference)
+        return super().save(*args, **kwargs)
     
     def get_display_name(self):
         """Get the user's display name (full name or username)."""

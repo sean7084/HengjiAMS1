@@ -1,0 +1,117 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ delivery.delivery_number }} - {% trans "Delivery Detail" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0">{{ delivery.delivery_number }}</h1>
+                <small class="text-muted">{{ delivery.quotation.quotation_number }} / {{ delivery.quotation.customer.name }}</small>
+            </div>
+            <div class="btn-group">
+                <a href="{% url 'deliveries:list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> {% trans "All Deliveries" %}
+                </a>
+                <a href="{% url 'deliveries:pdf' delivery.pk %}" class="btn btn-outline-success">
+                    <i class="fas fa-file-pdf"></i> {% trans "Generate PDF" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Delivery Items" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if items %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Asset" %}</th>
+                                    <th>{% trans "Serial" %}</th>
+                                    <th>{% trans "Brand" %}</th>
+                                    <th>{% trans "Description" %}</th>
+                                    <th>{% trans "User Brand" %}</th>
+                                    <th>{% trans "User" %}</th>
+                                    <th class="text-center">{% trans "Qty" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.asset.asset_number }}</td>
+                                    <td>{{ item.serial_number }}</td>
+                                    <td>{{ item.brand_name|default:"-" }}</td>
+                                    <td>{{ item.product_description|truncatechars:50|default:"-" }}</td>
+                                    <td>{{ item.user_brand|default:"-" }}</td>
+                                    <td>{{ item.user_name|default:"-" }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">{% trans "No delivery items." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="card-title mb-0">{% trans "Delivery Information" %}</h5></div>
+                <div class="card-body">
+                    <table class="table table-borderless table-sm">
+                        <tr><th>{% trans "Status" %}</th><td><span class="badge bg-info">{{ delivery.get_status_display }}</span></td></tr>
+                        <tr><th>{% trans "Date" %}</th><td>{{ delivery.delivery_date|date:"Y-m-d" }}</td></tr>
+                        <tr><th>{% trans "Receiver" %}</th><td>{{ delivery.receiver_name }}</td></tr>
+                        <tr><th>{% trans "Phone" %}</th><td>{{ delivery.receiver_phone }}</td></tr>
+                        <tr><th>{% trans "Method" %}</th><td>{{ delivery.delivery_method|default:"-" }}</td></tr>
+                        <tr><th>{% trans "Address" %}</th><td>{{ delivery.delivery_address }}</td></tr>
+                    </table>
+
+                    <div class="d-grid gap-2 mt-3">
+                        {% if delivery.status == 'pending' %}
+                        <form method="post" action="{% url 'deliveries:mark_prepared' delivery.pk %}">{% csrf_token %}
+                            <button type="submit" class="btn btn-outline-primary w-100">{% trans "Mark Prepared" %}</button>
+                        </form>
+                        {% endif %}
+
+                        {% if delivery.status == 'pending' or delivery.status == 'prepared' %}
+                        <form method="post" action="{% url 'deliveries:dispatch' delivery.pk %}">{% csrf_token %}
+                            <button type="submit" class="btn btn-warning w-100">{% trans "Dispatch" %}</button>
+                        </form>
+                        {% endif %}
+
+                        {% if delivery.status == 'dispatched' %}
+                        <form method="post" action="{% url 'deliveries:upload_signed' delivery.pk %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <label class="form-label small">{% trans "Upload Signed Copy" %}</label>
+                            {{ upload_form.signed_file }}
+                            <button type="submit" class="btn btn-outline-secondary w-100 mt-2">{% trans "Upload" %}</button>
+                        </form>
+                        <form method="post" action="{% url 'deliveries:complete' delivery.pk %}">{% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100">{% trans "Mark Completed" %}</button>
+                        </form>
+                        {% endif %}
+
+                        {% if delivery.signed_file %}
+                        <a href="{{ delivery.signed_file.url }}" target="_blank" class="btn btn-outline-success w-100">
+                            <i class="fas fa-download"></i> {% trans "Signed Copy" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -39,9 +39,16 @@ en_po = 'locale/en/LC_MESSAGES/django.po'
 en_mo = 'locale/en/LC_MESSAGES/django.mo'
 compile_po_to_mo(en_po, en_mo)
 
-# Compile Chinese
-zh_po = 'locale/zh_Hans/LC_MESSAGES/django.po'
-zh_mo = 'locale/zh_Hans/LC_MESSAGES/django.mo'
+# Compile Chinese (canonical gettext locale path)
+zh_po = 'locale/zh_CN/LC_MESSAGES/django.po'
+zh_mo = 'locale/zh_CN/LC_MESSAGES/django.mo'
+
+# Backward-compatible fallback source if older folder is still present
+if not os.path.exists(zh_po):
+    legacy_zh_po = 'locale/zh-cn/LC_MESSAGES/django.po'
+    if os.path.exists(legacy_zh_po):
+        zh_po = legacy_zh_po
+
 compile_po_to_mo(zh_po, zh_mo)
 
 print("Translation compilation completed!")

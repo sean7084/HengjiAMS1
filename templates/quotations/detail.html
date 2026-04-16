@@ -1,0 +1,366 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load workflow_tags %}
+
+{% block title %}{{ quotation.quotation_number }} - {% trans "Quotation Detail" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0">{{ quotation.quotation_number }}</h1>
+                <small class="text-muted">{{ quotation.customer.name }}</small>
+            </div>
+            <div>
+                {% if quotation.status == 'draft' %}
+                <a href="{% url 'quotations:send' quotation.pk %}" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> {% trans "Mark as Sent" %}
+                </a>
+                {% endif %}
+                {% if quotation.status == 'sent' %}
+                <a href="{% url 'quotations:confirm' quotation.pk %}" class="btn btn-success">
+                    <i class="fas fa-check"></i> {% trans "Confirm" %}
+                </a>
+                {% endif %}
+                {% if quotation.status == 'confirmed' and not purchase_order %}
+                <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
+                    <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
+                </a>
+                {% endif %}
+                {% if purchase_order %}
+                <a href="{% url 'purchases:receive' purchase_order.pk %}" class="btn btn-success">
+                    <i class="fas fa-truck-loading"></i> {% trans "Receive Stock" %}
+                </a>
+                {% endif %}
+                {% if quotation.status != 'cancelled' and quotation.status != 'confirmed' %}
+                <a href="{% url 'quotations:cancel' quotation.pk %}" class="btn btn-outline-danger">
+                    <i class="fas fa-times"></i> {% trans "Cancel" %}
+                </a>
+                {% endif %}
+                <a href="{% url 'quotations:pdf' quotation.pk %}" class="btn btn-info" target="_blank">
+                    <i class="fas fa-file-pdf"></i> {% trans "PDF" %}
+                </a>
+                <a href="{% url 'quotations:duplicate' quotation.pk %}" class="btn btn-outline-primary">
+                    <i class="fas fa-copy"></i> {% trans "Duplicate" %}
+                </a>
+                <a href="{% url 'quotations:edit' quotation.pk %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> {% trans "Edit" %}
+                </a>
+                <a href="{% url 'invoices:email_dispatch_compose_from_quotation' quotation.pk %}" class="btn btn-outline-success">
+                    <i class="fas fa-paper-plane"></i> {% trans "Compose Dispatch Email" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Banner -->
+    {% if quotation.is_expired and quotation.status == 'sent' %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        {% trans "This quotation has expired. The validity date was" %} {{ quotation.valid_until|date:"Y-m-d" }}.
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Quotation Info -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Quotation Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">{% trans "Quotation Number" %}</th>
+                                    <td>{{ quotation.quotation_number }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Status" %}</th>
+                                    <td>
+                                        <span class="badge {{ quotation.status|workflow_badge_class:'quotation' }}">{{ quotation.get_status_display }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Customer" %}</th>
+                                    <td>{{ quotation.customer.name }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="40%">{% trans "Quotation Date" %}</th>
+                                    <td>{{ quotation.quotation_date|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Valid Until" %}</th>
+                                    <td>{{ quotation.valid_until|date:"Y-m-d" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Created" %}</th>
+                                    <td>{{ quotation.created_at|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>{% trans "Contact" %}</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="30%">{% trans "Attn" %}</th>
+                                    <td>{{ quotation.attn|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Tel" %}</th>
+                                    <td>{{ quotation.tel|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if quotation.notes %}
+                    <hr>
+                    <h6>{% trans "Notes" %}</h6>
+                    <p class="text-muted">{{ quotation.notes|linebreaks }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Items" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if items %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>{% trans "Brand" %}</th>
+                                    <th>{% trans "Description" %}</th>
+                                    <th>{% trans "User Brand" %}</th>
+                                    <th>{% trans "User" %}</th>
+                                    <th class="text-center">{% trans "Unit" %}</th>
+                                    <th class="text-center">{% trans "Qty" %}</th>
+                                    <th class="text-end">{% trans "Unit Price" %}</th>
+                                    <th class="text-end">{% trans "Amount" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ item.brand_name }}</td>
+                                    <td>{{ item.product_description|truncatechars:50 }}</td>
+                                    <td>{{ item.user_brand|default:"-" }}</td>
+                                    <td>{{ item.user_name|default:"-" }}</td>
+                                    <td class="text-center">{{ item.unit }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">¥{{ item.unit_price|floatformat:2 }}</td>
+                                    <td class="text-end">¥{{ item.line_total_without_tax|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="8" class="text-end"><strong>{% trans "Subtotal (excl. tax)" %}:</strong></td>
+                                    <td class="text-end"><strong>¥{{ quotation.total_without_tax|floatformat:2 }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8" class="text-end">{% trans "Tax" %}:</td>
+                                    <td class="text-end">¥{{ quotation.total_tax|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8" class="text-end"><strong>{% trans "Total (incl. tax)" %}:</strong></td>
+                                    <td class="text-end"><strong class="text-success">¥{{ quotation.total_with_tax|floatformat:2 }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">{% trans "No items" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{% trans "Attachments" %}</h5>
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                        <i class="fas fa-upload"></i> {% trans "Upload" %}
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if attachments %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Type" %}</th>
+                                <th>{% trans "File" %}</th>
+                                <th>{% trans "Uploaded" %}</th>
+                                <th>{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for att in attachments %}
+                            <tr>
+                                <td>{{ att.get_attachment_type_display }}</td>
+                                <td>{{ att.file.name|truncatechars:30 }}</td>
+                                <td>{{ att.uploaded_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <a href="{{ att.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <form method="post" action="{% url 'quotations:attachment_delete' att.pk %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this attachment?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center">{% trans "No attachments" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Actions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'quotations:pdf' quotation.pk %}" class="btn btn-info" target="_blank">
+                            <i class="fas fa-file-pdf"></i> {% trans "Download PDF" %}
+                        </a>
+                        {% if quotation.status == 'confirmed' and not purchase_order %}
+                        <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
+                            <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
+                        </a>
+                        {% endif %}
+                        {% if purchase_order %}
+                        <a href="{% url 'purchases:receive' purchase_order.pk %}" class="btn btn-success">
+                            <i class="fas fa-truck-loading"></i> {% trans "Receive Stock" %}
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'quotations:duplicate' quotation.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-copy"></i> {% trans "Duplicate Quotation" %}
+                        </a>
+                        <a href="{% url 'quotations:edit' quotation.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> {% trans "Edit Quotation" %}
+                        </a>
+                        <a href="{% url 'invoices:email_dispatch_compose_from_quotation' quotation.pk %}" class="btn btn-outline-success">
+                            <i class="fas fa-envelope"></i> {% trans "Dispatch Email" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline / History placeholder -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "History" %}</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-plus text-success"></i>
+                            {% trans "Created" %}: {{ quotation.created_at|date:"Y-m-d H:i" }}
+                        </li>
+                        {% if quotation.updated_at != quotation.created_at %}
+                        <li class="mb-2">
+                            <i class="fas fa-edit text-info"></i>
+                            {% trans "Updated" %}: {{ quotation.updated_at|date:"Y-m-d H:i" }}
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <hr>
+                    <h6 class="mb-3">{% trans "Email Dispatches" %}</h6>
+                    {% if email_dispatches %}
+                    <ul class="list-unstyled small mb-0">
+                        {% for dispatch in email_dispatches|slice:":5" %}
+                        <li class="mb-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            {{ dispatch.get_status_display }} -
+                            {% if dispatch.sent_at %}
+                            {{ dispatch.sent_at|date:"Y-m-d H:i" }}
+                            {% else %}
+                            {{ dispatch.created_at|date:"Y-m-d H:i" }}
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{% url 'invoices:email_dispatch_list' %}?quotation={{ quotation.pk }}" class="btn btn-sm btn-outline-secondary mt-2">
+                        <i class="fas fa-history"></i> {% trans "View Full Email History" %}
+                    </a>
+                    {% else %}
+                    <p class="text-muted small mb-0">{% trans "No email dispatch records yet." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">{% trans "Upload Attachment" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" action="{% url 'quotations:attachment_upload' quotation.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Attachment Type" %}</label>
+                        <select name="attachment_type" class="form-select" required>
+                            <option value="">-- {% trans "Select type" %} --</option>
+                            <option value="invoice_pdf">{% trans "Invoice PDF" %}</option>
+                            <option value="invoice_ofd">{% trans "Invoice OFD" %}</option>
+                            <option value="invoice_xml">{% trans "Invoice XML (Zipped)" %}</option>
+                            <option value="email_confirmation">{% trans "Email Confirmation Screenshot" %}</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "File" %}</label>
+                        <input type="file" name="file" class="form-control" required accept=".pdf,.ofd,.zip">
+                        <small class="text-muted">{% trans "Allowed formats: PDF, OFD, ZIP" %}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Notes" %} ({% trans "optional" %})</label>
+                        <textarea name="notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> {% trans "Upload" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

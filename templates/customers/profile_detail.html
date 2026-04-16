@@ -1,0 +1,146 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ company.name }} - {% trans "Customer Profile" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{{ company.name }}</h1>
+            <div>
+                <a href="{% url 'customers:profile_edit' company.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> {% trans "Edit Profile" %}
+                </a>
+                <a href="{% url 'companies:company_detail' company.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-building"></i> {% trans "View Company" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Company Info (Read-only) -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Company Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="30%">{% trans "Company Name" %}</th>
+                            <td>{{ company.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Company Code" %}</th>
+                            <td>{{ company.code }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Status" %}</th>
+                            <td>
+                                <span class="badge bg-{% if company.status == 'active' %}success{% else %}secondary{% endif %}">
+                                    {{ company.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Phone" %}</th>
+                            <td>{{ company.phone_number|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Email" %}</th>
+                            <td>{{ company.email|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Address" %}</th>
+                            <td>{{ company.get_full_address|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Contact Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="30%">{% trans "Contact Person" %}</th>
+                            <td>{{ profile.contact_person }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Phone" %}</th>
+                            <td>{{ profile.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Email" %}</th>
+                            <td>{{ profile.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Tax ID" %}</th>
+                            <td>{{ profile.tax_id|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Delivery Information -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Delivery Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="20%">{% trans "Delivery Address" %}</th>
+                            <td>{{ profile.delivery_address }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "City" %}</th>
+                            <td>{{ profile.delivery_city }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Contact Person" %}</th>
+                            <td>{{ profile.delivery_contact }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Phone" %}</th>
+                            <td>{{ profile.delivery_phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Delivery Method" %}</th>
+                            <td>
+                                <span class="badge bg-info">{{ profile.get_delivery_method_display }}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Notes" %}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{{ profile.notes|default:"No notes"|linebreaks }}</p>
+                </div>
+                <div class="card-footer text-muted small">
+                    {% trans "Created" %}: {{ profile.created_at|date:"Y-m-d H:i" }}
+                    <br>
+                    {% trans "Updated" %}: {{ profile.updated_at|date:"Y-m-d H:i" }}
+                </div>
+            </div>
+        </div>

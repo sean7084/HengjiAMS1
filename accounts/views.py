@@ -332,7 +332,7 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         # Activate the selected language
-        language = form.cleaned_data['language_preference']
+        language = User.normalize_language_code(form.cleaned_data['language_preference'])
         activate(language)
         messages.success(self.request, _('Settings updated successfully.'))
         return response
@@ -724,8 +724,9 @@ def disable_2fa(request):
         user.backup_tokens = []
         user.save()
 
-        # Remove all OTP devices
-        Device.objects.filter(user=user).delete()
+        # Remove all OTP devices (TOTP and Static)
+        TOTPDevice.objects.filter(user=user).delete()
+        StaticDevice.objects.filter(user=user).delete()
 
         messages.success(request, _('Two-factor authentication has been disabled.'))
         return redirect('accounts:profile')

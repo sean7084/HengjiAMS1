@@ -1,0 +1,104 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load workflow_tags %}
+
+{% block title %}{% trans "Invoice Information" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">{% trans "Invoice Information" %}</h1>
+            <div class="d-flex gap-2">
+                <a href="{% url 'invoices:batch_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-layer-group"></i> {% trans "Weekly Batches" %}
+                </a>
+                <a href="{% url 'invoices:batch_import' %}" class="btn btn-primary">
+                    <i class="fas fa-file-import"></i> {% trans "Import Batch" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">{% trans "Search" %}</label>
+                    <input type="text" name="search" class="form-control" value="{{ search_query }}" placeholder="{% trans 'Invoice #, bill to, PO, IO, SAP...' %}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">{% trans "Date From" %}</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">{% trans "Date To" %}</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search"></i></button>
+                    <a href="{% url 'invoices:invoice_list' %}" class="btn btn-outline-secondary me-2"><i class="fas fa-times"></i></a>
+                    <a href="{% url 'invoices:invoice_export' %}?search={{ search_query|urlencode }}&date_from={{ date_from|urlencode }}&date_to={{ date_to|urlencode }}" class="btn btn-outline-success">
+                        <i class="fas fa-file-excel"></i> {% trans "Export" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if invoice_infos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Invoice #" %}</th>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Bill To" %}</th>
+                            <th>{% trans "PO" %}</th>
+                            <th>{% trans "Internal Order" %}</th>
+                            <th>{% trans "SAP Cost Center" %}</th>
+                            <th>{% trans "Gross Amount" %}</th>
+                            <th>{% trans "Next Action" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoice_infos %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'invoices:invoice_detail' invoice.pk %}">{{ invoice.invoice_number }}</a>
+                            </td>
+                            <td>{{ invoice.invoice_date|date:"Y-m-d" }}</td>
+                            <td>{{ invoice.bill_to|default:"-" }}</td>
+                            <td>{{ invoice.kering_group_po_number }}</td>
+                            <td>{{ invoice.internal_order }}</td>
+                            <td>{{ invoice.sap_cost_center }}</td>
+                            <td>{{ invoice.gross_amount }}</td>
+                            <td class="small text-muted">{{ invoice|invoice_next_action }}</td>
+                            <td>
+                                <a href="{% url 'invoices:invoice_detail' invoice.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'invoices:invoice_document' invoice.pk %}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% if invoice.quotation %}
+                                <a href="{% url 'invoices:email_dispatch_compose_from_quotation' invoice.quotation.pk %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-4">{% trans "No invoice information records found." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

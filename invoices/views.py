@@ -1,0 +1,366 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import FileResponse
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import DetailView, ListView
+from django.utils import timezone
+
+from .forms import EmailDispatchForm, InvoiceInfoForm, SharepointImportForm
+from .models import EmailDispatch, InvoiceInfo, WeeklyOrderBatch
+from .services import (
+    collect_email_attachments,
+    convert_xlsx_to_pdf,
+    export_invoice_infos_to_excel,
+    fill_invoice_template,
+    process_sharepoint_batch,
+    recalculate_invoice_from_delivery,
+    send_email_dispatch,
+)
+
+
+class WeeklyOrderBatchListView(LoginRequiredMixin, ListView):
+    model = WeeklyOrderBatch
+    template_name = 'invoices/weekly_batch_list.html'
+    context_object_name = 'batches'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = WeeklyOrderBatch.objects.select_related('processed_by').all()
+
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(batch_id__icontains=search)
+                | Q(failure_reason__icontains=search)
+                | Q(sharepoint_file__icontains=search)
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = WeeklyOrderBatch.Status.choices
+        context['selected_status'] = self.request.GET.get('status', '')
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
+
+class WeeklyOrderBatchDetailView(LoginRequiredMixin, DetailView):
+    model = WeeklyOrderBatch
+    template_name = 'invoices/weekly_batch_detail.html'
+    context_object_name = 'batch'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['invoice_infos'] = self.object.invoice_infos.all().order_by('source_row_number')
+        return context
+
+
+class InvoiceInfoListView(LoginRequiredMixin, ListView):
+    model = InvoiceInfo
+    template_name = 'invoices/invoice_info_list.html'
+    context_object_name = 'invoice_infos'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = InvoiceInfo.objects.select_related('quotation', 'delivery_order', 'weekly_batch').all()
+
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(invoice_number__icontains=search)
+                | Q(bill_to__icontains=search)
+                | Q(kering_group_po_number__icontains=search)
+                | Q(internal_order__icontains=search)
+                | Q(sap_cost_center__icontains=search)
+            )
+
+        date_from = self.request.GET.get('date_from')
+        if date_from:
+            queryset = queryset.filter(invoice_date__gte=date_from)
+
+        date_to = self.request.GET.get('date_to')
+        if date_to:
+            queryset = queryset.filter(invoice_date__lte=date_to)
+
+        return queryset.order_by('-invoice_date', '-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['date_from'] = self.request.GET.get('date_from', '')
+        context['date_to'] = self.request.GET.get('date_to', '')
+        return context
+
+
+class InvoiceInfoDetailView(LoginRequiredMixin, DetailView):
+    model = InvoiceInfo
+    template_name = 'invoices/invoice_info_detail.html'
+    context_object_name = 'invoice_info'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = InvoiceInfoForm(instance=self.object)
+        context['items'] = self.object.items.all().order_by('line_number')
+        return context
+
+
+class EmailDispatchListView(LoginRequiredMixin, ListView):
+    model = EmailDispatch
+    template_name = 'invoices/email_dispatch_list.html'
+    context_object_name = 'dispatches'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = EmailDispatch.objects.select_related('quotation', 'invoice_info', 'delivery_order').all()
+
+        quotation_id = self.request.GET.get('quotation')
+        if quotation_id:
+            queryset = queryset.filter(quotation_id=quotation_id)
+
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(quotation__quotation_number__icontains=search)
+                | Q(subject__icontains=search)
+                | Q(sent_to__icontains=search)
+                | Q(cc__icontains=search)
+            )
+
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = EmailDispatch.DispatchStatus.choices
+        context['selected_status'] = self.request.GET.get('status', '')
+        context['selected_quotation'] = self.request.GET.get('quotation', '')
+        context['search_query'] = self.request.GET.get('search', '')
+        return context
+
+
+@login_required
+def import_sharepoint_batch_view(request):
+    if request.method == 'POST':
+        form = SharepointImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            batch = WeeklyOrderBatch.objects.create(
+                sharepoint_file=form.cleaned_data['sharepoint_file'],
+                processed_by=request.user,
+            )
+            try:
+                result = process_sharepoint_batch(batch, user=request.user)
+            except Exception as exc:
+                reason = str(exc)
+                row_number = None
+                if reason.lower().startswith('row '):
+                    try:
+                        row_number = int(reason.split(':', 1)[0].replace('Row', '').strip())
+                    except ValueError:
+                        row_number = None
+
+                batch.status = WeeklyOrderBatch.Status.FAILED
+                batch.failure_reason = reason
+                batch.failed_row_number = row_number
+                batch.processed_at = None
+                batch.total_rows = 0
+                batch.created_rows = 0
+                batch.save(
+                    update_fields=[
+                        'status',
+                        'failure_reason',
+                        'failed_row_number',
+                        'processed_at',
+                        'total_rows',
+                        'created_rows',
+                    ]
+                )
+                messages.error(request, f'Import failed: {reason}')
+                return redirect('invoices:batch_detail', pk=batch.pk)
+
+            messages.success(
+                request,
+                f'Import completed successfully. {result.created_rows} rows processed.',
+            )
+            return redirect('invoices:batch_detail', pk=batch.pk)
+    else:
+        form = SharepointImportForm()
+
+    return render(request, 'invoices/import_sharepoint.html', {'form': form})
+
+
+@login_required
+def invoice_info_update_view(request, pk):
+    invoice_info = get_object_or_404(InvoiceInfo, pk=pk)
+
+    if request.method != 'POST':
+        return redirect('invoices:invoice_detail', pk=pk)
+
+    form = InvoiceInfoForm(request.POST, instance=invoice_info)
+    if form.is_valid():
+        invoice_info = form.save()
+        if invoice_info.delivery_order_id:
+            recalculate_invoice_from_delivery(invoice_info)
+        messages.success(request, f'Invoice {invoice_info.invoice_number} updated.')
+    else:
+        messages.error(request, '; '.join([f'{k}: {", ".join(v)}' for k, v in form.errors.items()]))
+
+    return redirect('invoices:invoice_detail', pk=pk)
+
+
+@login_required
+def invoice_info_recalculate_view(request, pk):
+    if request.method != 'POST':
+        messages.warning(request, 'Invalid request method.')
+        return redirect('invoices:invoice_detail', pk=pk)
+
+    invoice_info = get_object_or_404(InvoiceInfo, pk=pk)
+    if not invoice_info.delivery_order_id:
+        messages.warning(request, 'Link a delivery order before recalculating.')
+        return redirect('invoices:invoice_detail', pk=pk)
+
+    recalculate_invoice_from_delivery(invoice_info)
+    messages.success(request, 'Invoice totals recalculated from delivery items.')
+    return redirect('invoices:invoice_detail', pk=pk)
+
+
+@login_required
+def invoice_info_document_view(request, pk):
+    invoice_info = get_object_or_404(InvoiceInfo, pk=pk)
+    if invoice_info.delivery_order_id:
+        recalculate_invoice_from_delivery(invoice_info)
+
+    try:
+        xlsx_path = fill_invoice_template(invoice_info)
+    except FileNotFoundError as exc:
+        messages.error(request, str(exc))
+        return redirect('invoices:invoice_detail', pk=pk)
+
+    pdf_path = convert_xlsx_to_pdf(xlsx_path)
+    if pdf_path:
+        return FileResponse(open(pdf_path, 'rb'), as_attachment=True, filename=pdf_path.name)
+
+    messages.warning(request, 'PDF converter not found. Downloading filled Excel file instead.')
+    return FileResponse(open(xlsx_path, 'rb'), as_attachment=True, filename=xlsx_path.name)
+
+
+@login_required
+def invoice_info_export_view(request):
+    queryset = InvoiceInfo.objects.select_related('quotation', 'delivery_order', 'weekly_batch').all()
+
+    search = request.GET.get('search')
+    if search:
+        queryset = queryset.filter(
+            Q(invoice_number__icontains=search)
+            | Q(bill_to__icontains=search)
+            | Q(kering_group_po_number__icontains=search)
+            | Q(internal_order__icontains=search)
+            | Q(sap_cost_center__icontains=search)
+        )
+
+    date_from = request.GET.get('date_from')
+    if date_from:
+        queryset = queryset.filter(invoice_date__gte=date_from)
+
+    date_to = request.GET.get('date_to')
+    if date_to:
+        queryset = queryset.filter(invoice_date__lte=date_to)
+
+    queryset = queryset.order_by('-invoice_date', '-id')
+    return export_invoice_infos_to_excel(queryset)
+
+
+@login_required
+def email_dispatch_compose_view(request, quotation_pk=None):
+    quotation = None
+    preview_files = []
+    preview_dispatch = None
+
+    if quotation_pk is not None:
+        from quotations.models import Quotation
+
+        quotation = get_object_or_404(Quotation, pk=quotation_pk)
+
+    if request.method == 'POST':
+        form = EmailDispatchForm(request.POST, quotation=quotation)
+        if form.is_valid():
+            action = request.POST.get('action', 'preview')
+            draft_dispatch = form.save(commit=False)
+            draft_dispatch.created_by = request.user
+
+            if action == 'send':
+                draft_dispatch.status = EmailDispatch.DispatchStatus.DRAFT
+                draft_dispatch.save()
+                try:
+                    send_email_dispatch(draft_dispatch)
+                except Exception as exc:
+                    draft_dispatch.status = EmailDispatch.DispatchStatus.FAILED
+                    draft_dispatch.save(update_fields=['status', 'updated_at'])
+                    messages.error(request, f'Email send failed: {exc}')
+                else:
+                    messages.success(request, 'Email sent successfully.')
+                    return redirect('invoices:email_dispatch_list')
+            else:
+                preview_dispatch = draft_dispatch
+                try:
+                    preview_files = collect_email_attachments(draft_dispatch)
+                except Exception as exc:
+                    messages.error(request, f'Preview generation failed: {exc}')
+    else:
+        form = EmailDispatchForm(quotation=quotation)
+
+    return render(
+        request,
+        'invoices/email_dispatch_compose.html',
+        {
+            'form': form,
+            'quotation': quotation,
+            'preview_files': preview_files,
+            'preview_dispatch': preview_dispatch,
+        },
+    )
+
+
+@login_required
+def email_dispatch_mark_client_confirmed_view(request, pk):
+    if request.method != 'POST':
+        messages.warning(request, 'Invalid request method.')
+        return redirect('invoices:email_dispatch_list')
+
+    dispatch = get_object_or_404(EmailDispatch, pk=pk)
+    if dispatch.status == EmailDispatch.DispatchStatus.SENT:
+        dispatch.status = EmailDispatch.DispatchStatus.CLIENT_CONFIRMED
+        dispatch.save(update_fields=['status', 'updated_at'])
+        messages.success(request, 'Dispatch marked as client confirmed.')
+    else:
+        messages.warning(request, 'Dispatch must be in sent state before client confirmation.')
+
+    return redirect('invoices:email_dispatch_list')
+
+
+@login_required
+def email_dispatch_mark_esker_view(request, pk):
+    if request.method != 'POST':
+        messages.warning(request, 'Invalid request method.')
+        return redirect('invoices:email_dispatch_list')
+
+    dispatch = get_object_or_404(EmailDispatch, pk=pk)
+    if dispatch.status != EmailDispatch.DispatchStatus.CLIENT_CONFIRMED:
+        messages.warning(request, 'Dispatch must be client confirmed before Esker forwarding.')
+        return redirect('invoices:email_dispatch_list')
+
+    dispatch.esker_sent = True
+    dispatch.esker_sent_at = timezone.now()
+    dispatch.status = EmailDispatch.DispatchStatus.ESKER_FORWARDED
+    dispatch.save(update_fields=['esker_sent', 'esker_sent_at', 'status', 'updated_at'])
+    messages.success(request, 'Dispatch marked as forwarded to Esker.')
+    return redirect('invoices:email_dispatch_list')

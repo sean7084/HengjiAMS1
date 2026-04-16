@@ -683,5 +683,175 @@ Version 0.0.3 successfully consolidates the system architecture, fixes critical 
 
 ---
 
-*Generated on August 11, 2025 - HengJi Asset Management System v0.0.3*
-*Previous versions: v0.0.1 (Foundation), v0.0.2 (Major Features), v0.0.3 (Consolidation & Fixes)*
+## Version 0.0.4
+
+**Release Date**: April 15, 2026
+
+Version 0.0.4 introduces enhanced security, advanced reporting capabilities, mobile-optimized features, and a comprehensive REST API for system integration.
+
+### Security Enhancements
+
+**Two-Factor Authentication (2FA)**
+- TOTP-based 2FA using `pyotp` library
+- QR code generation for easy authenticator app setup
+- Per-user 2FA enable/disable toggle
+- Backup codes for account recovery
+- Required 2FA status display in user profile
+- Secure session management with 2FA verification
+
+**Key Technical Implementation**:
+- `django_otp` middleware integration
+- TOTP secret key generation and storage
+- QR code PNG generation as base64 data URL
+- 2FA required decorator for protected views
+
+### Advanced Reporting with Chart.js
+
+**Interactive Dashboard Charts**
+- Six chart types: Status Distribution, Category Distribution, Brand Distribution, Warranty Status, Quotation Status, Purchase Summary
+- Four display modes: Doughnut, Pie, Bar, Line
+- User-customizable dashboard layout via modal interface
+- Session-based chart configuration persistence
+- AJAX-powered chart data loading via REST API
+
+**Chart API Endpoints**:
+- `/api/reports/charts/quotation-status/` - Quotation status distribution
+- `/api/reports/charts/purchase-summary/` - Purchase value comparison
+- `/api/reports/charts/category-distribution/` - Product category breakdown
+- `/api/reports/charts/brand-distribution/` - Brand distribution analysis
+- `/api/reports/charts/warranty-status/` - Warranty expiry tracking
+
+### Mobile Features with Barcode Scanning
+
+**Barcode Scanning Support**
+- Compatible with handheld barcode scanner devices
+- Works with smartphone camera-based scanning apps
+- Rapid product lookup by scanning barcode in product list
+- Quotation and stock item barcode support
+
+**Mobile Optimizations**:
+- Responsive Bootstrap 5 design
+- Touch-friendly interface elements
+- Large tap targets for handheld devices
+- Fast input field switching for rapid scanning
+
+### REST API Endpoints
+
+**Authentication API**
+- `POST /api/auth/login/` - User authentication
+- `POST /api/auth/logout/` - Session termination
+- `GET /api/auth/user/` - Current user profile
+
+**Products API**
+- `GET /api/products/` - List all products
+- `POST /api/products/` - Create new product
+- `GET /api/products/{id}/` - Retrieve product details
+- `PUT /api/products/{id}/` - Update product
+- `DELETE /api/products/{id}/` - Delete product
+- `GET /api/products/barcode/{barcode}/` - Lookup by barcode
+
+**Quotations API**
+- `GET /api/quotations/` - List all quotations
+- `POST /api/quotations/` - Create new quotation
+- `GET /api/quotations/{id}/` - Retrieve quotation details
+- `PUT /api/quotations/{id}/` - Update quotation
+- `DELETE /api/quotations/{id}/` - Delete quotation
+- `GET /api/quotations/{id}/pdf/` - Export quotation as PDF
+
+**Purchases API**
+- `GET /api/purchases/` - List all purchases
+- `POST /api/purchases/` - Create new purchase
+- `GET /api/purchases/{id}/` - Retrieve purchase details
+- `PUT /api/purchases/{id}/` - Update purchase
+- `DELETE /api/purchases/{id}/` - Delete purchase
+
+**Stock API**
+- `GET /api/stock/` - List all stock items
+- `POST /api/stock/` - Create new stock item
+- `GET /api/stock/{id}/` - Retrieve stock item details
+- `PUT /api/stock/{id}/` - Update stock item
+- `DELETE /api/stock/{id}/` - Delete stock item
+- `GET /api/stock/low-stock/` - List low stock alerts
+
+**Reports API**
+- `GET /api/reports/charts/<chart_type>/` - Chart data endpoints
+- `GET /api/reports/dashboard-config/` - Get dashboard configuration
+- `POST /api/reports/dashboard-config/` - Save dashboard configuration
+
+### User Interface Improvements
+
+- Language code standardization (zh-cn, en-us)
+- English (US) locale option
+- Improved language switcher functionality
+- Dashboard customization modal with modern UI
+- Consistent Bootstrap 5 styling throughout
+- Fixed template truncation issues in forms
+
+---
+
+*Generated on April 15, 2026 - HengJi Asset Management System v0.0.4*
+*Previous versions: v0.0.1 (Foundation), v0.0.2 (Major Features), v0.0.3 (Consolidation & Fixes), v0.0.4 (Security & Reporting)*
+
+---
+
+## Version 0.1.0
+
+**Release Date**: April 16, 2026
+
+Version 0.1.0 delivers the initial full Quotation & Invoice Management System with end-to-end workflow coverage from quotation creation through dispatch and invoicing lifecycle control.
+
+### Quotation & Customer Workflow
+
+- Added customer and product business extensions for sales flow:
+  - `products.ProductPrice` for unit/tax pricing tied to brand and model
+  - `customers.CustomerProfile` for delivery and contact defaults
+- Implemented quotation lifecycle:
+  - quotation creation/edit/list/detail with item-level totals
+  - status transitions (`draft` -> `sent` -> `confirmed`)
+  - duplicate/cancel actions
+  - quotation PDF generation path validated in smoke run
+
+### Purchase and Stock Conversion
+
+- Implemented conversion of confirmed quotations into purchase orders.
+- Added receipt workflow with serial capture and stock creation as `assets.Asset` records.
+- Added stock overview/list/detail views to monitor received and dispatch-ready assets.
+
+### Delivery Order Workflow
+
+- Added `DeliveryOrder` and `DeliveryItem` workflow with serial-level linkage.
+- Implemented delivery creation from available quotation-linked stock.
+- Added dispatch/completion transitions with status and asset-state updates.
+- Added signed copy upload requirement before completion and delivery document generation route.
+
+### Invoice Batch and Invoice Information
+
+- Added weekly Sharepoint batch import (`WeeklyOrderBatch`) with strict duplicate detection and failure tracking.
+- Added `InvoiceInfo` and `InvoiceInfoItem` with:
+  - `yymmdd##` invoice numbering
+  - quotation/delivery linkage
+  - tax/net/gross recalculation from delivery/quotation sources
+- Added invoice information list/detail/update/recalculate/export/document routes.
+
+### Email Dispatch and Esker Handoff
+
+- Added `EmailDispatch` compose/list/history flow with recipient controls and attachment manifesting.
+- Implemented status transitions:
+  - `draft` -> `sent` -> `client_confirmed` -> `esker_forwarded`
+- Added explicit client-confirmed and Esker-forward actions for operational tracking.
+
+### Workflow Dashboard and Governance
+
+- Added workflow dashboard (Kanban stages) and cross-entity workflow search.
+- Added standardized workflow badges and next-action suggestions across key list/detail screens.
+- Added `WorkflowStatusAudit` model and status-change signals for quotation/purchase/delivery/invoice-dispatch transitions.
+
+### Validation and Stability
+
+- Applied migrations for the new invoice/workflow models.
+- Resolved workflow dashboard null-related rendering issue in invoiced stage cards.
+- Executed a broad end-to-end smoke run (quotation -> purchase -> delivery -> invoice -> dispatch) with passing assertions across transition endpoints and status checks.
+
+---
+
+*Generated on April 16, 2026 - HengJi Asset Management System v0.1.0*

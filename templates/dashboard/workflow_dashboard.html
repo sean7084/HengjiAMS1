@@ -1,0 +1,133 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load workflow_tags %}
+
+{% block title %}{% trans "Workflow Dashboard" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.workflow-board {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(260px, 1fr));
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: .5rem;
+}
+.workflow-column {
+    min-height: 520px;
+}
+.workflow-card {
+    border-left: 4px solid #0d6efd;
+}
+.workflow-metric {
+    font-size: .85rem;
+    color: #6c757d;
+}
+.audit-table td, .audit-table th {
+    vertical-align: middle;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0">{% trans "Workflow Dashboard" %}</h1>
+            <form method="get" action="{% url 'dashboard:workflow_search' %}" class="d-flex" style="max-width: 420px; width: 100%;">
+                <input type="text" class="form-control me-2" name="q" placeholder="{% trans 'Search quotations, deliveries, invoices...' %}">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="workflow-board mb-4">
+        {% for stage in workflow_stages %}
+        <div class="workflow-column card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-1">{{ stage.title }}</h5>
+                <div class="workflow-metric">{% trans "Count" %}: {{ stage.count }} | {% trans "Value" %}: {{ stage.value|floatformat:2 }}</div>
+            </div>
+            <div class="card-body">
+                {% if stage.items %}
+                    {% for item in stage.items %}
+                    <div class="card workflow-card mb-2">
+                        <div class="card-body py-2 px-3 small">
+                            {% if stage.key == 'quotation' or stage.key == 'confirmed' %}
+                                <div class="fw-semibold"><a href="{% url 'quotations:detail' item.pk %}">{{ item.quotation_number }}</a></div>
+                                <div>{{ item.customer.name }}</div>
+                                <span class="badge {{ item.status|workflow_badge_class:'quotation' }}">{{ item.get_status_display }}</span>
+                                <div class="text-muted mt-1">{% trans "Next" %}: {{ item|quotation_next_action }}</div>
+                            {% elif stage.key == 'purchased' %}
+                                <div class="fw-semibold"><a href="{% url 'purchases:list' %}">{{ item.po_number }}</a></div>
+                                <div>{{ item.quotation.quotation_number }}</div>
+                                <span class="badge {{ item.status|workflow_badge_class:'purchase' }}">{{ item.get_status_display }}</span>
+                                <div class="text-muted mt-1">{% trans "Next" %}: {% trans "Receive / Dispatch" %}</div>
+                            {% elif stage.key == 'dispatched' or stage.key == 'delivered' %}
+                                <div class="fw-semibold"><a href="{% url 'deliveries:detail' item.pk %}">{{ item.delivery_number }}</a></div>
+                                <div>{{ item.quotation.quotation_number }}</div>
+                                <span class="badge {{ item.status|workflow_badge_class:'delivery' }}">{{ item.get_status_display }}</span>
+                                <div class="text-muted mt-1">{% trans "Next" %}: {{ item|delivery_next_action }}</div>
+                            {% elif stage.key == 'invoiced' %}
+                                <div class="fw-semibold"><a href="{% url 'invoices:invoice_detail' item.pk %}">{{ item.invoice_number }}</a></div>
+                                <div>
+                                    {% if item.bill_to %}
+                                        {{ item.bill_to }}
+                                    {% elif item.quotation and item.quotation.customer %}
+                                        {{ item.quotation.customer.name }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </div>
+                                <span class="badge bg-success">{% trans "Invoiced" %}</span>
+                                <div class="text-muted mt-1">{% trans "Next" %}: {{ item|invoice_next_action }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p class="text-muted small mb-0">{% trans "No records in this stage." %}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">{% trans "Status Change Audit Trail" %}</h5>
+            <span class="text-muted small">{% trans "Latest 40 changes" %}</span>
+        </div>
+        <div class="card-body">
+            {% if recent_status_audits %}
+            <div class="table-responsive">
+                <table class="table table-sm audit-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Time" %}</th>
+                            <th>{% trans "Entity" %}</th>
+                            <th>{% trans "Reference" %}</th>
+                            <th>{% trans "From" %}</th>
+                            <th>{% trans "To" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for audit in recent_status_audits %}
+                        <tr>
+                            <td>{{ audit.changed_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ audit.entity_type }}</td>
+                            <td>{{ audit.reference|default:audit.entity_id }}</td>
+                            <td>{{ audit.from_status|default:'-' }}</td>
+                            <td><span class="badge bg-dark">{{ audit.to_status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">{% trans "No status changes recorded yet." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ asset.asset_number }} - {% trans "Purchase Detail" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-0">{{ asset.asset_number }}</h1>
+                <small class="text-muted">{{ asset.description|truncatechars:50 }}</small>
+            </div>
+            <div>
+                <a href="{% url 'purchases:list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Asset Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">{% trans "Asset Number" %}</th>
+                            <td>{{ asset.asset_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Brand" %}</th>
+                            <td>{{ asset.brand.name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Model" %}</th>
+                            <td>{{ asset.model.name|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Description" %}</th>
+                            <td>{{ asset.description|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Serial Number" %}</th>
+                            <td>
+                                {{ asset.serial_number|default:"-" }}
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2 edit-serial-btn"
+                                        data-asset-pk="{{ asset.pk }}" data-serial="{{ asset.serial_number|default:'' }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Status" %}</th>
+                            <td>
+                                {% if asset.status == 'available' %}
+                                <span class="badge bg-success">{{ asset.get_status_display }}</span>
+                                {% elif asset.status == 'assigned' %}
+                                <span class="badge bg-primary">{{ asset.get_status_display }}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ asset.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Purchase Price" %}</th>
+                            <td>¥{{ asset.purchase_price|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Purchase Date" %}</th>
+                            <td>{{ asset.purchase_date|date:"Y-m-d"|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Source Information" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if quotation %}
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">{% trans "Source Quotation" %}</th>
+                            <td>
+                                <a href="{% url 'quotations:detail' quotation.pk %}">
+                                    {{ quotation.quotation_number }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Customer" %}</th>
+                            <td>{{ quotation.customer.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Quote Date" %}</th>
+                            <td>{{ quotation.quotation_date|date:"Y-m-d" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Quote Total" %}</th>
+                            <td>¥{{ quotation.total_with_tax|floatformat:2 }}</td>
+                        </tr>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">{% trans "No source quotation" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Serial Modal -->
+<div class="modal fade" id="editSerialModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Edit Serial Number" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="editSerialForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Serial Number" %}</label>
+                        <input type="text" name="serial_number" id="editSerialInput" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.edit-serial-btn').addEventListener('click', function() {
+        const pk = this.dataset.assetPk;
+        const serial = this.dataset.serial;
+        document.querySelector('#editSerialInput').value = serial;
+        new bootstrap.Modal(document.querySelector('#editSerialModal')).show();
+    });
+
+    document.querySelector('#editSerialForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const serial = document.querySelector('#editSerialInput').value;
+        fetch('/purchases/' + '{{ asset.pk }}' + '/edit-serial/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'serial_number=' + encodeURIComponent(serial)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

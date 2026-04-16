@@ -10255,3 +10255,2279 @@ Not Found: /dashboard/docs
 "GET /companies/users/ HTTP/1.1" 200 19860
 "GET /accounts/users/ HTTP/1.1" 200 38579
 "GET /companies/users/ HTTP/1.1" 200 19860
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\products\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\customers\admin.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 27604
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/assets/ HTTP/1.1" 200 37404
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/accounts/users/ HTTP/1.1" 200 38824
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/accounts/users/ HTTP/1.1" 200 38824
+"GET /zh-hans/companies/users/ HTTP/1.1" 200 20050
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /zh-hans/dashboard/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: assets_asset.source_quotation_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\views.py", line 68, in dashboard_view
+    return render(request, 'dashboard/dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    if match:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 400, in __bool__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: assets_asset.source_quotation_id
+"GET /zh-hans/dashboard/ HTTP/1.1" 500 247475
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/audit/assetaudit/ HTTP/1.1" 200 19504
+"GET /zh-hans/audit/assetaudit/create/ HTTP/1.1" 200 32360
+"GET /zh-hans/audit/assetaudit/ HTTP/1.1" 200 19504
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/audit/logs/ HTTP/1.1" 200 24258
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 27799
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29381
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/quotations/ HTTP/1.1" 200 23012
+"GET /zh-hans/products/ HTTP/1.1" 200 25021
+Internal Server Error: /zh-hans/products/add/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 6: 'block'. Looking for one of: endblock.
+"GET /zh-hans/products/add/ HTTP/1.1" 500 184239
+"GET /zh-hans/customers/ HTTP/1.1" 200 20045
+"GET /zh-hans/companies/ HTTP/1.1" 200 24438
+"GET /zh-hans/customers/ HTTP/1.1" 200 20045
+"GET /zh-hans/quotations/ HTTP/1.1" 200 23012
+Internal Server Error: /zh-hans/quotations/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 6: 'block'. Looking for one of: endblock.
+"GET /zh-hans/quotations/create/ HTTP/1.1" 500 184295
+"GET /zh-hans/purchases/stock/ HTTP/1.1" 200 21449
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/purchases/stock/ HTTP/1.1" 200 21449
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/purchases/stock/ HTTP/1.1" 200 21449
+"GET /zh-hans/quotations/ HTTP/1.1" 200 23012
+Internal Server Error: /zh-hans/quotations/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 6: 'block'. Looking for one of: endblock.
+"GET /zh-hans/quotations/create/ HTTP/1.1" 500 184295
+"GET /zh-hans/products/ HTTP/1.1" 200 25021
+"GET /zh-hans/products/add/ HTTP/1.1" 200 26609
+"GET /zh-hans/products/import/ HTTP/1.1" 200 23135
+"GET /zh-hans/products/import/template/ HTTP/1.1" 200 5150
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29381
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29381
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29375
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29375
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\reports\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\reports\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29375
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/assets/ HTTP/1.1" 200 38980
+"GET /zh-hans/assets/categories/ HTTP/1.1" 200 32138
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\reports\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\reports\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\reports\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-hans/accounts/users/ HTTP/1.1" 200 40400
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29375
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/quotations/ HTTP/1.1" 200 23006
+"GET /zh-hans/purchases/ HTTP/1.1" 200 26163
+"GET /zh-hans/purchases/stock/ HTTP/1.1" 200 21443
+"GET /zh-hans/purchases/ HTTP/1.1" 200 26163
+"GET /zh-hans/products/ HTTP/1.1" 200 25015
+"GET /zh-hans/companies/ HTTP/1.1" 200 24432
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29375
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 29375
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 39702
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/inventory/ HTTP/1.1" 200 29993
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+"GET / HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 39450
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+Not Found: /zh-cn/set-language/
+"GET /zh-cn/set-language/ HTTP/1.1" 404 3188
+Not Found: /zh-cn/dashboard
+"GET /zh-cn/dashboard HTTP/1.1" 404 3176
+Not Found: /zh-han/dashboard
+"GET /zh-han/dashboard HTTP/1.1" 404 3179
+"GET /zh-hans/dashboard HTTP/1.1" 301 0
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 39702
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/dashboard/ HTTP/1.1" 200 39702
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-hans/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-hans/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-hans/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-hans/reports/charts/warranty/ HTTP/1.1" 200 174
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+Not Found: /zh-hans/dashboard/
+"GET /zh-hans/dashboard/ HTTP/1.1" 404 3183
+"GET / HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 39464
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+Not Found: /i18n/set-language/
+"POST /i18n/set-language/ HTTP/1.1" 404 6760
+"GET /dashboard/ HTTP/1.1" 200 39459
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 32027
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 32027
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+Not Found: /en-us/audit/logs/
+"GET /en-us/audit/logs/ HTTP/1.1" 404 6637
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+"GET /zh-cn/audit/logs/ HTTP/1.1" 200 25783
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /dashboard/ HTTP/1.1" 200 39459
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 200 39459
+"GET /reports/charts/status/ HTTP/1.1" 200 65
+"GET /reports/charts/brand/ HTTP/1.1" 200 93
+"GET /reports/charts/category/ HTTP/1.1" 200 96
+"GET /reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 6619
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/companies/locations/ HTTP/1.1" 200 23472
+"GET /zh-cn/quotations/ HTTP/1.1" 200 22955
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/quotations/ HTTP/1.1" 200 22955
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /login/?next=/zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /en-us/login/?next=/zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 302 0
+"GET /en-us/accounts/login/ HTTP/1.1" 200 9978
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /en-us/accounts/login/ HTTP/1.1" 200 9978
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+"POST /en-us/accounts/login/ HTTP/1.1" 200 10166
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /en-us/accounts/login/ HTTP/1.1" 200 10166
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /en-us/accounts/login/ HTTP/1.1" 200 10167
+"POST /en-us/accounts/login/ HTTP/1.1" 200 10167
+"POST /en-us/accounts/login/ HTTP/1.1" 200 10170
+"POST /en-us/accounts/login/ HTTP/1.1" 302 0
+"GET /en-us/accounts/2fa/verify/ HTTP/1.1" 200 13281
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /en-us/accounts/2fa/verify/ HTTP/1.1" 200 13541
+"POST /en-us/accounts/2fa/verify/ HTTP/1.1" 200 13541
+"POST /en-us/accounts/2fa/verify/ HTTP/1.1" 200 13541
+"POST /en-us/accounts/2fa/verify/ HTTP/1.1" 200 13541
+"GET /zh-cn/accounts/settings/ HTTP/1.1" 200 21693
+"GET /zh-cn/accounts/profile/ HTTP/1.1" 200 22989
+"GET /zh-cn/accounts/2fa/disable/ HTTP/1.1" 200 20830
+Internal Server Error: /zh-cn/accounts/2fa/disable/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py", line 728, in disable_2fa
+    Device.objects.filter(user=user).delete()
+    ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 191, in __get__
+    raise AttributeError(
+AttributeError: Manager isn't available; Device is abstract
+"POST /zh-cn/accounts/2fa/disable/ HTTP/1.1" 500 80062
+"GET /zh-cn/accounts/profile/ HTTP/1.1" 200 22986
+"POST /en-us/accounts/2fa/verify/ HTTP/1.1" 200 13541
+Not Found: /en-us/accounts
+"GET /en-us/accounts HTTP/1.1" 404 6718
+"GET /en-us HTTP/1.1" 301 0
+"GET /en-us/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 302 0
+"GET /login/?next=/en-us/dashboard/ HTTP/1.1" 302 0
+"GET /en-us/login/?next=/en-us/dashboard/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 302 0
+"GET /en-us/accounts/login/ HTTP/1.1" 200 9978
+"POST /en-us/accounts/login/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 40069
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/assets/import/ HTTP/1.1" 200 29819
+"GET /zh-cn/companies/ HTTP/1.1" 200 24398
+"GET /zh-cn/customers/ HTTP/1.1" 200 19995
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /zh-cn/accounts/profile/ HTTP/1.1" 200 22986
+"GET / HTTP/1.1" 302 0
+"GET /zh-cn/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+Not Found: /zh-hans/dashboard/
+"GET /zh-hans/dashboard/ HTTP/1.1" 404 3183
+"GET /zh-cn/assets/import/ HTTP/1.1" 200 29819
+Not Found: /zh-hans/assets/import/
+"GET /zh-hans/assets/import/ HTTP/1.1" 404 3195
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/assets/import/ HTTP/1.1" 200 29819
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/accounts/profile/ HTTP/1.1" 200 22986
+"GET /en-us/accounts/settings/ HTTP/1.1" 200 21693
+"GET /en-us/accounts/profile/ HTTP/1.1" 200 22986
+"GET /en-us/accounts/profile/ HTTP/1.1" 200 22986
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/accounts/profile/ HTTP/1.1" 200 22986
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+Watching for file changes with StatReloader
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Watching for file changes with StatReloader
+"GET /zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /login/?next=/zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /en-us/login/?next=/zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 302 0
+"GET /en-us/accounts/login/ HTTP/1.1" 200 9978
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+"POST /en-us/accounts/login/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 40069
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Watching for file changes with StatReloader
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Internal Server Error: /zh-cn/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py", line 58, in dispatch
+    return redirect(self.success_url)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 176, in resolve_url
+    to = str(to)
+         ^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 119, in __str__
+    return str(self.__cast())
+               ^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 110, in __cast
+    return func(*self._args, **self._kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'dashboard' not found. 'dashboard' is not a valid view function or pattern name.
+"GET /zh-cn/accounts/login/ HTTP/1.1" 500 102902
+Internal Server Error: /zh-cn/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py", line 58, in dispatch
+    return redirect(self.success_url)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 176, in resolve_url
+    to = str(to)
+         ^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 119, in __str__
+    return str(self.__cast())
+               ^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 110, in __cast
+    return func(*self._args, **self._kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'dashboard' not found. 'dashboard' is not a valid view function or pattern name.
+"GET /zh-cn/accounts/login/ HTTP/1.1" 500 102902
+Not Found: /http://127.0.0.1:8000/
+"GET /http://127.0.0.1:8000/ HTTP/1.1" 404 3195
+"GET / HTTP/1.1" 302 0
+"GET /en-us/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+Internal Server Error: /zh-cn/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py", line 58, in dispatch
+    return redirect(self.success_url)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 176, in resolve_url
+    to = str(to)
+         ^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 119, in __str__
+    return str(self.__cast())
+               ^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 110, in __cast
+    return func(*self._args, **self._kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'dashboard' not found. 'dashboard' is not a valid view function or pattern name.
+"GET /zh-cn/accounts/login/ HTTP/1.1" 500 103039
+Internal Server Error: /zh-cn/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\views.py", line 58, in dispatch
+    return redirect(self.success_url)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 176, in resolve_url
+    to = str(to)
+         ^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 119, in __str__
+    return str(self.__cast())
+               ^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 110, in __cast
+    return func(*self._args, **self._kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'dashboard' not found. 'dashboard' is not a valid view function or pattern name.
+"GET /zh-cn/accounts/login/ HTTP/1.1" 500 103039
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET / HTTP/1.1" 302 0
+"GET /en-us/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Watching for file changes with StatReloader
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Watching for file changes with StatReloader
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39663
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 168
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\accounts\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/customers/ HTTP/1.1" 200 19984
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /zh-cn/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /login/?next=/zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /zh-cn/login/?next=/zh-cn/dashboard/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 302 0
+"GET /zh-cn/accounts/login/ HTTP/1.1" 200 9978
+"POST /zh-cn/accounts/login/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 40036
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 39663
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 65
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 96
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39630
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/products/ HTTP/1.1" 200 24954
+"GET /zh-cn/customers/ HTTP/1.1" 200 19984
+"GET /zh-cn/products/ HTTP/1.1" 200 24954
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39630
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/assets/ HTTP/1.1" 200 38919
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 32008
+"GET /zh-cn/companies/ HTTP/1.1" 200 24367
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 39630
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 96
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 93
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/quotations/ HTTP/1.1" 200 22944
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 29545
+"GET /zh-cn/customers/ HTTP/1.1" 200 19984
+"GET /zh-cn/companies/ HTTP/1.1" 200 24367
+"GET /zh-cn/quotations/ HTTP/1.1" 200 22944
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 29545
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\products\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\purchases\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\purchases\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\purchases\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\purchases\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\views.py changed, reloading.
+Watching for file changes with StatReloader
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Internal Server Error: /en-us/purchases/orders/2/receive/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: assets_asset.barcode
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\purchases\views.py", line 292, in purchase_receipt_view
+    asset.save()
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py", line 416, in save
+    super().save(*args, **kwargs)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 902, in save
+    self.save_base(
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1008, in save_base
+    updated = self._save_table(
+              ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1169, in _save_table
+    results = self._do_insert(
+              ^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1210, in _do_insert
+    return manager._insert(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1873, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1882, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: assets_asset.barcode
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\purchases\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /en-us/deliveries/create/from-quotation/5/
+Traceback (most recent call last):
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\views.py", line 121, in delivery_create_view
+    DeliveryItem.objects.create(
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 665, in create
+    obj.save(force_insert=True, using=self.db)
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\models.py", line 170, in save
+    self.full_clean()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1679, in full_clean
+    raise ValidationError(errors)
+django.core.exceptions.ValidationError: {'__all__': ['Selected asset is already reserved by another active delivery order.']}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\views.py", line 128, in delivery_create_view
+    form.add_error('selected_assets', exc)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\forms\forms.py", line 289, in add_error
+    raise TypeError(
+TypeError: The argument `field` must be `None` when the `error` argument contains errors for multiple fields.
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /en-us/deliveries/create/from-quotation/6/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\views.py", line 129, in delivery_create_view
+    return render(
+           ^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 320, in render
+    match = condition.eval(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 886, in eval
+    return self.value.resolve(context, ignore_failures=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 722, in resolve
+    obj = self.var.resolve(context)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 854, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 891, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django_otp\middleware.py", line 41, in _verify_user
+    user.otp_device = None
+    ^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 295, in __setattr__
+    self._setup()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 304, in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\__init__.py", line 95, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\sessions\backends\base.py", line 55, in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\sessions\backends\base.py", line 249, in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\sessions\backends\db.py", line 55, in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\sessions\backends\db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 631, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 99, in _execute
+    self.db.validate_no_broken_transaction()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\base\base.py", line 521, in validate_no_broken_transaction
+    raise TransactionManagementError(
+django.db.transaction.TransactionManagementError: An error occurred in the current transaction. You can't execute queries until the end of the 'atomic' block.
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\settings.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /zh-cn/quotations/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 81, in reverse
+    extra, resolver = resolver.namespace_dict[ns]
+                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^
+KeyError: 'invoices'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 92, in reverse
+    raise NoReverseMatch("%s is not a registered namespace" % key)
+django.urls.exceptions.NoReverseMatch: 'invoices' is not a registered namespace
+"GET /zh-cn/quotations/create/ HTTP/1.1" 500 215763
+"GET /zh-cn HTTP/1.1" 301 0
+"GET /zh-cn/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+Internal Server Error: /zh-cn/dashboard/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 81, in reverse
+    extra, resolver = resolver.namespace_dict[ns]
+                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^
+KeyError: 'invoices'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\views.py", line 74, in dashboard_view
+    return render(request, 'dashboard/dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 92, in reverse
+    raise NoReverseMatch("%s is not a registered namespace" % key)
+django.urls.exceptions.NoReverseMatch: 'invoices' is not a registered namespace
+"GET /zh-cn/dashboard/ HTTP/1.1" 500 226668
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\apps.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /zh-cn/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 44124
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 235
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/invoices/ HTTP/1.1" 200 23999
+"GET /zh-cn/invoices/import/ HTTP/1.1" 200 22262
+"GET /zh-cn/quotations/ HTTP/1.1" 200 38394
+"GET /zh-cn/purchases/ HTTP/1.1" 200 38127
+"GET /zh-cn/purchases/stock/ HTTP/1.1" 200 36256
+"GET /zh-cn/assets/ HTTP/1.1" 200 54043
+"GET /zh-cn/deliveries/ HTTP/1.1" 200 28349
+"GET /zh-cn/invoices/import/ HTTP/1.1" 200 22262
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\services.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\invoices\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /en-us/dashboard/workflow/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 890, in _resolve_lookup
+    raise TypeError
+TypeError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 901, in _resolve_lookup
+    current = getattr(current, bit)
+              ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'customer'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 907, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'customer'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\dashboard\views.py", line 172, in workflow_dashboard_view
+    return render(request, 'dashboard/workflow_dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 243, in render
+    nodelist.append(node.render_annotated(context))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 327, in render
+    return nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1075, in render
+    output = self.filter_expression.resolve(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 743, in resolve
+    arg_vals.append(arg.resolve(context))
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 854, in resolve
+    value = self._resolve_lookup(context)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 914, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [customer] in None
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\middleware\common.py", line 48, in process_request
+    host = request.get_host()
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\http\request.py", line 202, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.

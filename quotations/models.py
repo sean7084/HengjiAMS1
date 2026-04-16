@@ -1,0 +1,350 @@
+"""
+Models for HengJi AMS Quotations App.
+Quotation management with line items for the quotation-to-invoice workflow.
+"""
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+import datetime
+
+from companies.models import Company
+from customers.models import CustomerProfile
+from products.models import ProductPrice
+
+
+class Quotation(models.Model):
+    """
+    Quotation model for customer quotes.
+    Auto-generates quotation number in format QT-YYYYMMDD-###.
+    """
+
+    class QuotationStatus(models.TextChoices):
+        DRAFT = 'draft', _('Draft')
+        SENT = 'sent', _('Sent')
+        CONFIRMED = 'confirmed', _('Confirmed')
+        EXPIRED = 'expired', _('Expired')
+        CANCELLED = 'cancelled', _('Cancelled')
+
+    # Quotation number (auto-generated)
+    quotation_number = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name=_('Quotation Number')
+    )
+
+    # Customer link
+    customer = models.ForeignKey(
+        Company,
+        on_delete=models.PROTECT,
+        related_name='quotations',
+        verbose_name=_('Customer')
+    )
+    customer_profile = models.ForeignKey(
+        CustomerProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='quotations',
+        verbose_name=_('Customer Profile')
+    )
+
+    # Date fields
+    quotation_date = models.DateField(
+        default=datetime.date.today,
+        verbose_name=_('Quotation Date')
+    )
+    valid_until = models.DateField(
+        verbose_name=_('Valid Until')
+    )
+
+    # Contact info (copied from CustomerProfile at creation)
+    attn = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Attention')
+    )
+    tel = models.CharField(
+        max_length=20,
+        blank=True,
+        verbose_name=_('Telephone')
+    )
+
+    # Status
+    status = models.CharField(
+        max_length=20,
+        choices=QuotationStatus.choices,
+        default=QuotationStatus.DRAFT,
+        verbose_name=_('Status')
+    )
+
+    # Totals (calculated from line items)
+    total_without_tax = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('Total Without Tax')
+    )
+    total_with_tax = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('Total With Tax')
+    )
+    total_tax = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('Total Tax')
+    )
+
+    # Notes
+    notes = models.TextField(
+        blank=True,
+        verbose_name=_('Notes')
+    )
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('Quotation')
+        verbose_name_plural = _('Quotations')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.quotation_number} - {self.customer.name}"
+
+    def save(self, *args, **kwargs):
+        # Auto-generate quotation number if not set
+        if not self.quotation_number:
+            self.quotation_number = self.generate_quotation_number()
+        super().save(*args, **kwargs)
+
+    def generate_quotation_number(self):
+        """Generate unique quotation number: QT-YYYYMMDD-###"""
+        today = datetime.date.today()
+        prefix = f"QT-{today.strftime('%Y%m%d')}-"
+
+        # Get the last quotation number for today
+        last_quotation = Quotation.objects.filter(
+            quotation_number__startswith=prefix
+        ).order_by('-quotation_number').first()
+
+        if last_quotation:
+            # Extract the sequence number and increment
+            try:
+                last_seq = int(last_quotation.quotation_number.split('-')[-1])
+                seq = last_seq + 1
+            except (ValueError, IndexError):
+                seq = 1
+        else:
+            seq = 1
+
+        return f"{prefix}{seq:03d}"
+
+    def recalculate_totals(self):
+        """Recalculate totals from line items."""
+        items = self.items.all()
+        total_ex = Decimal('0.00')
+        total_tax = Decimal('0.00')
+
+        for item in items:
+            total_ex += item.line_total_without_tax
+            total_tax += item.tax_amount
+
+        self.total_without_tax = total_ex
+        self.total_tax = total_tax
+        self.total_with_tax = total_ex + total_tax
+        self.save(update_fields=['total_without_tax', 'total_tax', 'total_with_tax', 'updated_at'])
+
+    def get_customer_info(self):
+        """Return dict with customer contact info from profile."""
+        if self.customer_profile:
+            return {
+                'attn': self.customer_profile.contact_person,
+                'tel': self.customer_profile.phone,
+                'email': self.customer_profile.email,
+                'delivery_address': self.customer_profile.delivery_address,
+                'delivery_city': self.customer_profile.delivery_city,
+            }
+        return {}
+
+    @property
+    def is_expired(self):
+        """Check if quotation is past validity date."""
+        return datetime.date.today() > self.valid_until
+
+
+class QuotationItem(models.Model):
+    """
+    Line item for quotation.
+    Links to ProductPrice and stores snapshot of product info at time of quote.
+    """
+
+    quotation = models.ForeignKey(
+        Quotation,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name=_('Quotation')
+    )
+
+    # Link to product price
+    product_price = models.ForeignKey(
+        ProductPrice,
+        on_delete=models.PROTECT,
+        related_name='quotation_items',
+        verbose_name=_('Product Price')
+    )
+
+    # Snapshot of product info at time of quote
+    brand_name = models.CharField(
+        max_length=255,
+        verbose_name=_('Brand')
+    )
+    product_description = models.TextField(
+        verbose_name=_('Product Description')
+    )
+    model_number = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Model Number')
+    )
+    unit = models.CharField(
+        max_length=50,
+        verbose_name=_('Unit')
+    )
+
+    # Pricing (from ProductPrice at time of quote)
+    quantity = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        verbose_name=_('Quantity')
+    )
+    unit_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_('Unit Price')
+    )
+    tax_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('13.00'),
+        verbose_name=_('Tax Rate (%)')
+    )
+
+    # Calculated fields
+    price_without_tax = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name=_('Price Without Tax')
+    )
+    tax_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name=_('Tax Amount')
+    )
+    line_total_without_tax = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name=_('Line Total')
+    )
+    line_total_with_tax = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name=_('Line Total With Tax')
+    )
+
+    # Additional fields for quotation template
+    user_brand = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('User Brand')
+    )
+    user_name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('User Name')
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+
+    class Meta:
+        verbose_name = _('Quotation Item')
+        verbose_name_plural = _('Quotation Items')
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.quotation.quotation_number} - {self.brand_name} {self.product_description[:50]}"
+
+    def save(self, *args, **kwargs):
+        # Copy product info from ProductPrice if not set
+        if self.product_price and not self.brand_name:
+            self.brand_name = self.product_price.brand.name
+            self.product_description = self.product_price.model.description or self.product_price.model.name
+            self.model_number = self.product_price.model.model_number or ''
+            self.unit = self.product_price.unit
+            self.unit_price = self.product_price.price_without_tax
+            self.tax_rate = self.product_price.tax_rate
+
+        # Calculate line totals
+        self.price_without_tax = self.unit_price * self.quantity
+        self.tax_amount = self.price_without_tax * (self.tax_rate / 100)
+        self.line_total_without_tax = self.price_without_tax
+        self.line_total_with_tax = self.price_without_tax + self.tax_amount
+
+        super().save(*args, **kwargs)
+
+        # Update quotation totals after saving
+        if self.quotation:
+            self.quotation.recalculate_totals()
+
+
+class QuotationAttachment(models.Model):
+    """
+    Attachments for quotation (invoice PDF, OFD, XML zip, email confirmation).
+    """
+
+    class AttachmentType(models.TextChoices):
+        INVOICE_PDF = 'invoice_pdf', _('Invoice PDF')
+        INVOICE_OFD = 'invoice_ofd', _('Invoice OFD')
+        INVOICE_XML = 'invoice_xml', _('Invoice XML (Zipped)')
+        EMAIL_CONFIRMATION = 'email_confirmation', _('Email Confirmation Screenshot')
+
+    quotation = models.ForeignKey(
+        Quotation,
+        on_delete=models.CASCADE,
+        related_name='attachments',
+        verbose_name=_('Quotation')
+    )
+    attachment_type = models.CharField(
+        max_length=30,
+        choices=AttachmentType.choices,
+        verbose_name=_('Attachment Type')
+    )
+    file = models.FileField(
+        upload_to='quotations/attachments/%Y/%m/',
+        verbose_name=_('File')
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name=_('Notes')
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Uploaded At'))
+
+    class Meta:
+        verbose_name = _('Quotation Attachment')
+        verbose_name_plural = _('Quotation Attachments')
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f"{self.quotation.quotation_number} - {self.get_attachment_type_display()}"

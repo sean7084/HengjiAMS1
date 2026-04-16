@@ -1,0 +1,242 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Purchased Assets" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3">{% trans "Purchased Assets" %}</h1>
+            <a href="{% url 'purchases:stock' %}" class="btn btn-outline-info">
+                <i class="fas fa-chart-bar"></i> {% trans "Stock Overview" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">{% trans "Status" %}</label>
+                            <select name="status" class="form-select">
+                                <option value="">-- {% trans "All" %} --</option>
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Quotation" %}</label>
+                            <select name="quotation" class="form-select">
+                                <option value="">-- {% trans "All Quotations" %} --</option>
+                                {% for q in quotations %}
+                                <option value="{{ q.pk }}" {% if selected_quotation == q.pk|stringformat:'s' %}selected{% endif %}>
+                                    {{ q.quotation_number }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Search" %}</label>
+                            <input type="text" name="search" class="form-control"
+                                   placeholder="{% trans 'Asset #, Serial, Description...' %}"
+                                   value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <a href="{% url 'purchases:list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if assets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Asset #" %}</th>
+                                    <th>{% trans "Source Quote" %}</th>
+                                    <th>{% trans "Brand" %}</th>
+                                    <th>{% trans "Description" %}</th>
+                                    <th>{% trans "Serial" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Purchase Date" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'purchases:detail' asset.pk %}">
+                                            {{ asset.asset_number }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if asset.source_quotation %}
+                                        <a href="{% url 'quotations:detail' asset.source_quotation.pk %}">
+                                            {{ asset.source_quotation.quotation_number }}
+                                        </a>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ asset.brand.name|default:"-" }}</td>
+                                    <td>{{ asset.description|truncatechars:30|default:"-" }}</td>
+                                    <td>{{ asset.serial_number|default:"-" }}</td>
+                                    <td>
+                                        {% if asset.status == 'available' %}
+                                        <span class="badge bg-success">{{ asset.get_status_display }}</span>
+                                        {% elif asset.status == 'assigned' %}
+                                        <span class="badge bg-primary">{{ asset.get_status_display }}</span>
+                                        {% elif asset.status == 'in_use' %}
+                                        <span class="badge bg-info">{{ asset.get_status_display }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ asset.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ asset.purchase_date|date:"Y-m-d"|default:"-" }}</td>
+                                    <td>
+                                        <a href="{% url 'purchases:detail' asset.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary edit-serial-btn"
+                                                data-asset-pk="{{ asset.pk }}" data-serial="{{ asset.serial_number|default:'' }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="Asset list pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_quotation %}&quotation={{ selected_quotation }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {% trans "Previous" %}
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_quotation %}&quotation={{ selected_quotation }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_quotation %}&quotation={{ selected_quotation }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {% trans "Next" %}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-boxes fa-4x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans "No purchased assets found." %}</p>
+                        <p class="small">{% trans "Assets purchased via quotations will appear here." %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Serial Modal -->
+<div class="modal fade" id="editSerialModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans "Edit Serial Number" %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" id="editSerialForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="asset_pk" id="editAssetPk">
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Serial Number" %}</label>
+                        <input type="text" name="serial_number" id="editSerialInput" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit serial button handler
+    document.querySelectorAll('.edit-serial-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const pk = this.dataset.assetPk;
+            const serial = this.dataset.serial;
+            document.querySelector('#editAssetPk').value = pk;
+            document.querySelector('#editSerialInput').value = serial;
+            new bootstrap.Modal(document.querySelector('#editSerialModal')).show();
+        });
+    });
+
+    // Handle edit form submission
+    document.querySelector('#editSerialForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const pk = document.querySelector('#editAssetPk').value;
+        const serial = document.querySelector('#editSerialInput').value;
+
+        fetch('/purchases/' + pk + '/edit-serial/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'serial_number=' + encodeURIComponent(serial)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
