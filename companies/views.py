@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 from .models import Company, Division, Location, CompanyUser
-from .forms import CompanyForm, DivisionForm, LocationForm
+from .forms import CompanyForm, DivisionForm, LocationForm, CompanyUserForm
 from accounts.models import User
 
 
@@ -233,9 +233,12 @@ class LocationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if search:
             queryset = queryset.filter(
                 Q(name__icontains=search) |
-                Q(address__icontains=search) |
+                Q(address_line1__icontains=search) |
+                Q(address_line2__icontains=search) |
+                Q(city__icontains=search) |
                 Q(company__name__icontains=search) |
-                Q(division__name__icontains=search)
+                Q(manager__first_name__icontains=search) |
+                Q(manager__last_name__icontains=search)
             )
         
         return queryset.order_by('company__name', 'division__name', 'name')
@@ -327,7 +330,7 @@ class CompanyUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.can_manage_companies()
     
     def get_queryset(self):
-        queryset = CompanyUser.objects.select_related('user', 'company', 'division', 'location').all()
+        queryset = CompanyUser.objects.select_related('user', 'company', 'location').all()
         
         # Search functionality
         search = self.request.GET.get('search')
@@ -338,7 +341,6 @@ class CompanyUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(user__last_name__icontains=search) |
                 Q(user__email__icontains=search) |
                 Q(company__name__icontains=search) |
-                Q(division__name__icontains=search) |
                 Q(location__name__icontains=search)
             )
         
@@ -348,4 +350,25 @@ class CompanyUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Company User Management')
         context['search'] = self.request.GET.get('search', '')
+        return context
+
+
+class CompanyUserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    """View for creating company user memberships."""
+    model = CompanyUser
+    form_class = CompanyUserForm
+    template_name = 'companies/companyuser_form.html'
+    success_url = reverse_lazy('companies:companyuser_list')
+
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+
+    def form_valid(self, form):
+        messages.success(self.request, _('Company user added successfully.'))
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Add Company User')
+        context['action'] = _('Create')
         return context

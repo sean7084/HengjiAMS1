@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+from hengjiams.runtime_setup import configure_windows_fontconfig
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hengjiams.settings')
+configure_windows_fontconfig()
 
 application = get_wsgi_application()

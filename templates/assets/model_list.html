@@ -42,11 +42,19 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
+                    <select name="unit" class="form-select">
+                        <option value="">{% trans "All Units" %}</option>
+                        {% for unit in units %}
+                            <option value="{{ unit }}" {% if unit == selected_unit %}selected{% endif %}>{{ unit }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
                     <button class="btn btn-outline-secondary" type="submit">
                         <i class="fas fa-search"></i> {% trans "Search" %}
                     </button>
-                    {% if search_query or selected_brand %}
+                    {% if search_query or selected_brand or selected_unit %}
                         <a href="{% url 'assets:model_list' %}" class="btn btn-outline-secondary ms-2">
                             {% trans "Clear" %}
                         </a>
@@ -67,6 +75,7 @@
                                 <th>{% trans "Model" %}</th>
                                 <th>{% trans "Brand" %}</th>
                                 <th>{% trans "Model Number" %}</th>
+                                <th>{% trans "Unit" %}</th>
                                 <th>{% trans "Description" %}</th>
                                 <th>{% trans "Status" %}</th>
                                 <th>{% trans "Actions" %}</th>
@@ -80,6 +89,7 @@
                                     <span class="badge bg-primary">{{ model.brand.name }}</span>
                                 </td>
                                 <td><code>{{ model.model_number }}</code></td>
+                                <td>{{ model.unit }}</td>
                                 <td>{{ model.description|default:"-"|truncatechars:50 }}</td>
                                 <td>
                                     {% if model.is_active %}

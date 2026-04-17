@@ -1219,6 +1219,7 @@ class ModelListView(LoginRequiredMixin, ListView):
         queryset = super().get_queryset().select_related('brand')
         search = self.request.GET.get('search')
         brand_id = self.request.GET.get('brand')
+        unit = self.request.GET.get('unit')
         
         if search:
             queryset = queryset.filter(
@@ -1230,6 +1231,9 @@ class ModelListView(LoginRequiredMixin, ListView):
         
         if brand_id:
             queryset = queryset.filter(brand_id=brand_id)
+
+        if unit:
+            queryset = queryset.filter(unit__iexact=unit)
             
         return queryset
 
@@ -1238,6 +1242,8 @@ class ModelListView(LoginRequiredMixin, ListView):
         context['search_query'] = self.request.GET.get('search', '')
         context['brands'] = AssetBrand.objects.filter(is_active=True).order_by('name')
         context['selected_brand'] = self.request.GET.get('brand', '')
+        context['selected_unit'] = self.request.GET.get('unit', '')
+        context['units'] = AssetModel.objects.exclude(unit='').values_list('unit', flat=True).distinct().order_by('unit')
         return context
 
 
@@ -1293,8 +1299,31 @@ class ModelDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def brands_models_view(request):
     """Combined view for managing brands and models."""
-    brands = AssetBrand.objects.filter(is_active=True).prefetch_related('models').order_by('name')
+    search = request.GET.get('search', '').strip()
+    brand_id = request.GET.get('brand', '').strip()
+    unit = request.GET.get('unit', '').strip()
+
+    models_qs = AssetModel.objects.select_related('brand').order_by('brand__name', 'name')
+    if search:
+        models_qs = models_qs.filter(
+            Q(name__icontains=search)
+            | Q(model_number__icontains=search)
+            | Q(description__icontains=search)
+            | Q(brand__name__icontains=search)
+        )
+    if brand_id:
+        models_qs = models_qs.filter(brand_id=brand_id)
+    if unit:
+        models_qs = models_qs.filter(unit__iexact=unit)
+
+    brands = AssetBrand.objects.filter(models__in=models_qs).distinct().order_by('name')
     context = {
         'brands': brands,
+        'models': models_qs,
+        'search_query': search,
+        'selected_brand': brand_id,
+        'selected_unit': unit,
+        'brand_filter_options': AssetBrand.objects.filter(is_active=True).order_by('name'),
+        'unit_filter_options': AssetModel.objects.exclude(unit='').values_list('unit', flat=True).distinct().order_by('unit'),
     }
     return render(request, 'assets/brands_models.html', context)

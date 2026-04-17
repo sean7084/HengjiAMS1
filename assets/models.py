@@ -149,6 +149,12 @@ class AssetModel(models.Model):
         verbose_name=_('Model Number'),
         help_text=_('Official model number from manufacturer')
     )
+    unit = models.CharField(
+        max_length=50,
+        default='PCS',
+        verbose_name=_('Unit'),
+        help_text=_('Default unit for this model (e.g., PCS, SET, KG)')
+    )
     description = models.TextField(
         blank=True,
         verbose_name=_('Description')

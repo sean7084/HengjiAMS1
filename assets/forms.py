@@ -722,7 +722,7 @@ class ModelForm(forms.ModelForm):
     
     class Meta:
         model = AssetModel
-        fields = ['brand', 'name', 'model_number', 'description', 'specifications', 'is_active']
+        fields = ['brand', 'name', 'model_number', 'unit', 'description', 'specifications', 'is_active']
         widgets = {
             'brand': forms.Select(attrs={
                 'class': 'form-select'
@@ -734,6 +734,10 @@ class ModelForm(forms.ModelForm):
             'model_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': _('Enter official model number (optional)')
+            }),
+            'unit': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter default unit (e.g., PCS)')
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',

@@ -26,7 +26,16 @@
 				"approve": true,
 				"matchCommandLine": true
 			},
-			"c:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe": true
+			"c:/Users/sean_/miniconda3/envs/HengjiAMS1/python.exe": true,
+			"ForEach-Object": true,
+			"/^\\(C:\\\\Users\\\\sean_\\\\miniconda3\\\\shell\\\\condabin\\\\conda-hook\\.ps1\\) ; \\(conda activate HengjiAMS1\\) ; python manage\\.py makemigrations$/": {
+				"approve": true,
+				"matchCommandLine": true
+			},
+			"/^\\(C:\\\\Users\\\\sean_\\\\miniconda3\\\\shell\\\\condabin\\\\conda-hook\\.ps1\\) ; \\(conda activate HengjiAMS1\\) ; python manage\\.py makemigrations --check$/": {
+				"approve": true,
+				"matchCommandLine": true
+			}
 		}
 	}
 }

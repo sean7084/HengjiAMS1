@@ -4,18 +4,17 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 
 from assets.models import Asset
-from customers.models import CustomerProfile
 from quotations.models import Quotation
 
 from .forms import DeliveryOrderForm, SignedCopyUploadForm
 from .models import DeliveryItem, DeliveryOrder
-from .services import convert_xlsx_to_pdf, fill_delivery_template
+from .services import render_delivery_pdf_html
 
 
 class DeliveryOrderListView(ListView):
@@ -76,7 +75,7 @@ def delivery_create_view(request, quotation_pk):
     """Create delivery order from a quotation and select dispatch assets."""
 
     quotation = get_object_or_404(
-        Quotation.objects.select_related('customer', 'customer_profile'),
+        Quotation.objects.select_related('customer', 'customer__primary_contact_company_user__user'),
         pk=quotation_pk,
     )
 
@@ -92,20 +91,13 @@ def delivery_create_view(request, quotation_pk):
     initial_data = {
         'delivery_date': quotation.quotation_date,
         'delivery_method': '',
+        'receiver_name': quotation.attn,
+        'receiver_phone': quotation.tel,
     }
 
-    if quotation.customer_profile_id:
-        profile = quotation.customer_profile
-    else:
-        profile = CustomerProfile.objects.filter(company=quotation.customer).first()
-
-    if profile:
-        initial_data.update({
-            'receiver_name': profile.delivery_contact,
-            'receiver_phone': profile.delivery_phone,
-            'delivery_address': f'{profile.delivery_address} {profile.delivery_city}'.strip(),
-            'delivery_method': profile.get_delivery_method_display(),
-        })
+    primary_location = quotation.customer.locations.order_by('name').first()
+    if primary_location:
+        initial_data['delivery_address'] = primary_location.get_full_address()
 
     if request.method == 'POST':
         form = DeliveryOrderForm(request.POST, quotation=quotation)
@@ -243,23 +235,18 @@ def mark_completed(request, pk):
 
 
 def generate_delivery_pdf(request, pk):
-    """Generate delivery document from template and return PDF (or xlsx fallback)."""
+    """Generate delivery document from HTML template and return PDF."""
 
     delivery = get_object_or_404(DeliveryOrder.objects.prefetch_related('items'), pk=pk)
 
     try:
-        xlsx_path = fill_delivery_template(delivery)
-    except FileNotFoundError as exc:
-        messages.error(request, str(exc))
+        pdf_bytes = render_delivery_pdf_html(delivery)
+    except Exception as exc:
+        messages.error(request, f'Failed to generate delivery PDF: {exc}')
         return redirect('deliveries:detail', pk=pk)
 
-    pdf_path = convert_xlsx_to_pdf(xlsx_path)
-
-    if pdf_path:
-        return FileResponse(open(pdf_path, 'rb'), as_attachment=True, filename=pdf_path.name)
-
-    messages.warning(
-        request,
-        'PDF converter not found. Downloading filled Excel file instead.',
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="{delivery.delivery_number}.pdf"'
     )
-    return FileResponse(open(xlsx_path, 'rb'), as_attachment=True, filename=xlsx_path.name)
+    return response

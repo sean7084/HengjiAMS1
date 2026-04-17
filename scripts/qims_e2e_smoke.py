@@ -10,8 +10,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 
 from assets.models import AssetBrand, AssetCategory, AssetModel
-from companies.models import Company, Division, Location
-from customers.models import CustomerProfile
+from companies.models import Company, CompanyUser, Division, Location
 from deliveries.models import DeliveryOrder
 from invoices.models import EmailDispatch, InvoiceInfo, WeeklyOrderBatch
 from products.models import ProductPrice
@@ -62,18 +61,18 @@ def run():
         status=Location.LocationStatus.ACTIVE,
         location_type=Location.LocationType.WAREHOUSE,
     )
-    profile = CustomerProfile.objects.create(
+
+    company_user = CompanyUser.objects.create(
+        user=user,
         company=company,
-        contact_person="Smoke Contact",
-        phone="13800000000",
-        email="smoke@example.com",
-        delivery_address="Smoke Street 1",
-        delivery_city="Shanghai",
-        delivery_contact="Receiver Smoke",
-        delivery_phone="13900000000",
-        delivery_method=CustomerProfile.DeliveryMethod.DELIVERY,
-        tax_id=f"TAX-{suffix}",
+        role=CompanyUser.CompanyRole.ADMIN,
+        location=location,
+        status=CompanyUser.UserStatus.ACTIVE,
+        work_phone="13800000000",
+        work_email="smoke@example.com",
     )
+    company.primary_contact_company_user = company_user
+    company.save(update_fields=['primary_contact_company_user'])
 
     category = AssetCategory.objects.create(name=f"Category {suffix}", code=f"CAT{suffix[:6].upper()}")
     brand = AssetBrand.objects.create(name=f"Brand {suffix}", code=f"BR{suffix[:6].upper()}")
@@ -89,11 +88,10 @@ def run():
 
     quotation = Quotation.objects.create(
         customer=company,
-        customer_profile=profile,
         quotation_date=today,
         valid_until=today + timedelta(days=15),
-        attn=profile.contact_person,
-        tel=profile.phone,
+        attn=company_user.user.get_display_name(),
+        tel=company_user.work_phone,
         status=Quotation.QuotationStatus.DRAFT,
     )
     q_item = QuotationItem.objects.create(
@@ -147,10 +145,10 @@ def run():
 
     delivery_payload = {
         "delivery_date": str(today),
-        "receiver_name": profile.delivery_contact,
-        "receiver_phone": profile.delivery_phone,
-        "delivery_address": f"{profile.delivery_address} {profile.delivery_city}",
-        "delivery_method": profile.get_delivery_method_display(),
+        "receiver_name": company_user.user.get_display_name(),
+        "receiver_phone": company_user.work_phone,
+        "delivery_address": location.get_full_address(),
+        "delivery_method": "Delivery",
         "remarks": "smoke delivery",
         "selected_assets": [str(asset.pk)],
     }

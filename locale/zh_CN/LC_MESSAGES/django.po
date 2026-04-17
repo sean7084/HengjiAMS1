@@ -504,3 +504,913 @@ msgstr "已停用"
 
 msgid "User {username} has been {status}."
 msgstr "用户 {username} 已{status}。"
+
+# Core workflow and navigation translations
+msgid "Actions"
+msgstr "操作"
+
+msgid "Add Item"
+msgstr "添加项目"
+
+msgid "Add to Quotation"
+msgstr "添加到报价单"
+
+msgid "Add User"
+msgstr "添加用户"
+
+msgid "Address"
+msgstr "地址"
+
+msgid "All"
+msgstr "全部"
+
+msgid "All Customers"
+msgstr "所有客户"
+
+msgid "All Deliveries"
+msgstr "所有出库"
+
+msgid "All Quotations"
+msgstr "所有报价单"
+
+msgid "All rights reserved."
+msgstr "保留所有权利。"
+
+msgid "Allowed formats: PDF, OFD, ZIP"
+msgstr "支持的格式：PDF, OFD, ZIP"
+
+msgid "Amount"
+msgstr "金额"
+
+msgid "API Documentation"
+msgstr "API 文档"
+
+msgid "Are you sure you want to delete this quotation?"
+msgstr "您确定要删除此报价单吗？"
+
+msgid "Asset"
+msgstr "资产"
+
+msgid "Asset #"
+msgstr "资产编号"
+
+msgid "Asset #, Serial, Description..."
+msgstr "资产编号、序列号、描述..."
+
+msgid "Asset Audits"
+msgstr "资产审计"
+
+msgid "Asset Information"
+msgstr "资产信息"
+
+msgid "Asset list pagination"
+msgstr "资产列表分页"
+
+msgid "Assets by Brand"
+msgstr "按品牌统计资产"
+
+msgid "Assets by Category"
+msgstr "按类别统计资产"
+
+msgid "Assets purchased via quotations will appear here."
+msgstr "通过报价单购买的资产将显示在这里。"
+
+msgid "Assets will be created when stock is received."
+msgstr "资产将在入库时创建。"
+
+msgid "Attachment Type"
+msgstr "附件类型"
+
+msgid "Attachments"
+msgstr "附件"
+
+msgid "Attention"
+msgstr "收件人"
+
+msgid "Attn"
+msgstr "联系人"
+
+msgid "Audit Logs"
+msgstr "审计日志"
+
+msgid "Auto Attachments"
+msgstr "自动附件"
+
+msgid "Available Charts"
+msgstr "可用图表"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Back to Invoice List"
+msgstr "返回发票列表"
+
+msgid "Back to List"
+msgstr "返回列表"
+
+msgid "Back to Quotation"
+msgstr "返回报价单"
+
+msgid "Back to Stock"
+msgstr "返回库存"
+
+msgid "Back to Weekly Batches"
+msgstr "返回周批次"
+
+msgid "Bar"
+msgstr "柱状图"
+
+msgid "Batch ID"
+msgstr "批次 ID"
+
+msgid "Batch ID, reason, file path..."
+msgstr "批次 ID、原因、文件路径..."
+
+msgid "BCC"
+msgstr "密送"
+
+msgid "Bill To"
+msgstr "付款人"
+
+msgid "Brand"
+msgstr "品牌"
+
+msgid "By Brand"
+msgstr "按品牌"
+
+msgid "By Location"
+msgstr "按地点"
+
+msgid "By Quotation"
+msgstr "按报价单"
+
+msgid "CC"
+msgstr "抄送"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Completed POs"
+msgstr "已完成 PO"
+
+msgid "Compose Dispatch Email"
+msgstr "撰写发货邮件"
+
+msgid "Compose Email"
+msgstr "撰写邮件"
+
+msgid "Confirm"
+msgstr "确认"
+
+msgid "Confirm Delete"
+msgstr "确认删除"
+
+msgid "Contact"
+msgstr "联系方式"
+
+msgid "Convert to Purchase"
+msgstr "转为采购"
+
+msgid "Convert to Purchase Order"
+msgstr "转为采购订单"
+
+msgid "Converted Quotations"
+msgstr "已转换报价单"
+
+msgid "Count"
+msgstr "计数"
+
+msgid "Create Delivery"
+msgstr "创建出库"
+
+msgid "Create Delivery Order"
+msgstr "创建出库单"
+
+msgid "Create First Quotation"
+msgstr "创建首份报价单"
+
+msgid "Create Purchase Order"
+msgstr "创建采购订单"
+
+msgid "Create Quotation"
+msgstr "创建报价单"
+
+msgid "Created"
+msgstr "创建于"
+
+msgid "Created Rows"
+msgstr "已创建行"
+
+msgid "Customer"
+msgstr "客户"
+
+msgid "Customer Profiles"
+msgstr "客户档案"
+
+msgid "Customize Dashboard"
+msgstr "自定义仪表板"
+
+msgid "Date"
+msgstr "日期"
+
+msgid "Date From"
+msgstr "开始日期"
+
+msgid "Date To"
+msgstr "结束日期"
+
+msgid "Delete Quotation"
+msgstr "删除报价单"
+
+msgid "Deliveries"
+msgstr "出库单"
+
+msgid "Delivery #"
+msgstr "出库单号"
+
+msgid "Delivery #, Quotation #, Customer..."
+msgstr "出库单号、报价单号、客户..."
+
+msgid "Delivery Detail"
+msgstr "出库详情"
+
+msgid "Delivery Information"
+msgstr "出库信息"
+
+msgid "Delivery Items"
+msgstr "出库项目"
+
+msgid "Delivery Orders"
+msgstr "出库单"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Dispatch"
+msgstr "发货"
+
+msgid "Dispatch Email"
+msgstr "发货邮件"
+
+msgid "Doughnut"
+msgstr "环形图"
+
+msgid "Download PDF"
+msgstr "下载 PDF"
+
+msgid "Duplicate"
+msgstr "复制"
+
+msgid "Duplicate Quotation"
+msgstr "复制报价单"
+
+msgid "Edit Quotation"
+msgstr "编辑报价单"
+
+msgid "Edit Serial Number"
+msgstr "编辑序列号"
+
+msgid "e.g. 12"
+msgstr "例如：12"
+
+msgid "Email Composition"
+msgstr "邮件撰写"
+
+msgid "Email Confirmation Screenshot"
+msgstr "邮件确认截图"
+
+msgid "Email Dispatch History"
+msgstr "邮件发送历史"
+
+msgid "Email Dispatches"
+msgstr "邮件发送"
+
+msgid "Email History"
+msgstr "邮件历史"
+
+msgid "Entity"
+msgstr "实体"
+
+msgid "Esker"
+msgstr "Esker"
+
+msgid "Failed row"
+msgstr "失败行"
+
+msgid "File"
+msgstr "文件"
+
+msgid "Financial Reports"
+msgstr "财务报表"
+
+msgid "Forward to Esker"
+msgstr "转发至 Esker"
+
+msgid "Forwarded"
+msgstr "已转发"
+
+msgid "From"
+msgstr "来自"
+
+msgid "Generate Document"
+msgstr "生成文档"
+
+msgid "Generate PDF"
+msgstr "生成 PDF"
+
+msgid "Go to Receive Stock"
+msgstr "前往入库"
+
+msgid "Gross"
+msgstr "毛计"
+
+msgid "Gross Amount"
+msgstr "总额（含税）"
+
+msgid "HengJi AMS"
+msgstr "恒记资产管理系统"
+
+msgid "History"
+msgstr "历史"
+
+msgid "Import Another Batch"
+msgstr "导入另一批次"
+
+msgid "Import Batch"
+msgstr "导入批次"
+
+msgid "Import Failed"
+msgstr "导入失败"
+
+msgid "Import runs in strict mode. Duplicate entries stop the import and mark the batch as failed."
+msgstr "导入以严格模式运行。重复条目将停止导入并将批次标记为失败。"
+
+msgid "Import Sharepoint Batch"
+msgstr "导入 Sharepoint 批次"
+
+msgid "Import Weekly Sharepoint Orders"
+msgstr "导入每周 Sharepoint 订单"
+
+msgid "Imported Invoice Candidates"
+msgstr "导入的候选发票"
+
+msgid "In Use"
+msgstr "使用中"
+
+msgid "Internal Order"
+msgstr "内部订单"
+
+msgid "Invoice #"
+msgstr "发票号"
+
+msgid "Invoice #, bill to, PO, IO, SAP..."
+msgstr "发票号、付款人、PO、IO、SAP..."
+
+msgid "Invoice Date"
+msgstr "发票日期"
+
+msgid "Invoice Header"
+msgstr "发票抬头"
+
+msgid "Invoice Information"
+msgstr "发票信息"
+
+msgid "Invoice Number"
+msgstr "发票号码"
+
+msgid "Invoice OFD"
+msgstr "发票 OFD"
+
+msgid "Invoice PDF"
+msgstr "发票 PDF"
+
+msgid "Invoice XML (Zipped)"
+msgstr "发票 XML (压缩)"
+
+msgid "Invoiced"
+msgstr "已开票"
+
+msgid "Invoices"
+msgstr "发票"
+
+msgid "Items"
+msgstr "项目"
+
+msgid "Kering Group PO Number"
+msgstr "开云集团 PO 编号"
+
+msgid "Last updated"
+msgstr "最后更新"
+
+msgid "Latest 40 changes"
+msgstr "最近 40 条变更"
+
+msgid "Line"
+msgstr "折线图"
+
+msgid "Line Items"
+msgstr "明细项"
+
+msgid "Manage Brands & Models"
+msgstr "品牌与型号管理"
+
+msgid "Manage Categories"
+msgstr "类别管理"
+
+msgid "Mark as Sent"
+msgstr "标记为已发送"
+
+msgid "Mark Client Confirmed"
+msgstr "标记为客户端已确认"
+
+msgid "Mark Completed"
+msgstr "标记为已完成"
+
+msgid "Mark Prepared"
+msgstr "标记为已准备"
+
+msgid "Method"
+msgstr "方式"
+
+msgid "Model"
+msgstr "型号"
+
+msgid "Net"
+msgstr "净计"
+
+msgid "Next"
+msgstr "下一步"
+
+msgid "Next Action"
+msgstr "下一步操作"
+
+msgid "No assets found"
+msgstr "未找到资产"
+
+msgid "No attachments"
+msgstr "无附件"
+
+msgid "No data"
+msgstr "无数据"
+
+msgid "No delivery items."
+msgstr "无出库项目。"
+
+msgid "No delivery matches."
+msgstr "未找到匹配的出库。"
+
+msgid "No delivery orders found."
+msgstr "未找到出库单。"
+
+msgid "No email dispatch records found."
+msgstr "未找到邮件发送记录。"
+
+msgid "No email dispatch records yet."
+msgstr "暂无邮件发送记录。"
+
+msgid "No invoice candidates were created for this batch."
+msgstr "此批次未创建候选发票。"
+
+msgid "No invoice information records found."
+msgstr "未找到发票信息记录。"
+
+msgid "No invoice matches."
+msgstr "未找到匹配的发票。"
+
+msgid "No items"
+msgstr "无项目"
+
+msgid "No line items yet. Link a delivery order and click Recalculate."
+msgstr "暂无明细项。请关联出库单并点击重新计算。"
+
+msgid "No location data"
+msgstr "无地点数据"
+
+msgid "No purchased assets found."
+msgstr "未找到已购资产。"
+
+msgid "No quotation matches."
+msgstr "未找到匹配的报价单。"
+
+msgid "No quotations found."
+msgstr "未找到报价单。"
+
+msgid "No receipts yet"
+msgstr "暂无收据"
+
+msgid "No records in this stage."
+msgstr "此阶段暂无记录。"
+
+msgid "No source quotation"
+msgstr "无来源报价单"
+
+msgid "No status changes recorded yet."
+msgstr "暂无状态变更记录。"
+
+msgid "No weekly batches found."
+msgstr "未找到周批次。"
+
+msgid "Notes"
+msgstr "备注"
+
+msgid "One serial per line or comma-separated"
+msgstr "每行一个序列号或以逗号分隔"
+
+msgid "Only available assets from this quotation can be selected."
+msgstr "只能选择此报价单中的可用资产。"
+
+msgid "optional"
+msgstr "可选"
+
+msgid "Ordered"
+msgstr "已下单"
+
+msgid "PDF"
+msgstr "PDF"
+
+msgid "Pending"
+msgstr "待处理"
+
+msgid "Phone"
+msgstr "电话"
+
+msgid "Pie"
+msgstr "饼图"
+
+msgid "Please select a product"
+msgstr "请选择产品"
+
+msgid "PO"
+msgstr "PO"
+
+msgid "PO Number"
+msgstr "PO 编号"
+
+msgid "Preview"
+msgstr "预览"
+
+msgid "Preview to load quotation, delivery, and invoice attachments automatically."
+msgstr "预览以自动加载报价单、出库单和发票附件。"
+
+msgid "Previous"
+msgstr "上一步"
+
+msgid "Processed"
+msgstr "已处理"
+
+msgid "Processed At"
+msgstr "处理于"
+
+msgid "Product"
+msgstr "产品"
+
+msgid "Product Price List"
+msgstr "产品价格表"
+
+msgid "Products & Sales"
+msgstr "产品与销售"
+
+msgid "Professional asset tracking and management solution."
+msgstr "专业的资产追踪与管理解决方案。"
+
+msgid "Purchase Date"
+msgstr "购买日期"
+
+msgid "Purchase Detail"
+msgstr "采购详情"
+
+msgid "Purchase Order Summary"
+msgstr "采购订单摘要"
+
+msgid "Purchase Price"
+msgstr "采购单价"
+
+msgid "Purchase Summary"
+msgstr "采购摘要"
+
+msgid "Purchased Assets"
+msgstr "已购资产"
+
+msgid "Purchases"
+msgstr "采购"
+
+msgid "Qty"
+msgstr "数量"
+
+msgid "Quantity"
+msgstr "数量"
+
+msgid "Quotation"
+msgstr "报价单"
+
+msgid "Quotation Date"
+msgstr "报价日期"
+
+msgid "Quotation Detail"
+msgstr "报价单详情"
+
+msgid "Quotation Details"
+msgstr "报价详情"
+
+msgid "Quotation ID"
+msgstr "报价单 ID"
+
+msgid "Quotation Information"
+msgstr "报价单信息"
+
+msgid "Quotation list pagination"
+msgstr "报价单列表分页"
+
+msgid "Quotation Number"
+msgstr "报价单号"
+
+msgid "Quotation Status"
+msgstr "报价单状态"
+
+msgid "Quotations"
+msgstr "报价单"
+
+msgid "Quote #"
+msgstr "报价单号"
+
+msgid "Quote Date"
+msgstr "报价日期"
+
+msgid "Quote number, customer, attn..."
+msgstr "报价单号、客户、联系人..."
+
+msgid "Quote Total"
+msgstr "报价总额"
+
+msgid "Ready For Dispatch"
+msgstr "待发货"
+
+msgid "Recalculate"
+msgstr "重新计算"
+
+msgid "Receipt"
+msgstr "收据/收条"
+
+msgid "Receipt Items"
+msgstr "收货项目"
+
+msgid "Receipt Location"
+msgstr "收货地点"
+
+msgid "Receive / Dispatch"
+msgstr "收货 / 发货"
+
+msgid "Receive Now"
+msgstr "立即收货"
+
+msgid "Receive Stock"
+msgstr "入库"
+
+msgid "Received"
+msgstr "已收货"
+
+msgid "Received By"
+msgstr "接收人"
+
+msgid "Receiver"
+msgstr "收货人"
+
+msgid "Receiving POs"
+msgstr "待收货 PO"
+
+msgid "Recent Receipts"
+msgstr "最近收货"
+
+msgid "Reference"
+msgstr "参考编号"
+
+msgid "Remaining"
+msgstr "剩余"
+
+msgid "Required Columns"
+msgstr "必填列"
+
+msgid "Row"
+msgstr "行"
+
+msgid "Rows"
+msgstr "行"
+
+msgid "SAP Cost Center"
+msgstr "SAP 成本中心"
+
+msgid "Save Changes"
+msgstr "保存更改"
+
+msgid "Search quotation #, delivery #, invoice #, customer, PO, IO, SAP..."
+msgstr "搜索报价单号、出库单号、发票号、客户、PO、IO、SAP..."
+
+msgid "Search quotations, deliveries, invoices..."
+msgstr "搜索报价单、出库单、发票..."
+
+msgid "Select a product"
+msgstr "选择产品"
+
+msgid "Select Assets (Serial Numbers)"
+msgstr "选择资产（序列号）"
+
+msgid "Select location"
+msgstr "选择地点"
+
+msgid "Select Product"
+msgstr "选择产品"
+
+msgid "Select type"
+msgstr "选择类型"
+
+msgid "Select which charts to display and their types."
+msgstr "选择要显示的图表及其类型。"
+
+msgid "Send Email"
+msgstr "发送邮件"
+
+msgid "Sent At"
+msgstr "发送于"
+
+msgid "Serial"
+msgstr "序列号"
+
+msgid "Serial Numbers"
+msgstr "序列号"
+
+msgid "Signed Copy"
+msgstr "签收件"
+
+msgid "Slot 1"
+msgstr "位置 1"
+
+msgid "Slot 2"
+msgstr "位置 2"
+
+msgid "Slot 3"
+msgstr "位置 3"
+
+msgid "Slot 4"
+msgstr "位置 4"
+
+msgid "Source Information"
+msgstr "来源信息"
+
+msgid "Source Quotation"
+msgstr "来源报价单"
+
+msgid "Source Quote"
+msgstr "来源报价单"
+
+msgid "Status Change Audit Trail"
+msgstr "状态变更审计轨迹"
+
+msgid "Stock Overview"
+msgstr "库存概览"
+
+msgid "Subject"
+msgstr "主题"
+
+msgid "Subject, quotation number, recipients..."
+msgstr "主题、报价单号、收件人..."
+
+msgid "Submit Receipt"
+msgstr "提交收据"
+
+msgid "Subtotal (excl. tax)"
+msgstr "小计（不含税）"
+
+msgid "System Events"
+msgstr "系统事件"
+
+msgid "Tax"
+msgstr "税金"
+
+msgid "Tax Rate"
+msgstr "税率"
+
+msgid "Tel"
+msgstr "电话"
+
+msgid "Telephone"
+msgstr "电话"
+
+msgid "This quotation has expired. The validity date was"
+msgstr "此报价单已过期。有效期至"
+
+msgid "This quotation is already converted to"
+msgstr "此报价单已转换为"
+
+msgid "This will create purchase-order line items from the quotation."
+msgstr "这将从报价单创建采购订单明细项。"
+
+msgid "Time"
+msgstr "时间"
+
+msgid "To"
+msgstr "至"
+
+msgid "Total"
+msgstr "总计"
+
+msgid "Total (incl. tax)"
+msgstr "总计（含税）"
+
+msgid "Total Amount"
+msgstr "总金额"
+
+msgid "Total Items"
+msgstr "总件数"
+
+msgid "Total results"
+msgstr "总结果数"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Unit"
+msgstr "单位"
+
+msgid "Unit Price"
+msgstr "单价"
+
+msgid "Updated"
+msgstr "更新于"
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "Upload and Process"
+msgstr "上传并处理"
+
+msgid "Upload Attachment"
+msgstr "上传附件"
+
+msgid "Upload Excel File"
+msgstr "上传 Excel 文件"
+
+msgid "Upload Signed Copy"
+msgstr "上传签收件"
+
+msgid "Uploaded"
+msgstr "已上传"
+
+msgid "Uploaded At"
+msgstr "上传于"
+
+msgid "Use Preview to inspect recipients, body, and attachments before sending."
+msgstr "发送前使用预览来检查收件人、正文和附件。"
+
+msgid "User"
+msgstr "用户"
+
+msgid "User Brand"
+msgstr "用户品牌"
+
+msgid "User List"
+msgstr "用户列表"
+
+msgid "User name"
+msgstr "用户名"
+
+msgid "Utilization Reports"
+msgstr "利用率报告"
+
+msgid "Valid Until"
+msgstr "有效期至"
+
+msgid "Value"
+msgstr "值"
+
+msgid "View Full Email History"
+msgstr "查看完整邮件历史"
+
+msgid "View List"
+msgstr "查看列表"
+
+msgid "Warranty Status"
+msgstr "保修状态"
+
+msgid "Weekly Batch"
+msgstr "周批次"
+
+msgid "Weekly Batches"
+msgstr "周批次"
+
+msgid "Weekly Invoice Batches"
+msgstr "每周发票批次"
+
+msgid "Weekly Sharepoint Batches"
+msgstr "每周 Sharepoint 批次"
+
+msgid "Workflow Dashboard"
+msgstr "工作流仪表板"
+
+msgid "Workflow Search"
+msgstr "工作流搜索"
+
+msgid "You are about to convert this quotation into a purchase order."
+msgstr "您即将将此报价单转换为采购订单。"
+
+msgid "You can continue with stock receipt."
+msgstr "您可以继续进行收货。"

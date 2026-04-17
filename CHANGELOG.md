@@ -855,3 +855,43 @@ Version 0.1.0 delivers the initial full Quotation & Invoice Management System wi
 ---
 
 *Generated on April 16, 2026 - HengJi Asset Management System v0.1.0*
+
+---
+
+## Version 0.1.1
+
+**Release Date**: April 17, 2026
+
+Version 0.1.1 focuses on document generation hardening and print-layout fidelity by removing LibreOffice dependency for core customer documents and standardizing template rendering behavior.
+
+### Quotation PDF Rendering Upgrade
+
+- Replaced quotation PDF export conversion path with direct HTML-to-PDF rendering.
+- Implemented a dedicated Excel-style quotation template with iterative layout tuning for close match to reference print output.
+- Improved typography consistency, column behavior, summary sizing, remark handling, and signature alignment in quotation output.
+- Added dynamic default remark line composition using customer and first-item context.
+
+### Delivery Order (签收单) PDF Rendering Upgrade
+
+- Introduced direct HTML-to-PDF generation for delivery orders and routed download endpoint to the new renderer.
+- Added delivery-specific Excel-style template modeled from 签收单 reference layout and aligned with quotation style system.
+- Reworked delivery sections for:
+  - standardized header/subheader/sheet outline styles
+  - auto-filled delivery method text
+  - normalized signature block with aligned labels and underlines
+- Ensured single-page rendering behavior in validation output for current baseline data.
+
+### Runtime and Platform Stability
+
+- Added Windows runtime setup for font configuration so WeasyPrint rendering is stable in local development runs.
+- Applied startup bootstrap in manage/ASGI/WSGI entrypoints for consistent environment initialization.
+
+### Validation and Regression Checks
+
+- Verified updated quotation and delivery rendering paths with Django shell smoke generation.
+- Produced preview artifacts for reference comparison during pixel-tuning passes.
+- Confirmed no syntax/lint errors in modified delivery/quotation rendering files after updates.
+
+---
+
+*Generated on April 17, 2026 - HengJi Asset Management System v0.1.1*

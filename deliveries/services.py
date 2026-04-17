@@ -5,8 +5,10 @@ import shutil
 import subprocess
 
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from openpyxl import load_workbook
+from weasyprint import HTML
 
 
 def _find_label_cell(sheet, label):
@@ -140,3 +142,41 @@ def convert_xlsx_to_pdf(xlsx_path):
 
     pdf_path = xlsx_path.with_suffix('.pdf')
     return pdf_path if pdf_path.exists() else None
+
+
+def render_delivery_pdf_html(delivery_order):
+    """Render delivery order PDF bytes from Django HTML template (LibreOffice-free path)."""
+    ordered_items = list(delivery_order.items.all().order_by('id'))
+    display_rows = []
+    for item in ordered_items:
+        display_rows.append({
+            'serial_number': item.serial_number,
+            'brand_name': item.brand_name,
+            'product_description': item.product_description,
+            'user_brand': item.user_brand,
+            'user_name': item.user_name,
+            'quantity': item.quantity,
+        })
+
+    while len(display_rows) < 6:
+        display_rows.append({
+            'serial_number': '',
+            'brand_name': '',
+            'product_description': '',
+            'user_brand': '',
+            'user_name': '',
+            'quantity': '',
+        })
+
+    delivery_method_display = (delivery_order.delivery_method or '').strip() or '-'
+
+    context = {
+        'delivery': delivery_order,
+        'display_rows': display_rows,
+        'delivery_method_display': delivery_method_display,
+        'logo_path': (Path(settings.BASE_DIR) / 'static' / 'images' / 'quotation_template_logo.png').resolve().as_uri(),
+        'acceptance_text': '订货方或收货人在本签收单或快递公司承运单上签收后，即视为对以上商品进行了签收。',
+    }
+
+    html = render_to_string('deliveries/pdf_excel_style.html', context)
+    return HTML(string=html, base_url=str(settings.BASE_DIR)).write_pdf()

@@ -84,8 +84,11 @@ class EmailDispatchForm(forms.ModelForm):
             self.fields['delivery_order'].queryset = DeliveryOrder.objects.filter(quotation=quotation).order_by('-created_at')
             self.fields['invoice_info'].queryset = InvoiceInfo.objects.filter(quotation=quotation).order_by('-invoice_date')
 
-            if hasattr(quotation, 'customer_profile') and quotation.customer_profile and quotation.customer_profile.email:
-                self.fields['sent_to'].initial = quotation.customer_profile.email
+            primary_contact = quotation.customer.primary_contact_company_user
+            if primary_contact and (primary_contact.work_email or primary_contact.user.email):
+                self.fields['sent_to'].initial = primary_contact.work_email or primary_contact.user.email
+            elif quotation.customer.email:
+                self.fields['sent_to'].initial = quotation.customer.email
 
             self.fields['subject'].initial = f"Document Package - {quotation.quotation_number}"
 

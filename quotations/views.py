@@ -8,14 +8,14 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import transaction
 from django.db.models import Q
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import datetime
 
 from companies.models import Company
-from customers.models import CustomerProfile
 from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
 from .forms import QuotationForm, QuotationItemForm
+from .services import render_quotation_pdf_html
 
 
 class QuotationListView(ListView):
@@ -26,7 +26,7 @@ class QuotationListView(ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Quotation.objects.select_related('customer', 'customer_profile').all()
+        queryset = Quotation.objects.select_related('customer').all()
 
         # Filter by status
         status = self.request.GET.get('status')
@@ -88,7 +88,7 @@ class QuotationCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['customers'] = Company.objects.filter(status='active').order_by('name')
+        context['customers'] = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').order_by('name')
         context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model')
         context['is_edit'] = False
         return context
@@ -96,16 +96,12 @@ class QuotationCreateView(CreateView):
     def form_valid(self, form):
         quotation = form.save(commit=False)
 
-        # Get customer profile for auto-fill
-        try:
-            profile = quotation.customer.customer_profile
-            quotation.customer_profile = profile
+        contact = quotation.customer.primary_contact_company_user
+        if contact:
             if not quotation.attn:
-                quotation.attn = profile.contact_person
+                quotation.attn = contact.user.get_display_name()
             if not quotation.tel:
-                quotation.tel = profile.phone
-        except CustomerProfile.DoesNotExist:
-            pass
+                quotation.tel = contact.work_phone or contact.user.phone_number or ''
 
         quotation.save()
 
@@ -116,7 +112,7 @@ class QuotationCreateView(CreateView):
                 continue
 
             # Accept both formats:
-            # 1) new|<product_price_id>|<quantity>|<user_brand>|<user_name>
+            # 1) new|<product_price_id>|<quantity>|<user_brand>|<user_name>|<unit_price>|<tax_rate>
             # 2) <product_price_id>|<quantity>|<user_brand>|<user_name>
             parts = item_data.split('|')
             if len(parts) < 4:
@@ -124,11 +120,15 @@ class QuotationCreateView(CreateView):
 
             if parts[0] == 'new' and len(parts) >= 5:
                 product_price_id, quantity, user_brand, user_name = parts[1], parts[2], parts[3], parts[4]
+                unit_price = parts[5] if len(parts) > 5 else None
+                tax_rate = parts[6] if len(parts) > 6 else None
             elif parts[0].startswith('item_'):
                 # Ignore existing-item payload in create flow.
                 continue
             else:
                 product_price_id, quantity, user_brand, user_name = parts[0], parts[1], parts[2], parts[3]
+                unit_price = None
+                tax_rate = None
 
             try:
                 product_price = ProductPrice.objects.get(pk=product_price_id)
@@ -140,8 +140,12 @@ class QuotationCreateView(CreateView):
                     user_brand=user_brand,
                     user_name=user_name
                 )
+                if unit_price:
+                    item.unit_price = Decimal(unit_price)
+                if tax_rate:
+                    item.tax_rate = Decimal(tax_rate)
                 item.save()
-            except (ProductPrice.DoesNotExist, ValueError):
+            except (ProductPrice.DoesNotExist, ValueError, InvalidOperation):
                 pass
 
         messages.success(self.request, f'Quotation {quotation.quotation_number} created successfully.')
@@ -156,7 +160,7 @@ class QuotationUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['customers'] = Company.objects.filter(status='active').order_by('name')
+        context['customers'] = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').order_by('name')
         context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model')
         context['items'] = self.object.items.all()
         context['is_edit'] = True
@@ -174,14 +178,16 @@ class QuotationUpdateView(UpdateView):
             if not item_data:
                 continue
 
-            # Existing item: item_<pk>|<product_price_id>|<quantity>|<user_brand>|<user_name>
-            # New item: new|<product_price_id>|<quantity>|<user_brand>|<user_name>
+            # Existing item: item_<pk>|<product_price_id>|<quantity>|<user_brand>|<user_name>|<unit_price>|<tax_rate>
+            # New item: new|<product_price_id>|<quantity>|<user_brand>|<user_name>|<unit_price>|<tax_rate>
             parts = item_data.split('|')
             if len(parts) < 5:
                 continue
 
             marker = parts[0]
             product_price_id, quantity, user_brand, user_name = parts[1], parts[2], parts[3], parts[4]
+            unit_price = parts[5] if len(parts) > 5 else None
+            tax_rate = parts[6] if len(parts) > 6 else None
 
             try:
                 product_price = ProductPrice.objects.get(pk=product_price_id)
@@ -195,6 +201,10 @@ class QuotationUpdateView(UpdateView):
                     item.quantity = quantity
                     item.user_brand = user_brand
                     item.user_name = user_name
+                    if unit_price:
+                        item.unit_price = Decimal(unit_price)
+                    if tax_rate:
+                        item.tax_rate = Decimal(tax_rate)
                     item.save()
                 elif marker == 'new':
                     item = QuotationItem(
@@ -202,11 +212,15 @@ class QuotationUpdateView(UpdateView):
                         product_price=product_price,
                         quantity=quantity,
                         user_brand=user_brand,
-                        user_name=user_name
+                        user_name=user_name,
                     )
+                    if unit_price:
+                        item.unit_price = Decimal(unit_price)
+                    if tax_rate:
+                        item.tax_rate = Decimal(tax_rate)
                     item.save()
                     submitted_ids.add(str(item.pk))
-            except (ProductPrice.DoesNotExist, QuotationItem.DoesNotExist, ValueError):
+            except (ProductPrice.DoesNotExist, QuotationItem.DoesNotExist, ValueError, InvalidOperation):
                 pass
 
         # Delete items not in submitted list
@@ -230,127 +244,15 @@ class QuotationDeleteView(DeleteView):
 
 
 def generate_quotation_pdf(request, pk):
-    """Generate PDF for quotation."""
-    from reportlab.lib.pagesizes import A4, letter
-    from reportlab.lib import colors
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-    from reportlab.lib.units import mm, inch
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from io import BytesIO
-
+    """Generate PDF for quotation using HTML template rendering."""
     quotation = get_object_or_404(Quotation, pk=pk)
-    items = quotation.items.all()
+    try:
+        pdf_bytes = render_quotation_pdf_html(quotation)
+    except Exception:
+        messages.error(request, 'Quotation PDF generation failed. Please verify HTML template and WeasyPrint runtime dependencies.')
+        return redirect(reverse_lazy('quotations:detail', args=[quotation.pk]))
 
-    # Create PDF
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20*mm, leftMargin=20*mm, topMargin=20*mm, bottomMargin=20*mm)
-
-    # Styles
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=24, spaceAfter=30)
-    heading_style = ParagraphStyle('Heading', parent=styles['Heading2'], fontSize=14, spaceAfter=12)
-    normal_style = styles['Normal']
-
-    elements = []
-
-    # Header
-    elements.append(Paragraph('QUOTATION', title_style))
-    elements.append(Spacer(1, 10*mm))
-
-    # Quotation Info Table
-    info_data = [
-        ['Quotation Number:', quotation.quotation_number],
-        ['Date:', quotation.quotation_date.strftime('%Y-%m-%d')],
-        ['Valid Until:', quotation.valid_until.strftime('%Y-%m-%d')],
-        ['Status:', quotation.get_status_display()],
-    ]
-
-    if quotation.customer:
-        info_data.append(['Customer:', quotation.customer.name])
-
-    if quotation.attn:
-        info_data.append(['Attn:', quotation.attn])
-
-    if quotation.tel:
-        info_data.append(['Tel:', quotation.tel])
-
-    info_table = Table(info_data, colWidths=[50*mm, 120*mm])
-    info_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-    ]))
-    elements.append(info_table)
-    elements.append(Spacer(1, 15*mm))
-
-    # Items Table
-    elements.append(Paragraph('Items', heading_style))
-
-    items_data = [['#', 'Brand', 'Description', 'User Brand', 'User', 'Unit', 'Qty', 'Unit Price', 'Amount']]
-    for idx, item in enumerate(items, 1):
-        items_data.append([
-            str(idx),
-            item.brand_name[:20],
-            item.product_description[:40] if item.product_description else '',
-            item.user_brand[:20] if item.user_brand else '',
-            item.user_name[:20] if item.user_name else '',
-            item.unit,
-            str(item.quantity),
-            f'¥{item.unit_price:,.2f}',
-            f'¥{item.line_total_without_tax:,.2f}',
-        ])
-
-    items_table = Table(items_data, colWidths=[10*mm, 25*mm, 45*mm, 25*mm, 25*mm, 15*mm, 12*mm, 25*mm, 25*mm])
-    items_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('ALIGN', (2, 1), (4, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-    ]))
-    elements.append(items_table)
-    elements.append(Spacer(1, 10*mm))
-
-    # Totals
-    totals_data = [
-        ['Subtotal (excl. tax):', f'¥{quotation.total_without_tax:,.2f}'],
-        ['Tax:', f'¥{quotation.total_tax:,.2f}'],
-        ['Total (incl. tax):', f'¥{quotation.total_with_tax:,.2f}'],
-    ]
-    totals_table = Table(totals_data, colWidths=[120*mm, 40*mm])
-    totals_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, -1), (-1, -1), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-    ]))
-    elements.append(totals_table)
-
-    # Notes
-    if quotation.notes:
-        elements.append(Spacer(1, 15*mm))
-        elements.append(Paragraph('Notes:', heading_style))
-        elements.append(Paragraph(quotation.notes, normal_style))
-
-    # Build PDF
-    doc.build(elements)
-
-    # Return PDF
-    buffer.seek(0)
-    response = HttpResponse(buffer, content_type='application/pdf')
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{quotation.quotation_number}.pdf"'
     return response
 
@@ -363,7 +265,6 @@ def duplicate_quotation(request, pk):
         # Create new quotation
         new_quotation = Quotation(
             customer=original.customer,
-            customer_profile=original.customer_profile,
             quotation_date=datetime.date.today(),
             valid_until=datetime.date.today() + datetime.timedelta(days=30),
             attn=original.attn,

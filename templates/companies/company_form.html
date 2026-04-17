@@ -147,85 +147,9 @@
                     </div>
                 </div>
 
-                <!-- Address Information -->
-                <div class="form-section">
-                    <h5><i class="fas fa-map-marker-alt me-2"></i>{% trans "Address Information" %}</h5>
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.address_line1.id_for_label }}" class="form-label">
-                            {% trans "Address Line 1" %}
-                        </label>
-                        {{ form.address_line1 }}
-                        {% if form.address_line1.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.address_line1.errors.0 }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.address_line2.id_for_label }}" class="form-label">
-                            {% trans "Address Line 2" %}
-                        </label>
-                        {{ form.address_line2 }}
-                        {% if form.address_line2.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.address_line2.errors.0 }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.city.id_for_label }}" class="form-label">
-                                {% trans "City" %}
-                            </label>
-                            {{ form.city }}
-                            {% if form.city.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.city.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.state_province.id_for_label }}" class="form-label">
-                                {% trans "State/Province" %}
-                            </label>
-                            {{ form.state_province }}
-                            {% if form.state_province.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.state_province.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.postal_code.id_for_label }}" class="form-label">
-                                {% trans "Postal Code" %}
-                            </label>
-                            {{ form.postal_code }}
-                            {% if form.postal_code.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.postal_code.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.country.id_for_label }}" class="form-label">
-                                {% trans "Country" %}
-                            </label>
-                            {{ form.country }}
-                            {% if form.country.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.country.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {% trans "Company addresses are managed under Locations." %}
                 </div>
             </div>
             
@@ -257,6 +181,19 @@
                             </div>
                         {% endif %}
                         <div class="form-text">{% trans "Prefix for asset numbering (e.g., COMP-)" %}</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.primary_contact_company_user.id_for_label }}" class="form-label">
+                            {% trans "Primary Contact" %}
+                        </label>
+                        {{ form.primary_contact_company_user }}
+                        {% if form.primary_contact_company_user.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.primary_contact_company_user.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">{% trans "Select one company user as the default contact." %}</div>
                     </div>
                 </div>
 

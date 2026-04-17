@@ -7,7 +7,6 @@ from decimal import Decimal
 import datetime
 
 from companies.models import Company
-from customers.models import CustomerProfile
 from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
 
@@ -30,24 +29,22 @@ class QuotationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['customer'].queryset = Company.objects.filter(status=Company.CompanyStatus.ACTIVE).order_by('name')
         # Set default validity to 30 days from today
         if not self.instance.pk:
             self.fields['valid_until'].initial = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
 
-    def clean_customer(self):
+    def clean(self):
+        cleaned_data = super().clean()
         customer = self.cleaned_data.get('customer')
         if customer:
-            # Get or create customer profile
-            try:
-                profile = customer.customer_profile
-                # Auto-fill attn/tel if not set
-                if not self.cleaned_data.get('attn') and profile.contact_person:
-                    self.cleaned_data['attn'] = profile.contact_person
-                if not self.cleaned_data.get('tel') and profile.phone:
-                    self.cleaned_data['tel'] = profile.phone
-            except CustomerProfile.DoesNotExist:
-                pass
-        return customer
+            contact = customer.primary_contact_company_user
+            if contact:
+                if not cleaned_data.get('attn'):
+                    cleaned_data['attn'] = contact.user.get_display_name()
+                if not cleaned_data.get('tel'):
+                    cleaned_data['tel'] = contact.work_phone or contact.user.phone_number or ''
+        return cleaned_data
 
 
 class QuotationItemForm(forms.ModelForm):

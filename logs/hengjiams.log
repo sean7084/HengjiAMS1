@@ -12531,3 +12531,1388 @@ Traceback (most recent call last):
   File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\http\request.py", line 202, in get_host
     raise DisallowedHost(msg)
 django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'testserver'. You may need to add 'testserver' to ALLOWED_HOSTS.
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\forms.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45109
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 45151
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 110
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 123
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45109
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/quotations/ HTTP/1.1" 200 41808
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 36233
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45109
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 123
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 113
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/dashboard/workflow/ HTTP/1.1" 200 42584
+"GET /zh-cn/dashboard/workflow/search/ HTTP/1.1" 200 22725
+"GET /zh-cn/dashboard/workflow/ HTTP/1.1" 200 42584
+"GET /zh-cn/dashboard/workflow/search/ HTTP/1.1" 200 22725
+"GET /zh-cn/dashboard/workflow/search/?q=http%3A%2F%2F127.0.0.1%3A8000%2Fzh-cn%2Fpurchases%2F HTTP/1.1" 200 23186
+"GET /zh-cn/dashboard/workflow/search/?q=1 HTTP/1.1" 200 31265
+"GET /zh-cn/dashboard/workflow/ HTTP/1.1" 200 42584
+"GET /zh-cn/invoices/emails/compose/ HTTP/1.1" 200 27869
+"GET /zh-cn/invoices/import/ HTTP/1.1" 200 23222
+"GET /zh-cn/purchases/stock/ HTTP/1.1" 200 39159
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45178
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 125
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 147
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 294
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45178
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 125
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 147
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 294
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45178
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 147
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 125
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 294
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45178
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 125
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 294
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 147
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"GET /zh-cn/companies/users/ HTTP/1.1" 200 23446
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"GET /zh-cn/companies/users/ HTTP/1.1" 200 23446
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+Internal Server Error: /zh-cn/customers/4/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 6: 'block'. Looking for one of: endblock.
+"GET /zh-cn/customers/4/ HTTP/1.1" 500 188215
+Internal Server Error: /zh-cn/customers/4/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 90, in rendered_content
+    template = self.resolve_template(self.template_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 72, in resolve_template
+    return select_template(template, using=self.using)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 518, in parse
+    raise self.error(token, e)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 6: 'block'. Looking for one of: endblock.
+"GET /zh-cn/customers/4/ HTTP/1.1" 500 188352
+Internal Server Error: /zh-cn/customers/4/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/4/ HTTP/1.1" 500 185190
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\customers\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /zh-cn/customers/4/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/4/ HTTP/1.1" 500 185190
+"GET /zh-cn/companies/users/ HTTP/1.1" 200 23446
+"GET /zh-cn/companies/users/ HTTP/1.1" 200 23446
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+Internal Server Error: /zh-cn/customers/11/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/11/ HTTP/1.1" 500 185679
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+Internal Server Error: /zh-cn/customers/11/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/11/ HTTP/1.1" 500 185679
+Internal Server Error: /zh-cn/customers/11/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/11/ HTTP/1.1" 500 185816
+Internal Server Error: /zh-cn/customers/11/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/11/ HTTP/1.1" 500 185816
+Internal Server Error: /zh-cn/customers/11/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/11/ HTTP/1.1" 500 185816
+Internal Server Error: /zh-cn/customers/11/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'company_detail' not found. 'company_detail' is not a valid view function or pattern name.
+"GET /zh-cn/customers/11/ HTTP/1.1" 500 185816
+"GET /zh-cn/customers/11/ HTTP/1.1" 200 26034
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"GET /zh-cn/products/ HTTP/1.1" 200 39915
+"GET /zh-cn/products/ HTTP/1.1" 200 39915
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"GET /zh-cn/products/ HTTP/1.1" 200 39915
+"GET /zh-cn/quotations/ HTTP/1.1" 200 41821
+"GET /zh-cn/quotations/8/pdf/ HTTP/1.1" 200 2515
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 36210
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/quotations/ HTTP/1.1" 200 41787
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/11/edit/ HTTP/1.1" 200 27545
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/quotations/ HTTP/1.1" 200 41787
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/11/ HTTP/1.1" 200 26035
+"GET /en-us/customers/11/edit/ HTTP/1.1" 200 27545
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/11/edit/ HTTP/1.1" 200 32837
+"GET /en-us/quotations/ HTTP/1.1" 200 41787
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/11/edit/ HTTP/1.1" 200 32837
+"GET /en-us/quotations/ HTTP/1.1" 200 41787
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 144631
+"GET /en-us/assets/brands/05ac08d3-1305-4957-96fe-ddd35fd3cfc8/edit/ HTTP/1.1" 200 27425
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 144631
+"GET /en-us/assets/models/709a765b-2220-424a-9d1a-764da5b1a867/edit/ HTTP/1.1" 200 29438
+"GET /en-us/quotations/ HTTP/1.1" 200 41787
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 144631
+"GET /en-us/products/ HTTP/1.1" 200 39933
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/add/ HTTP/1.1" 200 32789
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/11/edit/ HTTP/1.1" 200 32837
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/11/edit/ HTTP/1.1" 200 32837
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/11/edit/ HTTP/1.1" 200 32837
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/3/edit/ HTTP/1.1" 200 32834
+"GET /en-us/companies/divisions/ HTTP/1.1" 200 28829
+"GET /en-us/companies/locations/ HTTP/1.1" 200 41222
+"GET /en-us/companies/divisions/ HTTP/1.1" 200 28829
+"GET /en-us/companies/locations/ HTTP/1.1" 200 41222
+"GET /en-us/companies/locations/3/edit/ HTTP/1.1" 200 34765
+"GET /en-us/companies/divisions/ HTTP/1.1" 200 28829
+"GET /en-us/companies/locations/ HTTP/1.1" 200 41222
+"GET /en-us/companies/locations/3/edit/ HTTP/1.1" 200 34765
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/11/edit/ HTTP/1.1" 200 32837
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/8/edit/ HTTP/1.1" 200 32830
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/companies/divisions/ HTTP/1.1" 200 28829
+"GET /en-us/companies/divisions/7/edit/ HTTP/1.1" 200 33229
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/3/edit/ HTTP/1.1" 200 32834
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/3/edit/ HTTP/1.1" 200 32834
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/11/ HTTP/1.1" 200 26035
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/locations/?company=3 HTTP/1.1" 200 41232
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/11/ HTTP/1.1" 200 26035
+"GET /en-us/customers/11/edit/ HTTP/1.1" 200 27545
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/companies/ HTTP/1.1" 200 49511
+"GET /zh-cn/customers/ HTTP/1.1" 200 39608
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/11/ HTTP/1.1" 200 26035
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/customers/ HTTP/1.1" 200 39596
+"GET /en-us/customers/11/ HTTP/1.1" 200 26035
+"GET /en-us/companies/locations/ HTTP/1.1" 200 41222
+"GET /en-us/companies/ HTTP/1.1" 200 49603
+"GET /en-us/companies/3/edit/ HTTP/1.1" 200 32834
+"GET /en-us/companies/locations/ HTTP/1.1" 200 41222
+"GET /en-us/companies/users/ HTTP/1.1" 200 23470
+"GET /en-us/quotations/ HTTP/1.1" 200 41787
+"GET /en-us/quotations/create/ HTTP/1.1" 200 36240
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+Internal Server Error: /en-us/quotations/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: companies_company.primary_contact_company_user_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: companies_company.primary_contact_company_user_id
+"GET /en-us/quotations/create/ HTTP/1.1" 500 268567
+Internal Server Error: /en-us/quotations/create/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: companies_company.primary_contact_company_user_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 199, in render
+    len_values = len(values)
+                 ^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 368, in __len__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: companies_company.primary_contact_company_user_id
+"GET /en-us/quotations/create/ HTTP/1.1" 500 268567
+"GET /en-us/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 44716
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 110
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 123
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 267
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 168
+Internal Server Error: /en-us/companies/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: companies_company.primary_contact_company_user_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    if match:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 400, in __bool__
+    self._fetch_all()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\backends\sqlite3\base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: companies_company.primary_contact_company_user_id
+"GET /en-us/companies/ HTTP/1.1" 500 226147
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\customers\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\customers\admin.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\companies\urls.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\api\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /en-us/companies/ HTTP/1.1" 200 53578
+"GET /en-us/companies/8/edit/ HTTP/1.1" 200 30310
+"GET /en-us/companies/13/edit/ HTTP/1.1" 200 30393
+"GET /en-us/quotations/ HTTP/1.1" 200 55691
+"GET /en-us/companies/users/ HTTP/1.1" 200 35466
+"GET /en-us/quotations/ HTTP/1.1" 200 55691
+"GET /en-us/quotations/ HTTP/1.1" 200 55691
+"GET /en-us/quotations/create/ HTTP/1.1" 200 51498
+"GET /en-us/quotations/ HTTP/1.1" 200 55691
+"GET /en-us/quotations/11/pdf/ HTTP/1.1" 302 0
+"GET /en-us/quotations/11/ HTTP/1.1" 200 33503
+"GET /en-us/quotations/11/pdf/ HTTP/1.1" 302 0
+"GET /en-us/quotations/11/ HTTP/1.1" 200 33503
+"GET /en-us/quotations/11/pdf/ HTTP/1.1" 302 0
+"GET /en-us/quotations/11/ HTTP/1.1" 200 33503
+"GET /en-us/invoices/emails/compose/quotation/11/ HTTP/1.1" 200 26752
+"GET /en-us/quotations/11/ HTTP/1.1" 200 33035
+"GET /en-us/invoices/emails/compose/quotation/11/ HTTP/1.1" 200 26752
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/11/ HTTP/1.1" 200 32979
+"GET /zh-cn/invoices/emails/compose/quotation/11/ HTTP/1.1" 200 26700
+"GET /zh-cn/quotations/11/duplicate/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/16/ HTTP/1.1" 200 33364
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\services.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/quotations/ HTTP/1.1" 200 61630
+"GET /en-us/quotations/18/pdf/ HTTP/1.1" 200 12149
+"GET /en-us/quotations/create/ HTTP/1.1" 200 53634
+"POST /en-us/quotations/create/ HTTP/1.1" 302 0
+"GET /en-us/quotations/19/ HTTP/1.1" 200 34017
+"GET /en-us/quotations/19/pdf/ HTTP/1.1" 200 11917
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\manage.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\hengjiams\runtime_setup.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET /en-us/quotations/ HTTP/1.1" 200 66652
+"GET /en-us/quotations/21/pdf/ HTTP/1.1" 200 12156
+Watching for file changes with StatReloader
+"GET /en-us/quotations/21/pdf/ HTTP/1.1" 200 42046
+- Broken pipe from ('127.0.0.1', 58698)
+"GET /en-us/quotations/ HTTP/1.1" 200 55557
+"GET /en-us/quotations/22/pdf/ HTTP/1.1" 200 41957
+"GET /en-us/quotations/ HTTP/1.1" 200 55557
+"GET /en-us/quotations/22/pdf/ HTTP/1.1" 200 41792
+"GET /en-us/quotations/22/pdf/ HTTP/1.1" 200 41752
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\services.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/quotations/22/pdf/ HTTP/1.1" 200 41800
+"GET /en-us/quotations/22/pdf/ HTTP/1.1" 200 41497
+"GET /en-us/quotations/create/ HTTP/1.1" 200 45543
+"POST /en-us/quotations/create/ HTTP/1.1" 302 0
+"GET /en-us/quotations/23/ HTTP/1.1" 200 22720
+"GET /en-us/quotations/23/pdf/ HTTP/1.1" 200 41802
+"GET /en-us/quotations/23/pdf/ HTTP/1.1" 200 41802
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\services.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/quotations/23/pdf/ HTTP/1.1" 200 41623
+"GET /en-us/quotations/23/pdf/ HTTP/1.1" 200 41522
+"GET /en-us/dashboard/ HTTP/1.1" 302 0
+"GET /login/?next=/en-us/dashboard/ HTTP/1.1" 302 0
+"GET /zh-cn/login/?next=/en-us/dashboard/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 302 0
+"GET /zh-cn/accounts/login/ HTTP/1.1" 200 9992
+"POST /zh-cn/accounts/login/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 45160
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 126
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 434
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/quotations/ HTTP/1.1" 200 66927
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 56821
+"POST /zh-cn/quotations/create/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/24/ HTTP/1.1" 200 35899
+"GET /zh-cn/quotations/24/pdf/ HTTP/1.1" 200 42000
+"GET /zh-cn/quotations/24/edit/ HTTP/1.1" 200 62864
+"GET /zh-cn/deliveries/ HTTP/1.1" 200 39040
+"GET /zh-cn/deliveries/13/pdf/ HTTP/1.1" 200 13000
+"GET /zh-cn/deliveries/13/pdf/ HTTP/1.1" 200 13000
+"GET /zh-cn/invoices/invoice-info/ HTTP/1.1" 200 28128
+"GET /zh-cn/invoices/invoice-info/3/document/ HTTP/1.1" 200 98688
+"GET /zh-cn/deliveries/ HTTP/1.1" 200 39495
+"GET /zh-cn/deliveries/13/ HTTP/1.1" 200 24624
+"GET /zh-cn/purchases/stock/ HTTP/1.1" 200 61411
+"GET /zh-cn/purchases/ HTTP/1.1" 200 66223
+"GET /zh-cn/purchases/061f778b-73dc-4c0d-9cd9-535809e00fc5/ HTTP/1.1" 200 26889
+"GET /zh-cn/quotations/ HTTP/1.1" 200 66911
+"GET /zh-cn/quotations/24/ HTTP/1.1" 200 35466
+"GET /zh-cn/quotations/24/send/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/24/ HTTP/1.1" 200 35875
+"GET /zh-cn/quotations/24/confirm/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/24/ HTTP/1.1" 200 35953
+"GET /zh-cn/quotations/24/convert-to-purchase/ HTTP/1.1" 200 22636
+"POST /zh-cn/quotations/24/convert-to-purchase/ HTTP/1.1" 302 0
+"GET /zh-cn/purchases/orders/20/receive/ HTTP/1.1" 200 34982
+"POST /zh-cn/purchases/orders/20/receive/ HTTP/1.1" 200 34968
+"POST /zh-cn/purchases/orders/20/receive/ HTTP/1.1" 200 34982
+"POST /zh-cn/purchases/orders/20/receive/ HTTP/1.1" 302 0
+"GET /zh-cn/purchases/stock/ HTTP/1.1" 200 63947
+"GET /zh-cn/deliveries/create/from-quotation/24/ HTTP/1.1" 200 25128
+"POST /zh-cn/deliveries/create/from-quotation/24/ HTTP/1.1" 302 0
+"GET /zh-cn/deliveries/14/ HTTP/1.1" 200 26936
+"POST /zh-cn/deliveries/14/mark-prepared/ HTTP/1.1" 302 0
+"GET /zh-cn/deliveries/14/ HTTP/1.1" 200 26544
+"POST /zh-cn/deliveries/14/dispatch/ HTTP/1.1" 302 0
+"GET /zh-cn/deliveries/14/ HTTP/1.1" 200 27150
+"GET /zh-cn/quotations/ HTTP/1.1" 200 66932
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 56821
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/create/ HTTP/1.1" 200 56838
+"GET /en-us/quotations/ HTTP/1.1" 200 66840
+"GET /en-us/quotations/24/edit/ HTTP/1.1" 200 62877
+"GET /en-us/deliveries/ HTTP/1.1" 200 40228
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\services.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/deliveries/14/pdf/ HTTP/1.1" 200 38647
+"GET /en-us/deliveries/14/ HTTP/1.1" 200 26735
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\deliveries\services.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/deliveries/ HTTP/1.1" 200 40228
+"GET /en-us/deliveries/14/pdf/ HTTP/1.1" 200 37646
+"GET /en-us/deliveries/14/pdf/ HTTP/1.1" 200 37026
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/deliveries/ HTTP/1.1" 200 40245
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/deliveries/ HTTP/1.1" 200 40228
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/deliveries/ HTTP/1.1" 200 40245
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 44769
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148

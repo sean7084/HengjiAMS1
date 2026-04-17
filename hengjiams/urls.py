@@ -54,7 +54,6 @@ urlpatterns += i18n_patterns(
 
     # Product and Customer Management
     path('products/', include('products.urls')),
-    path('customers/', include('customers.urls')),
 
     # Quotations
     path('quotations/', include('quotations.urls')),

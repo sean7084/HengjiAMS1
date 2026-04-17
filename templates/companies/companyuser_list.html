@@ -14,12 +14,14 @@
             <a href="{% url 'companies:company_list' %}" class="btn btn-outline-secondary">
                 <i class="fas fa-building"></i> {% trans "Companies" %}
             </a>
-            <a href="{% url 'companies:division_list' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-sitemap"></i> {% trans "Divisions" %}
-            </a>
             <a href="{% url 'companies:location_list' %}" class="btn btn-outline-secondary">
                 <i class="fas fa-map-marker-alt"></i> {% trans "Locations" %}
             </a>
+            {% if user.can_manage_companies %}
+            <a href="{% url 'companies:companyuser_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> {% trans "Add Company User" %}
+            </a>
+            {% endif %}
         </div>
     </div>
 
@@ -67,7 +69,6 @@
                         <tr>
                             <th>{% trans "User" %}</th>
                             <th>{% trans "Company" %}</th>
-                            <th>{% trans "Division" %}</th>
                             <th>{% trans "Location" %}</th>
                             <th>{% trans "Role" %}</th>
                             <th>{% trans "Start Date" %}</th>
@@ -95,7 +96,6 @@
                                 </div>
                             </td>
                             <td>{{ company_user.company.name }}</td>
-                            <td>{{ company_user.division.name|default:"-" }}</td>
                             <td>{{ company_user.location.name|default:"-" }}</td>
                             <td>{{ company_user.role|default:"-" }}</td>
                             <td>{{ company_user.start_date|date:"M d, Y"|default:"-" }}</td>

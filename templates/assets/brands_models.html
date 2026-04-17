@@ -3,224 +3,117 @@
 
 {% block title %}{% trans "Brands & Models" %} - {{ block.super }}{% endblock %}
 
-{% block extra_css %}
-<style>
-    .btn-model-add {
-        background-color: #28a745;
-        border-color: #28a745;
-        color: white;
-    }
-    .btn-model-add:hover {
-        background-color: #218838;
-        border-color: #1e7e34;
-        color: white;
-    }
-    .btn-add-model-inline {
-        background-color: #17a2b8;
-        border-color: #17a2b8;
-        color: white;
-    }
-    .btn-add-model-inline:hover {
-        background-color: #138496;
-        border-color: #117a8b;
-        color: white;
-    }
-</style>
-{% endblock %}xtends "base/base.html" %}
-{% load i18n %}
-
 {% block content %}
 <div class="container-fluid">
-    <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
-                    <li class="breadcrumb-item active">{% trans "Brands & Models" %}</li>
-                </ol>
-            </nav>
-            <h1 class="h3 mb-1">{% trans "Brands & Models Management" %}</h1>
-            <p class="text-muted">{% trans "Manage asset brands and their associated models" %}</p>
+            <h1 class="h3 mb-1">{% trans "Brands & Models" %}</h1>
+            <p class="text-muted mb-0">{% trans "Search and manage model catalog with brand and unit filters" %}</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'assets:brand_create' %}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> {% trans "Add Brand" %}
+            <a href="{% url 'assets:brand_create' %}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-1"></i>{% trans "Add Brand" %}
             </a>
-            <a href="{% url 'assets:model_create' %}" class="btn btn-model-add">
-                <i class="fas fa-plus"></i> {% trans "Add Model" %}
+            <a href="{% url 'assets:model_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>{% trans "Add Model" %}
             </a>
         </div>
     </div>
 
-    <!-- Quick Links -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="fas fa-industry fa-2x text-primary mb-2"></i>
-                    <h5>{% trans "Manage Brands" %}</h5>
-                    <p class="text-muted">{% trans "View and manage all asset brands" %}</p>
-                    <a href="{% url 'assets:brand_list' %}" class="btn btn-outline-primary">
-                        {% trans "View All Brands" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="fas fa-cogs fa-2x text-success mb-2"></i>
-                    <h5>{% trans "Manage Models" %}</h5>
-                    <p class="text-muted">{% trans "View and manage all asset models" %}</p>
-                    <a href="{% url 'assets:model_list' %}" class="btn btn-outline-success">
-                        {% trans "View All Models" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Brands with Models -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title mb-0">{% trans "Brands & Their Models" %}</h5>
-        </div>
+    <div class="card mb-4">
         <div class="card-body">
-            {% if brands %}
-                <div class="accordion" id="brandsAccordion">
-                    {% for brand in brands %}
-                    <div class="accordion-item mb-3">
-                        <h2 class="accordion-header" id="heading{{ brand.id }}">
-                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" 
-                                    type="button" 
-                                    data-bs-toggle="collapse" 
-                                    data-bs-target="#collapse{{ brand.id }}" 
-                                    aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" 
-                                    aria-controls="collapse{{ brand.id }}">
-                                <div class="d-flex justify-content-between align-items-center w-100 me-3">
-                                    <div>
-                                        <strong>{{ brand.name }}</strong> 
-                                        <span class="badge bg-primary ms-2">{{ brand.code }}</span>
-                                        {% if not brand.is_active %}
-                                            <span class="badge bg-secondary ms-1">{% trans "Inactive" %}</span>
-                                        {% endif %}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ brand.models.count }} {% trans "model(s)" %}
-                                    </small>
-                                </div>
-                            </button>
-                        </h2>
-                        <div id="collapse{{ brand.id }}" 
-                             class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" 
-                             aria-labelledby="heading{{ brand.id }}" 
-                             data-bs-parent="#brandsAccordion">
-                            <div class="accordion-body">
-                                <!-- Brand Info -->
-                                <div class="row mb-3">
-                                    <div class="col-md-8">
-                                        {% if brand.description %}
-                                            <p class="text-muted mb-2">{{ brand.description }}</p>
-                                        {% endif %}
-                                        
-                                        <div class="d-flex flex-wrap gap-3 small text-muted">
-                                            {% if brand.website %}
-                                                <span><i class="fas fa-globe"></i> 
-                                                    <a href="{{ brand.website }}" target="_blank">{{ brand.website|truncatechars:30 }}</a>
-                                                </span>
-                                            {% endif %}
-                                            {% if brand.support_email %}
-                                                <span><i class="fas fa-envelope"></i> {{ brand.support_email }}</span>
-                                            {% endif %}
-                                            {% if brand.support_phone %}
-                                                <span><i class="fas fa-phone"></i> {{ brand.support_phone }}</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{% url 'assets:brand_update' brand.pk %}" 
-                                               class="btn btn-outline-primary" title="{% trans 'Edit Brand' %}">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="{% url 'assets:model_create' %}?brand={{ brand.pk }}" 
-                                               class="btn btn-add-model-inline btn-sm" title="{% trans 'Add Model' %}">
-                                                <i class="fas fa-plus"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="search" class="form-label">{% trans "Search" %}</label>
+                    <input id="search" type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="{% trans 'Search model name, number, brand...' %}">
+                </div>
+                <div class="col-md-3">
+                    <label for="brand" class="form-label">{% trans "Brand" %}</label>
+                    <select id="brand" name="brand" class="form-select">
+                        <option value="">{% trans "All Brands" %}</option>
+                        {% for brand in brand_filter_options %}
+                            <option value="{{ brand.pk }}" {% if brand.pk|stringformat:"s" == selected_brand %}selected{% endif %}>{{ brand.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="unit" class="form-label">{% trans "Unit" %}</label>
+                    <select id="unit" name="unit" class="form-select">
+                        <option value="">{% trans "All Units" %}</option>
+                        {% for unit in unit_filter_options %}
+                            <option value="{{ unit }}" {% if unit == selected_unit %}selected{% endif %}>{{ unit }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search me-1"></i>{% trans "Search" %}
+                    </button>
+                    {% if search_query or selected_brand or selected_unit %}
+                    <a href="{% url 'assets:brands_models' %}" class="btn btn-outline-secondary ms-1">{% trans "Clear" %}</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
 
-                                <!-- Models -->
-                                {% if brand.models.all %}
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    <th>{% trans "Model Name" %}</th>
-                                                    <th>{% trans "Model Number" %}</th>
-                                                    <th>{% trans "Description" %}</th>
-                                                    <th>{% trans "Status" %}</th>
-                                                    <th>{% trans "Actions" %}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for model in brand.models.all %}
-                                                <tr>
-                                                    <td><strong>{{ model.name }}</strong></td>
-                                                    <td><code>{{ model.model_number }}</code></td>
-                                                    <td>{{ model.description|default:"-"|truncatechars:40 }}</td>
-                                                    <td>
-                                                        {% if model.is_active %}
-                                                            <span class="badge bg-success">{% trans "Active" %}</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary">{% trans "Inactive" %}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group btn-group-sm">
-                                                            <a href="{% url 'assets:model_update' model.pk %}" 
-                                                               class="btn btn-outline-primary btn-sm" 
-                                                               title="{% trans 'Edit' %}">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <a href="{% url 'assets:model_delete' model.pk %}" 
-                                                               class="btn btn-outline-danger btn-sm" 
-                                                               title="{% trans 'Delete' %}">
-                                                                <i class="fas fa-trash"></i>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{% trans "Model List" %}</h5>
+            <span class="badge bg-secondary">{{ models|length }}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if models %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "Brand" %}</th>
+                            <th>{% trans "Model" %}</th>
+                            <th>{% trans "Model Number" %}</th>
+                            <th>{% trans "Unit" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th class="text-end">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for model in models %}
+                        <tr>
+                            <td>{{ model.brand.name }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ model.name }}</div>
+                                <div class="small text-muted">{{ model.description|default:"-"|truncatechars:60 }}</div>
+                            </td>
+                            <td>{{ model.model_number|default:"-" }}</td>
+                            <td>{{ model.unit }}</td>
+                            <td>
+                                {% if model.is_active %}
+                                    <span class="badge bg-success">{% trans "Active" %}</span>
                                 {% else %}
-                                    <div class="text-center py-3 text-muted">
-                                        <i class="fas fa-cogs fa-2x mb-2"></i>
-                                        <p class="mb-2">{% trans "No models for this brand yet" %}</p>
-                                        <a href="{% url 'assets:model_create' %}?brand={{ brand.pk }}" 
-                                           class="btn btn-sm btn-model-add">
-                                            <i class="fas fa-plus"></i> {% trans "Add First Model" %}
-                                        </a>
-                                    </div>
+                                    <span class="badge bg-secondary">{% trans "Inactive" %}</span>
                                 {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'assets:model_update' model.pk %}" class="btn btn-outline-primary" title="{% trans 'Edit' %}">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'assets:model_delete' model.pk %}" class="btn btn-outline-danger" title="{% trans 'Delete' %}">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-industry fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">{% trans "No brands found" %}</h5>
-                    <p class="text-muted">{% trans "Start by creating your first asset brand." %}</p>
-                    <a href="{% url 'assets:brand_create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> {% trans "Add Brand" %}
-                    </a>
-                </div>
+            <div class="text-center py-5">
+                <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
+                <h5>{% trans "No models found" %}</h5>
+                <p class="text-muted">{% trans "Try different filters or add a new model." %}</p>
+            </div>
             {% endif %}
         </div>
     </div>

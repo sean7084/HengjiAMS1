@@ -5,7 +5,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    UserViewSet, CompanyViewSet, DivisionViewSet, LocationViewSet,
+    UserViewSet, CompanyViewSet, LocationViewSet,
     AssetCategoryViewSet, AssetBrandViewSet, AssetModelViewSet,
     AssetViewSet, AssetAssignmentViewSet, AssetMaintenanceViewSet
 )
@@ -14,7 +14,6 @@ from .views import (
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'companies', CompanyViewSet, basename='company')
-router.register(r'divisions', DivisionViewSet, basename='division')
 router.register(r'locations', LocationViewSet, basename='location')
 router.register(r'categories', AssetCategoryViewSet, basename='category')
 router.register(r'brands', AssetBrandViewSet, basename='brand')

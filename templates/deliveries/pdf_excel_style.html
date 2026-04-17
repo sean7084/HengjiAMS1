@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm 7mm 12mm 8mm;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "SimSun", Arial, sans-serif;
+            color: #222;
+            margin: 0;
+            font-size: 9pt;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        td,
+        th {
+            padding: 0;
+            border: 0;
+            vertical-align: middle;
+        }
+
+        .sheet {
+            width: 100%;
+        }
+
+        .header-logo {
+            height: 52pt;
+        }
+
+        .logo {
+            height: 36pt;
+            width: auto;
+            margin-left: 10pt;
+        }
+
+        .date-cell {
+            text-align: center;
+            font-size: 8.5pt;
+            white-space: nowrap;
+        }
+
+        .date-label {
+            font-weight: 700;
+            margin-right: 6pt;
+        }
+
+        .rule {
+            border-top: 1.6pt solid #111;
+            border-bottom: 1.6pt solid #111;
+            height: 3pt;
+        }
+
+        .title {
+            text-align: center;
+            color: #333399;
+            font-size: 16pt;
+            font-weight: 700;
+            letter-spacing: 0.2pt;
+            line-height: 1;
+            padding: 8pt 0 8pt;
+        }
+
+        .field-label,
+        .field-value {
+            height: 26pt;
+            font-size: 9.5pt;
+        }
+
+        .field-label {
+            font-weight: 700;
+            padding-left: 3pt;
+            white-space: nowrap;
+        }
+
+        .field-value {
+            padding-left: 5pt;
+            white-space: nowrap;
+        }
+
+        .grid-wrap {
+            border: 0.5pt solid #000;
+            margin-top: 8pt;
+        }
+
+        .grid th,
+        .grid td {
+            border: 0.5pt solid #000;
+            text-align: center;
+            font-size: 8pt;
+            height: 26pt;
+            padding: 2pt 3pt;
+        }
+
+        .grid th {
+            background: #ccffff;
+            color: #333;
+            font-weight: 700;
+            white-space: nowrap;
+            height: 30pt;
+        }
+
+        .grid .text-left {
+            text-align: left;
+        }
+
+        .grid .wrap-col {
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 1.2;
+        }
+
+        .note-row {
+            border-left: 0.5pt solid #000;
+            border-right: 0.5pt solid #000;
+            border-bottom: 0.5pt solid #000;
+            min-height: 34pt;
+            padding: 6pt 10pt;
+            font-size: 9pt;
+            line-height: 1.45;
+            white-space: pre-wrap;
+        }
+
+        .note-address {
+            min-height: 38pt;
+        }
+
+        .note-method {
+            min-height: 42pt;
+        }
+
+        .note-acceptance {
+            min-height: 46pt;
+        }
+
+        .note-label {
+            font-weight: 700;
+            margin-right: 6pt;
+        }
+
+        .signature-block {
+            margin-top: 10pt;
+            width: 100%;
+            font-size: 9pt;
+        }
+
+        .signature-block td,
+        .signature-block th {
+            text-align: left;
+            white-space: nowrap;
+            padding: 0;
+            border: 0;
+            vertical-align: middle;
+        }
+
+        .sign-label {
+            font-size: 9pt;
+            text-align: left;
+            padding-left: 20pt;
+            height: 16pt;
+            vertical-align: bottom;
+        }
+
+        .signature-block .line-cell {
+            border-bottom: 1px solid #222;
+            height: 14pt;
+            vertical-align: bottom;
+            padding-bottom: 1pt;
+        }
+
+        .sign-space-row {
+            height: 12pt;
+        }
+
+
+    </style>
+</head>
+<body>
+    <table class="sheet" aria-label="delivery sheet">
+        <colgroup>
+            <col style="width:5%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:20%">
+            <col style="width:5%">
+        </colgroup>
+
+        <tr>
+            <td colspan="4" class="header-logo"><img class="logo" src="{{ logo_path }}" alt="Logo"></td>
+            <td colspan="2" class="date-cell">
+                <span class="date-label">发货日期:</span>
+                <span>{{ delivery.delivery_date|date:"Y/m/d" }}</span>
+            </td>
+        </tr>
+
+        <tr><td colspan="6" class="rule"></td></tr>
+        <tr><td colspan="6" class="title">签收单</td></tr>
+
+        <tr>
+            <td class="field-label">订货方</td>
+            <td colspan="5" class="field-value">{{ delivery.quotation.customer.name }}</td>
+        </tr>
+        <tr>
+            <td class="field-label">收货人</td>
+            <td colspan="5" class="field-value">{{ delivery.receiver_name|default:"-" }}</td>
+        </tr>
+        <tr>
+            <td class="field-label">电话</td>
+            <td colspan="5" class="field-value">{{ delivery.receiver_phone|default:"-" }}</td>
+        </tr>
+
+        <tr>
+            <td colspan="6">
+                <div class="grid-wrap">
+                    <table class="grid" aria-label="delivery items">
+                        <colgroup>
+                            <col style="width:7.5%">
+                            <col style="width:14.5%">
+                            <col style="width:32.5%">
+                            <col style="width:10.5%">
+                            <col style="width:21.5%">
+                            <col style="width:13.5%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="wrap-col">品牌</th>
+                                <th class="wrap-col">商品描述</th>
+                                <th class="wrap-col">采购方品牌</th>
+                                <th class="wrap-col">采购方用户</th>
+                                <th>数量</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in display_rows %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="wrap-col">{{ item.brand_name }}</td>
+                                <td class="text-left wrap-col">{{ item.product_description }}</td>
+                                <td class="wrap-col">{{ item.user_brand }}</td>
+                                <td class="wrap-col">{{ item.user_name }}</td>
+                                <td>{{ item.quantity }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="note-row note-address"><span class="note-label">一: 交货地址:</span>{{ delivery.delivery_address|default:"-" }}</div>
+                    <div class="note-row note-method"><span class="note-label">二: 交货方式:</span>{{ delivery_method_display }}</div>
+                    <div class="note-row note-acceptance"><span class="note-label">三: 验收方式:</span>{{ acceptance_text }}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="signature-block" aria-label="signatures">
+        <colgroup>
+            <col style="width:30%">
+            <col style="width:20%">
+            <col style="width:30%">
+            <col style="width:20%">
+        </colgroup>
+        <tr>
+            <td class="sign-label">订货方 :
+
+            </td>
+            <td></td>
+            <td class="sign-label">验收人 :
+                
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="line-cell"></td>
+            <td></td>
+            <td class="line-cell"></td>
+            <td></td>
+        </tr>
+        <tr><td colspan="4" class="sign-space-row"></td></tr>
+        <tr>
+            <td class="sign-label">日期 :</td>
+            <td></td>
+            <td class="sign-label">日期 :</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="line-cell"></td>
+            <td></td>
+            <td class="line-cell"></td>
+            <td></td>
+        </tr>
+    </table>
+
+</body>
+</html>

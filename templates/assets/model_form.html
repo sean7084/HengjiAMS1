@@ -148,6 +148,18 @@
             </div>
 
             <div class="row">
+                <div class="col-md-6 mb-3 required-field">
+                    <label for="{{ form.unit.id_for_label }}" class="form-label">{{ form.unit.label }}</label>
+                    {{ form.unit }}
+                    {% if form.unit.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.unit.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-12 mb-3">
                     <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
                     {{ form.description }}

@@ -60,6 +60,16 @@ class Company(models.Model):
         verbose_name=_('Email'),
         help_text=_('Company contact email')
     )
+
+    primary_contact_company_user = models.ForeignKey(
+        'CompanyUser',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='primary_contact_for_companies',
+        verbose_name=_('Primary Contact'),
+        help_text=_('Primary business contact selected from company users')
+    )
     
     website = models.URLField(
         blank=True,
@@ -165,6 +175,10 @@ class Company(models.Model):
         self.next_asset_number += 1
         self.save()
         return asset_number
+
+    def get_primary_contact(self):
+        """Return the selected primary contact membership."""
+        return self.primary_contact_company_user
 
 
 class Division(models.Model):

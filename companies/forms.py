@@ -16,8 +16,7 @@ class CompanyForm(forms.ModelForm):
         model = Company
         fields = [
             'name', 'code', 'description', 'phone_number', 'email', 'website',
-            'address_line1', 'address_line2', 'city', 'state_province',
-            'postal_code', 'country', 'status', 'logo', 'asset_prefix'
+            'primary_contact_company_user', 'status', 'logo', 'asset_prefix'
         ]
         widgets = {
             'name': forms.TextInput(attrs={
@@ -46,29 +45,8 @@ class CompanyForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': _('https://www.company.com')
             }),
-            'address_line1': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('Street address')
-            }),
-            'address_line2': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('Apartment, suite, etc. (optional)')
-            }),
-            'city': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('City')
-            }),
-            'state_province': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('State/Province')
-            }),
-            'postal_code': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('Postal/ZIP code')
-            }),
-            'country': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': _('Country')
+            'primary_contact_company_user': forms.Select(attrs={
+                'class': 'form-select'
             }),
             'status': forms.Select(attrs={
                 'class': 'form-select'
@@ -82,6 +60,24 @@ class CompanyForm(forms.ModelForm):
                 'placeholder': _('Asset numbering prefix (e.g., COMP-)')
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['primary_contact_company_user'].required = False
+        self.fields['primary_contact_company_user'].empty_label = _('Select primary contact (optional)')
+
+        if self.instance.pk:
+            self.fields['primary_contact_company_user'].queryset = self.instance.company_users.filter(
+                status=CompanyUser.UserStatus.ACTIVE
+            ).select_related('user').order_by('user__first_name', 'user__last_name', 'user__username')
+        else:
+            self.fields['primary_contact_company_user'].queryset = CompanyUser.objects.none()
+
+    def clean_primary_contact_company_user(self):
+        contact = self.cleaned_data.get('primary_contact_company_user')
+        if contact and self.instance.pk and contact.company_id != self.instance.pk:
+            raise forms.ValidationError(_('Selected contact must belong to this company.'))
+        return contact
 
 
 class DivisionForm(forms.ModelForm):
@@ -286,3 +282,57 @@ class LocationForm(forms.ModelForm):
         # Set empty labels
         self.fields['division'].empty_label = _('Select division (optional)')
         self.fields['parent_location'].empty_label = _('Select parent location (optional)')
+
+
+class CompanyUserForm(forms.ModelForm):
+    """Form for adding users to a company."""
+
+    class Meta:
+        model = CompanyUser
+        fields = ['user', 'company', 'role', 'location', 'status', 'employee_id', 'department', 'job_title', 'work_phone', 'work_email']
+        widgets = {
+            'user': forms.Select(attrs={'class': 'form-select'}),
+            'company': forms.Select(attrs={'class': 'form-select'}),
+            'role': forms.Select(attrs={'class': 'form-select'}),
+            'location': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'employee_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'department': forms.TextInput(attrs={'class': 'form-control'}),
+            'job_title': forms.TextInput(attrs={'class': 'form-control'}),
+            'work_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'work_email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['location'].required = False
+        self.fields['location'].empty_label = _('Select location (optional)')
+        self.fields['user'].queryset = self.fields['user'].queryset.order_by('first_name', 'last_name', 'username')
+        self.fields['company'].queryset = Company.objects.filter(status=Company.CompanyStatus.ACTIVE).order_by('name')
+
+        if 'company' in self.data:
+            try:
+                company_id = int(self.data.get('company'))
+                self.fields['location'].queryset = Location.objects.filter(
+                    company_id=company_id,
+                    status=Location.LocationStatus.ACTIVE,
+                ).order_by('name')
+            except (TypeError, ValueError):
+                self.fields['location'].queryset = Location.objects.none()
+        elif self.instance.pk:
+            self.fields['location'].queryset = Location.objects.filter(
+                company=self.instance.company,
+                status=Location.LocationStatus.ACTIVE,
+            ).order_by('name')
+        else:
+            self.fields['location'].queryset = Location.objects.none()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        company = cleaned_data.get('company')
+        location = cleaned_data.get('location')
+
+        if company and location and location.company_id != company.id:
+            self.add_error('location', _('Selected location must belong to the selected company.'))
+
+        return cleaned_data

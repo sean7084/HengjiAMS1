@@ -1,0 +1,403 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm 6mm 10mm 8mm;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "SimSun", Arial, sans-serif;
+            font-size: 9pt;
+            color: #222;
+            margin: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        td,
+        th {
+            border: 0;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        .sheet {
+            width: 100%;
+        }
+
+        .logo-cell {
+            height: 46pt;
+        }
+
+        .logo {
+            height: 38pt;
+            width: auto;
+            margin-left: 8pt;
+        }
+
+        .date-label {
+            text-align: right;
+            font-size: 8.5pt;
+            padding-right: 4pt;
+            white-space: nowrap;
+        }
+
+        .date-value {
+            padding-left: 4pt;
+            font-size: 8.5pt;
+            white-space: nowrap;
+        }
+
+        .date-block {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .date-block td {
+            border: 0;
+            height: 14pt;
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        .date-block .date-label {
+            width: 44%;
+            padding-right: 6pt;
+        }
+
+        .date-block .date-value {
+            width: 56%;
+            padding-left: 0;
+        }
+
+        .title {
+            color: #333399;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16pt;
+            letter-spacing: 0.2pt;
+            padding: 8pt 0 8pt;
+        }
+
+        .top-rule {
+            border-top: 1.6pt solid #111;
+            border-bottom: 1.6pt solid #111;
+            height: 3pt;
+        }
+
+        .label-left,
+        .label-right {
+            font-size: 9.5pt;
+            font-weight: 700;
+            padding-left: 3pt;
+            height: 23pt;
+            white-space: nowrap;
+        }
+
+        .value-left,
+        .value-right {
+            font-size: 9.5pt;
+            padding-left: 5pt;
+            height: 23pt;
+            white-space: nowrap;
+        }
+
+        .value-right {
+            text-align: left;
+        }
+
+        .grid th,
+        .grid td {
+            border: 0.5pt solid #000;
+            height: 26pt;
+            text-align: center;
+            font-size: 8pt;
+            padding: 2pt 3pt;
+        }
+
+        .grid th {
+            background: #ccffff;
+            color: #333;
+            font-weight: 700;
+            height: 30pt;
+            white-space: nowrap;
+        }
+
+        .grid .text-left {
+            text-align: left;
+        }
+
+        .grid .wrap-col {
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 1.2;
+        }
+
+        .summary-label,
+        .summary-value {
+            border: 0.5pt solid #000;
+            background: #ccffff;
+            color: #333;
+            font-weight: 700;
+            height: 17pt;
+            font-size: 8pt;
+        }
+
+        .summary-label {
+            text-align: right;
+            padding-right: 6pt;
+        }
+
+        .summary-value {
+            text-align: center;
+        }
+
+        .remark-title,
+        .remark-body {
+            border: 0.5pt solid #000;
+            height: 78pt;
+            vertical-align: top;
+        }
+
+        .remark-title {
+            color: #0055cc;
+            text-align: center;
+            font-size: 8pt;
+            padding: 0 3pt;
+            vertical-align: middle;
+            white-space: nowrap;
+            word-break: keep-all;
+            overflow-wrap: normal;
+            line-height: 1.1;
+        }
+
+        .remark-body {
+            color: #0055cc;
+            text-align: left;
+            font-size: 9pt;
+            white-space: pre-wrap;
+            padding: 6pt;
+        }
+
+        .sign-label {
+            font-size: 9pt;
+            text-align: left;
+            padding-left: 20pt;
+            height: 16pt;
+            vertical-align: bottom;
+        }
+
+        .sign-value {
+            font-size: 9pt;
+            font-weight: 700;
+            text-align: left;
+            padding-left: 20pt;
+        }
+
+        .line-cell {
+            border-bottom: 1px solid #222;
+            height: 14pt;
+            vertical-align: bottom;
+            padding-bottom: 1pt;
+        }
+
+        .sign-space-row {
+            height: 14pt;
+        }
+
+        .sign-gap-tight {
+            height: 4pt;
+        }
+
+        .bottom-spacer {
+            height: 90pt;
+        }
+    </style>
+</head>
+<body>
+    <table class="sheet" aria-label="quotation sheet">
+        <colgroup>
+            <col style="width:6.60%">
+            <col style="width:8.60%">
+            <col style="width:21.40%">
+            <col style="width:9.60%">
+            <col style="width:12.30%">
+            <col style="width:3.50%">
+            <col style="width:8.525%">
+            <col style="width:8.525%">
+            <col style="width:3.90%">
+            <col style="width:8.525%">
+            <col style="width:8.525%">
+        </colgroup>
+
+        <tr>
+            <td colspan="7" class="logo-cell"><img class="logo" src="{{ logo_path }}" alt="Logo"></td>
+            <td colspan="4" class="logo-cell">
+                <table class="date-block" aria-label="quotation dates">
+                    <tr>
+                        <td class="date-label">Date:</td>
+                        <td class="date-value">{{ quotation.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="date-label">Quote Date:</td>
+                        <td class="date-value">{{ quotation.quotation_date|date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="date-label">Validate Date:</td>
+                        <td class="date-value">{{ quotation.valid_until|date:"Y-m-d" }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr><td colspan="11" class="top-rule"></td></tr>
+        <tr><td colspan="11" class="title">Quotation</td></tr>
+        <tr><td colspan="11" style="height:8pt"></td></tr>
+
+        <tr>
+            <td class="label-left">To:</td>
+            <td colspan="5" class="value-left">{{ quotation.customer.name }}</td>
+            <td class="label-right">From:</td>
+            <td colspan="4" class="value-right">Leo Yao</td>
+        </tr>
+        <tr>
+            <td class="label-left">Attn:</td>
+            <td colspan="5" class="value-left">{{ quotation.attn|default:"-" }}</td>
+            <td class="label-right">MP:</td>
+            <td colspan="4" class="value-right">13764570476</td>
+        </tr>
+        <tr>
+            <td class="label-left">Tel:</td>
+            <td colspan="5" class="value-left">{{ quotation.tel|default:"-" }}</td>
+            <td class="label-right">E-Mail:</td>
+            <td colspan="4" class="value-right">Leo.Yao@hengji-info.com</td>
+        </tr>
+
+        <tr>
+            <td colspan="11">
+                <table class="grid" aria-label="items grid">
+                    <colgroup>
+                        <col style="width:3.90%">
+                        <col style="width:13.55%">
+                        <col style="width:13.55%">
+                        <col style="width:13.55%">
+                        <col style="width:13.55%">
+                        <col style="width:3.90%">
+                        <col style="width:8.525%">
+                        <col style="width:8.525%">
+                        <col style="width:3.90%">
+                        <col style="width:8.525%">
+                        <col style="width:8.525%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="wrap-col">产品品牌</th>
+                            <th class="wrap-col">产品描述</th>
+                            <th class="wrap-col">采购方品牌</th>
+                            <th class="wrap-col">采购方用户</th>
+                            <th>单位</th>
+                            <th>不含税单价</th>
+                            <th>含税单价</th>
+                            <th>数量</th>
+                            <th>不含税总价</th>
+                            <th>含税总价</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in display_rows %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="wrap-col">{% if item %}{{ item.brand_name }}{% endif %}</td>
+                            <td class="text-left wrap-col">{% if item %}{{ item.product_description }}{% endif %}</td>
+                            <td class="wrap-col">{% if item %}{{ item.user_brand }}{% endif %}</td>
+                            <td class="wrap-col">{% if item %}{{ item.user_name }}{% endif %}</td>
+                            <td>{% if item %}{{ item.unit }}{% endif %}</td>
+                            <td>{% if item %}{{ item.unit_price|floatformat:2 }}{% endif %}</td>
+                            <td>{% if item %}{{ item.unit_price_with_tax|floatformat:2 }}{% endif %}</td>
+                            <td>{% if item %}{{ item.quantity }}{% endif %}</td>
+                            <td>{% if item %}{{ item.line_total_without_tax|floatformat:2 }}{% endif %}</td>
+                            <td>{% if item %}{{ item.line_total_with_tax|floatformat:2 }}{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="10" class="summary-label">不含税总价 Total Price without VAT:</td>
+            <td class="summary-value">{{ quotation.total_without_tax|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td colspan="10" class="summary-label">税金 VAT(%):</td>
+            <td class="summary-value">{{ vat_percent|floatformat:2 }}%</td>
+        </tr>
+        <tr>
+            <td colspan="10" class="summary-label">含税(%)总价 Total Price Including VAT(%):</td>
+            <td class="summary-value">{{ quotation.total_with_tax|floatformat:2 }}</td>
+        </tr>
+
+        <tr>
+            <td class="remark-title">Remark:</td>
+            <td colspan="10" class="remark-body">{% if quotation.notes %}{{ quotation.notes }}{% else %}{{ default_remark_line }}
+
+2. 全部产品保修遵循相关官方政策。{% endif %}</td>
+        </tr>
+
+        <tr><td colspan="11" style="height:20pt"></td></tr>
+        <tr>
+            <td colspan="3" class="sign-label">Confirmed By :</td>
+            <td colspan="3"></td>
+            <td colspan="5" class="sign-label">Prepared By :</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="sign-space-row"></td>
+            <td colspan="3"></td>
+            <td colspan="5" class="sign-space-row"></td>
+        </tr>
+        <tr>
+            <td colspan="3" class="sign-space-row"></td>
+            <td colspan="3"></td>
+            <td colspan="5" class="sign-space-row"></td>
+        </tr>
+        <tr>
+            <td colspan="3" class="sign-space-row"></td>
+            <td colspan="3"></td>
+            <td colspan="5" class="sign-value">{{ prepared_by_company }}</td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+            <td colspan="3"></td>
+            <td colspan="5"></td>
+        </tr>
+        <tr>
+            <td colspan="3" class="line-cell"></td>
+            <td colspan="3"></td>
+            <td colspan="5" class="line-cell"></td>
+        </tr>
+        <tr><td colspan="11" class="sign-gap-tight"></td></tr>
+        <tr>
+            <td colspan="3" class="sign-label">Signature &amp; Co. Chop</td>
+            <td colspan="3"></td>
+            <td colspan="5" class="sign-label">Signature &amp; Co. Chop</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="sign-label">Date:</td>
+            <td colspan="3"></td>
+            <td colspan="5" class="sign-label">Date:</td>
+        </tr>
+        <tr><td colspan="11" class="bottom-spacer"></td></tr>
+    </table>
+</body>
+</html>

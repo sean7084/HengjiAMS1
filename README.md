@@ -92,7 +92,7 @@ Three asset numbering modes supported:
 | ORM | Django ORM |
 | Frontend | Bootstrap 5, HTML5, CSS3, JavaScript |
 | Excel Export | openpyxl |
-| PDF Export | reportlab |
+| PDF Export | WeasyPrint (primary), reportlab (legacy) |
 | Internationalization | Django i18n |
 
 ### Style Reference
@@ -278,17 +278,15 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 ## Project Progress
 
-### Version History
+### Last three updates
 
 | Version | Date | Focus |
 |---------|------|-------|
-| v0.0.1 | July 2025 | Foundation - Django setup, auth, i18n framework |
-| v0.0.2 | August 2025 | Major Features - Asset models, audit system, RBAC |
-| v0.0.3 | August 2025 | Consolidation - Category/Brand management, export, UI fixes |
 | v0.0.4 | April 2026 | 2FA, Reporting, Mobile API, REST API |
 | v0.1.0 | April 2026 | Quotation & Invoice Management System |
+| v0.1.1 | April 2026 | HTML PDF Rendering for Quotation & Delivery Templates |
 
-### Current Status (v0.1.0)
+### Current Status (v0.1.1)
 
 #### Fully Operational Features
 
@@ -308,6 +306,8 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Enhanced Mobile Features** - Barcode scanning with Html5-QRCode
 - **REST API** - Full API endpoints at /api/v1/ with documentation at /docs/
 - **Quotation & Invoice Management System** - End-to-end quotation -> purchase -> delivery -> invoice -> dispatch workflow
+- **LibreOffice-free Document Generation** - Quotation and Delivery PDFs rendered directly from HTML templates via WeasyPrint
+- **Template Fidelity Tuning** - Excel-style quotation and 签收单 layouts tuned against reference PDF output
 
 #### Database Schema
 
@@ -369,9 +369,10 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 ### Future Reference Summary
 
 - Scope delivered in v0.1.0: end-to-end workflow from quotation creation to client dispatch and Esker forwarding.
+- Scope delivered in v0.1.1: quotation and delivery document rendering migrated to direct HTML PDF generation with template fidelity tuning.
 - Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
-- Key automation paths: quotation PDF generation, delivery template document generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.
+- Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.
 - Workflow governance: dashboard Kanban, cross-entity workflow search, status badge standardization, and status-change audit trail.
 - Operational validation baseline: full smoke transition run verified quotation -> purchase -> delivery -> invoice -> dispatch transitions in Django test client flow.
 
@@ -399,7 +400,7 @@ The system leverages existing HengJi AMS infrastructure:
      ├── Select customer (from Company)
      ├── Select products (from AssetBrand/AssetModel with pricing)
      ├── Set quotation date, validity period
-     └── Generate PDF from "quotation template.xlsx"
+      └── Generate PDF from quotation HTML template (Excel-style)
 
   2. ATTACHMENTS (per quotation)
      ├── Invoice PDF
@@ -417,7 +418,7 @@ The system leverages existing HengJi AMS infrastructure:
 
   5. DISPATCH & DELIVERY
      ├── Assign received assets to store/office location
-     ├── Generate 签收单 PDF from "签收单 template.xlsx"
+      ├── Generate 签收单 PDF from delivery HTML template (Excel-style)
      └── Status: Dispatched → Awaiting Signed Copy
 
   6. DELIVERY CONFIRMATION
@@ -484,9 +485,11 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 
 | Template | Purpose | Key Fields |
 |----------|---------|------------|
-| `quotation template.xlsx` | Customer quote | date, quote date, validity, attn, tel, products, prices, totals |
-| `签收单 template.xlsx` | Delivery receipt | 订货方, 收货人, 电话, serial numbers, brand, description, quantity, delivery address/method |
+| `quotation template.xlsx` | Customer quote (legacy source) | date, quote date, validity, attn, tel, products, prices, totals |
+| `签收单 template.xlsx` | Delivery receipt (legacy source) | 订货方, 收货人, 电话, serial numbers, brand, description, quantity, delivery address/method |
 | `invoice information template.xlsx` | Invoice info sheet | Bill To, PI Number, Invoice Date, Due Date, amounts, PO Number, SAP Cost Center, line items |
+| `quotations/pdf_excel_style.html` | Quotation PDF (active) | quote header, line items, totals, remark, signature blocks |
+| `deliveries/pdf_excel_style.html` | Delivery PDF (active) | 订货方, 收货人, 电话, delivery items, delivery info, signature blocks |
 
 ### Implementation Tasks
 
@@ -679,4 +682,4 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 ---
 
 *Last Updated: April 2026*
-*HengJi Asset Management System v0.1.0*
+*HengJi Asset Management System v0.1.1*

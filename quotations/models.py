@@ -9,7 +9,6 @@ from decimal import Decimal
 import datetime
 
 from companies.models import Company
-from customers.models import CustomerProfile
 from products.models import ProductPrice
 
 
@@ -40,14 +39,6 @@ class Quotation(models.Model):
         related_name='quotations',
         verbose_name=_('Customer')
     )
-    customer_profile = models.ForeignKey(
-        CustomerProfile,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='quotations',
-        verbose_name=_('Customer Profile')
-    )
 
     # Date fields
     quotation_date = models.DateField(
@@ -58,7 +49,7 @@ class Quotation(models.Model):
         verbose_name=_('Valid Until')
     )
 
-    # Contact info (copied from CustomerProfile at creation)
+    # Contact info snapshot at quotation creation
     attn = models.CharField(
         max_length=200,
         blank=True,
@@ -163,16 +154,16 @@ class Quotation(models.Model):
         self.save(update_fields=['total_without_tax', 'total_tax', 'total_with_tax', 'updated_at'])
 
     def get_customer_info(self):
-        """Return dict with customer contact info from profile."""
-        if self.customer_profile:
-            return {
-                'attn': self.customer_profile.contact_person,
-                'tel': self.customer_profile.phone,
-                'email': self.customer_profile.email,
-                'delivery_address': self.customer_profile.delivery_address,
-                'delivery_city': self.customer_profile.delivery_city,
-            }
-        return {}
+        """Return customer contact and delivery info from company-linked records."""
+        primary_contact = self.customer.primary_contact_company_user
+        first_location = self.customer.locations.order_by('name').first()
+        return {
+            'attn': self.attn or (primary_contact.user.get_display_name() if primary_contact else ''),
+            'tel': self.tel or (primary_contact.work_phone or primary_contact.user.phone_number if primary_contact else ''),
+            'email': (primary_contact.work_email or primary_contact.user.email) if primary_contact else self.customer.email,
+            'delivery_address': first_location.get_full_address() if first_location else self.customer.get_full_address(),
+            'delivery_city': first_location.city if first_location else self.customer.city,
+        }
 
     @property
     def is_expired(self):

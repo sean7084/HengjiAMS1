@@ -1,0 +1,193 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 14mm;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "SimSun", "Arial", sans-serif;
+            font-size: 12px;
+            color: #222;
+            margin: 0;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            letter-spacing: 1px;
+        }
+
+        .meta {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .meta td {
+            border: 1px solid #222;
+            padding: 5px 6px;
+            vertical-align: top;
+        }
+
+        .meta td.label {
+            width: 16%;
+            font-weight: 700;
+            background: #f6f6f6;
+        }
+
+        .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+
+        .items th,
+        .items td {
+            border: 1px solid #222;
+            padding: 5px 6px;
+        }
+
+        .items th {
+            background: #e9ecef;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .items td {
+            font-size: 11px;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .totals {
+            width: 42%;
+            margin-left: auto;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .totals td {
+            border: 1px solid #222;
+            padding: 6px;
+        }
+
+        .totals .label {
+            background: #f6f6f6;
+            font-weight: 700;
+        }
+
+        .totals .grand {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .notes {
+            margin-top: 10px;
+            border: 1px solid #222;
+            padding: 8px;
+            min-height: 36px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">{% trans "Quotation" %}</h1>
+
+    <table class="meta">
+        <tr>
+            <td class="label">{% trans "Quotation Number" %}</td>
+            <td>{{ quotation.quotation_number }}</td>
+            <td class="label">{% trans "Quotation Date" %}</td>
+            <td>{{ quotation.quotation_date|date:"Y-m-d" }}</td>
+            <td class="label">{% trans "Valid Until" %}</td>
+            <td>{{ quotation.valid_until|date:"Y-m-d" }}</td>
+        </tr>
+        <tr>
+            <td class="label">{% trans "Customer" %}</td>
+            <td>{{ quotation.customer.name }}</td>
+            <td class="label">{% trans "Company Code" %}</td>
+            <td>{{ quotation.customer.code }}</td>
+            <td class="label">{% trans "Status" %}</td>
+            <td>{{ quotation.get_status_display }}</td>
+        </tr>
+        <tr>
+            <td class="label">{% trans "Attention" %}</td>
+            <td>{{ quotation.attn|default:"-" }}</td>
+            <td class="label">{% trans "Telephone" %}</td>
+            <td>{{ quotation.tel|default:"-" }}</td>
+            <td class="label">{% trans "Created" %}</td>
+            <td>{{ quotation.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+    </table>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th style="width:5%">{% trans "No." %}</th>
+                <th style="width:13%">{% trans "Brand" %}</th>
+                <th style="width:24%">{% trans "Description" %}</th>
+                <th style="width:10%">{% trans "User Brand" %}</th>
+                <th style="width:10%">{% trans "User" %}</th>
+                <th style="width:7%">{% trans "Unit" %}</th>
+                <th style="width:7%">{% trans "Qty" %}</th>
+                <th style="width:10%">{% trans "Unit Price" %}</th>
+                <th style="width:6%">{% trans "Tax" %}</th>
+                <th style="width:8%">{% trans "Total" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td class="center">{{ forloop.counter }}</td>
+                <td>{{ item.brand_name }}</td>
+                <td>{{ item.product_description }}</td>
+                <td>{{ item.user_brand|default:"-" }}</td>
+                <td>{{ item.user_name|default:"-" }}</td>
+                <td class="center">{{ item.unit }}</td>
+                <td class="center">{{ item.quantity }}</td>
+                <td class="right">{{ item.unit_price|floatformat:2 }}</td>
+                <td class="right">{{ item.tax_rate|floatformat:2 }}%</td>
+                <td class="right">{{ item.line_total_with_tax|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" class="center">{% trans "No items" %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="totals">
+        <tr>
+            <td class="label">{% trans "Subtotal (excl. tax)" %}</td>
+            <td class="right">{{ quotation.total_without_tax|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="label">{% trans "Tax" %}</td>
+            <td class="right">{{ quotation.total_tax|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td class="label grand">{% trans "Total (incl. tax)" %}</td>
+            <td class="right grand">{{ quotation.total_with_tax|floatformat:2 }}</td>
+        </tr>
+    </table>
+
+    <div class="notes">
+        <strong>{% trans "Notes" %}:</strong>
+        {{ quotation.notes|default:"-" }}
+    </div>
+</body>
+</html>

@@ -31,7 +31,7 @@ class QuotationAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (_('Quotation Info'), {
-            'fields': ('id', 'quotation_number', 'customer', 'customer_profile', 'status')
+            'fields': ('id', 'quotation_number', 'customer', 'status')
         }),
         (_('Dates'), {
             'fields': ('quotation_date', 'valid_until')
