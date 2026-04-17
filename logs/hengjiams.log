@@ -13916,3 +13916,845 @@ Watching for file changes with StatReloader
 "GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
 "GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
 "GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/quotations/ HTTP/1.1" 200 66932
+"GET /zh-cn/purchases/ HTTP/1.1" 200 71153
+"GET /zh-cn/invoices/import/ HTTP/1.1" 200 22796
+"GET /zh-cn/quotations/ HTTP/1.1" 200 66932
+"GET /zh-cn/quotations/24/ HTTP/1.1" 200 35507
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/24/ HTTP/1.1" 200 35563
+"GET /en-us/quotations/ HTTP/1.1" 200 66840
+"GET /en-us/quotations/24/ HTTP/1.1" 200 35563
+"GET /en-us/quotations/24/ HTTP/1.1" 200 35767
+"GET /en-us/quotations/24/ HTTP/1.1" 200 35767
+"GET /en-us/quotations/24/ HTTP/1.1" 200 35767
+"GET /en-us/companies/ HTTP/1.1" 200 59776
+"GET /en-us/companies/users/?search=Hengji%20Info HTTP/1.1" 200 23090
+"GET /en-us/companies/ HTTP/1.1" 200 59776
+"GET /en-us/companies/users/ HTTP/1.1" 200 44077
+"GET /en-us/companies/ HTTP/1.1" 200 59776
+"GET /en-us/companies/locations/ HTTP/1.1" 200 58550
+"GET /en-us/quotations/24/ HTTP/1.1" 200 35763
+"GET /en-us/invoices/invoice-info/ HTTP/1.1" 200 27290
+"GET /en-us/invoices/invoice-info/3/ HTTP/1.1" 200 30390
+"GET /en-us/dashboard/ HTTP/1.1" 200 44725
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 137
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 124
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 169
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 404
+"GET /en-us/assets/categories/ HTTP/1.1" 200 38414
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 58308
+"GET /en-us/companies/ HTTP/1.1" 200 59776
+"GET /en-us/companies/locations/ HTTP/1.1" 200 58550
+"GET /en-us/companies/users/ HTTP/1.1" 200 44077
+"GET /en-us/audit/logs/ HTTP/1.1" 200 27231
+"GET /en-us/audit/assetaudit/ HTTP/1.1" 200 22486
+"GET /en-us/audit/events/ HTTP/1.1" 200 24976
+"GET /en-us/products/ HTTP/1.1" 200 58108
+"GET /en-us/quotations/ HTTP/1.1" 200 66840
+"GET /en-us/purchases/ HTTP/1.1" 200 71190
+"GET /en-us/deliveries/ HTTP/1.1" 200 40228
+"GET /en-us/invoices/ HTTP/1.1" 200 25362
+"GET /en-us/invoices/import/ HTTP/1.1" 200 22823
+"GET /en-us/invoices/invoice-info/ HTTP/1.1" 200 30108
+"GET /en-us/invoices/emails/ HTTP/1.1" 200 29876
+"GET /en-us/invoices/emails/compose/ HTTP/1.1" 200 31914
+"GET /en-us/dashboard/workflow/ HTTP/1.1" 200 58332
+"GET /en-us/audit/logs/ HTTP/1.1" 200 30049
+"GET /en-us/audit/assetaudit/ HTTP/1.1" 200 25304
+"GET /en-us/audit/events/ HTTP/1.1" 200 27794
+"GET /en-us/products/ HTTP/1.1" 200 60926
+"GET /en-us/quotations/ HTTP/1.1" 200 69658
+"GET /en-us/purchases/ HTTP/1.1" 200 74008
+"GET /en-us/purchases/stock/ HTTP/1.1" 200 66229
+"GET /en-us/invoices/ HTTP/1.1" 200 28180
+"GET /en-us/invoices/import/ HTTP/1.1" 200 25641
+"GET /en-us/invoices/emails/ HTTP/1.1" 200 29876
+"GET /en-us/invoices/emails/compose/ HTTP/1.1" 200 31914
+"GET /en-us/dashboard/workflow/ HTTP/1.1" 200 58332
+"GET /en-us/quotations/ HTTP/1.1" 200 69658
+"GET /en-us/quotations/24/ HTTP/1.1" 200 38581
+"GET /en-us/deliveries/ HTTP/1.1" 200 43046
+"GET /en-us/deliveries/14/ HTTP/1.1" 200 29553
+"GET /en-us/invoices/ HTTP/1.1" 200 28180
+"GET /en-us/accounts/users/ HTTP/1.1" 200 67299
+"GET /en-us/companies/users/ HTTP/1.1" 200 46895
+"GET /en-us/products/ HTTP/1.1" 200 60926
+"GET /en-us/companies/users/ HTTP/1.1" 200 46895
+"GET /en-us/companies/users/ HTTP/1.1" 200 46684
+"GET /en-us/quotations/ HTTP/1.1" 200 69658
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69750
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 59639
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/create/ HTTP/1.1" 200 59656
+"GET /en-us/products/ HTTP/1.1" 200 60926
+"GET /en-us/quotations/ HTTP/1.1" 200 69658
+"GET /en-us/quotations/24/ HTTP/1.1" 200 38581
+"GET /en-us/quotations/ HTTP/1.1" 200 69658
+"GET /en-us/quotations/create/ HTTP/1.1" 200 59656
+"GET /en-us/companies/users/ HTTP/1.1" 200 46684
+"GET /en-us/companies/ HTTP/1.1" 200 62594
+"GET /en-us/purchases/ HTTP/1.1" 200 74008
+"GET /en-us/quotations/ HTTP/1.1" 200 69658
+"GET /en-us/quotations/create/ HTTP/1.1" 200 59656
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 59639
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/create/ HTTP/1.1" 200 59656
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 59639
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/create/ HTTP/1.1" 200 59656
+"GET /en-us/assets/ HTTP/1.1" 200 109612
+"GET /en-us/assets/categories/ HTTP/1.1" 200 41232
+"GET /en-us/assets/categories/create/ HTTP/1.1" 200 30734
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 61126
+"GET /en-us/assets/categories/ HTTP/1.1" 200 41232
+"GET /en-us/assets/categories/create/ HTTP/1.1" 200 30734
+"GET /en-us/assets/categories/ HTTP/1.1" 200 41232
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\models.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/assets/categories/071a3d0d-5f99-469f-8626-927d93f44b53/delete/ HTTP/1.1" 200 25826
+"POST /en-us/assets/categories/071a3d0d-5f99-469f-8626-927d93f44b53/delete/ HTTP/1.1" 302 0
+"GET /en-us/assets/categories/ HTTP/1.1" 200 39484
+"GET /en-us/assets/categories/cad1aa68-9392-4fc5-88ae-3ba82df3e116/delete/ HTTP/1.1" 200 25826
+"POST /en-us/assets/categories/cad1aa68-9392-4fc5-88ae-3ba82df3e116/delete/ HTTP/1.1" 302 0
+"GET /en-us/assets/categories/ HTTP/1.1" 200 37736
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 37741
+"GET /zh-cn/assets/categories/9d30fbc7-a3b5-4757-b8a7-ac36f1a960e0/edit/ HTTP/1.1" 200 30745
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\quotations\views.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /zh-cn/assets/categories/9d30fbc7-a3b5-4757-b8a7-ac36f1a960e0/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 38174
+"GET /zh-cn/assets/categories/04adbaa5-9212-475d-9fcc-a4f722752ae4/edit/ HTTP/1.1" 200 30750
+"POST /zh-cn/assets/categories/04adbaa5-9212-475d-9fcc-a4f722752ae4/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 38185
+"GET /zh-cn/assets/categories/f4dcd3eb-af60-4098-9963-570101f3ddc1/edit/ HTTP/1.1" 200 30732
+"POST /zh-cn/assets/categories/f4dcd3eb-af60-4098-9963-570101f3ddc1/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 38216
+"GET /zh-cn/assets/categories/e59d932e-f799-4831-a16b-b1448bb7738f/edit/ HTTP/1.1" 200 30751
+"POST /zh-cn/assets/categories/e59d932e-f799-4831-a16b-b1448bb7738f/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 38226
+"GET /zh-cn/assets/categories/e59d932e-f799-4831-a16b-b1448bb7738f/edit/ HTTP/1.1" 200 30761
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 37810
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 30558
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 39981
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 30642
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 41727
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 30715
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 43482
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 30798
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 45235
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 30879
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 47005
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 30968
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 48759
+"GET /zh-cn/assets/categories/?search=%E6%A2%B0%E7%A1%AC HTTP/1.1" 200 27752
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 48343
+"GET /zh-cn/assets/categories/e8478b5c-5d41-4aa6-948b-d7339c45379d/edit/ HTTP/1.1" 200 31257
+"POST /zh-cn/assets/categories/e8478b5c-5d41-4aa6-948b-d7339c45379d/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 48743
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31034
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 50479
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31105
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 52229
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31178
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 53973
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31250
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 55717
+"GET /zh-cn/assets/categories/151b2954-b409-4f09-8f59-6bda43e7af6b/edit/ HTTP/1.1" 200 31477
+"POST /zh-cn/assets/categories/151b2954-b409-4f09-8f59-6bda43e7af6b/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 55720
+"GET /zh-cn/assets/categories/6f7789e9-beac-40a7-962a-344b7ee8fa4a/edit/ HTTP/1.1" 200 31510
+"POST /zh-cn/assets/categories/6f7789e9-beac-40a7-962a-344b7ee8fa4a/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 55720
+"GET /zh-cn/assets/categories/4742ef5e-46e6-48d5-bc6b-20ffad890448/edit/ HTTP/1.1" 200 31511
+"POST /zh-cn/assets/categories/4742ef5e-46e6-48d5-bc6b-20ffad890448/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 55723
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31322
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 57468
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31395
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 59230
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31475
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 60999
+"GET /zh-cn/assets/categories/create/ HTTP/1.1" 200 31569
+"POST /zh-cn/assets/categories/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/categories/ HTTP/1.1" 200 61752
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 61171
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+Internal Server Error: /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 258, in post
+    return self.form_valid(form)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 264, in form_valid
+    self.object.delete()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1280, in delete
+    collector.collect([self], keep_parents=keep_parents)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\deletion.py", line 350, in collect
+    raise ProtectedError(
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'AssetModel' because they are referenced through protected foreign keys: 'ProductPrice.model'.", {<QuotationItem: QT-20260416-020 - Brand 0d2569ad Model 0d2569ad>})
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 500 104874
+Internal Server Error: /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 258, in post
+    return self.form_valid(form)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 264, in form_valid
+    self.object.delete()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1280, in delete
+    collector.collect([self], keep_parents=keep_parents)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\deletion.py", line 350, in collect
+    raise ProtectedError(
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'AssetModel' because they are referenced through protected foreign keys: 'ProductPrice.model'.", {<QuotationItem: QT-20260416-020 - Brand 0d2569ad Model 0d2569ad>})
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 500 104874
+"GET / HTTP/1.1" 302 0
+"GET /zh-cn/ HTTP/1.1" 302 0
+"GET /dashboard/ HTTP/1.1" 302 0
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 47587
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69750
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 61171
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69750
+"GET /zh-cn/quotations/create/ HTTP/1.1" 200 65431
+"POST /zh-cn/quotations/create/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/25/ HTTP/1.1" 200 33707
+"GET /zh-cn/companies/users/ HTTP/1.1" 200 48357
+"GET /en-us/quotations/ HTTP/1.1" 200 69640
+"GET /en-us/quotations/create/ HTTP/1.1" 200 65491
+"POST /en-us/quotations/create/ HTTP/1.1" 302 0
+"GET /en-us/quotations/26/ HTTP/1.1" 200 36417
+"GET /en-us/quotations/26/pdf/ HTTP/1.1" 200 41206
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/26/ HTTP/1.1" 200 35984
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/26/ HTTP/1.1" 200 35984
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/quotations/26/ HTTP/1.1" 200 35984
+"GET /en-us/dashboard/ HTTP/1.1" 200 47543
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 137
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 124
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 404
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 169
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/dashboard/ HTTP/1.1" 200 47543
+"GET /en-us/reports/charts/status/ HTTP/1.1" 200 137
+"GET /en-us/reports/charts/category/ HTTP/1.1" 200 124
+"GET /en-us/reports/charts/brand/ HTTP/1.1" 200 404
+"GET /en-us/reports/charts/warranty/ HTTP/1.1" 200 169
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 47587
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69730
+"GET /zh-cn/quotations/26/ HTTP/1.1" 200 35941
+"GET /zh-cn/quotations/26/confirm/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/26/ HTTP/1.1" 200 36446
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/quotations/26/edit/ HTTP/1.1" 200 66842
+"POST /zh-cn/quotations/26/edit/ HTTP/1.1" 302 0
+"GET /zh-cn/quotations/26/ HTTP/1.1" 200 36374
+"GET /zh-cn/invoices/emails/compose/quotation/26/ HTTP/1.1" 200 29501
+"GET /zh-cn/quotations/26/ HTTP/1.1" 200 35941
+"GET /zh-cn/invoices/emails/compose/ HTTP/1.1" 200 31997
+"GET /zh-cn/invoices/emails/compose/ HTTP/1.1" 200 31997
+"GET /zh-cn/invoices/emails/ HTTP/1.1" 200 29870
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69730
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69730
+"GET /zh-cn/accounts/settings/ HTTP/1.1" 200 25897
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+Internal Server Error: /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 258, in post
+    return self.form_valid(form)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 264, in form_valid
+    self.object.delete()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1280, in delete
+    collector.collect([self], keep_parents=keep_parents)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\deletion.py", line 350, in collect
+    raise ProtectedError(
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'AssetModel' because they are referenced through protected foreign keys: 'ProductPrice.model'.", {<QuotationItem: QT-20260416-020 - Brand 0d2569ad Model 0d2569ad>})
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 500 104874
+Internal Server Error: /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 258, in post
+    return self.form_valid(form)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 264, in form_valid
+    self.object.delete()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1280, in delete
+    collector.collect([self], keep_parents=keep_parents)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\deletion.py", line 350, in collect
+    raise ProtectedError(
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'AssetModel' because they are referenced through protected foreign keys: 'ProductPrice.model'.", {<QuotationItem: QT-20260416-020 - Brand 0d2569ad Model 0d2569ad>})
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 500 104874
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 63405
+"GET /zh-cn/assets/models/28cde42e-b89e-4457-9c6c-320baac7506f/delete/ HTTP/1.1" 200 24734
+Internal Server Error: /zh-cn/assets/models/28cde42e-b89e-4457-9c6c-320baac7506f/delete/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\auth\mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 258, in post
+    return self.form_valid(form)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\generic\edit.py", line 264, in form_valid
+    self.object.delete()
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\base.py", line 1280, in delete
+    collector.collect([self], keep_parents=keep_parents)
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\db\models\deletion.py", line 350, in collect
+    raise ProtectedError(
+django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'AssetModel' because they are referenced through protected foreign keys: 'ProductPrice.model'.", {<QuotationItem: QT-20260416-010 - Brand ae6c3b91 Model ae6c3b91>, <QuotationItem: QT-20260416-019 - Brand ae6c3b91 Model ae6c3b91>})
+"POST /zh-cn/assets/models/28cde42e-b89e-4457-9c6c-320baac7506f/delete/ HTTP/1.1" 500 105272
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 61163
+"GET /zh-cn/companies/users/ HTTP/1.1" 200 51703
+"GET /zh-cn/assets/ HTTP/1.1" 200 111025
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 47587
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 47587
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 162
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 148
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 431
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 175
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 61163
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /admin HTTP/1.1" 301 0
+"GET /admin/ HTTP/1.1" 200 38116
+"GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+"GET /static/admin/css/base.css HTTP/1.1" 200 22120
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2808
+"GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+"GET /static/admin/css/responsive.css HTTP/1.1" 200 16565
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+"GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /static/admin/css/changelists.css HTTP/1.1" 200 6878
+"GET /static/admin/js/core.js HTTP/1.1" 200 6208
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+"GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+"GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /static/admin/img/search.svg HTTP/1.1" 200 458
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+"GET /static/admin/js/filters.js HTTP/1.1" 200 978
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+"GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+"GET /admin/assets/assetassignment/ HTTP/1.1" 200 31806
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetcategory/ HTTP/1.1" 200 43974
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetmaintenance/ HTTP/1.1" 200 31940
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/asset/ HTTP/1.1" 200 53520
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/asset/ HTTP/1.1" 200 30657
+"GET /static/admin/js/cancel.js HTTP/1.1" 200 884
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetcategory/ HTTP/1.1" 200 43974
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 63405
+"GET /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 200 24734
+"POST /zh-cn/assets/models/d30d9b3e-74bd-413f-94ff-b50f17134f62/delete/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 64012
+"GET /admin/purchases/purchaseorder/ HTTP/1.1" 200 44579
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/purchases/purchaseorder/ HTTP/1.1" 200 31650
+"GET /admin/purchases/purchasereceipt/f597a948-72df-498b-976e-4e224e12e2c0/change/ HTTP/1.1" 200 46574
+"GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+"GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+"GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /static/admin/css/widgets.css HTTP/1.1" 200 11973
+"GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+"GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+"GET /admin/purchases/purchasereceipt/ HTTP/1.1" 200 46850
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/purchases/purchasereceipt/ HTTP/1.1" 200 34102
+"POST /admin/purchases/purchasereceipt/ HTTP/1.1" 302 0
+"GET /admin/purchases/purchasereceipt/ HTTP/1.1" 200 31227
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/purchases/purchaseorder/ HTTP/1.1" 200 44579
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/purchases/purchaseorder/ HTTP/1.1" 200 36150
+"POST /admin/purchases/purchaseorder/ HTTP/1.1" 302 0
+"GET /admin/purchases/purchaseorder/ HTTP/1.1" 200 31357
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetcategory/ HTTP/1.1" 200 43974
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetmaintenance/ HTTP/1.1" 200 31940
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/assetbrand/ HTTP/1.1" 200 35151
+"GET /admin/assets/asset/c8926623-39df-4e6e-9b83-29186f82ae71/change/ HTTP/1.1" 200 74492
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /static/admin/img/tooltag-arrowright.svg HTTP/1.1" 200 280
+"GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+"GET /admin/assets/asset/ HTTP/1.1" 200 53520
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/asset/ HTTP/1.1" 200 30657
+"GET /admin/deliveries/deliveryitem/10/change/ HTTP/1.1" 200 40123
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/deliveries/deliveryitem/ HTTP/1.1" 200 41373
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/deliveries/deliveryitem/ HTTP/1.1" 200 32444
+"POST /admin/deliveries/deliveryitem/ HTTP/1.1" 302 0
+"GET /admin/deliveries/deliveryitem/ HTTP/1.1" 200 30703
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/asset/ HTTP/1.1" 200 34031
+"POST /admin/assets/asset/ HTTP/1.1" 302 0
+"GET /admin/assets/asset/ HTTP/1.1" 200 37868
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/assetbrand/ HTTP/1.1" 200 28815
+"GET /admin/quotations/quotationitem/21/change/ HTTP/1.1" 200 45975
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/quotations/quotationitem/ HTTP/1.1" 200 51072
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/quotations/quotationitem/ HTTP/1.1" 200 35234
+"POST /admin/quotations/quotationitem/ HTTP/1.1" 302 0
+"GET /admin/quotations/quotationitem/ HTTP/1.1" 200 31528
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 51680
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/assetbrand/ HTTP/1.1" 200 30020
+"POST /admin/assets/assetbrand/ HTTP/1.1" 302 0
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 50750
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/assets/assetbrand/ HTTP/1.1" 200 37321
+"POST /admin/assets/assetbrand/ HTTP/1.1" 302 0
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 40608
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 30357
+"GET /zh-cn/assets/models/create/ HTTP/1.1" 200 31468
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 29486
+"GET /zh-cn/assets/brands/create/ HTTP/1.1" 200 29718
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 29486
+"GET /zh-cn/assets/brands/create/ HTTP/1.1" 200 29718
+"POST /zh-cn/assets/brands/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/brands/ HTTP/1.1" 200 52432
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 29609
+"GET /zh-cn/assets/models/create/ HTTP/1.1" 200 31540
+"POST /zh-cn/assets/models/create/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/models/ HTTP/1.1" 200 32518
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 43970
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 120
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 120
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 43970
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 120
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 120
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/assets/ HTTP/1.1" 200 47893
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 37663
+"GET /zh-cn/assets/import/ HTTP/1.1" 200 35169
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 37663
+"GET /zh-cn/companies/locations/ HTTP/1.1" 200 61397
+"GET /admin/companies/company/ HTTP/1.1" 200 0
+"GET /admin/companies/company/ HTTP/1.1" 200 0
+"GET /admin/companies/company/ HTTP/1.1" 200 0
+"GET /admin/companies/company/ HTTP/1.1" 200 0
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 40983
+"GET /admin/companies/division/ HTTP/1.1" 200 0
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 40983
+"GET /admin/companies/companyuser/ HTTP/1.1" 200 0
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 40983
+"GET /admin/companies/location/ HTTP/1.1" 200 0
+"GET /admin/assets/assetbrand/ HTTP/1.1" 200 40983
+"GET /admin/companies/location/add/ HTTP/1.1" 200 55368
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/auth/group/ HTTP/1.1" 200 29600
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /admin/companies/division/ HTTP/1.1" 200 0
+"GET /admin/auth/group/ HTTP/1.1" 200 29600
+"GET /admin/companies/location/ HTTP/1.1" 200 0
+"GET /admin/auth/group/ HTTP/1.1" 200 29600
+"GET /admin/companies/division/ HTTP/1.1" 200 0
+"GET /admin/auth/group/ HTTP/1.1" 200 29600
+"GET /admin/companies/location/add/ HTTP/1.1" 200 55368
+"GET /admin/companies/location/ HTTP/1.1" 200 0
+"GET /admin/companies/location/ HTTP/1.1" 200 0
+"GET /admin/companies/location/ HTTP/1.1" 200 49953
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"POST /admin/companies/location/ HTTP/1.1" 200 32918
+"POST /admin/companies/location/ HTTP/1.1" 302 0
+"GET /admin/companies/location/ HTTP/1.1" 200 37996
+"GET /admin/jsi18n/ HTTP/1.1" 200 3324
+"GET /zh-cn/companies/locations/ HTTP/1.1" 200 27644
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 37663
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/assets/create/ HTTP/1.1" 200 37681
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 31021
+"GET /en-us/assets/models/bf1e4367-c63d-40ad-95f3-611ffa5de03d/edit/ HTTP/1.1" 200 31595
+"GET /en-us/assets/create/ HTTP/1.1" 200 37681
+"GET /en-us/assets/create/ HTTP/1.1" 200 37681
+"GET /en-us/assets/ HTTP/1.1" 200 45081
+"GET /en-us/assets/categories/ HTTP/1.1" 200 61669
+"GET /en-us/quotations/ HTTP/1.1" 200 69458
+"GET /en-us/quotations/ HTTP/1.1" 200 69458
+"GET /en-us/quotations/create/ HTTP/1.1" 200 54482
+"GET /en-us/assets/brands-models/ HTTP/1.1" 200 31021
+"GET /en-us/assets/ HTTP/1.1" 200 45081
+"GET /en-us/quotations/ HTTP/1.1" 200 69458
+"GET /en-us/quotations/create/ HTTP/1.1" 200 54482
+"GET /en-us/products/ HTTP/1.1" 200 29438
+"GET /en-us/products/add/ HTTP/1.1" 200 31038
+"POST /en-us/products/add/ HTTP/1.1" 302 0
+"GET /en-us/products/ HTTP/1.1" 200 31799
+"GET /en-us/quotations/ HTTP/1.1" 200 69458
+"GET /en-us/quotations/create/ HTTP/1.1" 200 55131
+"GET /en-us/companies/ HTTP/1.1" 200 62594
+"GET /admin/companies/company/ HTTP/1.1" 200 44150
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/companies/company/ HTTP/1.1" 200 31396
+Internal Server Error: /admin/quotations/quotation/3/change/
+Traceback (most recent call last):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 1987, in change_view
+    return self.changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 1840, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 1916, in _changeform_view
+    formsets, inline_instances = self._create_formsets(
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 2358, in _create_formsets
+    for FormSet, inline in self.get_formsets_with_inlines(*get_formsets_args):
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 938, in get_formsets_with_inlines
+    yield inline.get_formset(request, obj), inline
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\contrib\admin\options.py", line 2535, in get_formset
+    return inlineformset_factory(self.parent_model, self.model, **defaults)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\forms\models.py", line 1343, in inlineformset_factory
+    FormSet = modelformset_factory(model, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\forms\models.py", line 1051, in modelformset_factory
+    form = modelform_factory(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\forms\models.py", line 654, in modelform_factory
+    return type(form)(class_name, (form,), form_class_attrs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\forms\models.py", line 312, in __new__
+    fields = fields_for_model(
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\sean_\miniconda3\envs\HengjiAMS1\Lib\site-packages\django\forms\models.py", line 207, in fields_for_model
+    raise FieldError(
+django.core.exceptions.FieldError: 'uploaded_at' cannot be specified for QuotationAttachment model form as it is a non-editable field
+"GET /admin/quotations/quotation/3/change/ HTTP/1.1" 500 181022
+"GET /en-us/companies/add/ HTTP/1.1" 200 33087
+"GET /en-us/quotations/ HTTP/1.1" 200 69458
+"GET /en-us/quotations/create/ HTTP/1.1" 200 55131
+"POST /en-us/quotations/create/ HTTP/1.1" 302 0
+"GET /en-us/quotations/27/ HTTP/1.1" 200 36417
+"GET /zh-cn/dashboard/ HTTP/1.1" 200 43970
+"GET /zh-cn/reports/charts/brand/ HTTP/1.1" 200 120
+"GET /zh-cn/reports/charts/status/ HTTP/1.1" 200 65
+"GET /zh-cn/reports/charts/category/ HTTP/1.1" 200 120
+"GET /zh-cn/reports/charts/warranty/ HTTP/1.1" 200 174
+"GET /zh-cn/assets/ HTTP/1.1" 200 45057
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 37663
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 37663
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 37663
+"GET /en-us/assets/create/ HTTP/1.1" 200 37681
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\models.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /en-us/assets/create/ HTTP/1.1" 200 45979
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 45962
+"GET /zh-cn/companies/locations/ HTTP/1.1" 200 27644
+"GET /zh-cn/companies/locations/3/edit/ HTTP/1.1" 200 37798
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\views.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/companies/locations/ HTTP/1.1" 200 27644
+"GET /zh-cn/assets/brands-models/ HTTP/1.1" 200 31026
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 45962
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/assets/create/ HTTP/1.1" 200 45979
+"GET /en-us/companies/locations/ HTTP/1.1" 200 27653
+"GET /en-us/assets/create/ HTTP/1.1" 200 45979
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 45962
+C:\Users\sean_\OneDrive\Code\HengJi\HengjiAMS1\assets\forms.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /zh-cn/quotations/ HTTP/1.1" 200 69546
+"GET /en-us/assets/create/ HTTP/1.1" 200 46060
+"GET /zh-cn/quotations/27/pdf/ HTTP/1.1" 200 41774
+"GET /zh-cn/deliveries/ HTTP/1.1" 200 43063
+"GET /zh-cn/deliveries/14/pdf/ HTTP/1.1" 200 35930
+"GET /zh-cn/deliveries/14/ HTTP/1.1" 200 26353
+"GET /en-us/assets/create/ HTTP/1.1" 200 46843
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/assets/create/ HTTP/1.1" 200 46843
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/assets/create/ HTTP/1.1" 200 46843
+"GET /en-us/assets/create/ HTTP/1.1" 200 46843
+"POST /i18n/setlang/ HTTP/1.1" 302 0
+"GET /en-us/assets/create/ HTTP/1.1" 200 46843
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 46824
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 46824
+Watching for file changes with StatReloader
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 46824
+"GET /en-us/assets/create/ HTTP/1.1" 200 46843
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 46824
+"GET /zh-cn/assets/create/ HTTP/1.1" 200 46824
+"GET /static/images/logo.jpg HTTP/1.1" 200 3965
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 3162

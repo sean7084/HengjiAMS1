@@ -225,7 +225,7 @@
     </style>
 </head>
 <body>
-    <table class="sheet" aria-label="quotation sheet">
+    <table class="sheet" aria-label="{% trans 'quotation sheet' %}">
         <colgroup>
             <col style="width:6.60%">
             <col style="width:8.60%">
@@ -243,7 +243,7 @@
         <tr>
             <td colspan="7" class="logo-cell"><img class="logo" src="{{ logo_path }}" alt="Logo"></td>
             <td colspan="4" class="logo-cell">
-                <table class="date-block" aria-label="quotation dates">
+                <table class="date-block" aria-label="{% trans 'quotation dates' %}">
                     <tr>
                         <td class="date-label">Date:</td>
                         <td class="date-value">{{ quotation.created_at|date:"Y-m-d" }}</td>
@@ -285,7 +285,7 @@
 
         <tr>
             <td colspan="11">
-                <table class="grid" aria-label="items grid">
+                <table class="grid" aria-label="{% trans 'items grid' %}">
                     <colgroup>
                         <col style="width:3.90%">
                         <col style="width:13.55%">

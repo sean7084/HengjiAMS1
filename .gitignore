@@ -6,3 +6,7 @@ template_files
 .claude
 .playwright-mcp
 .vscode
+
+# Python bytecode/cache
+__pycache__/
+*.py[cod]

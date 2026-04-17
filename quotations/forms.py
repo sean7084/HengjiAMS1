@@ -33,6 +33,7 @@ class QuotationForm(forms.ModelForm):
         # Set default validity to 30 days from today
         if not self.instance.pk:
             self.fields['valid_until'].initial = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
+            self.fields['status'].initial = Quotation.QuotationStatus.SENT
 
     def clean(self):
         cleaned_data = super().clean()

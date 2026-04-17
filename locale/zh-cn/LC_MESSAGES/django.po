@@ -1,6 +1,7 @@
 # LANGUAGE translation of Django.
 # Copyright (C) 2025 HengJi AMS
 # This file is distributed under the same license as the Django package.
+# import polib; po=polib.pofile('locale/zh-cn/LC_MESSAGES/django.po'); po.save_as_mofile('locale/zh-cn/LC_MESSAGES/django.mo'); print('compiled', len(po), 'entries')"
 
 msgid ""
 msgstr ""
@@ -1264,6 +1265,81 @@ msgstr "来源报价单"
 
 msgid "Status Change Audit Trail"
 msgstr "状态变更审计轨迹"
+
+msgid "Leave blank for auto-generation"
+msgstr "留空可自动生成"
+
+msgid "Leave blank for auto-generation based on company and category"
+msgstr "根据公司和类别留空自动生成"
+
+msgid "Enter serial number"
+msgstr "输入序列号"
+
+msgid "Enter asset description"
+msgstr "输入资产描述"
+
+msgid "Enter warranty provider"
+msgstr "输入保修服务商"
+
+msgid "Additional notes"
+msgstr "附加备注"
+
+msgid "No locations available. Please create locations first."
+msgstr "暂无可用地点。请先创建地点。"
+
+msgid "Select brand"
+msgstr "选择品牌"
+
+msgid "Select category"
+msgstr "选择类别"
+
+msgid "Number of assets to create in this batch."
+msgstr "本批次要创建的资产数量。"
+
+msgid "Enter one row for each item in the amount above. Serial number can be blank."
+msgstr "按上方数量逐行填写，每行一个资产。序列号可留空。"
+
+msgid "Current image - select a new file to replace"
+msgstr "当前图片 - 选择新文件以替换"
+
+msgid "New image preview"
+msgstr "新图片预览"
+
+msgid "breadcrumb"
+msgstr "面包屑导航"
+
+msgid "Page navigation"
+msgstr "分页导航"
+
+msgid "Audit logs pagination"
+msgstr "审计日志分页"
+
+msgid "System events pagination"
+msgstr "系统事件分页"
+
+msgid "Price list pagination"
+msgstr "价格列表分页"
+
+msgid "Categories pagination"
+msgstr "类别分页"
+
+msgid "delivery sheet"
+msgstr "出库单表格"
+
+msgid "delivery items"
+msgstr "出库项目"
+
+msgid "signatures"
+msgstr "签字"
+
+msgid "quotation sheet"
+msgstr "报价单表格"
+
+msgid "quotation dates"
+msgstr "报价日期"
+
+msgid "items grid"
+msgstr "项目表格"
 
 msgid "Stock Overview"
 msgstr "库存概览"

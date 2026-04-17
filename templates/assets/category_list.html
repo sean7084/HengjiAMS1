@@ -8,7 +8,7 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{% trans 'breadcrumb' %}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
                     <li class="breadcrumb-item active">{% trans "Categories" %}</li>
@@ -109,7 +109,7 @@
 
                 <!-- Pagination -->
                 {% if is_paginated %}
-                <nav aria-label="Categories pagination">
+                <nav aria-label="{% trans 'Categories pagination' %}">
                     <ul class="pagination justify-content-center mt-4">
                         {% if page_obj.has_previous %}
                             <li class="page-item">

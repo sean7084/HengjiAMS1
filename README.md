@@ -283,10 +283,10 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 | Version | Date | Focus |
 |---------|------|-------|
 | v0.0.4 | April 2026 | 2FA, Reporting, Mobile API, REST API |
-| v0.1.0 | April 2026 | Quotation & Invoice Management System |
 | v0.1.1 | April 2026 | HTML PDF Rendering for Quotation & Delivery Templates |
+| v0.1.2 | April 2026 | Asset Create UX + i18n Attribute Coverage + Admin/Deletion Stability |
 
-### Current Status (v0.1.1)
+### Current Status (v0.1.2)
 
 #### Fully Operational Features
 
@@ -308,6 +308,12 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Quotation & Invoice Management System** - End-to-end quotation -> purchase -> delivery -> invoice -> dispatch workflow
 - **LibreOffice-free Document Generation** - Quotation and Delivery PDFs rendered directly from HTML templates via WeasyPrint
 - **Template Fidelity Tuning** - Excel-style quotation and 签收单 layouts tuned against reference PDF output
+- **Asset Create Batch Flow** - Create multiple assets in one submission with per-row serial/status input
+- **Searchable Create Controls** - Search-enabled dropdowns on asset create/edit for category, brand, model, and location
+- **Brand-Scoped Model Selection** - Model options on asset create/edit are filtered by selected brand
+- **Expanded Template i18n Coverage** - Placeholder/ARIA/title attribute strings wrapped and translated in zh-cn templates
+- **Admin Reliability Fixes** - Restored blank admin changelist overrides for company models
+- **Safe Model Deletion Handling** - Graceful protected-reference errors for asset model delete operations
 
 #### Database Schema
 
@@ -370,6 +376,7 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 
 - Scope delivered in v0.1.0: end-to-end workflow from quotation creation to client dispatch and Esker forwarding.
 - Scope delivered in v0.1.1: quotation and delivery document rendering migrated to direct HTML PDF generation with template fidelity tuning.
+- Scope delivered in v0.1.2: asset create UX modernization (searchable selects, brand-filtered models, batch creation), broader template attribute translation coverage, and admin/delete stability hardening.
 - Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
 - Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.
@@ -682,4 +689,4 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 ---
 
 *Last Updated: April 2026*
-*HengJi Asset Management System v0.1.1*
+*HengJi Asset Management System v0.1.2*

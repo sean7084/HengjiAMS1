@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 <style>
     .form-section {
         background: #f8f9fa;
@@ -75,7 +76,7 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{% trans 'breadcrumb' %}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
                     {% if object %}
@@ -154,6 +155,20 @@
                     {% endif %}
                 </div>
             </div>
+            {% if not object %}
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label for="{{ form.amount.id_for_label }}" class="form-label">{{ form.amount.label }}</label>
+                    {{ form.amount }}
+                    <div class="form-text">{% trans "Number of assets to create in this batch." %}</div>
+                    {% if form.amount.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.amount.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
             <div class="row mt-3">
                 <div class="col-md-12">
                     <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
@@ -172,8 +187,9 @@
             <h5 class="mb-3">
                 <i class="fas fa-tag"></i> {% trans "Identification" %}
             </h5>
+            {% if object %}
             <div class="row">
-                <div class="col-md-6 required-field">
+                <div class="col-md-6">
                     <label for="{{ form.serial_number.id_for_label }}" class="form-label">{{ form.serial_number.label }}</label>
                     {{ form.serial_number }}
                     {% if form.serial_number.help_text %}
@@ -195,6 +211,25 @@
                     {% endif %}
                 </div>
             </div>
+            {% else %}
+            <div class="d-none">
+                {{ form.serial_number }}
+                {{ form.status }}
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0" id="batch-items-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 90px;">{% trans "#" %}</th>
+                            <th>{% trans "Serial Number" %}</th>
+                            <th style="width: 260px;">{% trans "Status" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batch-items-body"></tbody>
+                </table>
+            </div>
+            <div class="form-text mt-2">{% trans "Enter one row for each item in the amount above. Serial number can be blank." %}</div>
+            {% endif %}
         </div>
 
         <!-- Location -->
@@ -243,22 +278,22 @@
                     {% endif %}
                 </div>
                 <div class="col-md-4">
-                    <label for="{{ form.supplier.id_for_label }}" class="form-label">{{ form.supplier.label }}</label>
-                    {{ form.supplier }}
-                    {% if form.supplier.errors %}
+                    <label for="{{ form.warranty_provider.id_for_label }}" class="form-label">{{ form.warranty_provider.label }}</label>
+                    {{ form.warranty_provider }}
+                    {% if form.warranty_provider.errors %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.supplier.errors %}{{ error }}{% endfor %}
+                            {% for error in form.warranty_provider.errors %}{{ error }}{% endfor %}
                         </div>
                     {% endif %}
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <label for="{{ form.warranty_expiry.id_for_label }}" class="form-label">{{ form.warranty_expiry.label }}</label>
-                    {{ form.warranty_expiry }}
-                    {% if form.warranty_expiry.errors %}
+                    <label for="{{ form.warranty_end_date.id_for_label }}" class="form-label">{{ form.warranty_end_date.label }}</label>
+                    {{ form.warranty_end_date }}
+                    {% if form.warranty_end_date.errors %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.warranty_expiry.errors %}{{ error }}{% endfor %}
+                            {% for error in form.warranty_end_date.errors %}{{ error }}{% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -272,17 +307,17 @@
             </h5>
             <div class="row">
                 <div class="col-md-6">
-                    <label for="{{ form.image.id_for_label }}" class="form-label">{{ form.image.label }}</label>
-                    {{ form.image }}
-                    {% if object and object.image %}
+                    <label for="{{ form.photo.id_for_label }}" class="form-label">{{ form.photo.label }}</label>
+                    {{ form.photo }}
+                    {% if object and object.photo %}
                         <div class="mt-2">
-                            <img src="{{ object.image.url }}" class="image-preview" alt="{% trans 'Current image' %}">
+                            <img src="{{ object.photo.url }}" class="image-preview" alt="{% trans 'Current image' %}">
                             <div class="form-text">{% trans "Current image - select a new file to replace" %}</div>
                         </div>
                     {% endif %}
-                    {% if form.image.errors %}
+                    {% if form.photo.errors %}
                         <div class="invalid-feedback d-block">
-                            {% for error in form.image.errors %}{{ error }}{% endfor %}
+                            {% for error in form.photo.errors %}{{ error }}{% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -319,6 +354,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+{{ model_catalog|json_script:"asset-model-catalog" }}
 <script>
 // Bootstrap form validation
 (function() {
@@ -339,7 +376,7 @@
 
 // Image preview
 document.addEventListener('DOMContentLoaded', function() {
-    const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+    const imageInput = document.getElementById('{{ form.photo.id_for_label }}');
     if (imageInput) {
         imageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -356,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const preview = document.createElement('div');
                     preview.className = 'new-image-preview mt-2';
                     preview.innerHTML = `
-                        <img src="${e.target.result}" class="image-preview" alt="New image preview">
+                        <img src="${e.target.result}" class="image-preview" alt="{% trans 'New image preview' %}">
                         <div class="form-text">{% trans "New image preview" %}</div>
                     `;
                     imageInput.parentNode.appendChild(preview);
@@ -365,9 +402,205 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Note: Model dropdown now shows "Brand - Model" format for better UX
-    // Future enhancement: Add brand-based filtering if needed
+
+    const isCreateMode = {{ object|yesno:"false,true" }};
+    const brandSelectEl = document.getElementById('id_brand');
+    const categorySelectEl = document.getElementById('id_category');
+    const locationSelectEl = document.getElementById('id_location');
+    const modelSelectEl = document.getElementById('id_model');
+    const amountEl = document.getElementById('id_amount');
+    const hiddenSerialEl = document.getElementById('id_serial_number');
+    const hiddenStatusEl = document.getElementById('id_status');
+    const batchBodyEl = document.getElementById('batch-items-body');
+    const formEl = document.querySelector('form.needs-validation');
+
+    const modelCatalogScript = document.getElementById('asset-model-catalog');
+    const modelCatalog = modelCatalogScript ? JSON.parse(modelCatalogScript.textContent) : [];
+
+    const existingModelValue = modelSelectEl ? modelSelectEl.value : '';
+
+    let brandTom = null;
+    let categoryTom = null;
+    let locationTom = null;
+    let modelTom = null;
+
+    function ensureTomSelect(selectEl) {
+        if (!selectEl || !window.TomSelect) {
+            return null;
+        }
+        if (selectEl.tomselect) {
+            return selectEl.tomselect;
+        }
+        return new TomSelect(selectEl, {
+            create: false,
+            allowEmptyOption: true,
+            maxOptions: 300,
+            searchField: ['text'],
+            sortField: [{ field: 'text', direction: 'asc' }],
+        });
+    }
+
+    function selectedBrandId() {
+        if (!brandSelectEl) {
+            return '';
+        }
+        return brandTom ? brandTom.getValue() : brandSelectEl.value;
+    }
+
+    function refillModelsByBrand(brandId, keepValue) {
+        if (!modelSelectEl) {
+            return;
+        }
+
+        const filtered = modelCatalog.filter(item => !brandId || item.brand_id === brandId);
+        const preserved = keepValue || '';
+        const hasPreserved = filtered.some(item => item.id === preserved);
+        const nextValue = hasPreserved ? preserved : '';
+
+        if (modelTom) {
+            modelTom.clearOptions();
+            modelTom.addOption({ value: '', text: '{% trans "Select model" %}' });
+            filtered.forEach(item => {
+                modelTom.addOption({ value: item.id, text: item.label });
+            });
+            modelTom.setValue(nextValue, true);
+            return;
+        }
+
+        modelSelectEl.innerHTML = '';
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = '{% trans "Select model" %}';
+        modelSelectEl.appendChild(emptyOption);
+
+        filtered.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.label;
+            if (item.id === nextValue) {
+                option.selected = true;
+            }
+            modelSelectEl.appendChild(option);
+        });
+    }
+
+    function safeAmountValue() {
+        if (!amountEl) {
+            return 1;
+        }
+        const parsed = parseInt(amountEl.value, 10);
+        if (Number.isNaN(parsed) || parsed < 1) {
+            return 1;
+        }
+        return parsed;
+    }
+
+    function currentBatchRows() {
+        if (!batchBodyEl) {
+            return [];
+        }
+        return Array.from(batchBodyEl.querySelectorAll('tr')).map(row => ({
+            serial: (row.querySelector('input[name="batch_serial_number[]"]') || {}).value || '',
+            status: (row.querySelector('select[name="batch_status[]"]') || {}).value || '',
+        }));
+    }
+
+    function renderBatchRows() {
+        if (!isCreateMode || !batchBodyEl) {
+            return;
+        }
+
+        const target = safeAmountValue();
+        const rows = currentBatchRows();
+        const defaultStatus = hiddenStatusEl && hiddenStatusEl.value ? hiddenStatusEl.value : 'available';
+        const statusOptions = [
+            {% for value, label in asset_status_choices %}
+            { value: '{{ value }}', label: '{{ label|escapejs }}' },
+            {% endfor %}
+        ];
+
+        batchBodyEl.innerHTML = '';
+        for (let i = 0; i < target; i++) {
+            const rowData = rows[i] || { serial: '', status: defaultStatus };
+            const tr = document.createElement('tr');
+
+            const indexTd = document.createElement('td');
+            indexTd.textContent = String(i + 1);
+            tr.appendChild(indexTd);
+
+            const serialTd = document.createElement('td');
+            serialTd.innerHTML = '<input type="text" class="form-control" name="batch_serial_number[]" autocomplete="off">';
+            serialTd.querySelector('input').value = rowData.serial;
+            tr.appendChild(serialTd);
+
+            const statusTd = document.createElement('td');
+            const select = document.createElement('select');
+            select.className = 'form-select';
+            select.name = 'batch_status[]';
+
+            statusOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                if (opt.value === rowData.status) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+
+            statusTd.appendChild(select);
+            tr.appendChild(statusTd);
+            batchBodyEl.appendChild(tr);
+        }
+
+        if (amountEl) {
+            amountEl.value = String(target);
+        }
+    }
+
+    if (brandSelectEl) {
+        brandTom = ensureTomSelect(brandSelectEl);
+    }
+    if (categorySelectEl) {
+        categoryTom = ensureTomSelect(categorySelectEl);
+    }
+    if (locationSelectEl) {
+        locationTom = ensureTomSelect(locationSelectEl);
+    }
+    if (modelSelectEl) {
+        modelTom = ensureTomSelect(modelSelectEl);
+        refillModelsByBrand(selectedBrandId(), existingModelValue);
+    }
+
+    if (brandSelectEl) {
+        brandSelectEl.addEventListener('change', function() {
+            refillModelsByBrand(selectedBrandId(), '');
+        });
+        if (brandTom) {
+            brandTom.on('change', function() {
+                refillModelsByBrand(selectedBrandId(), '');
+            });
+        }
+    }
+
+    if (isCreateMode && amountEl) {
+        renderBatchRows();
+        amountEl.addEventListener('change', renderBatchRows);
+        amountEl.addEventListener('input', renderBatchRows);
+    }
+
+    if (isCreateMode && formEl) {
+        formEl.addEventListener('submit', function() {
+            const firstSerialEl = document.querySelector('input[name="batch_serial_number[]"]');
+            const firstStatusEl = document.querySelector('select[name="batch_status[]"]');
+            if (hiddenSerialEl && firstSerialEl) {
+                hiddenSerialEl.value = firstSerialEl.value;
+            }
+            if (hiddenStatusEl && firstStatusEl) {
+                hiddenStatusEl.value = firstStatusEl.value;
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

@@ -13,6 +13,7 @@ from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models.deletion import ProtectedError
 from django.conf import settings
 import csv
 import datetime
@@ -121,36 +122,137 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
     form_class = AssetForm
     template_name = 'assets/asset_form.html'
     success_url = reverse_lazy('assets:asset_list')
-    
-    def form_valid(self, form):
-        form.instance.company = self.request.user.company
-        form.instance.created_by = self.request.user
-        
-        with transaction.atomic():
-            response = super().form_valid(form)
-            
-            # Log the creation
+
+    def _build_model_catalog(self):
+        models = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        return [
+            {
+                'id': str(model.pk),
+                'name': model.name,
+                'brand_id': str(model.brand_id) if model.brand_id else '',
+                'brand_name': model.brand.name if model.brand_id else '',
+                'label': f"{model.brand.name} - {model.name}" if model.brand_id else model.name,
+            }
+            for model in models
+        ]
+
+    def _validate_batch_rows(self, form, amount):
+        serial_numbers = self.request.POST.getlist('batch_serial_number[]')
+        statuses = self.request.POST.getlist('batch_status[]')
+        valid_statuses = {choice[0] for choice in Asset.AssetStatus.choices}
+
+        if len(statuses) < amount:
+            form.add_error(None, _('Please provide status for each item in the batch.'))
+            return None, None
+
+        parsed_rows = []
+        for idx in range(amount):
+            row_status = (statuses[idx] if idx < len(statuses) else '').strip()
+            row_serial = (serial_numbers[idx] if idx < len(serial_numbers) else '').strip()
+            if row_status not in valid_statuses:
+                form.add_error(None, _('Invalid status at row %(row)s.') % {'row': idx + 1})
+                return None, None
+            parsed_rows.append((row_serial, row_status))
+
+        return parsed_rows, serial_numbers
+
+    def _create_batch_assets(self, form, rows):
+        cleaned = form.cleaned_data
+        created_assets = []
+
+        for row_serial, row_status in rows:
+            asset = Asset(
+                asset_number='',  # always auto-generate for batch to avoid unique collisions
+                category=cleaned.get('category'),
+                brand=cleaned.get('brand'),
+                model=cleaned.get('model'),
+                serial_number=row_serial,
+                description=cleaned.get('description', ''),
+                location=cleaned.get('location'),
+                status=row_status,
+                purchase_date=cleaned.get('purchase_date'),
+                purchase_price=cleaned.get('purchase_price'),
+                warranty_provider=cleaned.get('warranty_provider', ''),
+                warranty_end_date=cleaned.get('warranty_end_date'),
+                notes=cleaned.get('notes', ''),
+                photo=cleaned.get('photo'),
+                company=self.request.user.company,
+                created_by=self.request.user,
+            )
+            asset.save()
+            created_assets.append(asset)
+
             AuditLog.objects.create(
                 user=self.request.user,
                 company=self.request.user.company,
                 action=AuditLog.ActionType.CREATE,
-                content_object=self.object,
-                description=f'Created asset: {self.object.asset_number}',
+                content_object=asset,
+                description=f'Created asset: {asset.asset_number}',
                 ip_address=self.request.META.get('REMOTE_ADDR'),
                 user_agent=self.request.META.get('HTTP_USER_AGENT', '')
             )
-            
-            messages.success(
-                self.request,
-                _('Asset "{}" has been created successfully.').format(self.object.asset_number)
-            )
-            
-            return response
+
+        return created_assets
+    
+    def form_valid(self, form):
+        amount = form.cleaned_data.get('amount') or 1
+        amount = max(1, int(amount))
+
+        rows, _ = self._validate_batch_rows(form, amount)
+        if rows is None:
+            return self.form_invalid(form)
+
+        # Keep existing single-create path for backward compatibility.
+        if amount == 1:
+            first_serial, first_status = rows[0]
+            form.instance.company = self.request.user.company
+            form.instance.created_by = self.request.user
+            form.instance.serial_number = first_serial
+            form.instance.status = first_status
+
+            with transaction.atomic():
+                response = super().form_valid(form)
+
+                AuditLog.objects.create(
+                    user=self.request.user,
+                    company=self.request.user.company,
+                    action=AuditLog.ActionType.CREATE,
+                    content_object=self.object,
+                    description=f'Created asset: {self.object.asset_number}',
+                    ip_address=self.request.META.get('REMOTE_ADDR'),
+                    user_agent=self.request.META.get('HTTP_USER_AGENT', '')
+                )
+
+                messages.success(
+                    self.request,
+                    _('Asset "{}" has been created successfully.').format(self.object.asset_number)
+                )
+
+                return response
+
+        if form.cleaned_data.get('asset_number'):
+            form.add_error('asset_number', _('Leave asset number blank when creating multiple assets.'))
+            return self.form_invalid(form)
+
+        with transaction.atomic():
+            created_assets = self._create_batch_assets(form, rows)
+
+        messages.success(
+            self.request,
+            _('Successfully created %(count)s assets in batch.') % {'count': len(created_assets)}
+        )
+        return redirect(self.success_url)
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['model_catalog'] = self._build_model_catalog()
+        context['asset_status_choices'] = Asset.AssetStatus.choices
+        return context
 
 
 class AssetUpdateView(LoginRequiredMixin, UpdateView):
@@ -202,6 +304,21 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_success_url(self):
         return reverse('assets:asset_detail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        models = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        context['model_catalog'] = [
+            {
+                'id': str(model.pk),
+                'name': model.name,
+                'brand_id': str(model.brand_id) if model.brand_id else '',
+                'brand_name': model.brand.name if model.brand_id else '',
+                'label': f"{model.brand.name} - {model.name}" if model.brand_id else model.name,
+            }
+            for model in models
+        ]
+        return context
 
 
 class AssetDeleteView(LoginRequiredMixin, DeleteView):
@@ -1288,8 +1405,37 @@ class ModelDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('assets:model_list')
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, _('Model deleted successfully.'))
-        return super().delete(request, *args, **kwargs)
+        self.object = self.get_object()
+        try:
+            response = super().delete(request, *args, **kwargs)
+            messages.success(self.request, _('Model deleted successfully.'))
+            return response
+        except ProtectedError:
+            messages.error(
+                self.request,
+                _(
+                    'Cannot delete model "%(model)s" because it is referenced by existing records '
+                    '(for example product prices, quotations, or purchase/delivery history). '
+                    'Please deactivate or stop using this model instead.'
+                ) % {'model': self.object.name},
+            )
+            return redirect(self.success_url)
+
+    def form_valid(self, form):
+        try:
+            response = super().form_valid(form)
+            messages.success(self.request, _('Model deleted successfully.'))
+            return response
+        except ProtectedError:
+            messages.error(
+                self.request,
+                _(
+                    'Cannot delete model "%(model)s" because it is referenced by existing records '
+                    '(for example product prices, quotations, or purchase/delivery history). '
+                    'Please deactivate or stop using this model instead.'
+                ) % {'model': self.object.name},
+            )
+            return redirect(self.success_url)
 
 
 # ============================================================================

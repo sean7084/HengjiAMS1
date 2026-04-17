@@ -8,14 +8,115 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import transaction
 from django.db.models import Q
+from django.contrib.auth import get_user_model
+from django.utils.text import slugify
 from decimal import Decimal, InvalidOperation
 import datetime
 
-from companies.models import Company
+from companies.models import Company, CompanyUser
 from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
 from .forms import QuotationForm, QuotationItemForm
 from .services import render_quotation_pdf_html
+
+
+def _normalize_name(name):
+    return ' '.join((name or '').split()).strip()
+
+
+def _find_company_user_by_name(company, name):
+    target = _normalize_name(name).lower()
+    if not target:
+        return None
+
+    memberships = company.company_users.select_related('user').all()
+    for membership in memberships:
+        display_name = _normalize_name(membership.user.get_display_name()).lower()
+        full_name = _normalize_name(membership.user.get_full_name()).lower()
+        if target == display_name or (full_name and target == full_name):
+            return membership
+    return None
+
+
+def _split_name(full_name):
+    parts = _normalize_name(full_name).split()
+    if not parts:
+        return '', ''
+    if len(parts) == 1:
+        return parts[0], ''
+    return parts[0], ' '.join(parts[1:])
+
+
+def _create_company_user(company, full_name, phone=''):
+    UserModel = get_user_model()
+    first_name, last_name = _split_name(full_name)
+
+    base = slugify(full_name) or 'user'
+    candidate = f'auto_{base}'
+    suffix = 1
+    while UserModel.objects.filter(username=candidate).exists():
+        suffix += 1
+        candidate = f'auto_{base}_{suffix}'
+
+    user = UserModel(
+        username=candidate[:150],
+        first_name=first_name[:150],
+        last_name=last_name[:150],
+        phone_number=(phone or '')[:20],
+        company=company,
+    )
+    user.set_unusable_password()
+    user.save()
+
+    membership = CompanyUser.objects.create(
+        user=user,
+        company=company,
+        role=CompanyUser.CompanyRole.EMPLOYEE,
+        status=CompanyUser.UserStatus.ACTIVE,
+        work_phone=(phone or '')[:20],
+    )
+    return membership
+
+
+def _ensure_company_user(company, full_name, phone=''):
+    normalized = _normalize_name(full_name)
+    if not normalized:
+        return None, False
+
+    existing = _find_company_user_by_name(company, normalized)
+    if existing:
+        return existing, False
+    return _create_company_user(company, normalized, phone), True
+
+
+def _build_customer_user_context(customers):
+    company_users_by_customer = {}
+    for customer in customers:
+        seen = set()
+        users = []
+        for membership in customer.company_users.select_related('user').all():
+            name = _normalize_name(membership.user.get_display_name())
+            if not name:
+                continue
+            key = name.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            users.append({
+                'name': name,
+                'phone': membership.work_phone or membership.user.phone_number or '',
+            })
+        company_users_by_customer[str(customer.pk)] = users
+
+    company_codes = list(
+        Company.objects.filter(status=Company.CompanyStatus.ACTIVE)
+        .exclude(code='')
+        .order_by('code')
+        .values_list('code', flat=True)
+        .distinct()
+    )
+
+    return company_users_by_customer, company_codes
 
 
 class QuotationListView(ListView):
@@ -84,17 +185,36 @@ class QuotationCreateView(CreateView):
         initial = super().get_initial()
         initial['quotation_date'] = datetime.date.today()
         initial['valid_until'] = datetime.date.today() + datetime.timedelta(days=30)
+        initial['status'] = Quotation.QuotationStatus.SENT
         return initial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['customers'] = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').order_by('name')
-        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model')
+        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user').order_by('name')
+        company_users_by_customer, company_codes = _build_customer_user_context(customers)
+        context['customers'] = customers
+        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model').order_by('brand__name', 'model__name')
+        context['company_users_by_customer'] = company_users_by_customer
+        context['company_codes'] = company_codes
         context['is_edit'] = False
         return context
 
     def form_valid(self, form):
         quotation = form.save(commit=False)
+
+        if not quotation.status:
+            quotation.status = Quotation.QuotationStatus.SENT
+
+        company_user, created = _ensure_company_user(
+            quotation.customer,
+            quotation.attn,
+            quotation.tel,
+        )
+        if company_user:
+            quotation.attn = company_user.user.get_display_name()
+            resolved_phone = company_user.work_phone or company_user.user.phone_number or ''
+            if resolved_phone:
+                quotation.tel = resolved_phone
 
         contact = quotation.customer.primary_contact_company_user
         if contact:
@@ -133,11 +253,13 @@ class QuotationCreateView(CreateView):
             try:
                 product_price = ProductPrice.objects.get(pk=product_price_id)
                 quantity = int(quantity)
+                if user_name:
+                    _ensure_company_user(quotation.customer, user_name, '')
                 item = QuotationItem(
                     quotation=quotation,
                     product_price=product_price,
                     quantity=quantity,
-                    user_brand=user_brand,
+                    user_brand=user_brand or quotation.customer.code,
                     user_name=user_name
                 )
                 if unit_price:
@@ -160,14 +282,30 @@ class QuotationUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['customers'] = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').order_by('name')
-        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model')
+        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user').order_by('name')
+        company_users_by_customer, company_codes = _build_customer_user_context(customers)
+        context['customers'] = customers
+        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model').order_by('brand__name', 'model__name')
+        context['company_users_by_customer'] = company_users_by_customer
+        context['company_codes'] = company_codes
         context['items'] = self.object.items.all()
         context['is_edit'] = True
         return context
 
     def form_valid(self, form):
         quotation = form.save()
+
+        company_user, created = _ensure_company_user(
+            quotation.customer,
+            quotation.attn,
+            quotation.tel,
+        )
+        if company_user:
+            quotation.attn = company_user.user.get_display_name()
+            resolved_phone = company_user.work_phone or company_user.user.phone_number or ''
+            if resolved_phone:
+                quotation.tel = resolved_phone
+            quotation.save(update_fields=['attn', 'tel', 'updated_at'])
 
         # Update line items
         # First, delete removed items
@@ -197,9 +335,11 @@ class QuotationUpdateView(UpdateView):
                     item_pk = marker.replace('item_', '')
                     submitted_ids.add(item_pk)
                     item = QuotationItem.objects.get(pk=item_pk, quotation=quotation)
+                    if user_name:
+                        _ensure_company_user(quotation.customer, user_name, '')
                     item.product_price = product_price
                     item.quantity = quantity
-                    item.user_brand = user_brand
+                    item.user_brand = user_brand or quotation.customer.code
                     item.user_name = user_name
                     if unit_price:
                         item.unit_price = Decimal(unit_price)
@@ -207,11 +347,13 @@ class QuotationUpdateView(UpdateView):
                         item.tax_rate = Decimal(tax_rate)
                     item.save()
                 elif marker == 'new':
+                    if user_name:
+                        _ensure_company_user(quotation.customer, user_name, '')
                     item = QuotationItem(
                         quotation=quotation,
                         product_price=product_price,
                         quantity=quantity,
-                        user_brand=user_brand,
+                        user_brand=user_brand or quotation.customer.code,
                         user_name=user_name,
                     )
                     if unit_price:

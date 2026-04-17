@@ -10,11 +10,11 @@
         <h1 class="h3">
             <i class="fas fa-users"></i> {{ title }}
         </h1>
-        <div class="btn-group">
-            <a href="{% url 'companies:company_list' %}" class="btn btn-outline-secondary">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'companies:company_list' %}" class="btn btn-secondary">
                 <i class="fas fa-building"></i> {% trans "Companies" %}
             </a>
-            <a href="{% url 'companies:location_list' %}" class="btn btn-outline-secondary">
+            <a href="{% url 'companies:location_list' %}" class="btn btn-secondary">
                 <i class="fas fa-map-marker-alt"></i> {% trans "Locations" %}
             </a>
             {% if user.can_manage_companies %}
@@ -42,10 +42,10 @@
                     </div>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-outline-primary me-2">
+                    <button type="submit" class="btn btn-primary me-2">
                         <i class="fas fa-search"></i> {% trans "Search" %}
                     </button>
-                    <a href="{% url 'companies:companyuser_list' %}" class="btn btn-outline-secondary">
+                    <a href="{% url 'companies:companyuser_list' %}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> {% trans "Clear" %}
                     </a>
                 </div>
@@ -101,10 +101,10 @@
                             <td>{{ company_user.start_date|date:"M d, Y"|default:"-" }}</td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <a href="#" class="btn btn-outline-primary" title="{% trans 'View Details' %}">
+                                    <a href="#" class="btn btn-primary" title="{% trans 'View Details' %}">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="#" class="btn btn-outline-secondary" title="{% trans 'Edit' %}">
+                                    <a href="#" class="btn btn-secondary" title="{% trans 'Edit' %}">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 </div>

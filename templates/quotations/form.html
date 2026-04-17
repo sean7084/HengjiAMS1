@@ -3,6 +3,10 @@
 
 {% block title %}{% if is_edit %}{% trans "Edit Quotation" %}{% else %}{% trans "Create Quotation" %}{% endif %} - {{ block.super }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
@@ -65,7 +69,10 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="form-label">{% trans "Attention" %}</label>
-                                {{ form.attn }}
+                                <select name="attn" id="id_attn" class="form-select">
+                                    <option value="">-- {% trans "Select attention" %} --</option>
+                                </select>
+                                <input type="hidden" id="initial-attn" value="{{ form.attn.value|default:'' }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">{% trans "Telephone" %}</label>
@@ -209,11 +216,15 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label small">{% trans "User Brand" %}</label>
-                            <input type="text" id="item-user-brand" class="form-control form-control-sm" placeholder="{% trans 'User brand' %}">
+                            <select id="item-user-brand" class="form-select form-select-sm">
+                                <option value="">-- {% trans "Select user brand" %} --</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">{% trans "User" %}</label>
-                            <input type="text" id="item-user-name" class="form-control form-control-sm" placeholder="{% trans 'User name' %}">
+                            <select id="item-user-name" class="form-select form-select-sm">
+                                <option value="">-- {% trans "Select user" %} --</option>
+                            </select>
                         </div>
                         <button type="button" id="add-to-quotation" class="btn btn-outline-primary btn-sm w-100">
                             <i class="fas fa-plus"></i> {% trans "Add to Quotation" %}
@@ -225,26 +236,146 @@
     </form>
 </div>
 
+{{ company_users_by_customer|json_script:"company-users-data" }}
+{{ company_codes|json_script:"company-codes-data" }}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
-(function() {
+(function () {
+    const companyUsersByCustomer = JSON.parse(document.getElementById('company-users-data').textContent || '{}');
+    const companyCodes = JSON.parse(document.getElementById('company-codes-data').textContent || '[]');
+
     const customerSelect = document.getElementById('id_customer');
     const codeInput = document.getElementById('customer-code');
-    const attnInput = document.getElementById('id_attn');
+    const attnSelect = document.getElementById('id_attn');
     const telInput = document.getElementById('id_tel');
+    const itemUserNameSelect = document.getElementById('item-user-name');
+    const itemUserBrandSelect = document.getElementById('item-user-brand');
+
+    let customerTom = null;
+    let attnTom = null;
+    let productTom = null;
+    let itemUserTom = null;
+    let itemUserBrandTom = null;
+
+    function getSelectedCustomerOption() {
+        return customerSelect.options[customerSelect.selectedIndex] || null;
+    }
+
+    function getSelectedCustomerId() {
+        const option = getSelectedCustomerOption();
+        return option && option.value ? option.value : '';
+    }
+
+    function getSelectedCustomerUsers() {
+        return companyUsersByCustomer[getSelectedCustomerId()] || [];
+    }
+
+    function initTomSelectInstances() {
+        customerTom = new TomSelect('#id_customer', {
+            create: false,
+            maxItems: 1,
+            persist: false,
+        });
+
+        attnTom = new TomSelect('#id_attn', {
+            create: true,
+            maxItems: 1,
+            persist: false,
+            createOnBlur: true,
+            sortField: { field: 'text', direction: 'asc' },
+        });
+
+        productTom = new TomSelect('#product-select', {
+            create: false,
+            maxItems: 1,
+            persist: false,
+        });
+
+        itemUserTom = new TomSelect('#item-user-name', {
+            create: true,
+            maxItems: 1,
+            persist: false,
+            createOnBlur: true,
+            sortField: { field: 'text', direction: 'asc' },
+        });
+
+        itemUserBrandTom = new TomSelect('#item-user-brand', {
+            create: true,
+            maxItems: 1,
+            persist: false,
+            createOnBlur: true,
+            sortField: { field: 'text', direction: 'asc' },
+        });
+    }
+
+    function setTomOptions(tom, options, selectedValue) {
+        tom.clearOptions();
+        options.forEach((opt) => tom.addOption(opt));
+        tom.refreshOptions(false);
+        if (selectedValue) {
+            tom.addOption({ value: selectedValue, text: selectedValue });
+            tom.setValue(selectedValue, true);
+        } else {
+            tom.clear(true);
+        }
+    }
+
+    function populateAttnOptions(preferredValue) {
+        const users = getSelectedCustomerUsers();
+        const options = users.map((u) => ({ value: u.name, text: u.name }));
+        const initialAttn = preferredValue || document.getElementById('initial-attn').value;
+        setTomOptions(attnTom, options, initialAttn);
+    }
+
+    function populateItemUserOptions(preferredValue) {
+        const users = getSelectedCustomerUsers();
+        const options = users.map((u) => ({ value: u.name, text: u.name }));
+        setTomOptions(itemUserTom, options, preferredValue || '');
+    }
+
+    function populateUserBrandOptions(preferredValue) {
+        const options = companyCodes.map((code) => ({ value: code, text: code }));
+        const selected = getSelectedCustomerOption();
+        const defaultCode = preferredValue || (selected ? (selected.dataset.code || '') : '');
+        setTomOptions(itemUserBrandTom, options, defaultCode);
+    }
+
+    function syncTelFromAttn(alwaysOverwrite) {
+        const value = attnTom ? attnTom.getValue() : '';
+        if (!value) {
+            return;
+        }
+        const users = getSelectedCustomerUsers();
+        const match = users.find((u) => (u.name || '').toLowerCase() === String(value).toLowerCase());
+        if (match && (alwaysOverwrite || !telInput.value)) {
+            telInput.value = match.phone || '';
+        }
+    }
 
     function refreshCustomerFields() {
-        const selected = customerSelect.options[customerSelect.selectedIndex];
+        const selected = getSelectedCustomerOption();
         if (!selected || !selected.value) {
             codeInput.value = '';
+            populateAttnOptions('');
+            populateItemUserOptions('');
+            populateUserBrandOptions('');
             return;
         }
 
         codeInput.value = selected.dataset.code || '';
-        if (!attnInput.value && selected.dataset.contact) {
-            attnInput.value = selected.dataset.contact;
-        }
-        if (!telInput.value && selected.dataset.phone) {
+        const preferredContact = selected.dataset.contact || '';
+        populateAttnOptions(preferredContact);
+        populateItemUserOptions('');
+        populateUserBrandOptions(selected.dataset.code || '');
+
+        if (preferredContact && selected.dataset.phone) {
             telInput.value = selected.dataset.phone;
+        } else {
+            syncTelFromAttn(true);
         }
     }
 
@@ -276,7 +407,7 @@
         document.getElementById('total-inc').textContent = `¥${(subtotal + tax).toFixed(2)}`;
     }
 
-    document.getElementById('product-select').addEventListener('change', function() {
+    document.getElementById('product-select').addEventListener('change', function () {
         const option = this.options[this.selectedIndex];
         if (!option || !option.value) {
             document.getElementById('item-price').value = '';
@@ -287,7 +418,7 @@
         document.getElementById('item-tax').value = option.dataset.tax || '13';
     });
 
-    document.getElementById('add-to-quotation').addEventListener('click', function() {
+    document.getElementById('add-to-quotation').addEventListener('click', function () {
         const select = document.getElementById('product-select');
         const option = select.options[select.selectedIndex];
         if (!option || !option.value) {
@@ -301,8 +432,8 @@
         const unit = option.dataset.unit || 'PCS';
         const unitPrice = parseCurrency(document.getElementById('item-price').value);
         const taxRate = parseCurrency(document.getElementById('item-tax').value);
-        const userBrand = document.getElementById('item-user-brand').value || '';
-        const userName = document.getElementById('item-user-name').value || '';
+        const userBrand = (itemUserBrandTom ? itemUserBrandTom.getValue() : '') || codeInput.value || '';
+        const userName = itemUserTom ? itemUserTom.getValue() : '';
 
         const lineEx = quantity * unitPrice;
         const lineTax = lineEx * (taxRate / 100);
@@ -333,8 +464,11 @@
         document.getElementById('item-qty').value = '1';
         document.getElementById('item-price').value = '';
         document.getElementById('item-tax').value = '13';
-        document.getElementById('item-user-brand').value = '';
-        document.getElementById('item-user-name').value = '';
+        if (productTom) {
+            productTom.clear(true);
+        }
+        populateUserBrandOptions(codeInput.value || '');
+        populateItemUserOptions('');
 
         renderTotals();
     });
@@ -346,7 +480,10 @@
         }
     });
 
+    initTomSelectInstances();
     customerSelect.addEventListener('change', refreshCustomerFields);
+    attnSelect.addEventListener('change', function () { syncTelFromAttn(true); });
+
     refreshCustomerFields();
     renderTotals();
 })();

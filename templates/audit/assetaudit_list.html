@@ -113,7 +113,7 @@
 
                         <!-- Pagination -->
                         {% if is_paginated %}
-                        <nav aria-label="Page navigation">
+                        <nav aria-label="{% trans 'Page navigation' %}">
                             <ul class="pagination justify-content-center">
                                 {% if page_obj.has_previous %}
                                     <li class="page-item">

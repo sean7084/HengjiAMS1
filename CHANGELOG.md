@@ -895,3 +895,54 @@ Version 0.1.1 focuses on document generation hardening and print-layout fidelity
 ---
 
 *Generated on April 17, 2026 - HengJi Asset Management System v0.1.1*
+
+---
+
+## Version 0.1.2
+
+**Release Date**: April 17, 2026
+
+Version 0.1.2 focuses on asset creation workflow usability, broader translation coverage for template attributes, and stability fixes for admin and protected deletion behavior.
+
+### Asset Create Workflow Enhancements
+
+- Added batch creation support on asset create with configurable quantity and per-row serial number/status input.
+- Implemented searchable dropdown controls for asset create/edit form fields:
+  - category
+  - brand
+  - model
+  - location
+- Added dependent brand -> model filtering so model options only show entries under the selected brand.
+- Improved location behavior in create form:
+  - fallback to all active locations if company-scoped locations are empty
+  - default location to `Vanke VMO Warehouse` when available
+
+### Data Model and Validation Updates
+
+- Updated `assets.Asset.serial_number` to allow blank values for inventory items without serial numbers.
+- Added migration `assets/migrations/0008_alter_asset_serial_number.py`.
+- Kept single-item create compatibility while adding transaction-safe multi-item creation path.
+
+### Internationalization Coverage Expansion
+
+- Completed translation wrapping for remaining template attribute strings across placeholders, aria labels, and title attributes.
+- Added/updated zh-cn translations for newly wrapped asset create labels/help text/notes and accessibility labels.
+- Recompiled zh-cn message catalog to apply updated translations.
+
+### Stability and Admin UX Fixes
+
+- Fixed asset model deletion flow to handle protected references gracefully with user-facing error messages instead of raw exceptions.
+- Restored non-empty Django admin changelist template overrides for company-related admin pages:
+  - company
+  - division
+  - companyuser
+  - location
+
+### Verification
+
+- Django system checks executed successfully after workflow and i18n updates.
+- Asset create form behavior validated for searchable controls, brand/model dependency, and batch input rendering.
+
+---
+
+*Generated on April 17, 2026 - HengJi Asset Management System v0.1.2*

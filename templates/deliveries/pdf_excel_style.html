@@ -1,3 +1,4 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -185,7 +186,7 @@
     </style>
 </head>
 <body>
-    <table class="sheet" aria-label="delivery sheet">
+    <table class="sheet" aria-label="{% trans 'delivery sheet' %}">
         <colgroup>
             <col style="width:5%">
             <col style="width:20%">
@@ -222,7 +223,7 @@
         <tr>
             <td colspan="6">
                 <div class="grid-wrap">
-                    <table class="grid" aria-label="delivery items">
+                    <table class="grid" aria-label="{% trans 'delivery items' %}">
                         <colgroup>
                             <col style="width:7.5%">
                             <col style="width:14.5%">
@@ -263,7 +264,7 @@
         </tr>
     </table>
 
-    <table class="signature-block" aria-label="signatures">
+    <table class="signature-block" aria-label="{% trans 'signatures' %}">
         <colgroup>
             <col style="width:30%">
             <col style="width:20%">

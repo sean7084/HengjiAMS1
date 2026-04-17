@@ -260,6 +260,7 @@ class Asset(models.Model):
     # Technical details
     serial_number = models.CharField(
         max_length=255,
+        blank=True,
         verbose_name=_('Serial Number')
     )
     barcode = models.CharField(

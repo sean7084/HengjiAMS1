@@ -8,12 +8,13 @@
 <div class="container-fluid">
     <!-- Page Header -->
     <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h3 mb-0">{{ quotation.quotation_number }}</h1>
+        <div class="col-12">
+            <div class="d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center gap-2">
+                <div>
+                <h1 class="h3 mb-0 text-nowrap">{{ quotation.quotation_number }}</h1>
                 <small class="text-muted">{{ quotation.customer.name }}</small>
-            </div>
-            <div>
+                </div>
+                <div class="d-flex flex-wrap justify-content-start justify-content-xl-end gap-2 w-100 w-xl-auto">
                 {% if quotation.status == 'draft' %}
                 <a href="{% url 'quotations:send' quotation.pk %}" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i> {% trans "Mark as Sent" %}
@@ -42,15 +43,16 @@
                 <a href="{% url 'quotations:pdf' quotation.pk %}" class="btn btn-info" target="_blank">
                     <i class="fas fa-file-pdf"></i> {% trans "PDF" %}
                 </a>
-                <a href="{% url 'quotations:duplicate' quotation.pk %}" class="btn btn-outline-primary">
+                <a href="{% url 'quotations:duplicate' quotation.pk %}" class="btn btn-primary">
                     <i class="fas fa-copy"></i> {% trans "Duplicate" %}
                 </a>
                 <a href="{% url 'quotations:edit' quotation.pk %}" class="btn btn-primary">
                     <i class="fas fa-edit"></i> {% trans "Edit" %}
                 </a>
-                <a href="{% url 'invoices:email_dispatch_compose_from_quotation' quotation.pk %}" class="btn btn-outline-success">
+                <a href="{% url 'invoices:email_dispatch_compose_from_quotation' quotation.pk %}" class="btn btn-success">
                     <i class="fas fa-paper-plane"></i> {% trans "Compose Dispatch Email" %}
                 </a>
+                </div>
             </div>
         </div>
     </div>

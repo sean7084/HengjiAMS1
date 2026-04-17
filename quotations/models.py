@@ -65,7 +65,7 @@ class Quotation(models.Model):
     status = models.CharField(
         max_length=20,
         choices=QuotationStatus.choices,
-        default=QuotationStatus.DRAFT,
+        default=QuotationStatus.SENT,
         verbose_name=_('Status')
     )
 

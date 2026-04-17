@@ -17,6 +17,18 @@ User = get_user_model()
 
 class AssetForm(forms.ModelForm):
     """Form for creating and updating assets."""
+
+    amount = forms.IntegerField(
+        required=False,
+        min_value=1,
+        initial=1,
+        label=_('Quantity'),
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'step': '1',
+        })
+    )
     
     class Meta:
         model = Asset
@@ -96,6 +108,8 @@ class AssetForm(forms.ModelForm):
         self.fields['model'].choices = model_choices
         # Make sure the field is not required (it's optional in the model)
         self.fields['model'].required = False
+        self.fields['category'].empty_label = _('Select category')
+        self.fields['brand'].empty_label = _('Select brand')
         
         # Make required fields
         self.fields['category'].required = True
@@ -105,6 +119,9 @@ class AssetForm(forms.ModelForm):
             company = self.user.company
             # Filter locations by company
             location_qs = Location.objects.filter(company=company, status=Location.LocationStatus.ACTIVE)
+            # Fallback to all active locations when company-scoped list is empty.
+            if not location_qs.exists():
+                location_qs = Location.objects.filter(status=Location.LocationStatus.ACTIVE)
         else:
             # If no company context, show all active locations
             location_qs = Location.objects.filter(status=Location.LocationStatus.ACTIVE)
@@ -112,6 +129,12 @@ class AssetForm(forms.ModelForm):
         # Set up location choices
         self.fields['location'].queryset = location_qs.order_by('name')
         self.fields['location'].empty_label = _('Select location')
+
+        # Default to Vanke VMO Warehouse on create pages when available.
+        if not self.instance.pk and not self.is_bound:
+            preferred_location = location_qs.filter(name__iexact='Vanke VMO Warehouse').first()
+            if preferred_location:
+                self.fields['location'].initial = preferred_location.pk
         
         # If no locations available, make field not required and show helpful message
         if not location_qs.exists():
@@ -120,6 +143,7 @@ class AssetForm(forms.ModelForm):
         
         # Asset number is optional (auto-generated if blank)
         self.fields['asset_number'].required = False
+        self.fields['serial_number'].required = False
         
         # Add help text
         self.fields['asset_number'].help_text = _('Leave blank for auto-generation based on company and category')

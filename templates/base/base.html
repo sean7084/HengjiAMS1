@@ -77,6 +77,91 @@
             background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
             transform: translateY(-1px);
         }
+
+        /* Render outline buttons as solid in top page headers only. */
+        .container-fluid > .row.mb-4 .btn-outline-primary,
+        .container > .row.mb-4 .btn-outline-primary {
+            color: #fff;
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-primary:hover,
+        .container > .row.mb-4 .btn-outline-primary:hover {
+            color: #fff;
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-secondary,
+        .container > .row.mb-4 .btn-outline-secondary {
+            color: #fff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-secondary:hover,
+        .container > .row.mb-4 .btn-outline-secondary:hover {
+            color: #fff;
+            background-color: #5c636a;
+            border-color: #565e64;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-success,
+        .container > .row.mb-4 .btn-outline-success {
+            color: #fff;
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-success:hover,
+        .container > .row.mb-4 .btn-outline-success:hover {
+            color: #fff;
+            background-color: #157347;
+            border-color: #146c43;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-danger,
+        .container > .row.mb-4 .btn-outline-danger {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-danger:hover,
+        .container > .row.mb-4 .btn-outline-danger:hover {
+            color: #fff;
+            background-color: #bb2d3b;
+            border-color: #b02a37;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-warning,
+        .container > .row.mb-4 .btn-outline-warning {
+            color: #212529;
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-warning:hover,
+        .container > .row.mb-4 .btn-outline-warning:hover {
+            color: #212529;
+            background-color: #ffca2c;
+            border-color: #ffc720;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-info,
+        .container > .row.mb-4 .btn-outline-info {
+            color: #fff;
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+        }
+
+        .container-fluid > .row.mb-4 .btn-outline-info:hover,
+        .container > .row.mb-4 .btn-outline-info:hover {
+            color: #fff;
+            background-color: #31d2f2;
+            border-color: #25cff2;
+        }
         
         .form-control, .form-select {
             border-radius: var(--border-radius);
