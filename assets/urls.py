@@ -12,6 +12,7 @@ urlpatterns = [
     # Core Asset CRUD Operations
     path('', views.AssetListView.as_view(), name='asset_list'),
     path('create/', views.AssetCreateView.as_view(), name='asset_create'),
+    path('bulk-edit/', views.asset_bulk_edit_view, name='asset_bulk_edit'),
     path('<uuid:pk>/', views.AssetDetailView.as_view(), name='asset_detail'),
     path('<uuid:pk>/edit/', views.AssetUpdateView.as_view(), name='asset_update'),
     path('<uuid:pk>/delete/', views.AssetDeleteView.as_view(), name='asset_delete'),

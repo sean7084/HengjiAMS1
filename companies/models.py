@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
+import re
 
 
 class Company(models.Model):
@@ -346,6 +347,30 @@ class Location(models.Model):
         verbose_name=_('Location Code'),
         help_text=_('Unique code for the location (e.g., B1-F3-R101)')
     )
+
+    zone = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name=_('Zone'),
+        help_text=_('Optional zone identifier')
+    )
+
+    rack = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name=_('Rack'),
+        help_text=_('Optional rack identifier')
+    )
+
+    shelf = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name=_('Shelf'),
+        help_text=_('Optional shelf identifier')
+    )
     
     description = models.TextField(
         blank=True,
@@ -498,8 +523,104 @@ class Location(models.Model):
         verbose_name_plural = _('Locations')
         ordering = ['company', 'name']
         unique_together = [['company', 'code']]
+
+    @staticmethod
+    def _expand_range_expression(expression):
+        """Expand inputs like 'Z1-Z3, Z5' into ['Z1', 'Z2', 'Z3', 'Z5']."""
+        if not expression:
+            return []
+
+        values = []
+        for raw_part in str(expression).split(','):
+            part = raw_part.strip()
+            if not part:
+                continue
+
+            if '-' not in part:
+                values.append(part)
+                continue
+
+            start, end = [item.strip() for item in part.split('-', 1)]
+            start_match = re.fullmatch(r'([A-Za-z]*)(\d+)', start)
+            end_match = re.fullmatch(r'([A-Za-z]*)(\d+)', end)
+
+            if not start_match or not end_match:
+                values.append(part)
+                continue
+
+            start_prefix, start_num = start_match.group(1), int(start_match.group(2))
+            end_prefix, end_num = end_match.group(1), int(end_match.group(2))
+            if start_prefix != end_prefix or end_num < start_num:
+                values.append(part)
+                continue
+
+            pad_width = max(len(start_match.group(2)), len(end_match.group(2)))
+            values.extend([
+                f"{start_prefix}{str(number).zfill(pad_width)}"
+                for number in range(start_num, end_num + 1)
+            ])
+
+        deduped = []
+        seen = set()
+        for value in values:
+            key = value.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(value)
+        return deduped
+
+    def is_warehouse(self):
+        return self.location_type == self.LocationType.WAREHOUSE
+
+    def expanded_zones(self):
+        return self._expand_range_expression(self.zone) if self.is_warehouse() else []
+
+    def expanded_racks(self):
+        return self._expand_range_expression(self.rack) if self.is_warehouse() else []
+
+    def expanded_shelves(self):
+        return self._expand_range_expression(self.shelf) if self.is_warehouse() else []
+
+    def get_slot_count(self):
+        zones = self.expanded_zones()
+        racks = self.expanded_racks()
+        shelves = self.expanded_shelves()
+        if not zones or not racks or not shelves:
+            return 0
+        return len(zones) * len(racks) * len(shelves)
+
+    def get_naming_scheme(self):
+        """Return zone-rack-shelf token, skipping blank values."""
+        if not self.is_warehouse():
+            return ''
+        parts = [
+            (self.zone or '').strip(),
+            (self.rack or '').strip(),
+            (self.shelf or '').strip(),
+        ]
+        parts = [part for part in parts if part]
+        return '-'.join(parts)
+
+    def get_display_location_code(self):
+        """Prefer structured naming scheme; fall back to legacy code."""
+        scheme = self.get_naming_scheme()
+        if scheme:
+            return scheme
+        return (self.code or '').strip()
+
+    def save(self, *args, **kwargs):
+        # Enforce warehouse-only slot fields to keep location semantics consistent.
+        if not self.is_warehouse():
+            self.zone = None
+            self.rack = None
+            self.shelf = None
+        super().save(*args, **kwargs)
     
     def __str__(self):
+        display_code = self.get_display_location_code()
+        if display_code:
+            return f"{self.company.name} - {self.name} ({display_code})"
         return f"{self.company.name} - {self.name}"
     
     def get_full_path(self):

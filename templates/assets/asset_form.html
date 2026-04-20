@@ -68,6 +68,14 @@
         padding: 0.75rem 1.5rem;
         font-weight: 500;
     }
+
+    .duplicate-serial-row {
+        background: #fff3f3;
+    }
+
+    .duplicate-serial-row td {
+        border-left: 3px solid #dc3545;
+    }
 </style>
 {% endblock %}
 
@@ -105,6 +113,16 @@
     <!-- Asset Form -->
     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         
         <!-- Basic Information -->
         <div class="form-section">
@@ -228,6 +246,7 @@
                     <tbody id="batch-items-body"></tbody>
                 </table>
             </div>
+            <div id="batch-duplicate-warning" class="alert alert-danger mt-3 d-none" role="alert"></div>
             <div class="form-text mt-2">{% trans "Enter one row for each item in the amount above. Serial number can be blank." %}</div>
             {% endif %}
         </div>
@@ -244,6 +263,35 @@
                     {% if form.location.errors %}
                         <div class="invalid-feedback d-block">
                             {% for error in form.location.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-3" id="warehouse-slot-row" style="display: none;">
+                <div class="col-md-4">
+                    <label for="{{ form.location_zone.id_for_label }}" class="form-label">{{ form.location_zone.label }}</label>
+                    {{ form.location_zone }}
+                    {% if form.location_zone.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.location_zone.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.location_rack.id_for_label }}" class="form-label">{{ form.location_rack.label }}</label>
+                    {{ form.location_rack }}
+                    {% if form.location_rack.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.location_rack.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="{{ form.location_shelf.id_for_label }}" class="form-label">{{ form.location_shelf.label }}</label>
+                    {{ form.location_shelf }}
+                    {% if form.location_shelf.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.location_shelf.errors %}{{ error }}{% endfor %}
                         </div>
                     {% endif %}
                 </div>
@@ -356,6 +404,8 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 {{ model_catalog|json_script:"asset-model-catalog" }}
+{{ location_slot_map|json_script:"location-slot-map" }}
+{{ duplicate_serial_rows|json_script:"duplicate-serial-rows" }}
 <script>
 // Bootstrap form validation
 (function() {
@@ -409,15 +459,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationSelectEl = document.getElementById('id_location');
     const modelSelectEl = document.getElementById('id_model');
     const amountEl = document.getElementById('id_amount');
+    const slotRowEl = document.getElementById('warehouse-slot-row');
+    const zoneSelectEl = document.getElementById('id_location_zone');
+    const rackSelectEl = document.getElementById('id_location_rack');
+    const shelfSelectEl = document.getElementById('id_location_shelf');
     const hiddenSerialEl = document.getElementById('id_serial_number');
     const hiddenStatusEl = document.getElementById('id_status');
     const batchBodyEl = document.getElementById('batch-items-body');
+    const batchDuplicateWarningEl = document.getElementById('batch-duplicate-warning');
     const formEl = document.querySelector('form.needs-validation');
 
     const modelCatalogScript = document.getElementById('asset-model-catalog');
     const modelCatalog = modelCatalogScript ? JSON.parse(modelCatalogScript.textContent) : [];
+    const locationSlotScript = document.getElementById('location-slot-map');
+    const locationSlotMap = locationSlotScript ? JSON.parse(locationSlotScript.textContent) : {};
+    const duplicateSerialRowsScript = document.getElementById('duplicate-serial-rows');
+    const duplicateSerialRows = new Set(
+        (duplicateSerialRowsScript ? JSON.parse(duplicateSerialRowsScript.textContent) : []).map(Number)
+    );
 
+    const existingBrandValue = brandSelectEl ? brandSelectEl.value : '';
     const existingModelValue = modelSelectEl ? modelSelectEl.value : '';
+
+    const baseBrandOptions = brandSelectEl
+        ? Array.from(brandSelectEl.options).map(option => ({
+            value: option.value,
+            text: option.textContent,
+        }))
+        : [];
 
     let brandTom = null;
     let categoryTom = null;
@@ -447,12 +516,41 @@ document.addEventListener('DOMContentLoaded', function() {
         return brandTom ? brandTom.getValue() : brandSelectEl.value;
     }
 
-    function refillModelsByBrand(brandId, keepValue) {
+    function selectedCategoryId() {
+        if (!categorySelectEl) {
+            return '';
+        }
+        return categoryTom ? categoryTom.getValue() : categorySelectEl.value;
+    }
+
+    function selectedModelId() {
+        if (!modelSelectEl) {
+            return '';
+        }
+        return modelTom ? modelTom.getValue() : modelSelectEl.value;
+    }
+
+    function setSelectValue(selectEl, tomInstance, nextValue) {
+        if (!selectEl) {
+            return;
+        }
+        if (tomInstance) {
+            tomInstance.setValue(nextValue || '', true);
+            return;
+        }
+        selectEl.value = nextValue || '';
+    }
+
+    function refillModels(categoryId, brandId, keepValue) {
         if (!modelSelectEl) {
             return;
         }
 
-        const filtered = modelCatalog.filter(item => !brandId || item.brand_id === brandId);
+        const filtered = modelCatalog.filter(item => {
+            const categoryMatch = !categoryId || item.category_id === categoryId;
+            const brandMatch = !brandId || item.brand_id === brandId;
+            return categoryMatch && brandMatch;
+        });
         const preserved = keepValue || '';
         const hasPreserved = filtered.some(item => item.id === preserved);
         const nextValue = hasPreserved ? preserved : '';
@@ -484,25 +582,213 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function refillBrandsByCategory(categoryId, keepValue) {
+        if (!brandSelectEl) {
+            return '';
+        }
+
+        let allowedBrands = null;
+        if (categoryId) {
+            allowedBrands = new Set(
+                modelCatalog
+                    .filter(item => item.category_id === categoryId)
+                    .map(item => item.brand_id)
+                    .filter(Boolean)
+            );
+        }
+
+        const filteredBrands = baseBrandOptions.filter(option => {
+            if (!option.value) {
+                return true;
+            }
+            if (!allowedBrands) {
+                return true;
+            }
+            return allowedBrands.has(option.value);
+        });
+
+        const preserved = keepValue || '';
+        const hasPreserved = filteredBrands.some(option => option.value === preserved);
+        const nextValue = hasPreserved ? preserved : '';
+
+        if (brandTom) {
+            brandTom.clearOptions();
+            filteredBrands.forEach(option => {
+                brandTom.addOption({ value: option.value, text: option.text });
+            });
+            brandTom.setValue(nextValue, true);
+            return nextValue;
+        }
+
+        brandSelectEl.innerHTML = '';
+        filteredBrands.forEach(optionData => {
+            const option = document.createElement('option');
+            option.value = optionData.value;
+            option.textContent = optionData.text;
+            if (optionData.value === nextValue) {
+                option.selected = true;
+            }
+            brandSelectEl.appendChild(option);
+        });
+
+        return nextValue;
+    }
+
+    function syncCategoryBrandFromModel() {
+        const modelId = selectedModelId();
+        if (!modelId) {
+            return;
+        }
+
+        const modelMeta = modelCatalog.find(item => item.id === modelId);
+        if (!modelMeta) {
+            return;
+        }
+
+        const targetCategory = modelMeta.category_id || selectedCategoryId();
+        if (targetCategory !== selectedCategoryId()) {
+            setSelectValue(categorySelectEl, categoryTom, targetCategory);
+        }
+
+        const nextBrand = refillBrandsByCategory(targetCategory, modelMeta.brand_id || selectedBrandId());
+        if ((modelMeta.brand_id || '') !== selectedBrandId()) {
+            setSelectValue(brandSelectEl, brandTom, modelMeta.brand_id || nextBrand || '');
+        }
+
+        refillModels(targetCategory, modelMeta.brand_id || nextBrand || '', modelId);
+    }
+
+    const batchRowCache = [];
+
     function safeAmountValue() {
         if (!amountEl) {
             return 1;
         }
-        const parsed = parseInt(amountEl.value, 10);
+        const raw = (amountEl.value || '').trim();
+        const parsed = parseInt(raw, 10);
         if (Number.isNaN(parsed) || parsed < 1) {
             return 1;
         }
         return parsed;
     }
 
-    function currentBatchRows() {
-        if (!batchBodyEl) {
-            return [];
+    function setSelectOptions(selectEl, values, placeholder, preserved) {
+        if (!selectEl) {
+            return;
         }
-        return Array.from(batchBodyEl.querySelectorAll('tr')).map(row => ({
-            serial: (row.querySelector('input[name="batch_serial_number[]"]') || {}).value || '',
-            status: (row.querySelector('select[name="batch_status[]"]') || {}).value || '',
-        }));
+
+        const keep = preserved || '';
+        selectEl.innerHTML = '';
+
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = placeholder;
+        selectEl.appendChild(emptyOption);
+
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            if (value === keep) {
+                option.selected = true;
+            }
+            selectEl.appendChild(option);
+        });
+    }
+
+    function selectedLocationId() {
+        if (!locationSelectEl) {
+            return '';
+        }
+        return locationTom ? locationTom.getValue() : locationSelectEl.value;
+    }
+
+    function refreshWarehouseSlots() {
+        const locationId = selectedLocationId();
+        const slotData = locationSlotMap[locationId] || null;
+        const showSlots = !!slotData;
+
+        if (slotRowEl) {
+            slotRowEl.style.display = showSlots ? '' : 'none';
+        }
+
+        const previousZone = zoneSelectEl ? zoneSelectEl.value : '';
+        const previousRack = rackSelectEl ? rackSelectEl.value : '';
+        const previousShelf = shelfSelectEl ? shelfSelectEl.value : '';
+
+        setSelectOptions(
+            zoneSelectEl,
+            showSlots ? (slotData.zones || []) : [],
+            '{% trans "Select zone" %}',
+            previousZone
+        );
+        setSelectOptions(
+            rackSelectEl,
+            showSlots ? (slotData.racks || []) : [],
+            '{% trans "Select rack" %}',
+            previousRack
+        );
+        setSelectOptions(
+            shelfSelectEl,
+            showSlots ? (slotData.shelves || []) : [],
+            '{% trans "Select shelf" %}',
+            previousShelf
+        );
+    }
+
+    function syncBatchCacheFromDom() {
+        if (!batchBodyEl) {
+            return;
+        }
+        Array.from(batchBodyEl.querySelectorAll('tr')).forEach((row, index) => {
+            const serialInput = row.querySelector('input[name="batch_serial_number[]"]');
+            const statusSelect = row.querySelector('select[name="batch_status[]"]');
+            batchRowCache[index] = {
+                serial: serialInput ? serialInput.value : '',
+                status: statusSelect ? statusSelect.value : '',
+            };
+        });
+    }
+
+    function hideBatchDuplicateWarning() {
+        if (!batchDuplicateWarningEl) {
+            return;
+        }
+        batchDuplicateWarningEl.textContent = '';
+        batchDuplicateWarningEl.classList.add('d-none');
+    }
+
+    function showBatchDuplicateWarning(rows) {
+        if (!batchDuplicateWarningEl) {
+            return;
+        }
+        const rowLabel = rows.join(', ');
+        batchDuplicateWarningEl.textContent = '{% trans "Duplicate serial numbers are not allowed for the same brand. Check rows:" %} ' + rowLabel;
+        batchDuplicateWarningEl.classList.remove('d-none');
+    }
+
+    function findDuplicateSerialRows() {
+        const serialRowMap = new Map();
+        const duplicates = new Set();
+        const target = safeAmountValue();
+
+        for (let i = 0; i < target; i++) {
+            const rowData = batchRowCache[i] || { serial: '' };
+            const normalized = (rowData.serial || '').trim().toLowerCase();
+            if (!normalized) {
+                continue;
+            }
+
+            if (!serialRowMap.has(normalized)) {
+                serialRowMap.set(normalized, i + 1);
+                continue;
+            }
+
+            duplicates.add(serialRowMap.get(normalized));
+            duplicates.add(i + 1);
+        }
+
+        return Array.from(duplicates).sort((a, b) => a - b);
     }
 
     function renderBatchRows() {
@@ -511,7 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const target = safeAmountValue();
-        const rows = currentBatchRows();
+        syncBatchCacheFromDom();
         const defaultStatus = hiddenStatusEl && hiddenStatusEl.value ? hiddenStatusEl.value : 'available';
         const statusOptions = [
             {% for value, label in asset_status_choices %}
@@ -521,16 +807,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
         batchBodyEl.innerHTML = '';
         for (let i = 0; i < target; i++) {
-            const rowData = rows[i] || { serial: '', status: defaultStatus };
+            const rowData = batchRowCache[i] || { serial: '', status: defaultStatus };
             const tr = document.createElement('tr');
+            if (duplicateSerialRows.has(i + 1)) {
+                tr.classList.add('duplicate-serial-row');
+            }
 
             const indexTd = document.createElement('td');
-            indexTd.textContent = String(i + 1);
+            if (duplicateSerialRows.has(i + 1)) {
+                indexTd.innerHTML = `<span class="badge bg-danger">${i + 1}</span>`;
+            } else {
+                indexTd.textContent = String(i + 1);
+            }
             tr.appendChild(indexTd);
 
             const serialTd = document.createElement('td');
-            serialTd.innerHTML = '<input type="text" class="form-control" name="batch_serial_number[]" autocomplete="off">';
-            serialTd.querySelector('input').value = rowData.serial;
+            serialTd.innerHTML = '<input type="text" class="form-control serial-scan-input" name="batch_serial_number[]" autocomplete="off">';
+            const serialInput = serialTd.querySelector('input');
+            serialInput.value = rowData.serial;
+            serialInput.addEventListener('input', function() {
+                if (this.value.includes('\r')) {
+                    this.value = this.value.replace(/\r/g, '');
+                }
+                batchRowCache[i] = batchRowCache[i] || { serial: '', status: defaultStatus };
+                batchRowCache[i].serial = this.value;
+            });
+            serialInput.addEventListener('keydown', function(event) {
+                if (event.key !== 'Enter') {
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                const serialInputs = Array.from(document.querySelectorAll('input.serial-scan-input'));
+                const currentIndex = serialInputs.indexOf(this);
+                if (currentIndex > -1 && currentIndex < serialInputs.length - 1) {
+                    const nextInput = serialInputs[currentIndex + 1];
+                    nextInput.focus();
+                    nextInput.select();
+                }
+            });
             tr.appendChild(serialTd);
 
             const statusTd = document.createElement('td');
@@ -549,12 +864,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             statusTd.appendChild(select);
+            select.addEventListener('change', function() {
+                batchRowCache[i] = batchRowCache[i] || { serial: '', status: defaultStatus };
+                batchRowCache[i].status = this.value;
+            });
             tr.appendChild(statusTd);
             batchBodyEl.appendChild(tr);
-        }
-
-        if (amountEl) {
-            amountEl.value = String(target);
         }
     }
 
@@ -566,20 +881,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (locationSelectEl) {
         locationTom = ensureTomSelect(locationSelectEl);
+        locationSelectEl.addEventListener('change', refreshWarehouseSlots);
+        if (locationTom) {
+            locationTom.on('change', refreshWarehouseSlots);
+        }
     }
     if (modelSelectEl) {
         modelTom = ensureTomSelect(modelSelectEl);
-        refillModelsByBrand(selectedBrandId(), existingModelValue);
+    }
+
+    const initialBrandValue = refillBrandsByCategory(selectedCategoryId(), existingBrandValue);
+    refillModels(selectedCategoryId(), initialBrandValue || selectedBrandId(), existingModelValue);
+
+    if (categorySelectEl) {
+        categorySelectEl.addEventListener('change', function() {
+            const currentCategory = selectedCategoryId();
+            const nextBrand = refillBrandsByCategory(currentCategory, selectedBrandId());
+            refillModels(currentCategory, nextBrand, '');
+        });
+        if (categoryTom) {
+            categoryTom.on('change', function() {
+                const currentCategory = selectedCategoryId();
+                const nextBrand = refillBrandsByCategory(currentCategory, selectedBrandId());
+                refillModels(currentCategory, nextBrand, '');
+            });
+        }
     }
 
     if (brandSelectEl) {
         brandSelectEl.addEventListener('change', function() {
-            refillModelsByBrand(selectedBrandId(), '');
+            refillModels(selectedCategoryId(), selectedBrandId(), '');
         });
         if (brandTom) {
             brandTom.on('change', function() {
-                refillModelsByBrand(selectedBrandId(), '');
+                refillModels(selectedCategoryId(), selectedBrandId(), '');
             });
+        }
+    }
+
+    if (modelSelectEl) {
+        modelSelectEl.addEventListener('change', syncCategoryBrandFromModel);
+        if (modelTom) {
+            modelTom.on('change', syncCategoryBrandFromModel);
         }
     }
 
@@ -589,8 +932,28 @@ document.addEventListener('DOMContentLoaded', function() {
         amountEl.addEventListener('input', renderBatchRows);
     }
 
+    if (selectedModelId()) {
+        syncCategoryBrandFromModel();
+    }
+
+    refreshWarehouseSlots();
+
     if (isCreateMode && formEl) {
-        formEl.addEventListener('submit', function() {
+        formEl.addEventListener('submit', function(event) {
+            syncBatchCacheFromDom();
+            const duplicateRows = findDuplicateSerialRows();
+            duplicateSerialRows.clear();
+            duplicateRows.forEach(row => duplicateSerialRows.add(row));
+
+            if (duplicateRows.length > 0) {
+                event.preventDefault();
+                event.stopPropagation();
+                showBatchDuplicateWarning(duplicateRows);
+                renderBatchRows();
+                return;
+            }
+
+            hideBatchDuplicateWarning();
             const firstSerialEl = document.querySelector('input[name="batch_serial_number[]"]');
             const firstStatusEl = document.querySelector('select[name="batch_status[]"]');
             if (hiddenSerialEl && firstSerialEl) {

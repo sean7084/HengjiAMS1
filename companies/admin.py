@@ -4,7 +4,7 @@ Configures Django admin interface for Company and Division models.
 """
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Company, Division, Location, CompanyUser
+from .models import Company, Location, CompanyUser
 
 
 @admin.register(Company)
@@ -38,57 +38,20 @@ class CompanyAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
 
-class DivisionInline(admin.TabularInline):
-    """
-    Inline admin for Division model within Company admin.
-    """
-    model = Division
-    extra = 0
-    fields = ('name', 'code', 'manager', 'location', 'status')
-
-
 class CompanyUserInline(admin.TabularInline):
     """
     Inline admin for CompanyUser model within Company admin.
     """
     model = CompanyUser
     extra = 0
-    fields = ('user', 'role', 'division', 'location', 'employee_id', 'status')
+    fields = ('user', 'role', 'location', 'employee_id', 'status')
     
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user', 'division', 'location')
 
 
 # Add inlines to CompanyAdmin
-CompanyAdmin.inlines = [DivisionInline, CompanyUserInline]
-
-
-@admin.register(Division)
-class DivisionAdmin(admin.ModelAdmin):
-    """
-    Admin interface for Division model.
-    """
-    list_display = ('name', 'code', 'company', 'manager', 'location', 'budget_code', 'status')
-    list_filter = ('company', 'status', 'created_at')
-    search_fields = ('name', 'code', 'company__name', 'manager__username', 'budget_code')
-    ordering = ('company__name', 'name')
-    
-    fieldsets = (
-        (_('Basic Information'), {
-            'fields': ('company', 'name', 'code', 'description')
-        }),
-        (_('Management'), {
-            'fields': ('manager', 'location', 'building', 'floor', 'room')
-        }),
-        (_('Financial'), {
-            'fields': ('budget_code',)
-        }),
-        (_('Status'), {
-            'fields': ('status',)
-        }),
-    )
-    
-    readonly_fields = ('created_at', 'updated_at')
+CompanyAdmin.inlines = [CompanyUserInline]
 
 
 # Location admin
@@ -97,14 +60,14 @@ class LocationAdmin(admin.ModelAdmin):
     """
     Admin interface for Location model.
     """
-    list_display = ('name', 'code', 'company', 'division', 'location_type', 'manager', 'status')
-    list_filter = ('company', 'division', 'location_type', 'status', 'created_at')
-    search_fields = ('name', 'code', 'company__name', 'division__name', 'manager__username', 'city')
+    list_display = ('name', 'code', 'zone', 'rack', 'shelf', 'company', 'location_type', 'manager', 'status')
+    list_filter = ('company', 'location_type', 'status', 'created_at')
+    search_fields = ('name', 'code', 'zone', 'rack', 'shelf', 'company__name', 'manager__username', 'city')
     ordering = ('company__name', 'name')
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('company', 'division', 'name', 'code', 'description')
+            'fields': ('company', 'name', 'code', 'zone', 'rack', 'shelf', 'description')
         }),
         (_('Type and Hierarchy'), {
             'fields': ('location_type', 'parent_location', 'manager')
@@ -135,7 +98,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
     Admin interface for CompanyUser model.
     """
     list_display = ('user', 'company', 'role', 'department', 'job_title', 'status', 'start_date')
-    list_filter = ('company', 'role', 'status', 'division', 'start_date')
+    list_filter = ('company', 'role', 'status', 'start_date')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__email', 
                     'company__name', 'employee_id', 'department', 'job_title')
     ordering = ('company__name', 'user__last_name', 'user__first_name')
@@ -145,7 +108,7 @@ class CompanyUserAdmin(admin.ModelAdmin):
             'fields': ('user', 'company', 'role', 'status')
         }),
         (_('Work Assignment'), {
-            'fields': ('division', 'location', 'department', 'job_title', 'manager')
+            'fields': ('location', 'department', 'job_title', 'manager')
         }),
         (_('Employee Details'), {
             'fields': ('employee_id', 'hire_date', 'start_date', 'end_date')
@@ -158,4 +121,4 @@ class CompanyUserAdmin(admin.ModelAdmin):
     readonly_fields = ('start_date', 'created_at', 'updated_at')
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user', 'company', 'division', 'location')
+        return super().get_queryset(request).select_related('user', 'company', 'location')

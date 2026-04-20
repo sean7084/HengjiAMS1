@@ -1,3 +1,5 @@
+# HengJi Asset Management System (AMS) - Changelog
+
 # HengJi Asset Management System (AMS) - Release Note v0.0.1
 
 **Version:** 0.0.1  
@@ -946,3 +948,64 @@ Version 0.1.2 focuses on asset creation workflow usability, broader translation 
 ---
 
 *Generated on April 17, 2026 - HengJi Asset Management System v0.1.2*
+
+## Release Notes v0.1.3
+
+**Version:** 0.1.3  
+**Release Date:** April 20, 2026  
+**Focus:** Warehouse slot workflows, asset batch operations, export stability, and company user editing
+
+---
+
+### Highlights
+
+1. Warehouse slot support is now integrated from company/location setup through asset create, list, and bulk edit flows.
+2. Asset create and list experiences now support practical batch operations and grouped drill-down workflows.
+3. Export and edit-route defects found during QA were fixed and validated.
+4. Navigation and localization were updated to match the revised operational model.
+
+### Delivered Scope (22-file release set)
+
+1. Asset create improvements
+- Model selection now auto-fills category and brand.
+- Batch row inputs preserve values while quantity changes.
+- Duplicate serials are blocked on frontend and backend, with persistent warnings.
+- Zone/rack/shelf dropdowns are dynamically populated and validated from selected warehouses.
+
+2. Asset list and batch operations
+- Grouped rows for non-serialized assets with drill-down behavior.
+- Quantity-aware batch edit panel with selection preview.
+- Grouped-row selection expansion and server-side bulk edit endpoint.
+
+3. Data model and migrations
+- Added `location_zone`, `location_rack`, `location_shelf` on assets.
+- Added `zone`, `rack`, `shelf` on locations with range expansion helpers.
+- Added optional `category` on asset models for filtering consistency.
+- Added supporting migrations in assets and companies apps.
+
+4. Import/export updates
+- Import now enforces required `category` and `brand` and supports normalized headers.
+- Export now uses accessible-assets scope and current location display mapping.
+- Fixed invalid `select_related` and outdated legacy export field mappings.
+
+5. Company user management fix
+- Added company user update view and edit route.
+- Wired list-page edit action to real route and fixed URL converter mismatch (`int` vs `uuid`).
+
+6. UI/navigation and i18n
+- Split "Manage Brands" and "Manage Models" in assets navigation.
+- Removed timed global auto-dismiss for alerts.
+- Added/updated zh-cn translations for new fields and labels.
+
+### Migration Files Added
+
+1. `assets/migrations/0009_alter_asset_barcode.py`
+2. `assets/migrations/0010_alter_assetmodel_model_number.py`
+3. `assets/migrations/0011_asset_location_rack_asset_location_shelf_and_more.py`
+4. `assets/migrations/0012_assetmodel_category.py`
+5. `companies/migrations/0008_location_rack_location_shelf_location_zone.py`
+
+### Validation
+
+1. `python manage.py check` executed after each major change set.
+2. Reported defects for bulk-edit slot validation, export CSV behavior, and company-user edit route were resolved.

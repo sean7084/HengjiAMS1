@@ -226,7 +226,7 @@ class LocationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.can_manage_companies()
     
     def get_queryset(self):
-        queryset = Location.objects.select_related('company', 'division').all()
+        queryset = Location.objects.select_related('company', 'manager').all()
         
         # Search functionality
         search = self.request.GET.get('search')
@@ -236,17 +236,26 @@ class LocationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(address_line1__icontains=search) |
                 Q(address_line2__icontains=search) |
                 Q(city__icontains=search) |
+                Q(code__icontains=search) |
+                Q(zone__icontains=search) |
+                Q(rack__icontains=search) |
+                Q(shelf__icontains=search) |
                 Q(company__name__icontains=search) |
                 Q(manager__first_name__icontains=search) |
                 Q(manager__last_name__icontains=search)
             )
         
-        return queryset.order_by('company__name', 'division__name', 'name')
+        return queryset.order_by('company__name', 'name')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Location Management')
         context['search'] = self.request.GET.get('search', '')
+        all_locations = context.get('locations')
+        if all_locations is not None:
+            warehouses = [location for location in all_locations if location.location_type == Location.LocationType.WAREHOUSE]
+            context['warehouse_count'] = len(warehouses)
+            context['slot_total'] = sum(location.get_slot_count() for location in warehouses)
         return context
 
 
@@ -371,4 +380,25 @@ class CompanyUserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView)
         context = super().get_context_data(**kwargs)
         context['title'] = _('Add Company User')
         context['action'] = _('Create')
+        return context
+
+
+class CompanyUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """View for editing company user memberships."""
+    model = CompanyUser
+    form_class = CompanyUserForm
+    template_name = 'companies/companyuser_form.html'
+    success_url = reverse_lazy('companies:companyuser_list')
+
+    def test_func(self):
+        return self.request.user.can_manage_companies()
+
+    def form_valid(self, form):
+        messages.success(self.request, _('Company user updated successfully.'))
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Edit Company User')
+        context['action'] = _('Update')
         return context

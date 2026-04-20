@@ -138,16 +138,23 @@ class LocationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        company_filter = self.request.query_params.get('company')
         if user.is_superadmin():
-            return Location.objects.all()
+            queryset = Location.objects.all()
         elif user.is_it_administrator():
-            return Location.objects.filter(
+            queryset = Location.objects.filter(
                 Q(company=user.managed_company) |
                 Q(division__in=user.managed_divisions.all())
             ).distinct()
         elif user.is_viewer_admin():
-            return user.managed_locations.all()
-        return Location.objects.none()
+            queryset = user.managed_locations.all()
+        else:
+            queryset = Location.objects.none()
+
+        if company_filter:
+            queryset = queryset.filter(company_id=company_filter)
+
+        return queryset
 
 
 class AssetCategoryViewSet(viewsets.ModelViewSet):

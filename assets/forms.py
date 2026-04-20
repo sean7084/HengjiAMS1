@@ -6,6 +6,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 import csv
 import io
 
@@ -17,6 +18,27 @@ User = get_user_model()
 
 class AssetForm(forms.ModelForm):
     """Form for creating and updating assets."""
+
+    location_zone = forms.ChoiceField(
+        required=False,
+        label=_('Zone'),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    location_rack = forms.ChoiceField(
+        required=False,
+        label=_('Rack'),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    location_shelf = forms.ChoiceField(
+        required=False,
+        label=_('Shelf'),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     amount = forms.IntegerField(
         required=False,
@@ -34,7 +56,7 @@ class AssetForm(forms.ModelForm):
         model = Asset
         fields = [
             'asset_number', 'category', 'brand', 'model', 'serial_number',
-            'description', 'location', 'status', 'purchase_date',
+            'description', 'location', 'location_zone', 'location_rack', 'location_shelf', 'status', 'purchase_date',
             'purchase_price', 'warranty_provider', 'warranty_end_date',
             'notes', 'photo'
         ]
@@ -88,13 +110,23 @@ class AssetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self._location_slot_map = {}
+
+        selected_category_id = ''
+        if self.is_bound:
+            selected_category_id = self.data.get('category', '')
+        elif self.instance.pk and self.instance.category_id:
+            selected_category_id = str(self.instance.category_id)
+        elif self.initial.get('category'):
+            selected_category = self.initial.get('category')
+            selected_category_id = str(getattr(selected_category, 'pk', selected_category))
         
         if self.user and hasattr(self.user, 'company'):
             # Add company filter if needed
             pass
         
         # Set up model choices with brand information
-        models_qs = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        models_qs = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name')
         
         # Create custom choices that include brand name in the display
         model_choices = [('', _('Select model'))]
@@ -110,6 +142,15 @@ class AssetForm(forms.ModelForm):
         self.fields['model'].required = False
         self.fields['category'].empty_label = _('Select category')
         self.fields['brand'].empty_label = _('Select brand')
+
+        brand_qs = AssetBrand.objects.filter(is_active=True)
+        if selected_category_id:
+            brand_qs = brand_qs.filter(models__is_active=True, models__category_id=selected_category_id).distinct()
+        if self.instance.pk and self.instance.brand_id:
+            brand_qs = AssetBrand.objects.filter(Q(is_active=True) | Q(pk=self.instance.brand_id)).filter(
+                Q(pk__in=brand_qs.values('pk')) | Q(pk=self.instance.brand_id)
+            )
+        self.fields['brand'].queryset = brand_qs.order_by('name')
         
         # Make required fields
         self.fields['category'].required = True
@@ -129,6 +170,22 @@ class AssetForm(forms.ModelForm):
         # Set up location choices
         self.fields['location'].queryset = location_qs.order_by('name')
         self.fields['location'].empty_label = _('Select location')
+
+        def _location_label(location):
+            scheme = location.get_naming_scheme()
+            if scheme:
+                return f"{location.name} ({scheme})"
+            if location.code:
+                return f"{location.name} ({location.code})"
+            return location.name
+
+        self.fields['location'].label_from_instance = _location_label
+
+        self._location_slot_map = self._build_location_slot_map(location_qs)
+        selected_location_id = self.data.get('location') if self.is_bound else getattr(self.initial.get('location'), 'pk', self.initial.get('location'))
+        if not selected_location_id and self.instance.pk and self.instance.location_id:
+            selected_location_id = str(self.instance.location_id)
+        self._configure_slot_choices(selected_location_id)
 
         # Default to Vanke VMO Warehouse on create pages when available.
         if not self.instance.pk and not self.is_bound:
@@ -150,6 +207,84 @@ class AssetForm(forms.ModelForm):
         self.fields['serial_number'].help_text = _('Leave blank for auto-generation')
         self.fields['purchase_price'].help_text = _('Purchase price in company currency')
 
+    def _build_location_slot_map(self, location_qs):
+        slot_map = {}
+        for location in location_qs:
+            if location.location_type != Location.LocationType.WAREHOUSE:
+                continue
+            zones = location.expanded_zones()
+            racks = location.expanded_racks()
+            shelves = location.expanded_shelves()
+            slot_map[str(location.pk)] = {
+                'zones': zones,
+                'racks': racks,
+                'shelves': shelves,
+            }
+        return slot_map
+
+    def _configure_slot_choices(self, selected_location_id):
+        selected_key = str(selected_location_id) if selected_location_id else ''
+        slot_data = self._location_slot_map.get(selected_key, {})
+        zones = slot_data.get('zones', [])
+        racks = slot_data.get('racks', [])
+        shelves = slot_data.get('shelves', [])
+
+        self.fields['location_zone'].choices = [('', _('Select zone'))] + [(value, value) for value in zones]
+        self.fields['location_rack'].choices = [('', _('Select rack'))] + [(value, value) for value in racks]
+        self.fields['location_shelf'].choices = [('', _('Select shelf'))] + [(value, value) for value in shelves]
+
+        self.fields['location_zone'].help_text = _('Optional. Choose if you need exact warehouse slot.')
+        self.fields['location_rack'].help_text = _('Optional. Choose if you need exact warehouse slot.')
+        self.fields['location_shelf'].help_text = _('Optional. Choose if you need exact warehouse slot.')
+
+    def get_location_slot_map(self):
+        return self._location_slot_map
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get('category')
+        brand = cleaned_data.get('brand')
+        model = cleaned_data.get('model')
+        location = cleaned_data.get('location')
+        zone = (cleaned_data.get('location_zone') or '').strip()
+        rack = (cleaned_data.get('location_rack') or '').strip()
+        shelf = (cleaned_data.get('location_shelf') or '').strip()
+
+        if model:
+            if brand and model.brand_id != brand.id:
+                self.add_error('model', _('Selected model does not belong to selected brand.'))
+            if category and model.category_id and model.category_id != category.id:
+                self.add_error('model', _('Selected model does not belong to selected category.'))
+
+        if not location:
+            return cleaned_data
+
+        if location.location_type != Location.LocationType.WAREHOUSE:
+            cleaned_data['location_zone'] = None
+            cleaned_data['location_rack'] = None
+            cleaned_data['location_shelf'] = None
+            return cleaned_data
+
+        zones = set(location.expanded_zones())
+        racks = set(location.expanded_racks())
+        shelves = set(location.expanded_shelves())
+
+        if not zones or not racks or not shelves:
+            raise ValidationError(_('The selected warehouse does not have valid zone/rack/shelf ranges configured.'))
+
+        # Warehouse slot values are optional, but if provided they must be valid.
+        if zone and zone not in zones:
+            self.add_error('location_zone', _('Please select a valid zone.'))
+        if rack and rack not in racks:
+            self.add_error('location_rack', _('Please select a valid rack.'))
+        if shelf and shelf not in shelves:
+            self.add_error('location_shelf', _('Please select a valid shelf.'))
+
+        cleaned_data['location_zone'] = zone or None
+        cleaned_data['location_rack'] = rack or None
+        cleaned_data['location_shelf'] = shelf or None
+        return cleaned_data
+
 
 class AssetSearchForm(forms.Form):
     """Form for searching and filtering assets."""
@@ -162,6 +297,240 @@ class AssetSearchForm(forms.Form):
             'autofocus': True
         })
     )
+
+
+class AssetBulkEditForm(forms.Form):
+    """Bulk edit form for applying updates to selected assets."""
+
+    asset_ids = forms.CharField(
+        required=True,
+        widget=forms.HiddenInput()
+    )
+
+    apply_quantity = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label=_('Apply To Quantity'),
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'step': '1',
+            'placeholder': _('All selected')
+        })
+    )
+
+    category = forms.ModelChoiceField(
+        queryset=AssetCategory.objects.filter(is_active=True),
+        required=False,
+        empty_label=_('No change'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    brand = forms.ModelChoiceField(
+        queryset=AssetBrand.objects.filter(is_active=True),
+        required=False,
+        empty_label=_('No change'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    model = forms.ModelChoiceField(
+        queryset=AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name'),
+        required=False,
+        empty_label=_('No change'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    location = forms.ModelChoiceField(
+        queryset=Location.objects.none(),
+        required=False,
+        empty_label=_('No change'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    location_zone = forms.ChoiceField(
+        required=False,
+        label=_('Zone'),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    location_rack = forms.ChoiceField(
+        required=False,
+        label=_('Rack'),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    location_shelf = forms.ChoiceField(
+        required=False,
+        label=_('Shelf'),
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    status = forms.ChoiceField(
+        choices=[('', _('No change'))] + list(Asset.AssetStatus.choices),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    purchase_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+
+    purchase_price = forms.DecimalField(
+        required=False,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
+    )
+
+    warranty_provider = forms.CharField(
+        required=False,
+        max_length=255,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('No change')})
+    )
+
+    warranty_end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': _('No change')})
+    )
+
+    editable_fields = (
+        'category', 'brand', 'model', 'location',
+        'location_zone', 'location_rack', 'location_shelf',
+        'status', 'purchase_date', 'purchase_price',
+        'warranty_provider', 'warranty_end_date', 'notes'
+    )
+
+    def _set_slot_choices(self, location=None):
+        no_change = [('', _('No change'))]
+        if not location or location.location_type != Location.LocationType.WAREHOUSE:
+            self.fields['location_zone'].choices = no_change
+            self.fields['location_rack'].choices = no_change
+            self.fields['location_shelf'].choices = no_change
+            return
+
+        zones = location.expanded_zones()
+        racks = location.expanded_racks()
+        shelves = location.expanded_shelves()
+
+        self.fields['location_zone'].choices = no_change + [(value, value) for value in zones]
+        self.fields['location_rack'].choices = no_change + [(value, value) for value in racks]
+        self.fields['location_shelf'].choices = no_change + [(value, value) for value in shelves]
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        location_qs = Location.objects.filter(status=Location.LocationStatus.ACTIVE)
+        if self.user and hasattr(self.user, 'company') and self.user.company:
+            location_qs = location_qs.filter(company=self.user.company)
+
+        self.fields['location'].queryset = location_qs.order_by('name')
+
+        selected_location_id = ''
+        if self.is_bound:
+            selected_location_id = (self.data.get('location') or '').strip()
+        elif self.initial.get('location'):
+            initial_location = self.initial.get('location')
+            selected_location_id = str(getattr(initial_location, 'pk', initial_location))
+
+        selected_location = None
+        if selected_location_id:
+            selected_location = self.fields['location'].queryset.filter(pk=selected_location_id).first()
+
+        self._set_slot_choices(selected_location)
+
+    def _parse_asset_ids(self, raw_ids):
+        if not raw_ids:
+            return []
+        return [value.strip() for value in raw_ids.split(',') if value.strip()]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        clear_fields = []
+
+        asset_ids = self._parse_asset_ids(cleaned_data.get('asset_ids'))
+        if not asset_ids:
+            raise ValidationError(_('Please select at least one asset.'))
+
+        apply_quantity = cleaned_data.get('apply_quantity')
+        if apply_quantity and apply_quantity > len(asset_ids):
+            self.add_error('apply_quantity', _('Apply quantity cannot exceed selected assets.'))
+
+        category = cleaned_data.get('category')
+        brand = cleaned_data.get('brand')
+        model = cleaned_data.get('model')
+
+        if model:
+            if brand and model.brand_id != brand.id:
+                self.add_error('model', _('Selected model does not belong to selected brand.'))
+            if category and model.category_id and model.category_id != category.id:
+                self.add_error('model', _('Selected model does not belong to selected category.'))
+
+        location = cleaned_data.get('location')
+        zone = (cleaned_data.get('location_zone') or '').strip()
+        rack = (cleaned_data.get('location_rack') or '').strip()
+        shelf = (cleaned_data.get('location_shelf') or '').strip()
+        slot_requested = bool(zone or rack or shelf)
+
+        if slot_requested and not location:
+            self.add_error('location', _('Please select a location when setting zone/rack/shelf.'))
+
+        if location:
+            if location.location_type != Location.LocationType.WAREHOUSE:
+                cleaned_data['location_zone'] = None
+                cleaned_data['location_rack'] = None
+                cleaned_data['location_shelf'] = None
+                clear_fields.extend(['location_zone', 'location_rack', 'location_shelf'])
+            else:
+                zones = set(location.expanded_zones())
+                racks = set(location.expanded_racks())
+                shelves = set(location.expanded_shelves())
+
+                if not zones or not racks or not shelves:
+                    raise ValidationError(_('The selected warehouse does not have valid zone/rack/shelf ranges configured.'))
+
+                if not zone or zone not in zones:
+                    self.add_error('location_zone', _('Please enter a valid zone for the selected warehouse.'))
+                if not rack or rack not in racks:
+                    self.add_error('location_rack', _('Please enter a valid rack for the selected warehouse.'))
+                if not shelf or shelf not in shelves:
+                    self.add_error('location_shelf', _('Please enter a valid shelf for the selected warehouse.'))
+
+                cleaned_data['location_zone'] = zone
+                cleaned_data['location_rack'] = rack
+                cleaned_data['location_shelf'] = shelf
+
+        update_data = self.get_update_data(cleaned_data)
+        if not update_data:
+            raise ValidationError(_('Please provide at least one field to update.'))
+
+        cleaned_data['_clear_fields'] = clear_fields
+        cleaned_data['asset_ids'] = asset_ids
+        return cleaned_data
+
+    def get_update_data(self, cleaned_data=None):
+        data = cleaned_data or self.cleaned_data
+        update_data = {}
+        clear_fields = set(data.get('_clear_fields') or [])
+        for field in self.editable_fields:
+            value = data.get(field)
+            if value is None:
+                if field in clear_fields:
+                    update_data[field] = None
+                continue
+            if isinstance(value, str) and value.strip() == '':
+                continue
+            update_data[field] = value
+        return update_data
     
     category = forms.ModelChoiceField(
         queryset=AssetCategory.objects.filter(is_active=True),
@@ -285,44 +654,6 @@ class AssetBulkActionForm(forms.Form):
             )
 
 
-class AssetImportForm(forms.Form):
-    """Form for importing assets from CSV/Excel files."""
-    
-    file = forms.FileField(
-        widget=forms.FileInput(attrs={
-            'class': 'form-control',
-            'accept': '.csv,.xlsx,.xls'
-        }),
-        help_text=_('Upload CSV or Excel file with asset data')
-    )
-    
-    update_existing = forms.BooleanField(
-        required=False,
-        initial=False,
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        help_text=_('Update existing assets if asset tag matches')
-    )
-    
-    def clean_file(self):
-        file = self.cleaned_data['file']
-        
-        # Check file extension
-        allowed_extensions = ['.csv', '.xlsx', '.xls']
-        file_extension = file.name.lower().split('.')[-1]
-        if f'.{file_extension}' not in allowed_extensions:
-            raise forms.ValidationError(
-                _('Invalid file format. Please upload CSV or Excel files only.')
-            )
-        
-        # Check file size (max 10MB)
-        if file.size > 10 * 1024 * 1024:
-            raise forms.ValidationError(
-                _('File too large. Maximum size is 10MB.')
-            )
-        
-        return file
-
-
 class AssetMaintenanceForm(forms.Form):
     """Form for asset maintenance records."""
     
@@ -401,7 +732,7 @@ class AssetImportForm(forms.Form):
     # File upload field
     file = forms.FileField(
         label=_('Import File'),
-        help_text=_('Upload CSV or Excel file (.csv, .xlsx) containing asset data'),
+        help_text=_('Upload CSV or Excel file (.csv, .xlsx). Required columns: category, brand.'),
         widget=forms.FileInput(attrs={
             'class': 'form-control',
             'accept': '.csv,.xlsx,.xls'
@@ -746,8 +1077,11 @@ class ModelForm(forms.ModelForm):
     
     class Meta:
         model = AssetModel
-        fields = ['brand', 'name', 'model_number', 'unit', 'description', 'specifications', 'is_active']
+        fields = ['category', 'brand', 'name', 'model_number', 'unit', 'description', 'specifications', 'is_active']
         widgets = {
+            'category': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'brand': forms.Select(attrs={
                 'class': 'form-select'
             }),
@@ -780,7 +1114,9 @@ class ModelForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
+        self.fields['category'].queryset = AssetCategory.objects.filter(is_active=True).order_by('name')
+        self.fields['category'].empty_label = _('Select category')
         self.fields['brand'].queryset = AssetBrand.objects.filter(is_active=True).order_by('name')
         self.fields['brand'].empty_label = _('Select brand')
         self.fields['model_number'].required = False

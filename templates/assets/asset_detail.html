@@ -54,13 +54,13 @@
             <nav aria-label="{% trans 'breadcrumb' %}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
-                    <li class="breadcrumb-item active">{{ asset.asset_tag }}</li>
+                    <li class="breadcrumb-item active">{{ asset.asset_number }}</li>
                 </ol>
             </nav>
             <h1 class="h3 mb-1">{{ asset.asset_number }}</h1>
             <div>
                 <span class="badge status-{{ asset.status }} me-2">{{ asset.get_status_display }}</span>
-                <span class="text-muted">{% trans "Asset Tag:" %} {{ asset.asset_tag }}</span>
+                <span class="text-muted">{{ asset.get_brand_model_display }}</span>
             </div>
         </div>
         <div class="btn-group">
@@ -102,12 +102,8 @@
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td class="fw-bold">{% trans "Name:" %}</td>
-                                    <td>{{ asset.asset_number }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-bold">{% trans "Asset Tag:" %}</td>
-                                    <td>{{ asset.asset_tag }}</td>
+                                    <td class="fw-bold">{% trans "Asset Number:" %}</td>
+                                    <td>{{ asset.asset_number|default:"-" }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Category:" %}</td>
@@ -119,23 +115,49 @@
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Model:" %}</td>
-                                    <td>{{ asset.model|default:"-" }}</td>
+                                    <td>{{ asset.model.name|default:"-" }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Serial Number:" %}</td>
                                     <td>{{ asset.serial_number|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Barcode:" %}</td>
+                                    <td>{{ asset.barcode|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Condition:" %}</td>
+                                    <td>{{ asset.get_condition_display|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Status:" %}</td>
+                                    <td><span class="badge status-{{ asset.status }}">{{ asset.get_status_display }}</span></td>
                                 </tr>
                             </table>
                         </div>
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td class="fw-bold">{% trans "Status:" %}</td>
-                                    <td><span class="badge status-{{ asset.status }}">{{ asset.get_status_display }}</span></td>
+                                    <td class="fw-bold">{% trans "Company:" %}</td>
+                                    <td>{{ asset.company.name|default:"-" }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Location:" %}</td>
-                                    <td>{{ asset.location.name|default:"-" }}</td>
+                                    <td>{{ asset.get_location_display_abbr }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Zone / Rack / Shelf:" %}</td>
+                                    <td>
+                                        {% if asset.location_zone or asset.location_rack or asset.location_shelf %}
+                                            {{ asset.location_zone|default:"-" }} / {{ asset.location_rack|default:"-" }} / {{ asset.location_shelf|default:"-" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Legacy Location Text:" %}</td>
+                                    <td>{{ asset.current_location|default:"-" }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Assigned To:" %}</td>
@@ -146,6 +168,10 @@
                                             -
                                         {% endif %}
                                     </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Supplier:" %}</td>
+                                    <td>{{ asset.supplier|default:"-" }}</td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">{% trans "Purchase Date:" %}</td>
@@ -162,8 +188,16 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">{% trans "Warranty Expiry:" %}</td>
-                                    <td>{{ asset.warranty_expiry|date:"Y-m-d"|default:"-" }}</td>
+                                    <td class="fw-bold">{% trans "Warranty End Date:" %}</td>
+                                    <td>{{ asset.warranty_end_date|date:"Y-m-d"|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Created At:" %}</td>
+                                    <td>{{ asset.created_at|date:"Y-m-d H:i"|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">{% trans "Updated At:" %}</td>
+                                    <td>{{ asset.updated_at|date:"Y-m-d H:i"|default:"-" }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -210,8 +244,8 @@
                                         | {% trans "Returned on" %} {{ assignment.returned_date|date:"M d, Y" }}
                                     {% endif %}
                                 </p>
-                                {% if assignment.assignment_notes %}
-                                <p class="text-muted small">{{ assignment.assignment_notes }}</p>
+                                {% if assignment.notes %}
+                                <p class="text-muted small">{{ assignment.notes }}</p>
                                 {% endif %}
                             </div>
                             <small class="text-muted">
@@ -278,8 +312,8 @@
                     </h5>
                 </div>
                 <div class="card-body text-center">
-                    {% if asset.image %}
-                        <img src="{{ asset.image.url }}" class="asset-image" alt="{{ asset.asset_number }}">
+                    {% if asset.photo %}
+                        <img src="{{ asset.photo.url }}" class="asset-image" alt="{{ asset.asset_number }}">
                     {% else %}
                         <div class="d-flex align-items-center justify-content-center" style="height: 300px; background: #f8f9fa; border-radius: 8px;">
                             <div class="text-center">
@@ -364,7 +398,7 @@ function printAssetLabel() {
     printWindow.document.write(`
         <html>
         <head>
-            <title>Asset Label - {{ asset.asset_tag }}</title>
+            <title>Asset Label - {{ asset.asset_number }}</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 20px; }
                 .label { border: 2px solid #000; padding: 15px; text-align: center; }
@@ -375,11 +409,11 @@ function printAssetLabel() {
         </head>
         <body>
             <div class="label">
-                <div class="asset-tag">{{ asset.asset_tag }}</div>
-                <div class="asset-name">{{ asset.asset_number }}</div>
+                <div class="asset-tag">{{ asset.asset_number }}</div>
+                <div class="asset-name">{{ asset.get_brand_model_display }}</div>
                 <div class="details">
                     {% if asset.category %}Category: {{ asset.category.name }}<br>{% endif %}
-                    {% if asset.location %}Location: {{ asset.location.name }}<br>{% endif %}
+                    Location: {{ asset.get_location_display_abbr }}<br>
                     {% if asset.serial_number %}S/N: {{ asset.serial_number }}{% endif %}
                 </div>
             </div>

@@ -28,8 +28,8 @@
                 <ul class="mb-0">
                     <li>{% trans "Supported formats: CSV (.csv), Excel (.xlsx, .xls)" %}</li>
                     <li>{% trans "Maximum file size: 10MB" %}</li>
-                    <li>{% trans "Required columns: name" %}</li>
-                    <li>{% trans "Optional columns: category, brand, model, serial_number, description, purchase_price, purchase_date, warranty_end_date, current_location, status, condition, notes, asset_number" %}</li>
+                    <li>{% trans "Required columns: category, brand" %}</li>
+                    <li>{% trans "Optional columns: asset_number, model, serial_number, barcode, description, purchase_price, purchase_date, warranty_end_date, location_name, location_zone, location_rack, location_shelf, current_location, status, condition, notes" %}</li>
                     <li>{% trans "Use 'Validation Only' mode to preview import results before committing" %}</li>
                 </ul>
             </div>
@@ -168,9 +168,9 @@
                             <h6 class="card-title mb-0">{% trans "CSV Format Example" %}</h6>
                         </div>
                         <div class="card-body">
-                            <pre class="bg-light p-2 small">name,category,brand,model,serial_number
-Dell Laptop,Laptop,Dell,XPS 13,DL123456
-iPhone 14,Mobile,Apple,iPhone 14 Pro,IP987654</pre>
+                            <pre class="bg-light p-2 small">asset_number [optional],category [required],brand [required],model [optional],serial_number [optional],barcode [optional],location_name [optional],status [optional]
+LAPTOP-001,Laptop,Dell,XPS 13 9310,DL123456,BC-0001,Vanke VMO Warehouse,available
+,Mobile Device,Apple,iPhone 14 Pro,IP987654,BC-0002,Executive Office,assigned</pre>
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@ iPhone 14,Mobile,Apple,iPhone 14 Pro,IP987654</pre>
                         </div>
                         <div class="card-body">
                             <p><strong>{% trans "Status:" %}</strong> available, assigned, maintenance, retired, disposed</p>
-                            <p><strong>{% trans "Condition:" %}</strong> excellent, good, fair, poor, broken</p>
+                            <p><strong>{% trans "Condition:" %}</strong> excellent, good, fair, poor, damaged</p>
                         </div>
                     </div>
                 </div>

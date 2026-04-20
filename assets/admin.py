@@ -3,7 +3,7 @@ Admin configuration for Assets app.
 Simple admin interface for asset management models.
 """
 from django.contrib import admin
-from .models import AssetCategory, AssetBrand, Asset, AssetAssignment, AssetMaintenance
+from .models import AssetCategory, AssetBrand, AssetModel, Asset, AssetAssignment, AssetMaintenance
 
 
 @admin.register(AssetCategory)
@@ -21,6 +21,15 @@ class AssetBrandAdmin(admin.ModelAdmin):
     list_display = ('name', 'code', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
     search_fields = ('name', 'code', 'description')
+    readonly_fields = ('id', 'created_at', 'updated_at')
+
+
+@admin.register(AssetModel)
+class AssetModelAdmin(admin.ModelAdmin):
+    """Admin interface for AssetModel model."""
+    list_display = ('name', 'brand', 'category', 'model_number', 'is_active', 'created_at')
+    list_filter = ('is_active', 'brand', 'category', 'created_at')
+    search_fields = ('name', 'model_number', 'brand__name', 'category__name')
     readonly_fields = ('id', 'created_at', 'updated_at')
 
 

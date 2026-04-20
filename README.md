@@ -282,11 +282,11 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 | Version | Date | Focus |
 |---------|------|-------|
-| v0.0.4 | April 2026 | 2FA, Reporting, Mobile API, REST API |
-| v0.1.1 | April 2026 | HTML PDF Rendering for Quotation & Delivery Templates |
+| v0.1.3 | April 2026 | Warehouse Slot Workflows + Asset Batch Operations + Export/Route Stability |
 | v0.1.2 | April 2026 | Asset Create UX + i18n Attribute Coverage + Admin/Deletion Stability |
+| v0.1.1 | April 2026 | HTML PDF Rendering for Quotation & Delivery Templates |
 
-### Current Status (v0.1.2)
+### Current Status (v0.1.3)
 
 #### Fully Operational Features
 
@@ -314,6 +314,13 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Expanded Template i18n Coverage** - Placeholder/ARIA/title attribute strings wrapped and translated in zh-cn templates
 - **Admin Reliability Fixes** - Restored blank admin changelist overrides for company models
 - **Safe Model Deletion Handling** - Graceful protected-reference errors for asset model delete operations
+- **Warehouse Slot Structure** - Zone/rack/shelf support added to locations and assets, with warehouse-only validation
+- **Advanced Asset List Workflow** - Grouped non-serialized rows, drill-down mode, and row-level navigation
+- **Batch Edit Operations** - Bulk edit endpoint/UI supports partial-quantity updates with slot-aware validation
+- **Create-Form Model Autofill** - Selecting model now auto-syncs category and brand
+- **Duplicate Serial Hardening** - Duplicate serials blocked in batch create frontend and backend checks
+- **Export Data Reliability** - Export uses accessible assets scope and current location display helpers
+- **Company User Edit Flow** - Users list edit action is fully wired with matching URL converter type
 
 #### Database Schema
 
@@ -329,6 +336,22 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - `assets.AssetAssignment` - Assignment history tracking
 - `assets.AssetMaintenance` - Maintenance scheduling and records
 - `audit.*` - Audit logging models
+
+### v0.1.3 Migration Notes
+
+Run database migrations before deploying v0.1.3:
+
+```bash
+python manage.py migrate
+```
+
+New migration files included in this release:
+
+- `assets/migrations/0009_alter_asset_barcode.py`
+- `assets/migrations/0010_alter_assetmodel_model_number.py`
+- `assets/migrations/0011_asset_location_rack_asset_location_shelf_and_more.py`
+- `assets/migrations/0012_assetmodel_category.py`
+- `companies/migrations/0008_location_rack_location_shelf_location_zone.py`
 
 ---
 
@@ -377,6 +400,7 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 - Scope delivered in v0.1.0: end-to-end workflow from quotation creation to client dispatch and Esker forwarding.
 - Scope delivered in v0.1.1: quotation and delivery document rendering migrated to direct HTML PDF generation with template fidelity tuning.
 - Scope delivered in v0.1.2: asset create UX modernization (searchable selects, brand-filtered models, batch creation), broader template attribute translation coverage, and admin/delete stability hardening.
+- Scope delivered in v0.1.3: warehouse slot schema + UI integration, grouped asset listing with batch edit workflow, export/access-scope fixes, and company user edit-route completion.
 - Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
 - Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.

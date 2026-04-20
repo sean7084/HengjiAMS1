@@ -23,4 +23,5 @@ urlpatterns = [
     # Company user management
     path('users/', views.CompanyUserListView.as_view(), name='companyuser_list'),
     path('users/create/', views.CompanyUserCreateView.as_view(), name='companyuser_create'),
+    path('users/<int:pk>/edit/', views.CompanyUserUpdateView.as_view(), name='companyuser_edit'),
 ]

@@ -1,7 +1,7 @@
 # LANGUAGE translation of Django.
 # Copyright (C) 2025 HengJi AMS
 # This file is distributed under the same license as the Django package.
-# import polib; po=polib.pofile('locale/zh-cn/LC_MESSAGES/django.po'); po.save_as_mofile('locale/zh-cn/LC_MESSAGES/django.mo'); print('compiled', len(po), 'entries')"
+# import polib; po=polib.pofile('locale/zh-cn/LC_MESSAGES/django.po'); po.save_as_mofile('locale/zh-cn/LC_MESSAGES/django.mo'); print('compiled', len(po), 'entries')
 
 msgid ""
 msgstr ""
@@ -828,8 +828,11 @@ msgstr "毛计"
 msgid "Gross Amount"
 msgstr "总额（含税）"
 
+msgid "HengJi"
+msgstr "上海珩际信息科技有限公司"
+
 msgid "HengJi AMS"
-msgstr "恒记资产管理系统"
+msgstr "珩际资产管理系统"
 
 msgid "History"
 msgstr "历史"
@@ -911,6 +914,9 @@ msgstr "折线图"
 
 msgid "Line Items"
 msgstr "明细项"
+
+msgid "Models"
+msgstr "设备型号"
 
 msgid "Manage Brands & Models"
 msgstr "品牌与型号管理"
@@ -1490,3 +1496,30 @@ msgstr "您即将将此报价单转换为采购订单。"
 
 msgid "You can continue with stock receipt."
 msgstr "您可以继续进行收货。"
+
+msgid "Zone"
+msgstr "区域"
+
+msgid "Rack"
+msgstr "货架"
+
+msgid "Shelf"
+msgstr "层位"
+
+msgid "Zone (optional, e.g., Z1)"
+msgstr "区域（可选，例如 Z1）"
+
+msgid "Rack (optional, e.g., R2)"
+msgstr "货架（可选，例如 R2）"
+
+msgid "Shelf (optional, e.g., S3)"
+msgstr "层位（可选，例如 S3）"
+
+msgid "Optional zone identifier"
+msgstr "可选区域标识"
+
+msgid "Optional rack identifier"
+msgstr "可选货架标识"
+
+msgid "Optional shelf identifier"
+msgstr "可选层位标识"

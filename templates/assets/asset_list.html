@@ -46,6 +46,17 @@
     .table tbody tr:hover {
         background-color: rgba(0,123,255,0.1);
     }
+    .asset-row.clickable-row {
+        cursor: pointer;
+    }
+    .selection-col {
+        width: 44px;
+    }
+    .bulk-edit-panel {
+        background: #eef6ff;
+        border: 1px solid #cfe2ff;
+        border-radius: 8px;
+    }
     .btn-sm {
         padding: 0.25rem 0.5rem;
         font-size: 0.775rem;
@@ -234,6 +245,88 @@
         </div>
     </div>
 
+    {% if is_drilldown %}
+    <div class="alert alert-info d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-filter me-2"></i>{% trans "Drill-down mode: showing individual assets only." %}</span>
+        <a href="{% url 'assets:asset_list' %}" class="btn btn-sm btn-outline-primary">{% trans "Back to Full List" %}</a>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'assets:asset_bulk_edit' %}" class="bulk-edit-panel p-3 mb-3" id="bulkEditForm">
+        {% csrf_token %}
+        {{ location_slot_map|json_script:"bulkLocationSlotMapData" }}
+        <input type="hidden" name="asset_ids" id="bulkAssetIds" value="">
+        <input type="hidden" name="return_query" value="{{ current_query }}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>{% trans "Batch Edit Selected Assets" %}</h6>
+            <span class="badge bg-primary" id="selectedCountBadge">0 {% trans "selected" %}</span>
+        </div>
+        <div class="small text-muted mb-2" id="batchUpdatePreviewLine">{% trans "Preview" %}: -</div>
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label">{{ bulk_edit_form.apply_quantity.label }}</label>
+                {{ bulk_edit_form.apply_quantity }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Status" %}</label>
+                {{ bulk_edit_form.status }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Location" %}</label>
+                {{ bulk_edit_form.location }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Zone" %}</label>
+                {{ bulk_edit_form.location_zone }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Rack" %}</label>
+                {{ bulk_edit_form.location_rack }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Shelf" %}</label>
+                {{ bulk_edit_form.location_shelf }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Category" %}</label>
+                {{ bulk_edit_form.category }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Brand" %}</label>
+                {{ bulk_edit_form.brand }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Model" %}</label>
+                {{ bulk_edit_form.model }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Purchase Date" %}</label>
+                {{ bulk_edit_form.purchase_date }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Purchase Price" %}</label>
+                {{ bulk_edit_form.purchase_price }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">{% trans "Warranty End" %}</label>
+                {{ bulk_edit_form.warranty_end_date }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">{% trans "Warranty Provider" %}</label>
+                {{ bulk_edit_form.warranty_provider }}
+            </div>
+            <div class="col-md-7">
+                <label class="form-label">{% trans "Notes" %}</label>
+                {{ bulk_edit_form.notes }}
+            </div>
+            <div class="col-md-2 d-grid align-items-end">
+                <button type="submit" class="btn btn-primary" id="applyBatchEditBtn" disabled>
+                    <i class="fas fa-save"></i> {% trans "Apply Batch Edit" %}
+                </button>
+            </div>
+        </div>
+    </form>
+
     <!-- Assets List -->
     <div class="card">
         <div class="card-body p-0">
@@ -241,9 +334,10 @@
                 <table class="table table-hover mb-0" id="assetsTable">
                     <thead>
                         <tr>
+                            <th class="selection-col"><input type="checkbox" id="selectAllAssets" title="{% trans 'Select all visible rows' %}"></th>
                             <th class="col-image" width="60">{% trans "Image" %}</th>
                             <th class="col-name">{% trans "Asset Number" %}</th>
-                            <th class="col-tag">{% trans "Asset Tag" %}</th>
+                            <th class="col-tag">{% trans "Serial / Qty" %}</th>
                             <th class="col-category">{% trans "Category" %}</th>
                             <th class="col-status">{% trans "Status" %}</th>
                             <th class="col-location">{% trans "Location" %}</th>
@@ -251,12 +345,13 @@
                             <th class="col-actions" width="120">{% trans "Actions" %}</th>
                         </tr>
                         <tr class="filter-row">
+                            <td class="selection-col"></td>
                             <td class="col-image"></td>
                             <td class="col-name">
                                 <input type="text" class="column-filter" placeholder="{% trans 'Filter by name...' %}" onkeyup="filterTable('name', this.value)">
                             </td>
                             <td class="col-tag">
-                                <input type="text" class="column-filter" placeholder="{% trans 'Filter by tag...' %}" onkeyup="filterTable('tag', this.value)">
+                                <input type="text" class="column-filter" placeholder="{% trans 'Filter by serial/qty...' %}" onkeyup="filterTable('tag', this.value)">
                             </td>
                             <td class="col-category">
                                 <select class="column-filter" onchange="filterTable('category', this.value)">
@@ -290,14 +385,83 @@
                         </tr>
                     </thead>
                     <tbody id="assetsTableBody">
+                        {% if not is_drilldown %}
+                        {% for group in grouped_assets %}
+                        {% with rep=group.representative %}
+                        <tr class="asset-row table-warning clickable-row"
+                            data-row-url="{% url 'assets:asset_list' %}?drill_ids={{ group.asset_ids|join:',' }}"
+                            data-name="{{ rep.asset_number|lower }} {{ rep.get_brand_model_display|lower }}"
+                            data-tag="qty {{ group.quantity }}"
+                            data-category="{{ rep.category.name|default:''|lower }}"
+                            data-status="{{ rep.status|lower }}"
+                            data-location="{{ rep.get_location_display_abbr|lower }}"
+                            data-assigned="{{ rep.assigned_to.get_display_name|default:''|lower }}">
+                            <td class="selection-col text-center">
+                                <input
+                                    type="checkbox"
+                                    class="asset-select-group"
+                                    data-group-ids="{{ group.asset_ids|join:',' }}"
+                                    data-group-label="{{ rep.asset_number }}"
+                                    aria-label="{% trans 'Select grouped assets' %}">
+                            </td>
+                            <td class="col-image">
+                                {% if rep.photo %}
+                                    <img src="{{ rep.photo.url }}" class="asset-image" alt="{{ rep.asset_number }}">
+                                {% else %}
+                                    <div class="asset-image d-flex align-items-center justify-content-center bg-light">
+                                        <i class="fas fa-layer-group text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="col-name">
+                                <div class="fw-bold">{{ rep.asset_number }}</div>
+                                <small class="text-muted">{{ rep.get_brand_model_display }}</small>
+                                <div><span class="badge bg-warning text-dark mt-1">{% trans "Grouped (no serial)" %}</span></div>
+                            </td>
+                            <td class="col-tag">
+                                <span class="badge bg-dark">{% trans "Qty" %}: {{ group.quantity }}</span>
+                            </td>
+                            <td class="col-category">{{ rep.category.name|default:"-" }}</td>
+                            <td class="col-status">
+                                <span class="badge status-{{ rep.status }}">
+                                    {{ rep.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="col-location">{{ rep.get_location_display_abbr }}</td>
+                            <td class="col-assigned">
+                                {% if rep.assigned_to %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user text-muted me-1"></i>
+                                        {{ rep.assigned_to.get_display_name }}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="col-actions">
+                                <a href="{% url 'assets:asset_list' %}?drill_ids={{ group.asset_ids|join:',' }}"
+                                   class="btn btn-outline-primary btn-sm"
+                                   title="{% trans 'Drill Into Group' %}">
+                                    <i class="fas fa-filter"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                        {% endif %}
+
                         {% for asset in assets %}
-                        <tr class="asset-row" 
-                            data-name="{{ asset.asset_number|lower }}" 
-                            data-tag="{{ asset.asset_number|lower }}" 
+                        <tr class="asset-row clickable-row"
+                            data-row-url="{% url 'assets:asset_detail' asset.pk %}"
+                            data-name="{{ asset.asset_number|lower }} {{ asset.get_brand_model_display|lower }}"
+                            data-tag="{{ asset.serial_number|default:''|lower }}"
                             data-category="{{ asset.category.name|default:''|lower }}" 
                             data-status="{{ asset.status|lower }}" 
-                            data-location="{{ asset.current_location.name|default:''|lower }}" 
+                            data-location="{{ asset.get_location_display_abbr|lower }}"
                             data-assigned="{{ asset.assigned_to.get_display_name|default:''|lower }}">
+                            <td class="selection-col text-center">
+                                <input type="checkbox" class="asset-select" value="{{ asset.pk }}" data-asset-number="{{ asset.asset_number }}" aria-label="{% trans 'Select asset' %}">
+                            </td>
                             <td class="col-image">
                                 {% if asset.photo %}
                                     <img src="{{ asset.photo.url }}" class="asset-image" alt="{{ asset.asset_number }}">
@@ -309,12 +473,14 @@
                             </td>
                             <td class="col-name">
                                 <div class="fw-bold">{{ asset.asset_number }}</div>
-                                {% if asset.brand %}
-                                <small class="text-muted">{{ asset.brand.name }}</small>
-                                {% endif %}
+                                <small class="text-muted">{{ asset.get_brand_model_display }}</small>
                             </td>
                             <td class="col-tag">
-                                <code class="bg-light px-2 py-1 rounded">{{ asset.asset_number }}</code>
+                                {% if asset.serial_number %}
+                                    <code class="bg-light px-2 py-1 rounded">{{ asset.serial_number }}</code>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
                             </td>
                             <td class="col-category">{{ asset.category.name|default:"-" }}</td>
                             <td class="col-status">
@@ -322,7 +488,7 @@
                                     {{ asset.get_status_display }}
                                 </span>
                             </td>
-                            <td class="col-location">{{ asset.current_location.name|default:"-" }}</td>
+                            <td class="col-location">{{ asset.get_location_display_abbr }}</td>
                             <td class="col-assigned">
                                 {% if asset.assigned_to %}
                                     <div class="d-flex align-items-center">
@@ -350,7 +516,7 @@
                         </tr>
                         {% empty %}
                         <tr id="emptyRow">
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <i class="fas fa-box fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">{% trans "No assets found" %}</h5>
                                 <p class="text-muted">{% trans "No assets match your search criteria or no assets have been added yet." %}</p>
@@ -372,12 +538,12 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}">
+                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.drill_ids %}&drill_ids={{ request.GET.drill_ids|urlencode }}{% endif %}">
                         {% trans "First" %}
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.drill_ids %}&drill_ids={{ request.GET.drill_ids|urlencode }}{% endif %}">
                         {% trans "Previous" %}
                     </a>
                 </li>
@@ -391,12 +557,12 @@
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.drill_ids %}&drill_ids={{ request.GET.drill_ids|urlencode }}{% endif %}">
                         {% trans "Next" %}
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.drill_ids %}&drill_ids={{ request.GET.drill_ids|urlencode }}{% endif %}">
                         {% trans "Last" %}
                     </a>
                 </li>
@@ -469,7 +635,7 @@ function applyColumnVisibility() {
     const emptyRow = document.getElementById('emptyRow');
     if (emptyRow) {
         const visibleColumns = Object.values(columnVisibility).filter(v => v).length;
-        emptyRow.children[0].setAttribute('colspan', visibleColumns);
+        emptyRow.children[0].setAttribute('colspan', visibleColumns + 1);
     }
 }
 
@@ -592,9 +758,202 @@ function showNotification(message, type) {
     }, 3000);
 }
 
+function setupRowNavigation() {
+    document.querySelectorAll('.asset-row.clickable-row').forEach(row => {
+        row.addEventListener('click', function(event) {
+            if (event.target.closest('a, button, input, select, textarea, label')) {
+                return;
+            }
+
+            const targetUrl = row.getAttribute('data-row-url');
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
+    });
+}
+
+function updateSelectedAssetsState() {
+    const selected = [];
+    const selectedAssetNumbers = [];
+    const seen = new Set();
+
+    document.querySelectorAll('#assetsTableBody tr.asset-row').forEach(row => {
+        const itemCb = row.querySelector('.asset-select');
+        if (itemCb && itemCb.checked) {
+            const assetId = itemCb.value;
+            if (!seen.has(assetId)) {
+                seen.add(assetId);
+                selected.push(assetId);
+                selectedAssetNumbers.push(itemCb.dataset.assetNumber || assetId);
+            }
+        }
+
+        const groupCb = row.querySelector('.asset-select-group');
+        if (groupCb && groupCb.checked) {
+            const groupIds = (groupCb.dataset.groupIds || '')
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean);
+            groupIds.forEach(assetId => {
+                if (!seen.has(assetId)) {
+                    seen.add(assetId);
+                    selected.push(assetId);
+                    selectedAssetNumbers.push(groupCb.dataset.groupLabel || assetId);
+                }
+            });
+        }
+    });
+
+    const hiddenInput = document.getElementById('bulkAssetIds');
+    const badge = document.getElementById('selectedCountBadge');
+    const applyBtn = document.getElementById('applyBatchEditBtn');
+    const previewLine = document.getElementById('batchUpdatePreviewLine');
+    const quantityInput = document.getElementById('id_apply_quantity');
+
+    if (hiddenInput) {
+        hiddenInput.value = selected.join(',');
+    }
+    if (badge) {
+        badge.textContent = `${selected.length} {% trans "selected" %}`;
+    }
+    if (applyBtn) {
+        applyBtn.disabled = selected.length === 0;
+    }
+
+    const rawQuantity = quantityInput ? parseInt(quantityInput.value, 10) : NaN;
+    const applyCount = Number.isNaN(rawQuantity) || rawQuantity < 1
+        ? selectedAssetNumbers.length
+        : Math.min(rawQuantity, selectedAssetNumbers.length);
+    const previewItems = selectedAssetNumbers.slice(0, applyCount);
+    if (previewLine) {
+        if (previewItems.length === 0) {
+            previewLine.textContent = '{% trans "Preview" %}: -';
+        } else {
+            previewLine.textContent = `{% trans "Preview" %}: ${previewItems.join(', ')}`;
+        }
+    }
+
+    const selectAll = document.getElementById('selectAllAssets');
+    if (selectAll) {
+        const all = document.querySelectorAll('.asset-select, .asset-select-group');
+        const checked = document.querySelectorAll('.asset-select:checked, .asset-select-group:checked');
+        selectAll.checked = all.length > 0 && checked.length === all.length;
+    }
+}
+
+function setupSelectionHandlers() {
+    const slotMapNode = document.getElementById('bulkLocationSlotMapData');
+    const slotMap = slotMapNode ? JSON.parse(slotMapNode.textContent) : {};
+    const locationSelect = document.getElementById('id_location');
+    const zoneSelect = document.getElementById('id_location_zone');
+    const rackSelect = document.getElementById('id_location_rack');
+    const shelfSelect = document.getElementById('id_location_shelf');
+    const quantityInput = document.getElementById('id_apply_quantity');
+
+    function autoSelectFromQuantity() {
+        if (!quantityInput) {
+            return;
+        }
+        const rawValue = parseInt(quantityInput.value, 10);
+        if (Number.isNaN(rawValue) || rawValue < 1) {
+            updateSelectedAssetsState();
+            return;
+        }
+
+        const visibleEntries = Array.from(document.querySelectorAll('.asset-select')).filter(cb => {
+            const row = cb.closest('tr');
+            return row && row.style.display !== 'none';
+        });
+
+        document.querySelectorAll('.asset-select-group').forEach(cb => {
+            cb.checked = false;
+        });
+
+        visibleEntries.forEach((cb, index) => {
+            cb.checked = index < rawValue;
+        });
+
+        updateSelectedAssetsState();
+    }
+
+    function refillSlotSelect(selectEl, values) {
+        if (!selectEl) {
+            return;
+        }
+        const previous = selectEl.value;
+        selectEl.innerHTML = '';
+
+        const noChange = document.createElement('option');
+        noChange.value = '';
+        noChange.textContent = '{% trans "No change" %}';
+        selectEl.appendChild(noChange);
+
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            if (value === previous) {
+                option.selected = true;
+            }
+            selectEl.appendChild(option);
+        });
+    }
+
+    function refreshSlotOptions() {
+        if (!locationSelect) {
+            return;
+        }
+        const locationId = locationSelect.value || '';
+        const slotData = slotMap[locationId] || {};
+        refillSlotSelect(zoneSelect, slotData.zones || []);
+        refillSlotSelect(rackSelect, slotData.racks || []);
+        refillSlotSelect(shelfSelect, slotData.shelves || []);
+    }
+
+    const selectAll = document.getElementById('selectAllAssets');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('.asset-select, .asset-select-group').forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            updateSelectedAssetsState();
+        });
+    }
+
+    document.querySelectorAll('.asset-select, .asset-select-group').forEach(cb => {
+        cb.addEventListener('change', updateSelectedAssetsState);
+    });
+
+    if (locationSelect) {
+        locationSelect.addEventListener('change', refreshSlotOptions);
+    }
+
+    if (quantityInput) {
+        quantityInput.addEventListener('input', autoSelectFromQuantity);
+        quantityInput.addEventListener('change', autoSelectFromQuantity);
+    }
+
+    const batchForm = document.getElementById('bulkEditForm');
+    if (batchForm) {
+        batchForm.addEventListener('submit', function(event) {
+            const selected = document.getElementById('bulkAssetIds');
+            if (!selected || !selected.value.trim()) {
+                event.preventDefault();
+                showNotification('{% trans "Select at least one asset before batch edit." %}', 'warning');
+            }
+        });
+    }
+
+    refreshSlotOptions();
+    updateSelectedAssetsState();
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadColumnPreferences();
+    setupRowNavigation();
+    setupSelectionHandlers();
     
     // Hide empty row initially if there are assets
     const emptyRow = document.getElementById('emptyRow');

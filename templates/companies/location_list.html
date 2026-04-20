@@ -48,6 +48,25 @@
         </div>
     </div>
 
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Warehouses" %}</div>
+                    <div class="h4 mb-0">{{ warehouse_count|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Total Slot Combinations" %}</div>
+                    <div class="h4 mb-0">{{ slot_total|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Locations Table -->
     <div class="card">
         <div class="card-header">
@@ -64,6 +83,8 @@
                         <tr>
                             <th>{% trans "Location" %}</th>
                             <th>{% trans "Company" %}</th>
+                            <th>{% trans "Type" %}</th>
+                            <th>{% trans "Warehouse Slots" %}</th>
                             <th>{% trans "Address" %}</th>
                             <th>{% trans "Manager" %}</th>
                             <th>{% trans "Created" %}</th>
@@ -88,6 +109,19 @@
                                 </div>
                             </td>
                             <td>{{ location.company.name }}</td>
+                            <td>{{ location.get_location_type_display }}</td>
+                            <td>
+                                {% if location.location_type == 'warehouse' %}
+                                    <div class="small">
+                                        <div>{% trans "Zone" %}: {{ location.zone|default:"-" }}</div>
+                                        <div>{% trans "Rack" %}: {{ location.rack|default:"-" }}</div>
+                                        <div>{% trans "Shelf" %}: {{ location.shelf|default:"-" }}</div>
+                                        <span class="badge bg-info text-dark mt-1">{{ location.get_slot_count }} {% trans "slots" %}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
                             <td>{{ location.get_full_address|default:"-"|truncatechars:40 }}</td>
                             <td>{{ location.manager|default:"-" }}</td>
                             <td>{{ location.created_at|date:"M d, Y" }}</td>

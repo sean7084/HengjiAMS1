@@ -67,18 +67,6 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.division.id_for_label }}" class="form-label">
-                                {% trans "Division" %}
-                            </label>
-                            {{ form.division }}
-                            {% if form.division.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.division.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
                     </div>
                     
                     <div class="row">
@@ -106,6 +94,47 @@
                             {% endif %}
                             <div class="form-text">{% trans "Unique code (e.g., B1-F3-R101)" %}</div>
                         </div>
+                    </div>
+
+                    <div class="row" id="warehouse-range-section">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.zone.id_for_label }}" class="form-label">
+                                {% trans "Zone" %}
+                            </label>
+                            {{ form.zone }}
+                            {% if form.zone.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.zone.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.rack.id_for_label }}" class="form-label">
+                                {% trans "Rack" %}
+                            </label>
+                            {{ form.rack }}
+                            {% if form.rack.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.rack.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.shelf.id_for_label }}" class="form-label">
+                                {% trans "Shelf" %}
+                            </label>
+                            {{ form.shelf }}
+                            {% if form.shelf.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.shelf.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-text mb-3" id="warehouse-range-help">
+                        {% trans "Warehouse only: use ranges like Z1-Z2, R1-R3, S1-S4." %}
                     </div>
                     
                     <div class="row">
@@ -305,36 +334,49 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const companySelect = document.getElementById('{{ form.company.id_for_label }}');
-    const divisionSelect = document.getElementById('{{ form.division.id_for_label }}');
+    const locationTypeSelect = document.getElementById('{{ form.location_type.id_for_label }}');
+    const zoneInput = document.getElementById('{{ form.zone.id_for_label }}');
+    const rackInput = document.getElementById('{{ form.rack.id_for_label }}');
+    const shelfInput = document.getElementById('{{ form.shelf.id_for_label }}');
+    const warehouseSection = document.getElementById('warehouse-range-section');
+    const warehouseHelp = document.getElementById('warehouse-range-help');
     const parentLocationSelect = document.getElementById('{{ form.parent_location.id_for_label }}');
+
+    function toggleWarehouseFields() {
+        if (!locationTypeSelect || !warehouseSection) {
+            return;
+        }
+        const isWarehouse = locationTypeSelect.value === 'warehouse';
+        warehouseSection.style.display = isWarehouse ? '' : 'none';
+        if (warehouseHelp) {
+            warehouseHelp.style.display = isWarehouse ? '' : 'none';
+        }
+
+        if (!isWarehouse) {
+            if (zoneInput) zoneInput.value = '';
+            if (rackInput) rackInput.value = '';
+            if (shelfInput) shelfInput.value = '';
+        }
+    }
+
+    toggleWarehouseFields();
+    if (locationTypeSelect) {
+        locationTypeSelect.addEventListener('change', toggleWarehouseFields);
+    }
     
     if (companySelect) {
         companySelect.addEventListener('change', function() {
             const companyId = this.value;
-            
+
             // Clear dependent selects
-            divisionSelect.innerHTML = '<option value="">{% trans "Select division (optional)" %}</option>';
             parentLocationSelect.innerHTML = '<option value="">{% trans "Select parent location (optional)" %}</option>';
-            
+
             if (companyId) {
-                // Fetch divisions for the selected company
-                fetch(`/api/companies/${companyId}/divisions/`)
+                fetch(`/api/locations/?company=${companyId}`)
                     .then(response => response.json())
                     .then(data => {
-                        data.forEach(division => {
-                            const option = document.createElement('option');
-                            option.value = division.id;
-                            option.textContent = division.name;
-                            divisionSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error fetching divisions:', error));
-                
-                // Fetch locations for the selected company
-                fetch(`/api/companies/${companyId}/locations/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(location => {
+                        const results = Array.isArray(data) ? data : (data.results || []);
+                        results.forEach(location => {
                             const option = document.createElement('option');
                             option.value = location.id;
                             option.textContent = location.name;

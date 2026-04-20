@@ -139,12 +139,22 @@ class AssetModel(models.Model):
         related_name='models',
         verbose_name=_('Brand')
     )
+    category = models.ForeignKey(
+        AssetCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asset_models',
+        verbose_name=_('Category'),
+        help_text=_('Default category used for filtering in asset create forms')
+    )
     name = models.CharField(
         max_length=255,
         verbose_name=_('Model Name')
     )
     model_number = models.CharField(
         max_length=100,
+        null=True,
         blank=True,
         verbose_name=_('Model Number'),
         help_text=_('Official model number from manufacturer')
@@ -181,6 +191,12 @@ class AssetModel(models.Model):
     
     def __str__(self):
         return f"{self.brand.name} {self.name}"
+
+    def save(self, *args, **kwargs):
+        # Treat empty model number as NULL so optional values do not violate uniqueness.
+        if self.model_number == '':
+            self.model_number = None
+        super().save(*args, **kwargs)
     
     def get_absolute_url(self):
         return reverse('assets:model_detail', kwargs={'pk': self.pk})
@@ -265,6 +281,7 @@ class Asset(models.Model):
     )
     barcode = models.CharField(
         max_length=255,
+        null=True,
         blank=True,
         unique=True,
         verbose_name=_('Barcode'),
@@ -305,6 +322,30 @@ class Asset(models.Model):
         related_name='assets',
         verbose_name=_('Location'),
         help_text=_('Physical location where the asset is located')
+    )
+
+    location_zone = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name=_('Location Zone'),
+        help_text=_('Exact warehouse zone for this asset')
+    )
+
+    location_rack = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name=_('Location Rack'),
+        help_text=_('Exact warehouse rack for this asset')
+    )
+
+    location_shelf = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name=_('Location Shelf'),
+        help_text=_('Exact warehouse shelf for this asset')
     )
     
     # Legacy field for compatibility - will be migrated to location
@@ -418,6 +459,15 @@ class Asset(models.Model):
     
     def save(self, *args, **kwargs):
         """Override save to auto-generate asset number if not provided."""
+        # Store empty barcode as NULL so unique constraint allows multiple non-barcoded assets.
+        if self.barcode == '':
+            self.barcode = None
+        if self.location_zone == '':
+            self.location_zone = None
+        if self.location_rack == '':
+            self.location_rack = None
+        if self.location_shelf == '':
+            self.location_shelf = None
         if not self.asset_number:
             self.asset_number = self.generate_asset_number()
         super().save(*args, **kwargs)
@@ -458,6 +508,49 @@ class Asset(models.Model):
     def __str__(self):
         """Return asset number as string representation."""
         return self.asset_number
+
+    @staticmethod
+    def _format_slot_part(value, prefix):
+        cleaned = (value or '').strip()
+        if not cleaned:
+            return ''
+        upper_cleaned = cleaned.upper()
+        upper_prefix = prefix.upper()
+        if upper_cleaned.startswith(upper_prefix):
+            return upper_cleaned
+        return f"{upper_prefix}{upper_cleaned}"
+
+    def has_serial_number(self):
+        return bool((self.serial_number or '').strip())
+
+    def get_brand_model_display(self):
+        if self.brand and self.model:
+            return f"{self.brand.name} {self.model.name}"
+        if self.brand:
+            return self.brand.name
+        if self.model:
+            return self.model.name
+        return '-'
+
+    def get_location_display_abbr(self):
+        base = ''
+        if self.location:
+            base = (self.location.code or '').strip() or (self.location.name or '').strip()
+        else:
+            base = (self.current_location or '').strip()
+
+        zone = self._format_slot_part(self.location_zone, 'Z')
+        rack = self._format_slot_part(self.location_rack, 'R')
+        shelf = self._format_slot_part(self.location_shelf, 'S')
+
+        parts = [part for part in [zone, rack, shelf] if part]
+        if base and parts:
+            return f"{base}-{'-'.join(parts)}"
+        if base:
+            return base
+        if parts:
+            return '-'.join(parts)
+        return '-'
     
     def get_absolute_url(self):
         return reverse('assets:detail', kwargs={'pk': self.pk})

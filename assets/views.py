@@ -12,7 +12,8 @@ from django.db.models import Q, Count, Sum
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
-from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction, IntegrityError
 from django.db.models.deletion import ProtectedError
 from django.conf import settings
 import csv
@@ -20,9 +21,10 @@ import datetime
 import pandas as pd
 import io
 from decimal import Decimal, InvalidOperation
+from collections import OrderedDict
 
 from .models import Asset, AssetCategory, AssetBrand, AssetModel, AssetAssignment, AssetMaintenance
-from .forms import AssetForm, AssetSearchForm, AssetAssignmentForm, AssetImportForm, AssetExportForm, BrandForm, CategoryForm, ModelForm
+from .forms import AssetForm, AssetSearchForm, AssetAssignmentForm, AssetImportForm, AssetExportForm, BrandForm, CategoryForm, ModelForm, AssetBulkEditForm
 from companies.models import Company, Division, Location
 from audit.models import AuditLog
 
@@ -33,37 +35,112 @@ class AssetListView(LoginRequiredMixin, ListView):
     template_name = 'assets/asset_list.html'
     context_object_name = 'assets'
     paginate_by = 25
-    
-    def get_queryset(self):
+
+    def _is_drilldown_mode(self):
+        return bool((self.request.GET.get('drill_ids') or '').strip())
+
+    def _build_base_queryset(self):
         queryset = self.request.user.get_accessible_assets().select_related(
-            'category', 'brand', 'company', 'assigned_to'
+            'category', 'brand', 'model', 'company', 'assigned_to', 'location'
         )
-        
+
+        drill_ids = (self.request.GET.get('drill_ids') or '').strip()
+        if drill_ids:
+            ids = [value.strip() for value in drill_ids.split(',') if value.strip()]
+            if ids:
+                queryset = queryset.filter(pk__in=ids)
+
         # Apply filters
         search_query = self.request.GET.get('search')
         if search_query:
             queryset = queryset.filter(
                 Q(asset_number__icontains=search_query) |
-                Q(name__icontains=search_query) |
-                Q(serial_number__icontains=search_query)
+                Q(description__icontains=search_query) |
+                Q(serial_number__icontains=search_query) |
+                Q(brand__name__icontains=search_query) |
+                Q(model__name__icontains=search_query)
             )
-        
+
         category = self.request.GET.get('category')
         if category:
             queryset = queryset.filter(category_id=category)
-        
+
         status = self.request.GET.get('status')
         if status:
             queryset = queryset.filter(status=status)
-        
+
         location = self.request.GET.get('location')
         if location:
-            queryset = queryset.filter(current_location__icontains=location)
-        
+            queryset = queryset.filter(
+                Q(location__name__icontains=location) |
+                Q(location__code__icontains=location) |
+                Q(current_location__icontains=location)
+            )
+
+        return queryset
+
+    @staticmethod
+    def _build_group_key(asset):
+        legacy_location = (asset.current_location or '').strip().lower()
+        return (
+            asset.category_id,
+            asset.brand_id,
+            asset.model_id,
+            asset.location_id,
+            legacy_location,
+            (asset.location_zone or '').strip().lower(),
+            (asset.location_rack or '').strip().lower(),
+            (asset.location_shelf or '').strip().lower(),
+            asset.status,
+            asset.assigned_to_id,
+        )
+
+    def _build_grouped_assets(self, queryset):
+        grouped = OrderedDict()
+        for asset in queryset:
+            key = self._build_group_key(asset)
+            if key not in grouped:
+                grouped[key] = {
+                    'representative': asset,
+                    'quantity': 0,
+                    'asset_ids': [],
+                }
+            grouped[key]['quantity'] += 1
+            grouped[key]['asset_ids'].append(str(asset.pk))
+        return list(grouped.values())
+
+    @staticmethod
+    def _build_location_slot_map(location_queryset):
+        slot_map = {}
+        for location in location_queryset:
+            if location.location_type != Location.LocationType.WAREHOUSE:
+                continue
+            zones = location.expanded_zones()
+            racks = location.expanded_racks()
+            shelves = location.expanded_shelves()
+            if not zones or not racks or not shelves:
+                continue
+            slot_map[str(location.pk)] = {
+                'zones': zones,
+                'racks': racks,
+                'shelves': shelves,
+            }
+        return slot_map
+    
+    def get_queryset(self):
+        base_queryset = self._build_base_queryset()
+        self._base_queryset = base_queryset
+        self._is_drilldown = self._is_drilldown_mode()
+
+        if self._is_drilldown:
+            queryset = base_queryset
+        else:
+            queryset = base_queryset.exclude(Q(serial_number__isnull=True) | Q(serial_number=''))
+
         # Ordering
         order_by = self.request.GET.get('order_by', '-created_at')
         queryset = queryset.order_by(order_by)
-        
+
         return queryset
     
     def get_context_data(self, **kwargs):
@@ -72,14 +149,100 @@ class AssetListView(LoginRequiredMixin, ListView):
         context['locations'] = Location.objects.filter(status='active')
         context['search_form'] = AssetSearchForm(self.request.GET)
         context['status_choices'] = Asset.AssetStatus.choices
-        
+        context['is_drilldown'] = getattr(self, '_is_drilldown', self._is_drilldown_mode())
+        context['current_query'] = self.request.GET.urlencode()
+        context['bulk_edit_form'] = AssetBulkEditForm(user=self.request.user)
+        context['location_slot_map'] = self._build_location_slot_map(
+            context['bulk_edit_form'].fields['location'].queryset
+        )
+
+        base_queryset = getattr(self, '_base_queryset', self._build_base_queryset())
+        if context['is_drilldown']:
+            context['grouped_assets'] = []
+        else:
+            grouped_queryset = base_queryset.filter(Q(serial_number__isnull=True) | Q(serial_number='')).order_by('-created_at')
+            context['grouped_assets'] = self._build_grouped_assets(grouped_queryset)
+
         # Stats for dashboard cards
-        context['total_assets'] = self.get_queryset().count()
-        context['available_assets'] = self.get_queryset().filter(status='available').count()
-        context['assigned_assets'] = self.get_queryset().filter(status='assigned').count()
-        context['maintenance_assets'] = self.get_queryset().filter(status='maintenance').count()
-        
+        context['total_assets'] = base_queryset.count()
+        context['available_assets'] = base_queryset.filter(status='available').count()
+        context['assigned_assets'] = base_queryset.filter(status='assigned').count()
+        context['maintenance_assets'] = base_queryset.filter(status='maintenance').count()
+
         return context
+
+
+@login_required
+def asset_bulk_edit_view(request):
+    """Apply selected field updates to a quantity of selected assets."""
+    if request.method != 'POST':
+        return redirect('assets:asset_list')
+
+    form = AssetBulkEditForm(request.POST, user=request.user)
+    return_query = (request.POST.get('return_query') or '').strip()
+
+    def _redirect_to_list():
+        base_url = reverse('assets:asset_list')
+        if return_query:
+            return redirect(f"{base_url}?{return_query}")
+        return redirect(base_url)
+
+    if not form.is_valid():
+        first_error = '; '.join(form.non_field_errors())
+        if not first_error:
+            for errors in form.errors.values():
+                if errors:
+                    first_error = errors[0]
+                    break
+        messages.error(request, first_error or _('Bulk update failed. Please check the input values.'))
+        return _redirect_to_list()
+
+    selected_ids = form.cleaned_data['asset_ids']
+    accessible_assets = request.user.get_accessible_assets().filter(pk__in=selected_ids)
+    asset_map = {str(asset.pk): asset for asset in accessible_assets}
+    ordered_assets = [asset_map[asset_id] for asset_id in selected_ids if asset_id in asset_map]
+
+    if not ordered_assets:
+        messages.error(request, _('No selected assets are available for update.'))
+        return _redirect_to_list()
+
+    apply_quantity = form.cleaned_data.get('apply_quantity') or len(ordered_assets)
+    apply_quantity = min(apply_quantity, len(ordered_assets))
+    target_assets = ordered_assets[:apply_quantity]
+    update_data = form.get_update_data()
+
+    updated_count = 0
+    with transaction.atomic():
+        for asset in target_assets:
+            changes = []
+            for field, new_value in update_data.items():
+                old_value = getattr(asset, field)
+                if old_value != new_value:
+                    setattr(asset, field, new_value)
+                    changes.append(f'{field}: {old_value} -> {new_value}')
+
+            if not changes:
+                continue
+
+            asset.save()
+            updated_count += 1
+
+            AuditLog.objects.create(
+                user=request.user,
+                company=asset.company,
+                action=AuditLog.ActionType.UPDATE,
+                content_object=asset,
+                description=f'Bulk updated asset: {asset.asset_number}. Changes: {", ".join(changes)}',
+                ip_address=request.META.get('REMOTE_ADDR'),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+
+    if updated_count:
+        messages.success(request, _('Successfully updated %(count)s assets.') % {'count': updated_count})
+    else:
+        messages.info(request, _('No assets changed.'))
+
+    return _redirect_to_list()
 
 
 class AssetDetailView(LoginRequiredMixin, DetailView):
@@ -123,23 +286,65 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
     template_name = 'assets/asset_form.html'
     success_url = reverse_lazy('assets:asset_list')
 
+    def _resolve_target_company(self, cleaned_data):
+        """Resolve company for new assets from user context, then location fallback."""
+        user_company = None
+        try:
+            user_company = getattr(self.request.user, 'company', None)
+        except ObjectDoesNotExist:
+            user_company = None
+
+        if user_company:
+            return user_company
+
+        location = cleaned_data.get('location')
+        if location and getattr(location, 'company', None):
+            return location.company
+
+        return None
+
     def _build_model_catalog(self):
-        models = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        models = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name')
         return [
             {
                 'id': str(model.pk),
                 'name': model.name,
                 'brand_id': str(model.brand_id) if model.brand_id else '',
                 'brand_name': model.brand.name if model.brand_id else '',
+                'category_id': str(model.category_id) if model.category_id else '',
                 'label': f"{model.brand.name} - {model.name}" if model.brand_id else model.name,
             }
             for model in models
         ]
 
-    def _validate_batch_rows(self, form, amount):
+    def _validate_batch_rows(self, form, amount, brand):
+        form._duplicate_serial_rows = []
         serial_numbers = self.request.POST.getlist('batch_serial_number[]')
         statuses = self.request.POST.getlist('batch_status[]')
         valid_statuses = {choice[0] for choice in Asset.AssetStatus.choices}
+
+        raw_normalized_rows = []
+        for idx in range(amount):
+            raw_serial = serial_numbers[idx] if idx < len(serial_numbers) else ''
+            normalized = (raw_serial or '').strip().lower()
+            if normalized:
+                raw_normalized_rows.append((idx + 1, normalized))
+
+        seen_raw = {}
+        for row_idx, normalized_serial in raw_normalized_rows:
+            first_row = seen_raw.get(normalized_serial)
+            if first_row is not None:
+                form._duplicate_serial_rows = [first_row, row_idx]
+                form.add_error(
+                    None,
+                    _('Duplicate serial number detected in rows %(row1)s and %(row2)s. Serial numbers must be unique within the same brand regardless of status.')
+                    % {
+                        'row1': first_row,
+                        'row2': row_idx,
+                    }
+                )
+                return None, None
+            seen_raw[normalized_serial] = row_idx
 
         if len(statuses) < amount:
             form.add_error(None, _('Please provide status for each item in the batch.'))
@@ -152,11 +357,69 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
             if row_status not in valid_statuses:
                 form.add_error(None, _('Invalid status at row %(row)s.') % {'row': idx + 1})
                 return None, None
+            raw_serial = serial_numbers[idx] if idx < len(serial_numbers) else ''
+            if (raw_serial or '').strip() and not row_serial:
+                form._duplicate_serial_rows = [idx + 1]
+                form.add_error(
+                    None,
+                    _('Serial number at row %(row)s is invalid. Please re-enter it manually.')
+                    % {'row': idx + 1}
+                )
+                return None, None
             parsed_rows.append((row_serial, row_status))
+
+        if not brand:
+            return parsed_rows, serial_numbers
+
+        normalized_rows = []
+        for idx, (row_serial, _row_status) in enumerate(parsed_rows, start=1):
+            normalized = row_serial.strip().lower()
+            if normalized:
+                normalized_rows.append((idx, row_serial.strip(), normalized))
+
+        seen_in_batch = {}
+        for row_idx, raw_serial, normalized_serial in normalized_rows:
+            first_row = seen_in_batch.get(normalized_serial)
+            if first_row is not None:
+                form._duplicate_serial_rows = [first_row, row_idx]
+                form.add_error(
+                    None,
+                    _('Serial number "%(serial)s" is duplicated for brand %(brand)s in rows %(row1)s and %(row2)s.')
+                    % {
+                        'serial': raw_serial,
+                        'brand': brand.name,
+                        'row1': first_row,
+                        'row2': row_idx,
+                    }
+                )
+                return None, None
+            seen_in_batch[normalized_serial] = row_idx
+
+        existing_serials = {
+            (value or '').strip().lower()
+            for value in Asset.objects.filter(brand=brand)
+            .exclude(serial_number='')
+            .exclude(serial_number__isnull=True)
+            .values_list('serial_number', flat=True)
+            if (value or '').strip()
+        }
+        for row_idx, raw_serial, normalized_serial in normalized_rows:
+            if normalized_serial in existing_serials:
+                form._duplicate_serial_rows = [row_idx]
+                form.add_error(
+                    None,
+                    _('Serial number "%(serial)s" already exists under brand %(brand)s (row %(row)s).')
+                    % {
+                        'serial': raw_serial,
+                        'brand': brand.name,
+                        'row': row_idx,
+                    }
+                )
+                return None, None
 
         return parsed_rows, serial_numbers
 
-    def _create_batch_assets(self, form, rows):
+    def _create_batch_assets(self, form, rows, target_company):
         cleaned = form.cleaned_data
         created_assets = []
 
@@ -169,6 +432,9 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
                 serial_number=row_serial,
                 description=cleaned.get('description', ''),
                 location=cleaned.get('location'),
+                location_zone=cleaned.get('location_zone'),
+                location_rack=cleaned.get('location_rack'),
+                location_shelf=cleaned.get('location_shelf'),
                 status=row_status,
                 purchase_date=cleaned.get('purchase_date'),
                 purchase_price=cleaned.get('purchase_price'),
@@ -176,7 +442,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
                 warranty_end_date=cleaned.get('warranty_end_date'),
                 notes=cleaned.get('notes', ''),
                 photo=cleaned.get('photo'),
-                company=self.request.user.company,
+                company=target_company,
                 created_by=self.request.user,
             )
             asset.save()
@@ -184,7 +450,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
 
             AuditLog.objects.create(
                 user=self.request.user,
-                company=self.request.user.company,
+                company=target_company,
                 action=AuditLog.ActionType.CREATE,
                 content_object=asset,
                 description=f'Created asset: {asset.asset_number}',
@@ -195,47 +461,60 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
         return created_assets
     
     def form_valid(self, form):
+        target_company = self._resolve_target_company(form.cleaned_data)
+        if not target_company:
+            form.add_error(None, _('Unable to determine company for this asset. Please choose a location linked to a company.'))
+            return self.form_invalid(form)
+
         amount = form.cleaned_data.get('amount') or 1
         amount = max(1, int(amount))
 
-        rows, _ = self._validate_batch_rows(form, amount)
+        rows, _raw_serials = self._validate_batch_rows(form, amount, form.cleaned_data.get('brand'))
         if rows is None:
             return self.form_invalid(form)
 
         # Keep existing single-create path for backward compatibility.
         if amount == 1:
             first_serial, first_status = rows[0]
-            form.instance.company = self.request.user.company
+            form.instance.company = target_company
             form.instance.created_by = self.request.user
             form.instance.serial_number = first_serial
             form.instance.status = first_status
 
-            with transaction.atomic():
-                response = super().form_valid(form)
+            try:
+                with transaction.atomic():
+                    response = super().form_valid(form)
 
-                AuditLog.objects.create(
-                    user=self.request.user,
-                    company=self.request.user.company,
-                    action=AuditLog.ActionType.CREATE,
-                    content_object=self.object,
-                    description=f'Created asset: {self.object.asset_number}',
-                    ip_address=self.request.META.get('REMOTE_ADDR'),
-                    user_agent=self.request.META.get('HTTP_USER_AGENT', '')
-                )
+                    AuditLog.objects.create(
+                        user=self.request.user,
+                        company=target_company,
+                        action=AuditLog.ActionType.CREATE,
+                        content_object=self.object,
+                        description=f'Created asset: {self.object.asset_number}',
+                        ip_address=self.request.META.get('REMOTE_ADDR'),
+                        user_agent=self.request.META.get('HTTP_USER_AGENT', '')
+                    )
 
-                messages.success(
-                    self.request,
-                    _('Asset "{}" has been created successfully.').format(self.object.asset_number)
-                )
+                    messages.success(
+                        self.request,
+                        _('Asset "{}" has been created successfully.').format(self.object.asset_number)
+                    )
 
-                return response
+                    return response
+            except IntegrityError:
+                form.add_error(None, _('Unable to create asset because of duplicate unique fields. Check serial number/barcode for this brand and try again.'))
+                return self.form_invalid(form)
 
         if form.cleaned_data.get('asset_number'):
             form.add_error('asset_number', _('Leave asset number blank when creating multiple assets.'))
             return self.form_invalid(form)
 
-        with transaction.atomic():
-            created_assets = self._create_batch_assets(form, rows)
+        try:
+            with transaction.atomic():
+                created_assets = self._create_batch_assets(form, rows, target_company)
+        except IntegrityError:
+            form.add_error(None, _('Batch creation failed because one or more serial number/barcode values are duplicated. Serial numbers must be unique within each brand.'))
+            return self.form_invalid(form)
 
         messages.success(
             self.request,
@@ -252,6 +531,9 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['model_catalog'] = self._build_model_catalog()
         context['asset_status_choices'] = Asset.AssetStatus.choices
+        form = context.get('form')
+        context['location_slot_map'] = form.get_location_slot_map() if form else {}
+        context['duplicate_serial_rows'] = getattr(form, '_duplicate_serial_rows', []) if form else []
         return context
 
 
@@ -307,17 +589,20 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        models = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        models = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name')
         context['model_catalog'] = [
             {
                 'id': str(model.pk),
                 'name': model.name,
                 'brand_id': str(model.brand_id) if model.brand_id else '',
                 'brand_name': model.brand.name if model.brand_id else '',
+                'category_id': str(model.category_id) if model.category_id else '',
                 'label': f"{model.brand.name} - {model.name}" if model.brand_id else model.name,
             }
             for model in models
         ]
+        form = context.get('form')
+        context['location_slot_map'] = form.get_location_slot_map() if form else {}
         return context
 
 
@@ -470,13 +755,15 @@ def asset_return_view(request, pk):
 @login_required
 def asset_export_view(request):
     """View for asset export with filters and format selection."""
+    accessible_assets = request.user.get_accessible_assets().select_related(
+        'category', 'brand', 'model', 'assigned_to', 'location'
+    )
+
     if request.method == 'POST':
         form = AssetExportForm(user=request.user, data=request.POST)
         if form.is_valid():
             # Get base queryset
-            base_queryset = Asset.objects.filter(company=request.user.company).select_related(
-                'category', 'brand', 'model', 'assigned_to', 'current_location'
-            )
+            base_queryset = accessible_assets
             
             # Apply filters
             filtered_queryset = form.get_filtered_queryset(base_queryset)
@@ -496,7 +783,7 @@ def asset_export_view(request):
         form = AssetExportForm(user=request.user)
     
     # Get stats for display
-    total_assets = Asset.objects.filter(company=request.user.company).count()
+    total_assets = accessible_assets.count()
     
     context = {
         'form': form,
@@ -521,7 +808,7 @@ def generate_csv_export(request, queryset, include_fields):
         'serial_number': ('Serial Number', lambda asset: asset.serial_number or ''),
         'description': ('Description', lambda asset: asset.description or ''),
         'status': ('Status', lambda asset: asset.get_status_display()),
-        'current_location': ('Current Location', lambda asset: str(asset.current_location) if asset.current_location else ''),
+        'location': ('Location', lambda asset: asset.get_location_display_abbr()),
         'assigned_to': ('Assigned To', lambda asset: asset.assigned_to.get_display_name() if asset.assigned_to else ''),
         'purchase_date': ('Purchase Date', lambda asset: asset.purchase_date.strftime('%Y-%m-%d') if asset.purchase_date else ''),
         'purchase_price': ('Purchase Price', lambda asset: str(asset.purchase_price) if asset.purchase_price else ''),
@@ -576,7 +863,7 @@ def generate_excel_export(request, queryset, include_fields):
         'serial_number': ('Serial Number', lambda asset: asset.serial_number or ''),
         'description': ('Description', lambda asset: asset.description or ''),
         'status': ('Status', lambda asset: asset.get_status_display()),
-        'current_location': ('Current Location', lambda asset: str(asset.current_location) if asset.current_location else ''),
+        'location': ('Location', lambda asset: asset.get_location_display_abbr()),
         'assigned_to': ('Assigned To', lambda asset: asset.assigned_to.get_display_name() if asset.assigned_to else ''),
         'purchase_date': ('Purchase Date', lambda asset: asset.purchase_date.strftime('%Y-%m-%d') if asset.purchase_date else ''),
         'purchase_price': ('Purchase Price', lambda asset: str(asset.purchase_price) if asset.purchase_price else ''),
@@ -680,7 +967,7 @@ def generate_pdf_export(request, queryset, include_fields):
         'model': ('Model', lambda asset: asset.model.name if asset.model else ''),
         'serial_number': ('Serial #', lambda asset: asset.serial_number or ''),
         'status': ('Status', lambda asset: asset.get_status_display()),
-        'current_location': ('Location', lambda asset: str(asset.current_location) if asset.current_location else ''),
+        'location': ('Location', lambda asset: asset.get_location_display_abbr()),
         'assigned_to': ('Assigned To', lambda asset: asset.assigned_to.get_display_name() if asset.assigned_to else ''),
         'purchase_date': ('Purchase Date', lambda asset: asset.purchase_date.strftime('%Y-%m-%d') if asset.purchase_date else ''),
     }
@@ -738,12 +1025,12 @@ def asset_export_csv(request):
     writer = csv.writer(response)
     writer.writerow([
         'Asset Number', 'Category', 'Brand', 'Model', 'Serial Number',
-        'Status', 'Current Location', 'Assigned To', 'Purchase Date', 'Purchase Price',
+        'Status', 'Location', 'Assigned To', 'Purchase Date', 'Purchase Price',
         'Warranty End Date', 'Created At'
     ])
     
-    assets = Asset.objects.filter(company=request.user.company).select_related(
-        'category', 'brand', 'assigned_to'
+    assets = request.user.get_accessible_assets().select_related(
+        'category', 'brand', 'model', 'assigned_to', 'location'
     )
     
     for asset in assets:
@@ -754,7 +1041,7 @@ def asset_export_csv(request):
             asset.model.name if asset.model else '',
             asset.serial_number,
             asset.get_status_display(),
-            asset.current_location,
+            asset.get_location_display_abbr(),
             asset.assigned_to.get_display_name() if asset.assigned_to else '',
             asset.purchase_date.strftime('%Y-%m-%d') if asset.purchase_date else '',
             asset.purchase_price,
@@ -896,6 +1183,37 @@ def asset_import_view(request):
     })
 
 
+def _normalize_import_header(raw_header):
+    header = (str(raw_header or '').strip().lower())
+    header = header.replace('[required]', '').replace('[optional]', '').strip()
+    header = header.replace(' ', '_')
+
+    aliases = {
+        'model_name': 'model',
+        'location_name': 'location',
+        'asset_tag': 'asset_number',
+    }
+    return aliases.get(header, header)
+
+
+def _normalize_import_row(raw_row):
+    normalized = {}
+    for key, value in raw_row.items():
+        normalized_key = _normalize_import_header(key)
+        if not normalized_key:
+            continue
+        normalized[normalized_key] = value
+    return normalized
+
+
+def _clean_import_value(value):
+    if value is None:
+        return ''
+    if pd.isna(value):
+        return ''
+    return str(value).strip()
+
+
 def process_asset_import(file, company, asset_number_mode, asset_number_prefix, 
                         duplicate_handling, validate_only, user):
     """
@@ -923,14 +1241,11 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
             # Read Excel file
             df = pd.read_excel(file)
             data_rows = df.to_dict('records')
+
+        data_rows = [_normalize_import_row(row) for row in data_rows]
         
         # Define required and optional columns
-        required_columns = []  # No required columns since asset_number is auto-generated
-        optional_columns = [
-            'asset_number', 'category', 'brand', 'model', 'serial_number', 'description',
-            'purchase_price', 'purchase_date', 'warranty_end_date',
-            'current_location', 'status', 'condition', 'notes'
-        ]
+        required_columns = ['category', 'brand']
         
         # Validate file has required columns
         if not data_rows:
@@ -1017,7 +1332,8 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
     result = {
         'success': False,
         'asset_fields': {},
-        'errors': []
+        'errors': [],
+        'warnings': [],
     }
     
     try:
@@ -1029,7 +1345,7 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
         
         # Handle asset number (optional - will be auto-generated if not provided)
         if 'asset_number' in row_data and row_data['asset_number']:
-            asset_number = str(row_data['asset_number']).strip()
+            asset_number = _clean_import_value(row_data['asset_number'])
             if asset_number:
                 # Apply prefix or mode logic
                 if asset_number_mode == 'prefix' and asset_number_prefix:
@@ -1040,10 +1356,10 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
         
         # Optional fields with validation
         if 'description' in row_data and row_data['description']:
-            asset_fields['description'] = str(row_data['description']).strip()
+            asset_fields['description'] = _clean_import_value(row_data['description'])
         
         if 'serial_number' in row_data and row_data['serial_number']:
-            serial_number = str(row_data['serial_number']).strip()
+            serial_number = _clean_import_value(row_data['serial_number'])
             
             # Check for duplicate serial numbers
             if duplicate_handling == 'skip':
@@ -1056,9 +1372,11 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
             
             asset_fields['serial_number'] = serial_number
         
-        # Handle category
-        if 'category' in row_data and row_data['category']:
-            category_name = str(row_data['category']).strip()
+        # Handle category (required)
+        category_name = _clean_import_value(row_data.get('category'))
+        if not category_name:
+            result['errors'].append(_('Category is required.'))
+        else:
             try:
                 category = AssetCategory.objects.get(name__iexact=category_name)
                 asset_fields['category'] = category
@@ -1067,9 +1385,11 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
                     _('Category "{category}" not found').format(category=category_name)
                 )
         
-        # Handle brand
-        if 'brand' in row_data and row_data['brand']:
-            brand_name = str(row_data['brand']).strip()
+        # Handle brand (required)
+        brand_name = _clean_import_value(row_data.get('brand'))
+        if not brand_name:
+            result['errors'].append(_('Brand is required.'))
+        else:
             try:
                 brand = AssetBrand.objects.get(name__iexact=brand_name)
                 asset_fields['brand'] = brand
@@ -1077,42 +1397,116 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
                 result['errors'].append(
                     _('Brand "{brand}" not found').format(brand=brand_name)
                 )
+
+        # Handle model foreign key (optional)
+        model_name = _clean_import_value(row_data.get('model'))
+        if model_name:
+            if 'brand' not in asset_fields or 'category' not in asset_fields:
+                result['errors'].append(_('Model requires valid category and brand.'))
+            else:
+                model_qs = AssetModel.objects.filter(
+                    name__iexact=model_name,
+                    brand=asset_fields['brand'],
+                )
+                model_qs = model_qs.filter(
+                    Q(category=asset_fields['category']) | Q(category__isnull=True)
+                )
+
+                if not model_qs.exists():
+                    result['errors'].append(
+                        _('Model "{model}" not found for brand "{brand}" and category "{category}".').format(
+                            model=model_name,
+                            brand=asset_fields['brand'].name,
+                            category=asset_fields['category'].name,
+                        )
+                    )
+                elif model_qs.count() > 1:
+                    result['errors'].append(
+                        _('Model "{model}" is ambiguous for brand "{brand}".').format(
+                            model=model_name,
+                            brand=asset_fields['brand'].name,
+                        )
+                    )
+                else:
+                    model = model_qs.first()
+                    asset_fields['model'] = model
+                    if model and model.category_id is None:
+                        result['warnings'].append(
+                            _('Model "{model}" has no category assigned in admin.').format(model=model.name)
+                        )
+
+        # Handle barcode (optional)
+        barcode = _clean_import_value(row_data.get('barcode'))
+        if barcode:
+            if duplicate_handling == 'skip' and Asset.objects.filter(barcode=barcode).exists():
+                result['errors'].append(
+                    _('Asset with barcode {barcode} already exists').format(barcode=barcode)
+                )
+                return result
+            asset_fields['barcode'] = barcode
         
         # Handle financial fields
-        if 'purchase_price' in row_data and row_data['purchase_price']:
+        purchase_price_raw = _clean_import_value(row_data.get('purchase_price'))
+        if purchase_price_raw:
             try:
-                price = Decimal(str(row_data['purchase_price']).replace(',', ''))
+                price = Decimal(purchase_price_raw.replace(',', ''))
                 asset_fields['purchase_price'] = price
             except (InvalidOperation, ValueError):
                 result['errors'].append(
-                    _('Invalid purchase price: {price}').format(price=row_data['purchase_price'])
+                    _('Invalid purchase price: {price}').format(price=purchase_price_raw)
                 )
         
         # Handle dates
         for date_field in ['purchase_date', 'warranty_end_date']:
-            if date_field in row_data and row_data[date_field]:
+            date_raw = _clean_import_value(row_data.get(date_field))
+            if date_raw:
                 try:
-                    if isinstance(row_data[date_field], str):
-                        # Try to parse date string
-                        date_value = pd.to_datetime(row_data[date_field]).date()
-                    else:
-                        date_value = row_data[date_field]
+                    date_value = pd.to_datetime(date_raw).date()
                     asset_fields[date_field] = date_value
                 except:
                     result['errors'].append(
                         _('Invalid date format for {field}: {value}').format(
-                            field=date_field, value=row_data[date_field]
+                            field=date_field, value=date_raw
                         )
                     )
         
         # Handle other text fields
-        for field in ['model', 'current_location', 'notes']:
+        for field in ['notes', 'location_zone', 'location_rack', 'location_shelf']:
             if field in row_data and row_data[field]:
-                asset_fields[field] = str(row_data[field]).strip()
+                asset_fields[field] = _clean_import_value(row_data[field])
+
+        # Handle location lookup (optional)
+        location_name = _clean_import_value(row_data.get('location'))
+        if location_name:
+            location_qs = Location.objects.filter(company=company, name__iexact=location_name)
+            if location_qs.count() == 1:
+                location = location_qs.first()
+                asset_fields['location'] = location
+                asset_fields['current_location'] = location.name
+            elif location_qs.count() > 1:
+                result['errors'].append(
+                    _('Location "{location}" is ambiguous in company "{company}".').format(
+                        location=location_name,
+                        company=company.name,
+                    )
+                )
+            else:
+                result['errors'].append(
+                    _('Location "{location}" not found in company "{company}".').format(
+                        location=location_name,
+                        company=company.name,
+                    )
+                )
+
+        # Legacy fallback text location
+        legacy_location = _clean_import_value(row_data.get('current_location'))
+        if legacy_location and 'current_location' not in asset_fields:
+            asset_fields['current_location'] = legacy_location
         
         # Handle choice fields
-        if 'status' in row_data and row_data['status']:
-            status = str(row_data['status']).strip().lower()
+        status_raw = _clean_import_value(row_data.get('status'))
+        if status_raw:
+            status = status_raw.lower()
             status_choices = dict(Asset.AssetStatus.choices)
             status_key = None
             for key, value in status_choices.items():
@@ -1123,11 +1517,12 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
                 asset_fields['status'] = status_key
             else:
                 result['warnings'].append(
-                    f"Unknown status '{row_data['status']}', using default"
+                    f"Unknown status '{status_raw}', using default"
                 )
         
-        if 'condition' in row_data and row_data['condition']:
-            condition = str(row_data['condition']).strip().lower()
+        condition_raw = _clean_import_value(row_data.get('condition'))
+        if condition_raw:
+            condition = condition_raw.lower()
             condition_choices = dict(Asset.AssetCondition.choices)
             condition_key = None
             for key, value in condition_choices.items():
@@ -1138,7 +1533,7 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
                 asset_fields['condition'] = condition_key
             else:
                 result['warnings'].append(
-                    f"Unknown condition '{row_data['condition']}', using default"
+                    f"Unknown condition '{condition_raw}', using default"
                 )
         
         result['asset_fields'] = asset_fields
@@ -1162,30 +1557,44 @@ def download_sample_csv(request):
     
     # Write header
     writer.writerow([
-        'asset_number', 'category', 'brand', 'model', 'serial_number', 'description',
-        'purchase_price', 'purchase_date', 'warranty_end_date', 
-        'current_location', 'status', 'condition', 'notes'
+        'asset_number [optional]',
+        'category [required]',
+        'brand [required]',
+        'model [optional]',
+        'serial_number [optional]',
+        'barcode [optional]',
+        'description [optional]',
+        'purchase_price [optional]',
+        'purchase_date [optional]',
+        'warranty_end_date [optional]',
+        'location_name [optional]',
+        'location_zone [optional]',
+        'location_rack [optional]',
+        'location_shelf [optional]',
+        'status [optional]',
+        'condition [optional]',
+        'notes [optional]',
     ])
     
     # Write sample data
     writer.writerow([
-        'LAPTOP-001', 'Laptop', 'Dell', 'XPS 13 9310', 'DL123456789',
+        'LAPTOP-001', 'Laptop', 'Dell', 'XPS 13 9310', 'DL123456789', 'BC-0001',
         'High-performance ultrabook for development work', '1200.00', '2024-01-15',
-        '2027-01-15', 'IT Department', 'available', 'good', 
+        '2027-01-15', 'Vanke VMO Warehouse', 'Z1', 'R1', 'S1', 'available', 'good',
         'Includes charger and carrying case'
     ])
     
     writer.writerow([
-        '', 'Mobile Device', 'Apple', 'iPhone 14 Pro', 'IP987654321',
+        '', 'Mobile Device', 'Apple', 'iPhone 14 Pro', 'IP987654321', 'BC-0002',
         'Company mobile phone for executives', '999.00', '2024-02-01',
-        '2025-02-01', 'Executive Office', 'assigned', 'excellent',
+        '2025-02-01', 'Executive Office', '', '', '', 'assigned', 'excellent',
         'Space Gray, 256GB storage - asset number will be auto-generated'
     ])
     
     writer.writerow([
-        'MON-001', 'Monitor', 'HP', 'E27 G5', 'HP555777999',
+        'MON-001', 'Monitor', 'HP', 'E27 G5', 'HP555777999', 'BC-0003',
         'External monitor for workstations', '299.99', '2024-01-20',
-        '2027-01-20', 'Desk 5A', 'available', 'good',
+        '2027-01-20', 'Desk 5A', '', '', '', 'available', 'good',
         '1920x1080 resolution, HDMI and DisplayPort'
     ])
     
@@ -1391,6 +1800,10 @@ class ModelUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, _('Model updated successfully.'))
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _('Please correct the highlighted errors and try again.'))
+        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

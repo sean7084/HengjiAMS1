@@ -3,10 +3,14 @@ prompt.md
 notes.md
 notes 1.md
 template_files
-.claude
 .playwright-mcp
 .vscode
-
+logs/
+media/
+*.mo
+.claude/
+.mcp.json
+*.code-workspace
 # Python bytecode/cache
 __pycache__/
 *.py[cod]

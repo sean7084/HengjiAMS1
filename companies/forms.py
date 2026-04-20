@@ -186,7 +186,7 @@ class LocationForm(forms.ModelForm):
     class Meta:
         model = Location
         fields = [
-            'company', 'division', 'name', 'code', 'description',
+            'company', 'name', 'code', 'zone', 'rack', 'shelf', 'description',
             'parent_location', 'location_type', 'status', 'area_size',
             'capacity', 'address_line1', 'address_line2', 'city',
             'state_province', 'postal_code', 'country'
@@ -196,9 +196,6 @@ class LocationForm(forms.ModelForm):
                 'class': 'form-select',
                 'required': True
             }),
-            'division': forms.Select(attrs={
-                'class': 'form-select'
-            }),
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': _('Enter location name'),
@@ -207,6 +204,18 @@ class LocationForm(forms.ModelForm):
             'code': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': _('Enter location code (e.g., B1-F3-R101)')
+            }),
+            'zone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Zone range (e.g., Z1-Z2)')
+            }),
+            'rack': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Rack range (e.g., R1-R3)')
+            }),
+            'shelf': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Shelf range (e.g., S1-S4)')
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -259,29 +268,40 @@ class LocationForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # Filter divisions based on selected company
+
+        # Filter parent locations based on selected company.
         if 'company' in self.data:
             try:
                 company_id = int(self.data.get('company'))
-                self.fields['division'].queryset = Division.objects.filter(company_id=company_id)
                 self.fields['parent_location'].queryset = Location.objects.filter(company_id=company_id)
             except (ValueError, TypeError):
                 pass
         elif self.instance.pk and self.instance.company:
-            self.fields['division'].queryset = Division.objects.filter(
-                company=self.instance.company
-            )
             self.fields['parent_location'].queryset = Location.objects.filter(
                 company=self.instance.company
             ).exclude(pk=self.instance.pk)
         else:
-            self.fields['division'].queryset = Division.objects.none()
             self.fields['parent_location'].queryset = Location.objects.none()
-        
-        # Set empty labels
-        self.fields['division'].empty_label = _('Select division (optional)')
+
         self.fields['parent_location'].empty_label = _('Select parent location (optional)')
+
+        self.fields['zone'].required = False
+        self.fields['rack'].required = False
+        self.fields['shelf'].required = False
+        self.fields['zone'].help_text = _('Warehouse only. Supports ranges like Z1-Z2, Z4.')
+        self.fields['rack'].help_text = _('Warehouse only. Supports ranges like R1-R3.')
+        self.fields['shelf'].help_text = _('Warehouse only. Supports ranges like S1-S4.')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        location_type = cleaned_data.get('location_type')
+
+        if location_type != Location.LocationType.WAREHOUSE:
+            cleaned_data['zone'] = None
+            cleaned_data['rack'] = None
+            cleaned_data['shelf'] = None
+
+        return cleaned_data
 
 
 class CompanyUserForm(forms.ModelForm):
