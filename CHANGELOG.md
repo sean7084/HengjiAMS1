@@ -949,6 +949,66 @@ Version 0.1.2 focuses on asset creation workflow usability, broader translation 
 
 *Generated on April 17, 2026 - HengJi Asset Management System v0.1.2*
 
+## Release Notes v0.1.4
+
+**Version:** 0.1.4  
+**Release Date:** April 21, 2026  
+**Focus:** Company/location/contact import workflows, rollback safety, and import-result visibility
+
+---
+
+### Highlights
+
+1. Companies, locations, company contacts, and assets now support rollback of the latest import per user and module.
+2. Companies-module CSV imports now use a preview-and-confirm flow with clearer result reporting and downloadable samples.
+3. Company users were refactored into company contacts, improving recipient/contact workflows across locations and quotations.
+4. Import UX and list summaries were corrected to show real totals, clearer validation feedback, and safer duplicate handling.
+
+### Delivered Scope (30-file release set)
+
+1. Companies CSV import workflows
+- Added dedicated CSV import pages for companies, locations, and company contacts.
+- Added preview/confirm flow with shared upload UI, sample CSV downloads, and required/optional column guidance.
+- Added location-specific "update existing matched entries" support instead of always skipping duplicates.
+- Added tolerant CSV decoding helpers for UTF-8, GB18030/CP936, and Big5 inputs.
+
+2. Import rollback system
+- Added shared rollback tracking models: `ImportRun` and `ImportRunChange`.
+- Added shared rollback utilities to snapshot created/updated records and restore them in reverse order.
+- Enabled rollback actions for company, location, company contact, and asset imports.
+- Exposed rollback buttons on upload, preview, and result pages when a rollback-eligible run exists.
+
+3. Import result visibility and validation
+- Added a shared import result page with total rows, processed rows, created, updated, skipped, and error counts.
+- Added row-level issue reporting and updated-field diff summaries for location update imports.
+- Hardened import validation so unsupported asset status/condition values and invalid location/status enums surface as errors instead of silent defaults.
+- Fixed JSON snapshot serialization for non-primitive model fields during rollback logging.
+
+4. Company contacts and location data model updates
+- Refactored `CompanyUser` into a company-contact-oriented workflow with optional linked auth user, explicit contact name, and contact helper methods.
+- Added company contact create/edit/remove workflows and updated UI labels from "Company Users" to "Company Contacts".
+- Extended locations with `name_en`, `code_2`, `chinese_address`, and linked company contact support.
+- Added dynamic contact loading on the location form and updated quotation fallbacks to use contact helper methods safely.
+
+5. List-page and admin improvements
+- Added import entry points from company, location, and company contact list pages.
+- Fixed list badges to use total paginator counts instead of current page length.
+- Updated the locations summary card to show total locations rather than warehouse-slot aggregates.
+- Updated admin/API support for the expanded location and company-contact schema.
+
+### Migration Files Added
+
+1. `companies/migrations/0009_alter_companyuser_options_companyuser_name_and_more.py`
+2. `companies/migrations/0010_location_chinese_address_location_code_2_and_more.py`
+3. `companies/migrations/0011_migrate_location_legacy_values.py`
+4. `companies/migrations/0012_importrun_importrunchange_and_more.py`
+
+### Validation
+
+1. `python manage.py check` executed successfully after each major implementation step.
+2. End-to-end manual verification confirmed import and rollback behavior for companies, locations, company contacts, and assets.
+3. Verified rollback restored counts correctly after import runs and exposed/fixed snapshot serialization edge cases.
+
 ## Release Notes v0.1.3
 
 **Version:** 0.1.3  

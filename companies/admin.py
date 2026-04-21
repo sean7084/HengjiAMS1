@@ -60,26 +60,26 @@ class LocationAdmin(admin.ModelAdmin):
     """
     Admin interface for Location model.
     """
-    list_display = ('name', 'code', 'zone', 'rack', 'shelf', 'company', 'location_type', 'manager', 'status')
+    list_display = ('name', 'name_en', 'code', 'code_2', 'company', 'location_type', 'contact', 'status')
     list_filter = ('company', 'location_type', 'status', 'created_at')
-    search_fields = ('name', 'code', 'zone', 'rack', 'shelf', 'company__name', 'manager__username', 'city')
+    search_fields = ('name', 'name_en', 'code', 'code_2', 'zone', 'rack', 'shelf', 'company__name', 'contact__name', 'city')
     ordering = ('company__name', 'name')
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('company', 'name', 'code', 'zone', 'rack', 'shelf', 'description')
+            'fields': ('company', 'name', 'name_en', 'code', 'code_2', 'zone', 'rack', 'shelf', 'description')
         }),
         (_('Type and Hierarchy'), {
-            'fields': ('location_type', 'parent_location', 'manager')
+            'fields': ('location_type', 'parent_location')
         }),
         (_('Physical Details'), {
             'fields': ('area_size', 'capacity')
         }),
         (_('Address'), {
-            'fields': ('address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country')
+            'fields': ('address_line1', 'address_line2', 'city', 'state_province', 'postal_code', 'country', 'chinese_address')
         }),
         (_('Contact'), {
-            'fields': ('phone_number', 'email')
+            'fields': ('contact', 'phone_number', 'email', 'manager')
         }),
         (_('Coordinates'), {
             'fields': ('latitude', 'longitude')

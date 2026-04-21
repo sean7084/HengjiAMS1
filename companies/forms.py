@@ -4,7 +4,11 @@ Provides forms for company, division, location, and company user management.
 """
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 from .models import Company, Division, Location, CompanyUser
+
+User = get_user_model()
 
 
 class CompanyForm(forms.ModelForm):
@@ -69,7 +73,7 @@ class CompanyForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['primary_contact_company_user'].queryset = self.instance.company_users.filter(
                 status=CompanyUser.UserStatus.ACTIVE
-            ).select_related('user').order_by('user__first_name', 'user__last_name', 'user__username')
+            ).order_by('name', 'id')
         else:
             self.fields['primary_contact_company_user'].queryset = CompanyUser.objects.none()
 
@@ -186,11 +190,20 @@ class LocationForm(forms.ModelForm):
     class Meta:
         model = Location
         fields = [
-            'company', 'name', 'code', 'zone', 'rack', 'shelf', 'description',
+            'company', 'name', 'name_en', 'code', 'code_2', 'zone', 'rack', 'shelf', 'description',
             'parent_location', 'location_type', 'status', 'area_size',
             'capacity', 'address_line1', 'address_line2', 'city',
-            'state_province', 'postal_code', 'country'
+            'state_province', 'postal_code', 'country', 'chinese_address',
+            'contact', 'email', 'phone_number'
         ]
+        labels = {
+            'name': _('Location Name (Chinese)'),
+            'name_en': _('Location Name (English)'),
+            'code_2': _('Location Code 2'),
+            'contact': _('Contact for Location'),
+            'email': _('E-mail Address'),
+            'phone_number': _('Phone Number'),
+        }
         widgets = {
             'company': forms.Select(attrs={
                 'class': 'form-select',
@@ -198,12 +211,20 @@ class LocationForm(forms.ModelForm):
             }),
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': _('Enter location name'),
+                'placeholder': _('Enter location name in Chinese'),
                 'required': True
+            }),
+            'name_en': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter location name in English (optional)')
             }),
             'code': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': _('Enter location code (e.g., B1-F3-R101)')
+                'placeholder': _('Enter location code (optional)')
+            }),
+            'code_2': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Enter location code 2 (optional)')
             }),
             'zone': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -263,6 +284,22 @@ class LocationForm(forms.ModelForm):
             'country': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': _('Country')
+            }),
+            'chinese_address': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': _('Enter Chinese address')
+            }),
+            'contact': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('location@example.com')
+            }),
+            'phone_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('+8613800000000')
             })
         }
     
@@ -284,34 +321,60 @@ class LocationForm(forms.ModelForm):
             self.fields['parent_location'].queryset = Location.objects.none()
 
         self.fields['parent_location'].empty_label = _('Select parent location (optional)')
+        self.fields['contact'].required = False
+        self.fields['contact'].empty_label = _('Select company contact (optional)')
 
         self.fields['zone'].required = False
         self.fields['rack'].required = False
         self.fields['shelf'].required = False
+        self.fields['code'].required = False
+        self.fields['code'].help_text = _('Optional: location code is not required for create or import.')
         self.fields['zone'].help_text = _('Warehouse only. Supports ranges like Z1-Z2, Z4.')
         self.fields['rack'].help_text = _('Warehouse only. Supports ranges like R1-R3.')
         self.fields['shelf'].help_text = _('Warehouse only. Supports ranges like S1-S4.')
 
+        if 'company' in self.data:
+            try:
+                company_id = int(self.data.get('company'))
+                self.fields['contact'].queryset = CompanyUser.objects.filter(
+                    company_id=company_id,
+                    status=CompanyUser.UserStatus.ACTIVE,
+                ).order_by('name', 'id')
+            except (ValueError, TypeError):
+                self.fields['contact'].queryset = CompanyUser.objects.none()
+        elif self.instance.pk and self.instance.company:
+            self.fields['contact'].queryset = CompanyUser.objects.filter(
+                company=self.instance.company,
+                status=CompanyUser.UserStatus.ACTIVE,
+            ).order_by('name', 'id')
+        else:
+            self.fields['contact'].queryset = CompanyUser.objects.none()
+
     def clean(self):
         cleaned_data = super().clean()
         location_type = cleaned_data.get('location_type')
+        company = cleaned_data.get('company')
+        contact = cleaned_data.get('contact')
 
         if location_type != Location.LocationType.WAREHOUSE:
             cleaned_data['zone'] = None
             cleaned_data['rack'] = None
             cleaned_data['shelf'] = None
 
+        if company and contact and contact.company_id != company.id:
+            self.add_error('contact', _('Selected contact must belong to the selected company.'))
+
         return cleaned_data
 
 
 class CompanyUserForm(forms.ModelForm):
-    """Form for adding users to a company."""
+    """Form for adding company contacts/recipients."""
 
     class Meta:
         model = CompanyUser
-        fields = ['user', 'company', 'role', 'location', 'status', 'employee_id', 'department', 'job_title', 'work_phone', 'work_email']
+        fields = ['name', 'company', 'role', 'location', 'status', 'employee_id', 'department', 'job_title', 'work_phone', 'work_email']
         widgets = {
-            'user': forms.Select(attrs={'class': 'form-select'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
             'company': forms.Select(attrs={'class': 'form-select'}),
             'role': forms.Select(attrs={'class': 'form-select'}),
             'location': forms.Select(attrs={'class': 'form-select'}),
@@ -325,9 +388,9 @@ class CompanyUserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['name'].required = True
         self.fields['location'].required = False
         self.fields['location'].empty_label = _('Select location (optional)')
-        self.fields['user'].queryset = self.fields['user'].queryset.order_by('first_name', 'last_name', 'username')
         self.fields['company'].queryset = Company.objects.filter(status=Company.CompanyStatus.ACTIVE).order_by('name')
 
         if 'company' in self.data:
@@ -351,8 +414,56 @@ class CompanyUserForm(forms.ModelForm):
         cleaned_data = super().clean()
         company = cleaned_data.get('company')
         location = cleaned_data.get('location')
+        name = (cleaned_data.get('name') or '').strip()
+        work_email = (cleaned_data.get('work_email') or '').strip().lower()
+
+        if not name:
+            self.add_error('name', _('Name is required.'))
+        else:
+            cleaned_data['name'] = name
+
+        # One-way sync: include user data in company contact when email matches,
+        # but never create or update User records from this form.
+        if work_email:
+            linked_user = User.objects.filter(email__iexact=work_email).first()
+            if linked_user:
+                cleaned_data['user'] = linked_user
+                if not cleaned_data.get('work_phone') and linked_user.phone_number:
+                    cleaned_data['work_phone'] = linked_user.phone_number
+                if not cleaned_data.get('name'):
+                    cleaned_data['name'] = linked_user.get_full_name_display()
 
         if company and location and location.company_id != company.id:
             self.add_error('location', _('Selected location must belong to the selected company.'))
 
         return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        linked_user = self.cleaned_data.get('user')
+        if linked_user:
+            instance.user = linked_user
+        if commit:
+            instance.save()
+        return instance
+
+
+class CSVImportForm(forms.Form):
+    """Generic CSV import form for companies module pages."""
+
+    file = forms.FileField(
+        label=_('CSV File'),
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.csv',
+        }),
+        help_text=_('Upload a CSV file encoded as UTF-8.')
+    )
+
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        if not file.name.lower().endswith('.csv'):
+            raise ValidationError(_('Only CSV files are supported.'))
+        if file.size > 10 * 1024 * 1024:
+            raise ValidationError(_('File too large. Maximum size is 10MB.'))
+        return file

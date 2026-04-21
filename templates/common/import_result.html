@@ -1,0 +1,143 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">{{ title }}</h1>
+            <p class="text-muted mb-0">{% trans "Import completed. Review the summary below." %}</p>
+        </div>
+        <a href="{{ back_url }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>{% trans "Back" %}
+        </a>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Total Rows" %}</div>
+                    <div class="h4 mb-0">{{ total_rows|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Processed Rows" %}</div>
+                    <div class="h4 mb-0">{{ processed_rows|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Created" %}</div>
+                    <div class="h4 mb-0">{{ created|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Updated" %}</div>
+                    <div class="h4 mb-0">{{ updated|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Skipped" %}</div>
+                    <div class="h4 mb-0">{{ skipped|default:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{% trans "Errors" %}</div>
+                    <div class="h4 mb-0">{{ errors|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if issues %}
+    <div class="card border-warning">
+        <div class="card-header bg-warning-subtle">
+            <h5 class="card-title mb-0">{% trans "Row-Level Issues" %}</h5>
+        </div>
+        <div class="card-body">
+            <ul class="mb-0">
+                {% for issue in issues %}
+                <li>{{ issue }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% elif errors %}
+    <div class="card border-warning">
+        <div class="card-header bg-warning-subtle">
+            <h5 class="card-title mb-0">{% trans "Row-Level Issues" %}</h5>
+        </div>
+        <div class="card-body">
+            <ul class="mb-0">
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if update_changes %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="card-title mb-0">{% trans "Updated Entries" %}</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Row" %}</th>
+                            <th>{% trans "Identifier" %}</th>
+                            <th>{% trans "Changes" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in update_changes %}
+                        <tr>
+                            <td>{{ row.row }}</td>
+                            <td>{{ row.identifier }}</td>
+                            <td>
+                                <ul class="mb-0 small">
+                                    {% for change in row.changes %}
+                                    <li><strong>{{ change.field }}</strong>: {{ change.old }} -> {{ change.new }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-3 d-flex gap-2">
+        {% if rollback_url %}
+        <form method="post" action="{{ rollback_url }}" onsubmit="return confirm('{% trans "Rollback latest import for this module?" %}')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">{% trans "Rollback Latest Import" %}</button>
+        </form>
+        {% endif %}
+        <a href="{{ back_url }}" class="btn btn-primary">{% trans "Done" %}</a>
+    </div>
+</div>
+{% endblock %}

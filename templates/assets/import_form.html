@@ -13,6 +13,14 @@
                     <i class="fas fa-upload"></i> {% trans "Import Assets" %}
                 </h1>
                 <div>
+                    {% if rollback_url %}
+                    <form method="post" action="{{ rollback_url }}" class="d-inline" onsubmit="return confirm('{% trans "Rollback latest import for this module?" %}')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-undo"></i> {% trans "Rollback Latest Import" %}
+                        </button>
+                    </form>
+                    {% endif %}
                     <a href="{{ sample_csv_url }}" class="btn btn-outline-info">
                         <i class="fas fa-download"></i> {% trans "Download Sample CSV" %}
                     </a>

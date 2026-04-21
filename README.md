@@ -282,11 +282,11 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 | Version | Date | Focus |
 |---------|------|-------|
+| v0.1.4 | April 2026 | Import Preview/Confirm + Rollback Safety + Company Contacts |
 | v0.1.3 | April 2026 | Warehouse Slot Workflows + Asset Batch Operations + Export/Route Stability |
 | v0.1.2 | April 2026 | Asset Create UX + i18n Attribute Coverage + Admin/Deletion Stability |
-| v0.1.1 | April 2026 | HTML PDF Rendering for Quotation & Delivery Templates |
 
-### Current Status (v0.1.3)
+### Current Status (v0.1.4)
 
 #### Fully Operational Features
 
@@ -321,6 +321,13 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Duplicate Serial Hardening** - Duplicate serials blocked in batch create frontend and backend checks
 - **Export Data Reliability** - Export uses accessible assets scope and current location display helpers
 - **Company User Edit Flow** - Users list edit action is fully wired with matching URL converter type
+- **Company CSV Import Workflows** - Companies, locations, and company contacts now support sample CSV, preview, and confirm import pages
+- **Import Rollback Protection** - Latest import per user/module can be rolled back for companies, locations, company contacts, and assets
+- **Import Result Dashboard** - Shared result page now shows total, processed, created, updated, skipped, and error counts plus row-level issues
+- **Company Contacts Model** - Company contacts now support recipient-first records with optional linked auth users and reusable contact helpers
+- **Expanded Location Schema** - Locations now support bilingual names, secondary codes, Chinese address, and linked company contacts
+- **Location Duplicate Update Mode** - Location import can update matched entries instead of only skipping duplicates
+- **Count Accuracy Fixes** - Company-contact and location list badges/cards now display full totals instead of page-size counts
 
 #### Database Schema
 
@@ -328,7 +335,9 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - `companies.Company` - Organization management
 - `companies.Division` - Department/division within company
 - `companies.Location` - Physical locations with hierarchy
-- `companies.CompanyUser` - User-Company associations
+- `companies.CompanyUser` - Company contacts with optional linked user associations
+- `companies.ImportRun` - Import execution ledger for rollback tracking
+- `companies.ImportRunChange` - Per-record rollback snapshot history
 - `assets.AssetCategory` - Asset categorization
 - `assets.AssetBrand` - Brand/manufacturer management
 - `assets.AssetModel` - Product models within brands
@@ -337,9 +346,9 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - `assets.AssetMaintenance` - Maintenance scheduling and records
 - `audit.*` - Audit logging models
 
-### v0.1.3 Migration Notes
+### v0.1.4 Migration Notes
 
-Run database migrations before deploying v0.1.3:
+Run database migrations before deploying v0.1.4:
 
 ```bash
 python manage.py migrate
@@ -347,11 +356,10 @@ python manage.py migrate
 
 New migration files included in this release:
 
-- `assets/migrations/0009_alter_asset_barcode.py`
-- `assets/migrations/0010_alter_assetmodel_model_number.py`
-- `assets/migrations/0011_asset_location_rack_asset_location_shelf_and_more.py`
-- `assets/migrations/0012_assetmodel_category.py`
-- `companies/migrations/0008_location_rack_location_shelf_location_zone.py`
+- `companies/migrations/0009_alter_companyuser_options_companyuser_name_and_more.py`
+- `companies/migrations/0010_location_chinese_address_location_code_2_and_more.py`
+- `companies/migrations/0011_migrate_location_legacy_values.py`
+- `companies/migrations/0012_importrun_importrunchange_and_more.py`
 
 ---
 
@@ -401,6 +409,7 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 - Scope delivered in v0.1.1: quotation and delivery document rendering migrated to direct HTML PDF generation with template fidelity tuning.
 - Scope delivered in v0.1.2: asset create UX modernization (searchable selects, brand-filtered models, batch creation), broader template attribute translation coverage, and admin/delete stability hardening.
 - Scope delivered in v0.1.3: warehouse slot schema + UI integration, grouped asset listing with batch edit workflow, export/access-scope fixes, and company user edit-route completion.
+- Scope delivered in v0.1.4: preview-confirm CSV import flows for companies/locations/contacts, shared import-result reporting, rollback tracking for imports, and company-contact/location data model expansion.
 - Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
 - Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.

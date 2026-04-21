@@ -598,11 +598,12 @@ class AssetAssignmentForm(forms.ModelForm):
             from companies.models import CompanyUser
             company_users = CompanyUser.objects.filter(
                 company=company,
-                status=CompanyUser.UserStatus.ACTIVE
+                status=CompanyUser.UserStatus.ACTIVE,
+                user__isnull=False,
             ).select_related('user')
-            
+
             self.fields['assigned_to'].queryset = User.objects.filter(
-                id__in=[cu.user.id for cu in company_users]
+                id__in=[cu.user_id for cu in company_users]
             ).order_by('first_name', 'last_name', 'username')
             
             self.fields['location'].queryset = company.locations.filter(

@@ -23,6 +23,7 @@ urlpatterns = [
     
     # Data Import/Export
     path('import/', views.asset_import_view, name='asset_import'),
+    path('import/rollback/', views.asset_import_rollback_view, name='asset_import_rollback'),
     path('import/sample.csv', views.download_sample_csv, name='sample_csv'),
     path('export/', views.asset_export_view, name='asset_export'),
     path('export/csv/', views.asset_export_csv, name='asset_export_csv'),

@@ -321,18 +321,15 @@ class Location(models.Model):
     """
     
     class LocationType(models.TextChoices):
-        BUILDING = 'building', _('Building')
-        FLOOR = 'floor', _('Floor')
-        ROOM = 'room', _('Room')
         WAREHOUSE = 'warehouse', _('Warehouse')
         OFFICE = 'office', _('Office')
-        FACTORY = 'factory', _('Factory')
+        STORE = 'store', _('Store')
         OTHER = 'other', _('Other')
     
     class LocationStatus(models.TextChoices):
         ACTIVE = 'active', _('Active')
-        INACTIVE = 'inactive', _('Inactive')
-        MAINTENANCE = 'maintenance', _('Under Maintenance')
+        CLOSED = 'closed', _('Closed')
+        UNDER_CONSTRUCTION = 'under_construction', _('Under Construction')
     
     # Basic location information
     name = models.CharField(
@@ -340,12 +337,27 @@ class Location(models.Model):
         verbose_name=_('Location Name'),
         help_text=_('Name of the location')
     )
+
+    name_en = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name=_('Location Name (English)'),
+        help_text=_('English name of the location')
+    )
     
     code = models.CharField(
         max_length=50,
         blank=True,
+        null=True,
         verbose_name=_('Location Code'),
         help_text=_('Unique code for the location (e.g., B1-F3-R101)')
+    )
+
+    code_2 = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Location Code 2'),
+        help_text=_('Secondary code for the location (optional)')
     )
 
     zone = models.CharField(
@@ -409,7 +421,7 @@ class Location(models.Model):
     location_type = models.CharField(
         max_length=20,
         choices=LocationType.choices,
-        default=LocationType.ROOM,
+        default=LocationType.OTHER,
         verbose_name=_('Location Type')
     )
     
@@ -473,6 +485,11 @@ class Location(models.Model):
         blank=True,
         verbose_name=_('Country')
     )
+
+    chinese_address = models.TextField(
+        blank=True,
+        verbose_name=_('Chinese Address')
+    )
     
     # Contact information
     manager = models.ForeignKey(
@@ -482,6 +499,15 @@ class Location(models.Model):
         blank=True,
         null=True,
         verbose_name=_('Location Manager')
+    )
+
+    contact = models.ForeignKey(
+        'CompanyUser',
+        on_delete=models.SET_NULL,
+        related_name='location_contacts',
+        blank=True,
+        null=True,
+        verbose_name=_('Location Contact')
     )
     
     phone_number = models.CharField(
@@ -661,8 +687,9 @@ class Location(models.Model):
 
 class CompanyUser(models.Model):
     """
-    Junction model for associating users with companies and their roles.
-    Allows users to belong to multiple companies with different roles.
+    Company contact record used for recipient/business contact workflows.
+    Contact rows can optionally link to an authentication user, but are
+    maintained independently from the User database.
     """
     
     # User role choices for company access
@@ -680,9 +707,19 @@ class CompanyUser(models.Model):
     
     user = models.ForeignKey(
         get_user_model(),
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='company_memberships',
-        verbose_name=_('User')
+        verbose_name=_('Linked User')
+    )
+
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name=_('Name'),
+        help_text=_('Primary contact/recipient name')
     )
     
     company = models.ForeignKey(
@@ -796,18 +833,48 @@ class CompanyUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        verbose_name = _('Company User')
-        verbose_name_plural = _('Company Users')
+        verbose_name = _('Company Contact')
+        verbose_name_plural = _('Company Contacts')
         unique_together = ['user', 'company']
         indexes = [
             models.Index(fields=['company', 'status']),
             models.Index(fields=['user', 'status']),
             models.Index(fields=['employee_id']),
         ]
-        ordering = ['company__name', 'user__last_name', 'user__first_name']
+        ordering = ['company__name', 'name', 'user__last_name', 'user__first_name']
     
     def __str__(self):
-        return f"{self.user.get_full_name_display()} - {self.company.name} ({self.get_role_display()})"
+        return f"{self.get_contact_name()} - {self.company.name} ({self.get_role_display()})"
+
+    def get_contact_name(self):
+        if (self.name or '').strip():
+            return self.name.strip()
+        if self.user_id:
+            return self.user.get_full_name_display()
+        return '-'
+
+    def get_contact_email(self):
+        if self.work_email:
+            return self.work_email
+        if self.user_id:
+            return self.user.email or ''
+        return ''
+
+    def get_contact_phone(self):
+        if self.work_phone:
+            return self.work_phone
+        if self.user_id:
+            return self.user.phone_number or ''
+        return ''
+
+    def save(self, *args, **kwargs):
+        if not (self.name or '').strip() and self.user_id:
+            self.name = self.user.get_full_name_display()
+        if not self.work_email and self.user_id and self.user.email:
+            self.work_email = self.user.email
+        if not self.work_phone and self.user_id and self.user.phone_number:
+            self.work_phone = self.user.phone_number
+        super().save(*args, **kwargs)
     
     def can_manage_assets(self):
         """Check if user can manage assets for this company."""
@@ -830,4 +897,95 @@ class CompanyUser(models.Model):
     def get_full_display_name(self):
         """Return full display name with company context."""
         title = f" ({self.job_title})" if self.job_title else ""
-        return f"{self.user.get_full_name_display()}{title} - {self.company.name}"
+        return f"{self.get_contact_name()}{title} - {self.company.name}"
+
+
+class ImportRun(models.Model):
+    """Tracks one CSV/Excel import execution for rollback and audit."""
+
+    class RunStatus(models.TextChoices):
+        COMPLETED = 'completed', _('Completed')
+        FAILED = 'failed', _('Failed')
+        ROLLED_BACK = 'rolled_back', _('Rolled Back')
+
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='import_runs',
+        verbose_name=_('User'),
+    )
+    module = models.CharField(max_length=50, verbose_name=_('Module'))
+    import_type = models.CharField(max_length=50, verbose_name=_('Import Type'))
+    status = models.CharField(
+        max_length=20,
+        choices=RunStatus.choices,
+        default=RunStatus.COMPLETED,
+        verbose_name=_('Status'),
+    )
+    total_rows = models.PositiveIntegerField(default=0, verbose_name=_('Total Rows'))
+    created_count = models.PositiveIntegerField(default=0, verbose_name=_('Created Count'))
+    updated_count = models.PositiveIntegerField(default=0, verbose_name=_('Updated Count'))
+    skipped_count = models.PositiveIntegerField(default=0, verbose_name=_('Skipped Count'))
+    error_count = models.PositiveIntegerField(default=0, verbose_name=_('Error Count'))
+    notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    rolled_back_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Rolled Back At'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+
+    class Meta:
+        verbose_name = _('Import Run')
+        verbose_name_plural = _('Import Runs')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'module', 'import_type', 'created_at']),
+            models.Index(fields=['module', 'import_type', 'created_at']),
+            models.Index(fields=['status', 'rolled_back_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.module}:{self.import_type} ({self.created_at:%Y-%m-%d %H:%M})"
+
+    @property
+    def can_rollback(self):
+        return self.status == self.RunStatus.COMPLETED and self.rolled_back_at is None
+
+
+class ImportRunChange(models.Model):
+    """Stores per-object snapshots for rollback."""
+
+    class ChangeOperation(models.TextChoices):
+        CREATE = 'create', _('Create')
+        UPDATE = 'update', _('Update')
+
+    run = models.ForeignKey(
+        ImportRun,
+        on_delete=models.CASCADE,
+        related_name='changes',
+        verbose_name=_('Import Run'),
+    )
+    sequence = models.PositiveIntegerField(default=0, verbose_name=_('Sequence'))
+    row_number = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Source Row'))
+    app_label = models.CharField(max_length=100, verbose_name=_('App Label'))
+    model_name = models.CharField(max_length=100, verbose_name=_('Model Name'))
+    object_pk = models.CharField(max_length=64, verbose_name=_('Object PK'))
+    operation = models.CharField(
+        max_length=20,
+        choices=ChangeOperation.choices,
+        verbose_name=_('Operation'),
+    )
+    before_data = models.JSONField(default=dict, blank=True, verbose_name=_('Before Data'))
+    after_data = models.JSONField(default=dict, blank=True, verbose_name=_('After Data'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+
+    class Meta:
+        verbose_name = _('Import Run Change')
+        verbose_name_plural = _('Import Run Changes')
+        ordering = ['sequence', 'id']
+        indexes = [
+            models.Index(fields=['run', 'sequence']),
+            models.Index(fields=['app_label', 'model_name', 'object_pk']),
+        ]
+
+    def __str__(self):
+        return f"{self.run_id}:{self.operation} {self.app_label}.{self.model_name}#{self.object_pk}"

@@ -60,11 +60,11 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = [
-            'id', 'name', 'code', 'description', 'company', 'company_name',
+            'id', 'name', 'name_en', 'code', 'code_2', 'description', 'company', 'company_name',
             'division', 'division_name', 'parent_location', 'location_type',
             'status', 'area_size', 'capacity', 'address_line1', 'address_line2',
-            'city', 'state_province', 'postal_code', 'country',
-            'manager', 'phone_number', 'email', 'latitude', 'longitude',
+            'city', 'state_province', 'postal_code', 'country', 'chinese_address',
+            'contact', 'manager', 'phone_number', 'email', 'latitude', 'longitude',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

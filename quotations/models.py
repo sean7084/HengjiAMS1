@@ -157,10 +157,13 @@ class Quotation(models.Model):
         """Return customer contact and delivery info from company-linked records."""
         primary_contact = self.customer.primary_contact_company_user
         first_location = self.customer.locations.order_by('name').first()
+        fallback_name = primary_contact.get_contact_name() if primary_contact else ''
+        fallback_phone = primary_contact.get_contact_phone() if primary_contact else ''
+        fallback_email = primary_contact.get_contact_email() if primary_contact else ''
         return {
-            'attn': self.attn or (primary_contact.user.get_display_name() if primary_contact else ''),
-            'tel': self.tel or (primary_contact.work_phone or primary_contact.user.phone_number if primary_contact else ''),
-            'email': (primary_contact.work_email or primary_contact.user.email) if primary_contact else self.customer.email,
+            'attn': self.attn or fallback_name,
+            'tel': self.tel or fallback_phone,
+            'email': fallback_email or self.customer.email,
             'delivery_address': first_location.get_full_address() if first_location else self.customer.get_full_address(),
             'delivery_city': first_location.city if first_location else self.customer.city,
         }

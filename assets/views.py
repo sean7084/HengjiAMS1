@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.decorators.http import require_POST
 from django.db.models import Q, Count, Sum
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -25,8 +26,50 @@ from collections import OrderedDict
 
 from .models import Asset, AssetCategory, AssetBrand, AssetModel, AssetAssignment, AssetMaintenance
 from .forms import AssetForm, AssetSearchForm, AssetAssignmentForm, AssetImportForm, AssetExportForm, BrandForm, CategoryForm, ModelForm, AssetBulkEditForm
-from companies.models import Company, Division, Location
+from companies.models import Company, Division, Location, ImportRunChange
 from audit.models import AuditLog
+from utils.csv_import import read_csv_rows_with_fallback
+from utils.import_rollback import (
+    snapshot_instance,
+    start_import_run,
+    finalize_import_run,
+    record_import_change,
+    get_latest_rollback_run,
+    rollback_run,
+)
+
+
+ASSETS_IMPORT_MODULE = 'assets'
+ASSET_IMPORT_TYPE = 'asset'
+
+
+def _assets_latest_rollback_url(request):
+    latest_run = get_latest_rollback_run(request.user, ASSETS_IMPORT_MODULE, ASSET_IMPORT_TYPE)
+    if latest_run is None:
+        return None
+    return reverse('assets:asset_import_rollback')
+
+
+def _perform_assets_rollback(request):
+    run = get_latest_rollback_run(request.user, ASSETS_IMPORT_MODULE, ASSET_IMPORT_TYPE)
+    if run is None:
+        messages.warning(request, _('No rollback-eligible import run was found.'))
+        return redirect('assets:asset_import')
+
+    outcome = rollback_run(run)
+    if outcome['errors']:
+        messages.warning(
+            request,
+            _('Rollback completed with warnings: %(count)s issue(s).') % {'count': len(outcome['errors'])}
+        )
+    messages.success(
+        request,
+        _('Rollback completed. Deleted %(deleted)s created records and restored %(restored)s updated records.') % {
+            'deleted': outcome['deleted'],
+            'restored': outcome['restored'],
+        }
+    )
+    return redirect('assets:asset_import')
 
 
 class AssetListView(LoginRequiredMixin, ListView):
@@ -1128,12 +1171,18 @@ def asset_import_view(request):
     Import assets from CSV or Excel files.
     Supports validation, preview, and bulk creation with error handling.
     """
+    rollback_url = _assets_latest_rollback_url(request)
+
     if request.method == 'POST':
         form = AssetImportForm(request.POST, request.FILES, user=request.user)
         
         if form.is_valid():
             try:
                 # Process the uploaded file
+                import_run = None
+                if not form.cleaned_data['validate_only']:
+                    import_run = start_import_run(request.user, ASSETS_IMPORT_MODULE, ASSET_IMPORT_TYPE, total_rows=0)
+
                 result = process_asset_import(
                     file=form.cleaned_data['file'],
                     company=form.cleaned_data['company'],
@@ -1141,7 +1190,8 @@ def asset_import_view(request):
                     asset_number_prefix=form.cleaned_data.get('asset_number_prefix', ''),
                     duplicate_handling=form.cleaned_data['duplicate_handling'],
                     validate_only=form.cleaned_data['validate_only'],
-                    user=request.user
+                    user=request.user,
+                    import_run=import_run,
                 )
                 
                 if form.cleaned_data['validate_only']:
@@ -1150,21 +1200,23 @@ def asset_import_view(request):
                     return render(request, 'assets/import_preview.html', {
                         'form': form,
                         'result': result,
-                        'title': _('Asset Import Preview')
+                        'title': _('Asset Import Preview'),
+                        'rollback_url': rollback_url,
                     })
                 else:
                     # Actual import
                     if result['success']:
-                        messages.success(
-                            request, 
-                            _('Successfully imported {count} assets.').format(count=result['imported_count'])
-                        )
-                        if result['errors']:
-                            messages.warning(
-                                request,
-                                _('Some assets could not be imported. Check the error details below.')
-                            )
-                        return redirect('assets:asset_list')
+                        return render(request, 'common/import_result.html', {
+                            'title': _('Asset Import Result'),
+                            'total_rows': result.get('total_rows', 0),
+                            'processed_rows': result.get('processed_rows', 0),
+                            'created': result.get('imported_count', 0),
+                            'updated': 0,
+                            'skipped': 0,
+                            'errors': result.get('errors', [])[:100],
+                            'rollback_url': reverse('assets:asset_import_rollback') if import_run and import_run.can_rollback else None,
+                            'back_url': reverse('assets:asset_import'),
+                        })
                     else:
                         messages.error(request, _('Import failed. Please check the errors below.'))
                         
@@ -1180,12 +1232,15 @@ def asset_import_view(request):
         'form': form,
         'title': _('Import Assets'),
         'sample_csv_url': reverse('assets:sample_csv'),
+        'rollback_url': rollback_url,
     })
 
 
 def _normalize_import_header(raw_header):
     header = (str(raw_header or '').strip().lower())
-    header = header.replace('[required]', '').replace('[optional]', '').strip()
+    for marker in ('[required]', '[optional]', '(required)', '(optional)'):
+        header = header.replace(marker, '')
+    header = header.strip()
     header = header.replace(' ', '_')
 
     aliases = {
@@ -1215,7 +1270,7 @@ def _clean_import_value(value):
 
 
 def process_asset_import(file, company, asset_number_mode, asset_number_prefix, 
-                        duplicate_handling, validate_only, user):
+                        duplicate_handling, validate_only, user, import_run=None):
     """
     Process asset import from CSV or Excel file.
     Returns a dictionary with import results and any errors.
@@ -1223,6 +1278,8 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
     result = {
         'success': False,
         'imported_count': 0,
+        'total_rows': 0,
+        'processed_rows': 0,
         'errors': [],
         'warnings': [],
         'processed_assets': []
@@ -1234,8 +1291,10 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
         
         if file_extension == 'csv':
             # Read CSV file
-            file_content = file.read().decode('utf-8')
-            csv_reader = csv.DictReader(io.StringIO(file_content))
+            try:
+                csv_reader, _encoding = read_csv_rows_with_fallback(file)
+            except UnicodeDecodeError as exc:
+                raise ValueError(_('Unable to decode CSV file. Please save it as UTF-8, GBK/GB18030, or Big5.')) from exc
             data_rows = list(csv_reader)
         else:
             # Read Excel file
@@ -1243,6 +1302,10 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
             data_rows = df.to_dict('records')
 
         data_rows = [_normalize_import_row(row) for row in data_rows]
+        result['total_rows'] = len(data_rows)
+        if import_run is not None:
+            import_run.total_rows = len(data_rows)
+            import_run.save(update_fields=['total_rows'])
         
         # Define required and optional columns
         required_columns = ['category', 'brand']
@@ -1265,6 +1328,7 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
         
         # Process each row
         imported_count = 0
+        change_sequence = 0
         
         with transaction.atomic() if not validate_only else transaction.atomic():
             for row_num, row_data in enumerate(data_rows, start=2):  # Start at 2 for Excel row numbers
@@ -1279,6 +1343,16 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
                             # Create the asset
                             asset = Asset.objects.create(**asset_data['asset_fields'])
                             imported_count += 1
+                            if import_run is not None:
+                                change_sequence += 1
+                                record_import_change(
+                                    import_run,
+                                    sequence=change_sequence,
+                                    operation=ImportRunChange.ChangeOperation.CREATE,
+                                    instance=asset,
+                                    row_number=row_num,
+                                    after_data=snapshot_instance(asset),
+                                )
                             
                             # Log the import action
                             AuditLog.objects.create(
@@ -1315,12 +1389,38 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
                     })
         
         result['imported_count'] = imported_count
+        result['processed_rows'] = len(result['processed_assets'])
         result['success'] = imported_count > 0 or validate_only
+
+        if import_run is not None:
+            finalize_import_run(
+                import_run,
+                created=imported_count,
+                updated=0,
+                skipped=0,
+                error_count=len(result['errors']),
+            )
         
     except Exception as e:
         result['errors'].append(f"File processing error: {str(e)}")
+        result['processed_rows'] = len(result['processed_assets'])
+        if import_run is not None:
+            finalize_import_run(
+                import_run,
+                created=result.get('imported_count', 0),
+                updated=0,
+                skipped=0,
+                error_count=len(result['errors']),
+                notes='File processing failed.',
+            )
     
     return result
+
+
+@login_required
+@require_POST
+def asset_import_rollback_view(request):
+    return _perform_assets_rollback(request)
 
 
 def process_asset_row(row_data, row_num, company, asset_number_mode, 
@@ -1516,8 +1616,8 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
             if status_key:
                 asset_fields['status'] = status_key
             else:
-                result['warnings'].append(
-                    f"Unknown status '{status_raw}', using default"
+                result['errors'].append(
+                    _('Unknown status "{status}"').format(status=status_raw)
                 )
         
         condition_raw = _clean_import_value(row_data.get('condition'))
@@ -1532,8 +1632,8 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
             if condition_key:
                 asset_fields['condition'] = condition_key
             else:
-                result['warnings'].append(
-                    f"Unknown condition '{condition_raw}', using default"
+                result['errors'].append(
+                    _('Unknown condition "{condition}"').format(condition=condition_raw)
                 )
         
         result['asset_fields'] = asset_fields
