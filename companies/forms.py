@@ -173,8 +173,8 @@ class DivisionForm(forms.ModelForm):
         
         # Filter managers to users with appropriate roles
         self.fields['manager'].queryset = self.fields['manager'].queryset.filter(
-            admin_role__in=['superadmin', 'it_administrator']
-        )
+            roles__code__in=['superadmin', 'it_administrator']
+        ).distinct()
         self.fields['manager'].empty_label = _('Select manager (optional)')
         
         # Make code field explicitly optional

@@ -1,0 +1,108 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="fas fa-envelope-open-text"></i> {{ title }}</h1>
+            <p class="text-muted mb-0">{% trans "View synced mailbox messages for your Order Management account." %}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="post" action="{% url 'accounts:mailbox_sync' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success"><i class="fas fa-rotate"></i> {% trans "Sync Now" %}</button>
+            </form>
+            <a href="{% url 'accounts:settings' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-cog"></i> {% trans "Mailbox Settings" %}
+            </a>
+        </div>
+    </div>
+
+    {% if mailbox %}
+    <div class="card card-body mb-4">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link {% if active_direction == 'inbox' %}active{% endif %}" href="{% url 'accounts:mailbox_inbox' %}?direction=inbox{% if search_query %}&search={{ search_query }}{% endif %}">
+                    {% trans "Inbox" %} <span class="badge bg-secondary ms-1">{{ inbox_count }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if active_direction == 'outbox' %}active{% endif %}" href="{% url 'accounts:mailbox_inbox' %}?direction=outbox{% if search_query %}&search={{ search_query }}{% endif %}">
+                    {% trans "Outbox" %} <span class="badge bg-secondary ms-1">{{ outbox_count }}</span>
+                </a>
+            </li>
+        </ul>
+        <form method="get">
+            <input type="hidden" name="direction" value="{{ active_direction }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label for="search" class="form-label">{% trans "Search Messages" %}</label>
+                    <input type="text" id="search" name="search" class="form-control" value="{{ search_query }}" placeholder="{% trans 'Subject, sender, recipient, or preview text' %}">
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill"><i class="fas fa-search"></i> {% trans "Search" %}</button>
+                    <a href="{% url 'accounts:mailbox_inbox' %}?direction={{ active_direction }}" class="btn btn-outline-secondary flex-fill">{% trans "Clear" %}</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            {% if mailbox_messages %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ time_column_label }}</th>
+                            <th>{% if active_direction == 'inbox' %}{% trans "Sender" %}{% else %}{% trans "Recipients" %}{% endif %}</th>
+                            <th>{% trans "Subject" %}</th>
+                            <th>{% trans "Preview" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in mailbox_messages %}
+                        <tr class="mailbox-row" data-href="{% url 'accounts:mailbox_detail' message.pk %}">
+                            <td>{{ message.event_at|date:"M d, Y H:i"|default:"-" }}</td>
+                            <td>{% if active_direction == 'inbox' %}{{ message.sender|default:"-" }}{% else %}{{ message.recipients|default:"-" }}{% endif %}</td>
+                            <td>{{ message.subject|default:"(no subject)" }}</td>
+                            <td>{{ message.body_preview|truncatechars:120 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center text-muted">
+                <i class="fas {% if active_direction == 'inbox' %}fa-inbox{% else %}fa-paper-plane{% endif %} fa-3x mb-3"></i>
+                <p class="mb-0">{% if active_direction == 'inbox' %}{% trans "No inbox messages have been synced yet." %}{% else %}{% trans "No outbox messages have been synced yet." %}{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        {% trans "Configure your mailbox settings on the account settings page before using the email module." %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.mailbox-row').forEach(function (row) {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function (event) {
+            if (event.target.closest('a, button, input, textarea, select, label')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
+{% endblock %}

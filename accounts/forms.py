@@ -6,14 +6,31 @@ Includes 2FA forms, multi-language support, and validation.
 
 import secrets
 import string
+import imaplib
+import poplib
+import smtplib
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django_otp.plugins.otp_totp.models import TOTPDevice
+from django.utils import timezone
 
-from .models import User
+from .models import AdminRole, User, UserMailboxSettings
+
+
+def build_admin_roles_field(required=False):
+    return forms.ModelMultipleChoiceField(
+        queryset=AdminRole.objects.none(),
+        required=required,
+        widget=forms.SelectMultiple(attrs={
+            'class': 'form-control',
+            'size': '4',
+        }),
+        label=_('Administrator Roles'),
+        help_text=_('Select one or more administrator roles (hold Ctrl/Cmd for multiple).')
+    )
 
 
 LANGUAGE_PREFERENCE_CHOICES = [
@@ -82,13 +99,22 @@ class UserRegistrationForm(UserCreationForm):
         }),
         label=_('Last Name')
     )
-    admin_role = forms.ChoiceField(
-        choices=User.AdminRole.choices,
-        widget=forms.Select(attrs={
+    roles = build_admin_roles_field(required=True)
+    password1 = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
             'class': 'form-control',
+            'placeholder': _('Password'),
         }),
-        label=_('Administrator Role'),
-        help_text=_('Select the administrator role and permissions level')
+        label=_('Password')
+    )
+    password2 = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': _('Confirm Password'),
+        }),
+        label=_('Confirm Password')
     )
     phone_number = forms.CharField(
         max_length=17,
@@ -136,7 +162,7 @@ class UserRegistrationForm(UserCreationForm):
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name', 
-            'password1', 'password2', 'admin_role', 'phone_number', 
+            'password1', 'password2', 'roles', 'phone_number', 
             'language_preference', 'use_random_password', 'must_change_password'
         )
     
@@ -168,6 +194,10 @@ class UserRegistrationForm(UserCreationForm):
         # Add help text for random password
         self.fields['password1'].help_text = _('Leave blank to use random password')
         self.fields['password2'].help_text = _('Leave blank to use random password')
+        self.fields['roles'].queryset = AdminRole.objects.filter(is_active=True).order_by('name')
+
+        if self.instance.pk:
+            self.fields['roles'].initial = self.instance.roles.all()
     
     def generate_random_password(self, length=12):
         """Generate a secure random password."""
@@ -180,6 +210,12 @@ class UserRegistrationForm(UserCreationForm):
         use_random_password = cleaned_data.get('use_random_password')
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
+
+        if self.instance.pk:
+            if password1 or password2:
+                if password1 != password2:
+                    raise ValidationError(_('Passwords do not match.'))
+            return cleaned_data
         
         if not use_random_password:
             # If not using random password, require manual password entry
@@ -198,19 +234,33 @@ class UserRegistrationForm(UserCreationForm):
             self.generated_password = random_password
         
         return cleaned_data
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        queryset = User.objects.filter(username=username)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise ValidationError(_('A user with that username already exists.'))
+        return username
     
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        user.admin_role = self.cleaned_data['admin_role']
         user.phone_number = self.cleaned_data['phone_number']
         user.language_preference = self.cleaned_data['language_preference']
         user.must_change_password = self.cleaned_data['must_change_password']
         
         if commit:
             user.save()
+            user.roles.set(self.cleaned_data['roles'])
+            if self.cleaned_data.get('password1'):
+                user.set_password(self.cleaned_data['password1'])
+                user.save(update_fields=['password'])
+        else:
+            user.set_admin_roles(role.code for role in self.cleaned_data['roles'])
         return user
 
 
@@ -313,14 +363,22 @@ class SuperuserUserForm(UserCreationForm):
     )
     
     # Admin role and permissions
-    admin_role = forms.ChoiceField(
-        choices=User.AdminRole.choices,
+    roles = build_admin_roles_field(required=False)
+    password1 = forms.CharField(
         required=False,
-        widget=forms.Select(attrs={
+        widget=forms.PasswordInput(attrs={
             'class': 'form-control',
+            'placeholder': _('Password'),
         }),
-        label=_('Administrator Role'),
-        help_text=_('Select the administrator role and permissions level')
+        label=_('Password')
+    )
+    password2 = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': _('Confirm Password'),
+        }),
+        label=_('Confirm Password')
     )
     managed_company = forms.ModelChoiceField(
         queryset=None,  # Will be set in __init__
@@ -414,7 +472,7 @@ class SuperuserUserForm(UserCreationForm):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'employee_id',
             'phone_number', 'department', 'job_title', 'company', 'division', 'manager',
-            'admin_role', 'managed_company', 'managed_divisions', 'managed_locations',
+            'roles', 'managed_company', 'managed_divisions', 'managed_locations',
             'language_preference', 'timezone', 'is_active', 'is_staff',
             'password1', 'password2', 'use_random_password', 'must_change_password'
         )
@@ -429,9 +487,13 @@ class SuperuserUserForm(UserCreationForm):
         self.fields['company'].queryset = Company.objects.filter(status='active')
         self.fields['division'].queryset = Division.objects.filter(status='active')
         self.fields['manager'].queryset = User.objects.filter(is_active=True)
+        self.fields['roles'].queryset = AdminRole.objects.filter(is_active=True).order_by('name')
         self.fields['managed_company'].queryset = Company.objects.filter(status='active')
         self.fields['managed_divisions'].queryset = Division.objects.filter(status='active')
         self.fields['managed_locations'].queryset = Location.objects.filter(status='active')
+
+        if self.instance.pk:
+            self.fields['roles'].initial = self.instance.roles.all()
         
         # Add CSS classes to default fields
         self.fields['username'].widget.attrs.update({
@@ -470,6 +532,14 @@ class SuperuserUserForm(UserCreationForm):
         use_random_password = cleaned_data.get('use_random_password')
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
+
+        if self.instance.pk:
+            if password1 or password2:
+                if not password1 or not password2:
+                    raise ValidationError(_('Provide both password fields to change the password.'))
+                if password1 != password2:
+                    raise ValidationError(_('Passwords do not match.'))
+            return cleaned_data
         
         if not use_random_password:
             # If not using random password, require manual password entry
@@ -488,6 +558,15 @@ class SuperuserUserForm(UserCreationForm):
             self.generated_password = random_password
         
         return cleaned_data
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        queryset = User.objects.filter(username=username)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise ValidationError(_('A user with that username already exists.'))
+        return username
     
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -503,7 +582,6 @@ class SuperuserUserForm(UserCreationForm):
         user.company = self.cleaned_data.get('company')
         user.division = self.cleaned_data.get('division')
         user.manager = self.cleaned_data.get('manager')
-        user.admin_role = self.cleaned_data.get('admin_role')
         user.managed_company = self.cleaned_data.get('managed_company')
         user.language_preference = self.cleaned_data.get('language_preference', 'en-us')
         user.timezone = self.cleaned_data.get('timezone', 'UTC')
@@ -513,11 +591,17 @@ class SuperuserUserForm(UserCreationForm):
         
         if commit:
             user.save()
+            user.roles.set(self.cleaned_data.get('roles', []))
+            if self.cleaned_data.get('password1'):
+                user.set_password(self.cleaned_data['password1'])
+                user.save(update_fields=['password'])
             # Save many-to-many fields
             if 'managed_divisions' in self.cleaned_data:
                 user.managed_divisions.set(self.cleaned_data['managed_divisions'])
             if 'managed_locations' in self.cleaned_data:
                 user.managed_locations.set(self.cleaned_data['managed_locations'])
+        else:
+            user.set_admin_roles(role.code for role in self.cleaned_data.get('roles', []))
         
         return user
 
@@ -582,6 +666,123 @@ class UserSettingsForm(forms.ModelForm):
             'language_preference': _('Language Preference'),
         }
 
+
+class UserMailboxSettingsForm(forms.ModelForm):
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'autocomplete': 'new-password',
+        }),
+        label=_('Mailbox Password'),
+        help_text=_('Leave blank to keep the currently stored password.'),
+    )
+
+    class Meta:
+        model = UserMailboxSettings
+        fields = [
+            'email_address', 'display_name', 'username', 'password', 'receive_protocol',
+            'imap_host', 'imap_port', 'imap_security', 'pop3_host', 'pop3_port', 'pop3_security',
+            'smtp_host', 'smtp_port', 'smtp_security', 'sync_lookback_months', 'imap_sent_folder',
+            'sync_outbox', 'auto_sync_enabled', 'is_active',
+        ]
+        widgets = {
+            'email_address': forms.EmailInput(attrs={'class': 'form-control'}),
+            'display_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'receive_protocol': forms.Select(attrs={'class': 'form-select'}),
+            'imap_host': forms.TextInput(attrs={'class': 'form-control'}),
+            'imap_port': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'imap_security': forms.Select(attrs={'class': 'form-select'}),
+            'pop3_host': forms.TextInput(attrs={'class': 'form-control'}),
+            'pop3_port': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'pop3_security': forms.Select(attrs={'class': 'form-select'}),
+            'smtp_host': forms.TextInput(attrs={'class': 'form-control'}),
+            'smtp_port': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'smtp_security': forms.Select(attrs={'class': 'form-select'}),
+            'sync_lookback_months': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '24'}),
+            'imap_sent_folder': forms.TextInput(attrs={'class': 'form-control'}),
+            'sync_outbox': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'auto_sync_enabled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        if not self.instance.pk and not password:
+            self.add_error('password', _('Mailbox password is required for a new mailbox configuration.'))
+
+        receive_protocol = cleaned_data.get('receive_protocol')
+        if receive_protocol == UserMailboxSettings.ReceiveProtocol.IMAP and not cleaned_data.get('imap_host'):
+            self.add_error('imap_host', _('IMAP host is required when IMAP is selected.'))
+        if receive_protocol == UserMailboxSettings.ReceiveProtocol.POP3 and not cleaned_data.get('pop3_host'):
+            self.add_error('pop3_host', _('POP3 host is required when POP3 is selected.'))
+        if not cleaned_data.get('smtp_host'):
+            self.add_error('smtp_host', _('SMTP host is required.'))
+        if cleaned_data.get('sync_lookback_months', 0) < 1:
+            self.add_error('sync_lookback_months', _('Sync lookback must be at least 1 month.'))
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        if password:
+            instance.set_password(password)
+        if commit:
+            instance.save()
+        return instance
+
+    def test_connections(self):
+        settings_instance = self.instance
+        username = self.cleaned_data['username']
+        password = self.cleaned_data.get('password') or settings_instance.password
+        if not password:
+            raise ValidationError(_('Mailbox password is required before testing the connection.'))
+
+        if self.cleaned_data['receive_protocol'] == UserMailboxSettings.ReceiveProtocol.IMAP:
+            host = self.cleaned_data['imap_host']
+            port = self.cleaned_data['imap_port']
+            security = self.cleaned_data['imap_security']
+            if security == UserMailboxSettings.ConnectionSecurity.SSL_TLS:
+                mailbox = imaplib.IMAP4_SSL(host, port)
+            else:
+                mailbox = imaplib.IMAP4(host, port)
+                if security == UserMailboxSettings.ConnectionSecurity.STARTTLS:
+                    mailbox.starttls()
+            mailbox.login(username, password)
+            mailbox.logout()
+        else:
+            host = self.cleaned_data['pop3_host']
+            port = self.cleaned_data['pop3_port']
+            security = self.cleaned_data['pop3_security']
+            if security == UserMailboxSettings.ConnectionSecurity.SSL_TLS:
+                mailbox = poplib.POP3_SSL(host, port)
+            else:
+                mailbox = poplib.POP3(host, port)
+                if security == UserMailboxSettings.ConnectionSecurity.STARTTLS and hasattr(mailbox, 'stls'):
+                    mailbox.stls()
+            mailbox.user(username)
+            mailbox.pass_(password)
+            mailbox.quit()
+
+        smtp_host = self.cleaned_data['smtp_host']
+        smtp_port = self.cleaned_data['smtp_port']
+        smtp_security = self.cleaned_data['smtp_security']
+        if smtp_security == UserMailboxSettings.ConnectionSecurity.SSL_TLS:
+            smtp = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=15)
+        else:
+            smtp = smtplib.SMTP(smtp_host, smtp_port, timeout=15)
+            smtp.ehlo()
+            if smtp_security == UserMailboxSettings.ConnectionSecurity.STARTTLS:
+                smtp.starttls()
+                smtp.ehlo()
+        smtp.login(username, password)
+        smtp.quit()
+
+        settings_instance.last_connection_test_at = timezone.now()
+        settings_instance.last_connection_status = 'success'
+        settings_instance.last_connection_message = _('Mailbox connection test succeeded.')
 
 class TwoFactorSetupForm(forms.Form):
     """

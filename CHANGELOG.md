@@ -949,6 +949,72 @@ Version 0.1.2 focuses on asset creation workflow usability, broader translation 
 
 *Generated on April 17, 2026 - HengJi Asset Management System v0.1.2*
 
+## Release Notes v0.1.5
+
+**Version:** 0.1.5  
+**Release Date:** April 24, 2026  
+**Focus:** Multi-role admin controls, order-management access hardening, product price lifecycle tracking, and mailbox workflows
+
+---
+
+### Highlights
+
+1. The single admin-role field was replaced with additive persistent administrator roles, including a new combined Order Management & Procurement Specialist role.
+2. Order Management is now permission-gated in both navigation and direct URLs across quotations, purchases, deliveries, invoices, products, and workflow dashboards.
+3. Product pricing now derives brand and unit from the selected asset model, preserves previous prices as inactive history, and tightens create/edit behavior around current prices.
+4. A user-configurable mailbox module was added to account settings with IMAP or POP3 receive options, SMTP sending, inbox/outbox caching, and automatic 5-minute sync while the Django server is running.
+
+### Delivered Scope (47-file release set)
+
+1. Administrator role system overhaul
+- Added persistent `accounts.AdminRole` records and migrated users from the legacy single `admin_role` field to the `User.roles` many-to-many relationship.
+- Added compatibility helpers such as `admin_role`, `get_admin_roles_display()`, and access-scope utilities so older code paths can keep working during the transition.
+- Introduced the `order_management_procurement_specialist` role and updated admin, forms, templates, API serializers, and demo-data setup to work with multi-role assignment.
+- Fixed Django admin list rendering for translated role labels by coercing lazy translation values to strings before display.
+
+2. Order Management access control and navigation
+- Renamed the main navigation section from Products & Sales to Order Management.
+- Hid the Order Management navigation from unauthorized users and blocked direct access with explicit permission checks in products, quotations, purchases, deliveries, invoices, and workflow dashboard views.
+- Added the mailbox entry point under Order Management and surfaced related mailbox configuration on the account settings page.
+
+3. Asset logs and audit workflow restructuring
+- Moved asset-related audit visibility under Assets as Asset Change Logs with dedicated list/detail routes and clickable rows.
+- Split asset audits into Dashboard, New Audit, and History flows, with updated templates, back-navigation handling, and richer detail pages.
+- Expanded asset import logging so import/export activity appears in asset change history with clearer descriptions and metadata.
+
+4. Product pricing and quotation workflow updates
+- Product price create/edit now derives brand and unit from the selected asset model and rounds tax-inclusive pricing consistently.
+- Product add flow defaults `valid_from` to today and only offers models not already used by current prices.
+- Product price edits now create inactive historical rows with the prior price state and a `valid_until` timestamp on the change date.
+- The unstable model selector was replaced with a native select plus client-side filtering for better browser compatibility.
+- Quotation customer contact resolution was hardened to tolerate orphaned company-user memberships without crashing create/edit views.
+
+5. Mailbox, email dispatch, and account settings
+- Added `UserMailboxSettings` and `ReceivedEmailMessage` models with migrations for inbox/outbox sync configuration, cached messages, sync window settings, and sent-folder support.
+- Added account settings UI for mailbox credentials, protocol/security options, sync lookback, outbox sync toggle, auto-sync toggle, and 2FA status/actions.
+- Added mailbox inbox/detail/sync views with inbox/outbox tabs, newest-first sorting, clickable rows, and manual sync support.
+- Added SMTP sending through per-user mailbox settings with fallback to Django email backend, and cached sent dispatches into the mailbox outbox.
+- Added a background mailbox auto-sync worker thread for `runserver`, plus in-process locking to avoid SQLite write contention during concurrent sync attempts.
+
+6. Validation and regression fixes
+- Fixed admin user edit validation so username uniqueness excludes the current instance and password fields become optional on edit.
+- Fixed the mailbox sync `timezone` import regression and the quotation create `NoneType` crash caused by orphaned contact memberships.
+- Applied and validated new migrations for accounts and products, and verified the updated flows with focused Django checks and runtime probes.
+
+### Migration Files Added
+
+1. `accounts/migrations/0012_admin_roles_m2m.py`
+2. `accounts/migrations/0013_user_mailbox_settings_and_received_messages.py`
+3. `accounts/migrations/0014_mailbox_sync_window_and_outbox.py`
+4. `products/migrations/0002_productprice_history_and_current_constraint.py`
+
+### Validation
+
+1. `python manage.py makemigrations --check` executed successfully after the release migrations were added.
+2. `python manage.py migrate accounts` and `python manage.py migrate products` were applied locally and verified.
+3. `python manage.py check` executed successfully after the role, product, mailbox, and regression-fix slices.
+4. Focused runtime probes verified product-price history creation, mailbox schema availability, and mailbox sync lock behavior.
+
 ## Release Notes v0.1.4
 
 **Version:** 0.1.4  

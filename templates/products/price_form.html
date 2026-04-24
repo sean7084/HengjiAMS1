@@ -26,20 +26,28 @@
                     <form method="post">
                         {% csrf_token %}
 
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">{% trans "Brand" %} *</label>
-                                {{ form.brand }}
-                                {% if form.brand.errors %}
-                                <div class="text-danger">{{ form.brand.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
                                 <label class="form-label">{% trans "Model" %} *</label>
+                                <input type="text" id="model-filter" class="form-control mb-2" placeholder="{% trans 'Type to filter models...' %}">
                                 {{ form.model }}
+                                {% if form.model.help_text %}
+                                <div class="form-text">{{ form.model.help_text }}</div>
+                                {% endif %}
                                 {% if form.model.errors %}
                                 <div class="text-danger">{{ form.model.errors }}</div>
                                 {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{% trans "Brand" %}</label>
+                                {{ form.brand_name }}
+                                <div class="form-text">{% trans "Brand is derived automatically from the selected model." %}</div>
                             </div>
                         </div>
 
@@ -137,9 +145,9 @@
                 <div class="card-body">
                     <h6>{% trans "Pricing Fields" %}</h6>
                     <ul class="small">
-                        <li><strong>{% trans "Brand" %}:</strong> {% trans "Select the product brand" %}</li>
-                        <li><strong>{% trans "Model" %}</strong> {% trans "Select the product model" %}</li>
-                        <li><strong>{% trans "Unit" %}:</strong> {% trans "e.g., PCS, SET, KG" %}</li>
+                        <li><strong>{% trans "Model" %}:</strong> {% trans "Search and select the asset model for this price." %}</li>
+                        <li><strong>{% trans "Brand" %}:</strong> {% trans "Filled automatically from the selected model." %}</li>
+                        <li><strong>{% trans "Unit" %}:</strong> {% trans "Imported automatically from the selected asset model." %}</li>
                         <li><strong>{% trans "Price Without Tax" %}:</strong> {% trans "Base price before tax" %}</li>
                         <li><strong>{% trans "Tax Rate" %}:</strong> {% trans "Percentage (e.g., 13 for 13%)" %}</li>
                         <li><strong>{% trans "Price With Tax" %}:</strong> {% trans "Auto-calculated, can be overridden" %}</li>
@@ -154,4 +162,111 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{{ model_catalog|json_script:"product-model-catalog" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modelSelect = document.getElementById('{{ form.model.id_for_label }}');
+    const modelFilterInput = document.getElementById('model-filter');
+    const brandInput = document.getElementById('{{ form.brand_name.id_for_label }}');
+    const unitInput = document.getElementById('{{ form.unit.id_for_label }}');
+    const catalogScript = document.getElementById('product-model-catalog');
+    const modelCatalog = catalogScript ? JSON.parse(catalogScript.textContent) : [];
+    const modelMap = new Map(modelCatalog.map(function (item) {
+        return [item.id, item];
+    }));
+    const originalOptions = modelSelect ? Array.from(modelSelect.options).map(function (option) {
+        return {
+            value: option.value,
+            text: option.text,
+            selected: option.selected,
+        };
+    }) : [];
+
+    function selectedModelId() {
+        if (!modelSelect) {
+            return '';
+        }
+        return modelSelect.value;
+    }
+
+    function refillModelOptions(query) {
+        if (!modelSelect) {
+            return;
+        }
+
+        const currentValue = modelSelect.value;
+        const normalizedQuery = (query || '').trim().toLowerCase();
+        const filteredOptions = originalOptions.filter(function (option) {
+            if (!option.value) {
+                return true;
+            }
+            if (!normalizedQuery) {
+                return true;
+            }
+            return option.text.toLowerCase().includes(normalizedQuery);
+        });
+
+        modelSelect.innerHTML = '';
+        filteredOptions.forEach(function (option) {
+            const nextOption = new Option(option.text, option.value, false, option.value === currentValue);
+            modelSelect.add(nextOption);
+        });
+
+        if (!filteredOptions.some(function (option) { return option.value === currentValue; })) {
+            modelSelect.value = '';
+        }
+
+        syncDerivedFields();
+    }
+
+    function syncDerivedFields() {
+        if (!modelSelect || !brandInput || !unitInput) {
+            return;
+        }
+
+        const selectedModel = modelMap.get(selectedModelId());
+        brandInput.value = selectedModel ? selectedModel.brand_name : '';
+        unitInput.value = selectedModel ? selectedModel.unit : '';
+    }
+
+    if (modelSelect) {
+        modelSelect.addEventListener('change', syncDerivedFields);
+    }
+
+    if (modelFilterInput) {
+        modelFilterInput.addEventListener('input', function () {
+            refillModelOptions(modelFilterInput.value);
+        });
+    }
+
+    syncDerivedFields();
+
+    const priceWithoutTaxInput = document.getElementById('{{ form.price_without_tax.id_for_label }}');
+    const taxRateInput = document.getElementById('{{ form.tax_rate.id_for_label }}');
+    const priceWithTaxInput = document.getElementById('{{ form.price_with_tax.id_for_label }}');
+
+    function updateTaxInclusivePrice() {
+        if (!priceWithoutTaxInput || !taxRateInput || !priceWithTaxInput) {
+            return;
+        }
+
+        const basePrice = Number(priceWithoutTaxInput.value);
+        const taxRate = Number(taxRateInput.value);
+        if (Number.isFinite(basePrice) && Number.isFinite(taxRate)) {
+            priceWithTaxInput.value = (Math.round((basePrice * (1 + taxRate / 100)) * 100) / 100).toFixed(2);
+        }
+    }
+
+    if (priceWithoutTaxInput) {
+        priceWithoutTaxInput.addEventListener('input', updateTaxInclusivePrice);
+    }
+    if (taxRateInput) {
+        taxRateInput.addEventListener('input', updateTaxInclusivePrice);
+    }
+    updateTaxInclusivePrice();
+});
+</script>
 {% endblock %}

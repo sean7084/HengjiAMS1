@@ -312,6 +312,11 @@
                                 <li><a class="dropdown-item" href="{% url 'assets:asset_import' %}">
                                     <i class="fas fa-upload"></i> {% trans "Import Assets" %}
                                 </a></li>
+                                {% if user.can_view_audit %}
+                                <li><a class="dropdown-item" href="{% url 'assets:asset_log_list' %}">
+                                    <i class="fas fa-history"></i> {% trans "Asset Change Logs" %}
+                                </a></li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'assets:category_list' %}">
                                     <i class="fas fa-tags"></i> {% trans "Manage Categories" %}
@@ -358,11 +363,16 @@
                                 <i class="fas fa-clipboard-check"></i> {% trans "Audit" %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'audit:audit_log_list' %}">
-                                    <i class="fas fa-history"></i> {% trans "Audit Logs" %}
+                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_dashboard' %}">
+                                    <i class="fas fa-chart-line"></i> {% trans "Audit Dashboard" %}
                                 </a></li>
-                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_list' %}">
-                                    <i class="fas fa-search"></i> {% trans "Asset Audits" %}
+                                {% if user.can_create_audit %}
+                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_new' %}">
+                                    <i class="fas fa-plus"></i> {% trans "New Audit" %}
+                                </a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_history' %}">
+                                    <i class="fas fa-clock-rotate-left"></i> {% trans "Audit History" %}
                                 </a></li>
                                 <li><a class="dropdown-item" href="{% url 'audit:system_event_list' %}">
                                     <i class="fas fa-exclamation-triangle"></i> {% trans "System Events" %}
@@ -371,10 +381,11 @@
                         </li>
                         {% endif %}
 
-                        <!-- Products & Sales -->
+                        <!-- Order Management -->
+                        {% if user.can_manage_orders %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-shopping-cart"></i> {% trans "Products & Sales" %}
+                                <i class="fas fa-shopping-cart"></i> {% trans "Order Management" %}
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{% url 'products:price_list' %}">
@@ -408,6 +419,9 @@
                                 <li><a class="dropdown-item" href="{% url 'invoices:email_dispatch_compose' %}">
                                     <i class="fas fa-paper-plane"></i> {% trans "Compose Dispatch Email" %}
                                 </a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:mailbox_inbox' %}">
+                                    <i class="fas fa-envelope-open-text"></i> {% trans "Email Module" %}
+                                </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'dashboard:workflow_dashboard' %}">
                                     <i class="fas fa-columns"></i> {% trans "Workflow Dashboard" %}
@@ -417,6 +431,7 @@
                                 </a></li>
                             </ul>
                         </li>
+                        {% endif %}
 
                         <!-- Reports -->
                         {% if user.can_view_reports %}

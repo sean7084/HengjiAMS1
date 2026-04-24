@@ -8,6 +8,7 @@ from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from assets.models import Asset
 from quotations.models import Quotation
@@ -17,7 +18,16 @@ from .models import DeliveryItem, DeliveryOrder
 from .services import render_delivery_pdf_html
 
 
-class DeliveryOrderListView(ListView):
+class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.can_manage_orders()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
+
+
+class DeliveryOrderListView(OrderManagementAccessMixin, ListView):
     """List deliveries with filtering and search."""
 
     model = DeliveryOrder
@@ -57,7 +67,7 @@ class DeliveryOrderListView(ListView):
         return context
 
 
-class DeliveryOrderDetailView(DetailView):
+class DeliveryOrderDetailView(OrderManagementAccessMixin, DetailView):
     """Detail page for a delivery order."""
 
     model = DeliveryOrder
@@ -73,6 +83,9 @@ class DeliveryOrderDetailView(DetailView):
 
 def delivery_create_view(request, quotation_pk):
     """Create delivery order from a quotation and select dispatch assets."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
 
     quotation = get_object_or_404(
         Quotation.objects.select_related('customer', 'customer__primary_contact_company_user__user'),
@@ -136,6 +149,9 @@ def delivery_create_view(request, quotation_pk):
 
 def mark_prepared(request, pk):
     """Mark delivery as prepared."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
 
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
@@ -154,6 +170,9 @@ def mark_prepared(request, pk):
 
 def mark_dispatched(request, pk):
     """Dispatch delivery and update linked asset statuses."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
 
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
@@ -187,6 +206,9 @@ def mark_dispatched(request, pk):
 
 def upload_signed_copy(request, pk):
     """Upload signed delivery copy."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
 
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
@@ -207,6 +229,9 @@ def upload_signed_copy(request, pk):
 
 def mark_completed(request, pk):
     """Complete delivery and set linked assets to in-use."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
 
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
@@ -236,6 +261,9 @@ def mark_completed(request, pk):
 
 def generate_delivery_pdf(request, pk):
     """Generate delivery document from HTML template and return PDF."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
 
     delivery = get_object_or_404(DeliveryOrder.objects.prefetch_related('items'), pk=pk)
 

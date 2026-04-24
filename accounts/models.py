@@ -3,10 +3,47 @@ Models for HengJi Asset Management System - Accounts App.
 This module defines the custom user model and related authentication models.
 """
 
+import base64
+import hashlib
+import uuid
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-import uuid
+
+
+class AdminRole(models.Model):
+    """Persistent administrator roles that can be assigned additively to users."""
+
+    code = models.CharField(max_length=64, unique=True, verbose_name=_('Role Code'))
+    name = models.CharField(max_length=120, verbose_name=_('Role Name'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Active'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('Administrator Role')
+        verbose_name_plural = _('Administrator Roles')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+def _xor_secret(value):
+    key = hashlib.sha256(settings.SECRET_KEY.encode('utf-8')).digest()
+    raw = value.encode('utf-8')
+    protected = bytes(raw[index] ^ key[index % len(key)] for index in range(len(raw)))
+    return base64.urlsafe_b64encode(protected).decode('ascii')
+
+
+def _xor_secret_restore(value):
+    key = hashlib.sha256(settings.SECRET_KEY.encode('utf-8')).digest()
+    raw = base64.urlsafe_b64decode(value.encode('ascii'))
+    restored = bytes(raw[index] ^ key[index % len(key)] for index in range(len(raw)))
+    return restored.decode('utf-8')
 
 
 class User(AbstractUser):
@@ -19,6 +56,7 @@ class User(AbstractUser):
         SUPERADMIN = 'superadmin', _('Superadmin')
         IT_ADMINISTRATOR = 'it_administrator', _('IT Administrator')
         VIEWER = 'viewer', _('Viewer')
+        ORDER_MANAGEMENT_PROCUREMENT_SPECIALIST = 'order_management_procurement_specialist', _('Order Management & Procurement Specialist')
 
     LANGUAGE_CHOICES = [
         ('en-us', _('English (US)')),
@@ -35,14 +73,13 @@ class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
-    # Administrator role field
-    admin_role = models.CharField(
-        max_length=20,
-        choices=AdminRole.choices,
-        null=True,
+    # Administrator role assignments
+    roles = models.ManyToManyField(
+        'accounts.AdminRole',
         blank=True,
-        verbose_name=_('Administrator Role'),
-        help_text=_('Role for administrator access levels')
+        related_name='users',
+        verbose_name=_('Administrator Roles'),
+        help_text=_('Roles for administrator access levels')
     )
     
     # Profile image
@@ -191,7 +228,75 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.language_preference = self.normalize_language_code(self.language_preference)
-        return super().save(*args, **kwargs)
+        result = super().save(*args, **kwargs)
+        pending_role_codes = getattr(self, '_pending_admin_role_codes', None)
+        if pending_role_codes is not None:
+            self.set_admin_roles(pending_role_codes)
+            delattr(self, '_pending_admin_role_codes')
+        return result
+
+    @classmethod
+    def order_admin_role_codes(cls, role_codes):
+        ordered_codes = []
+        input_codes = [code for code in role_codes if code]
+        for code, _label in cls.AdminRole.choices:
+            if code in input_codes and code not in ordered_codes:
+                ordered_codes.append(code)
+        for code in input_codes:
+            if code not in ordered_codes:
+                ordered_codes.append(code)
+        return ordered_codes
+
+    @classmethod
+    def admin_role_label(cls, role_code):
+        return str(dict(cls.AdminRole.choices).get(role_code, role_code or ''))
+
+    @property
+    def admin_role(self):
+        role_codes = self.get_admin_role_codes()
+        return role_codes[0] if role_codes else ''
+
+    @admin_role.setter
+    def admin_role(self, value):
+        if isinstance(value, (list, tuple, set)):
+            self._pending_admin_role_codes = self.order_admin_role_codes(value)
+        elif value:
+            self._pending_admin_role_codes = [value]
+        else:
+            self._pending_admin_role_codes = []
+
+    def has_admin_role(self, role_code):
+        pending_role_codes = getattr(self, '_pending_admin_role_codes', None)
+        if pending_role_codes is not None:
+            return role_code in pending_role_codes
+        if not self.pk:
+            return False
+        return self.roles.filter(code=role_code).exists()
+
+    def get_admin_role_codes(self):
+        pending_role_codes = getattr(self, '_pending_admin_role_codes', None)
+        if pending_role_codes is not None:
+            return self.order_admin_role_codes(pending_role_codes)
+        if not self.pk:
+            return []
+        return self.order_admin_role_codes(self.roles.values_list('code', flat=True))
+
+    def set_admin_roles(self, role_codes):
+        normalized_codes = self.order_admin_role_codes(role_codes or [])
+        if not self.pk:
+            self._pending_admin_role_codes = normalized_codes
+            return
+        roles = AdminRole.objects.filter(code__in=normalized_codes)
+        self.roles.set(roles)
+
+    def get_admin_role_display(self):
+        return self.admin_role_label(self.admin_role)
+
+    def get_admin_roles_display(self):
+        role_codes = self.get_admin_role_codes()
+        if not role_codes:
+            return _('No admin roles')
+        return ', '.join(self.admin_role_label(code) for code in role_codes)
     
     def get_display_name(self):
         """Get the user's display name (full name or username)."""
@@ -208,96 +313,83 @@ class User(AbstractUser):
     def is_superadmin(self):
         """Check if user is a superadmin with access to all data."""
         return (self.is_superuser or 
-                self.admin_role == self.AdminRole.SUPERADMIN)
+                self.has_admin_role(self.AdminRole.SUPERADMIN))
     
     def is_it_administrator(self):
         """Check if user is an IT administrator with division/company access."""
-        return self.admin_role == self.AdminRole.IT_ADMINISTRATOR
+        return self.has_admin_role(self.AdminRole.IT_ADMINISTRATOR)
     
     def is_viewer_admin(self):
         """Check if user is a viewer with location read-only access."""
-        return self.admin_role == self.AdminRole.VIEWER
+        return self.has_admin_role(self.AdminRole.VIEWER)
+
+    def is_order_management_procurement_specialist(self):
+        """Check if user can handle order-management and procurement workflows."""
+        return self.has_admin_role(self.AdminRole.ORDER_MANAGEMENT_PROCUREMENT_SPECIALIST)
     
     def get_accessible_companies(self):
         """Get companies this admin can access."""
+        from companies.models import Company
+
         if self.is_superadmin():
-            from companies.models import Company
             return Company.objects.all()
-        elif self.is_it_administrator():
-            # IT Administrator can access companies through managed_company or managed_divisions
-            companies = set()
-            if self.managed_company:
-                companies.add(self.managed_company)
-            for division in self.managed_divisions.all():
-                companies.add(division.company)
-            return list(companies)
-        elif self.is_viewer_admin():
-            companies = set()
-            for location in self.managed_locations.all():
-                companies.add(location.company)
-            return list(companies)
-        return []
+
+        company_ids = set()
+        if self.managed_company_id and self.is_it_administrator():
+            company_ids.add(self.managed_company_id)
+        if self.is_it_administrator():
+            company_ids.update(self.managed_divisions.values_list('company_id', flat=True))
+        if self.is_viewer_admin():
+            company_ids.update(self.managed_locations.values_list('company_id', flat=True))
+        return Company.objects.filter(id__in=company_ids)
     
     def get_accessible_divisions(self):
         """Get divisions this admin can access."""
+        from companies.models import Division
+
         if self.is_superadmin():
-            from companies.models import Division
             return Division.objects.all()
-        elif self.is_it_administrator():
-            # IT Administrator can access divisions through managed_company or managed_divisions
-            from companies.models import Division
-            divisions = Division.objects.none()
-            if self.managed_company:
-                divisions = divisions | self.managed_company.divisions.all()
-            divisions = divisions | self.managed_divisions.all()
-            return divisions.distinct()
-        elif self.is_viewer_admin():
-            divisions = set()
-            for location in self.managed_locations.all():
-                if location.division:
-                    divisions.add(location.division)
-            return list(divisions)
-        return []
+
+        division_ids = set()
+        if self.managed_company_id and self.is_it_administrator():
+            division_ids.update(self.managed_company.divisions.values_list('id', flat=True))
+        if self.is_it_administrator():
+            division_ids.update(self.managed_divisions.values_list('id', flat=True))
+        if self.is_viewer_admin():
+            division_ids.update(self.managed_locations.exclude(division__isnull=True).values_list('division_id', flat=True))
+        return Division.objects.filter(id__in=division_ids)
     
     def get_accessible_locations(self):
         """Get locations this admin can access."""
+        from companies.models import Location
+
         if self.is_superadmin():
-            from companies.models import Location
             return Location.objects.all()
-        elif self.is_it_administrator():
-            # IT Administrator can access locations through managed_company or managed_divisions
-            from companies.models import Location
-            locations = Location.objects.none()
-            if self.managed_company:
-                locations = locations | self.managed_company.locations.all()
-            for division in self.managed_divisions.all():
-                locations = locations | division.locations.all()
-            return locations.distinct()
-        elif self.is_viewer_admin():
-            return self.managed_locations.all()
-        return []
+
+        location_ids = set()
+        if self.managed_company_id and self.is_it_administrator():
+            location_ids.update(self.managed_company.locations.values_list('id', flat=True))
+        if self.is_it_administrator():
+            location_ids.update(Location.objects.filter(division__in=self.managed_divisions.all()).values_list('id', flat=True))
+        if self.is_viewer_admin():
+            location_ids.update(self.managed_locations.values_list('id', flat=True))
+        return Location.objects.filter(id__in=location_ids)
     
     def get_accessible_assets(self):
         """Get assets this admin can access."""
+        from assets.models import Asset
+
         if self.is_superadmin():
-            from assets.models import Asset
             return Asset.objects.all()
-        elif self.is_it_administrator():
-            # IT Administrator can access assets through managed_company or managed_divisions
-            from assets.models import Asset
-            assets = Asset.objects.none()
-            if self.managed_company:
-                assets = assets | Asset.objects.filter(company=self.managed_company)
-            for division in self.managed_divisions.all():
-                assets = assets | Asset.objects.filter(division=division)
-            return assets.distinct()
-        elif self.is_viewer_admin():
-            from assets.models import Asset
-            assets = Asset.objects.none()
-            for location in self.managed_locations.all():
-                assets = assets | Asset.objects.filter(location=location)
-            return assets
-        return []
+
+        asset_queryset = Asset.objects.none()
+        if self.managed_company_id and self.is_it_administrator():
+            asset_queryset = asset_queryset | Asset.objects.filter(company=self.managed_company)
+        if self.is_it_administrator():
+            asset_queryset = asset_queryset | Asset.objects.filter(division__in=self.managed_divisions.all())
+        if self.is_viewer_admin():
+            asset_queryset = asset_queryset | Asset.objects.filter(location__in=self.managed_locations.all())
+        return asset_queryset.distinct()
     
     def can_manage_assets(self):
         """Check if user can manage assets."""
@@ -371,21 +463,26 @@ class User(AbstractUser):
     def can_manage_company_users(self):
         """Check if user can manage company users."""
         return self.is_superadmin()
+
+    def can_manage_orders(self):
+        """Check if user can access order-management workflows."""
+        return self.is_superadmin() or self.is_order_management_procurement_specialist()
     
     def get_role_display_name(self):
         """Get the display name for the user's admin role."""
-        if self.admin_role:
-            return self.get_admin_role_display()
-        else:
+        if self.get_admin_role_codes():
+            return self.get_admin_roles_display()
+        if hasattr(self, 'get_role_display') and getattr(self, 'role', None):
             return self.get_role_display()
+        return _('Standard User')
     
     def get_access_scope_display(self):
         """Get a description of the user's access scope."""
         if self.is_superadmin():
             return _("All companies and data")
-        elif self.is_it_administrator():
-            # Show scope based on managed_company and/or managed_divisions
-            scopes = []
+
+        scopes = []
+        if self.is_it_administrator():
             if self.managed_company:
                 scopes.append(_("Company: {company}").format(company=self.managed_company.name))
             divisions = self.managed_divisions.all()
@@ -393,14 +490,154 @@ class User(AbstractUser):
                 scopes.append(_("Division: {division}").format(division=divisions.first().name))
             elif divisions.count() > 1:
                 scopes.append(_("{count} divisions").format(count=divisions.count()))
-            return ", ".join(scopes) if scopes else _("No access configured")
-        elif self.is_viewer_admin():
+        if self.is_viewer_admin():
             locations = self.managed_locations.all()
             if locations.count() == 1:
-                return _("Location: {location}").format(location=locations.first().name)
-            else:
-                return _("{count} locations").format(count=locations.count())
-        return _("No admin access")
+                scopes.append(_("Location: {location}").format(location=locations.first().name))
+            elif locations.count() > 1:
+                scopes.append(_("{count} locations").format(count=locations.count()))
+        if self.is_order_management_procurement_specialist():
+            scopes.append(_("Order management and procurement workflows"))
+        return ", ".join(scopes) if scopes else _("No admin access")
+
+
+class UserMailboxSettings(models.Model):
+    """Per-user mailbox configuration for order-management workflows."""
+
+    class ReceiveProtocol(models.TextChoices):
+        IMAP = 'imap', _('IMAP')
+        POP3 = 'pop3', _('POP3')
+
+    class ConnectionSecurity(models.TextChoices):
+        NONE = 'none', _('None')
+        SSL_TLS = 'ssl_tls', _('SSL/TLS')
+        STARTTLS = 'starttls', _('STARTTLS')
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='mailbox_settings',
+        verbose_name=_('User'),
+    )
+    email_address = models.EmailField(verbose_name=_('Email Address'))
+    display_name = models.CharField(max_length=150, blank=True, verbose_name=_('Display Name'))
+    username = models.CharField(max_length=255, verbose_name=_('Login Username'))
+    encrypted_password = models.TextField(blank=True, verbose_name=_('Encrypted Password'))
+    receive_protocol = models.CharField(
+        max_length=10,
+        choices=ReceiveProtocol.choices,
+        default=ReceiveProtocol.IMAP,
+        verbose_name=_('Receive Protocol'),
+    )
+    imap_host = models.CharField(max_length=255, blank=True, verbose_name=_('IMAP Host'))
+    imap_port = models.PositiveIntegerField(default=993, verbose_name=_('IMAP Port'))
+    imap_security = models.CharField(
+        max_length=10,
+        choices=ConnectionSecurity.choices,
+        default=ConnectionSecurity.SSL_TLS,
+        verbose_name=_('IMAP Security'),
+    )
+    pop3_host = models.CharField(max_length=255, blank=True, verbose_name=_('POP3 Host'))
+    pop3_port = models.PositiveIntegerField(default=995, verbose_name=_('POP3 Port'))
+    pop3_security = models.CharField(
+        max_length=10,
+        choices=ConnectionSecurity.choices,
+        default=ConnectionSecurity.SSL_TLS,
+        verbose_name=_('POP3 Security'),
+    )
+    smtp_host = models.CharField(max_length=255, verbose_name=_('SMTP Host'))
+    smtp_port = models.PositiveIntegerField(default=465, verbose_name=_('SMTP Port'))
+    smtp_security = models.CharField(
+        max_length=10,
+        choices=ConnectionSecurity.choices,
+        default=ConnectionSecurity.SSL_TLS,
+        verbose_name=_('SMTP Security'),
+    )
+    sync_lookback_months = models.PositiveIntegerField(default=6, verbose_name=_('Sync Lookback Months'))
+    imap_sent_folder = models.CharField(max_length=120, default='Sent', verbose_name=_('IMAP Sent Folder'))
+    sync_outbox = models.BooleanField(default=True, verbose_name=_('Sync Outbox'))
+    auto_sync_enabled = models.BooleanField(default=True, verbose_name=_('Auto Sync Enabled'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Active'))
+    last_mailbox_sync_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Last Mailbox Sync At'))
+    last_connection_test_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Last Connection Test At'))
+    last_connection_status = models.CharField(max_length=40, blank=True, verbose_name=_('Last Connection Status'))
+    last_connection_message = models.TextField(blank=True, verbose_name=_('Last Connection Message'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('User Mailbox Settings')
+        verbose_name_plural = _('User Mailbox Settings')
+
+    def __str__(self):
+        return f'{self.user.username} mailbox'
+
+    @property
+    def password(self):
+        if not self.encrypted_password:
+            return ''
+        try:
+            return _xor_secret_restore(self.encrypted_password)
+        except Exception:
+            return ''
+
+    def set_password(self, raw_password):
+        self.encrypted_password = _xor_secret(raw_password) if raw_password else ''
+
+    def save(self, *args, **kwargs):
+        if self.email_address and not self.display_name:
+            self.display_name = self.user.get_display_name()
+        super().save(*args, **kwargs)
+
+
+class ReceivedEmailMessage(models.Model):
+    """Locally cached mailbox messages for the order-management email module."""
+
+    class MessageDirection(models.TextChoices):
+        INBOX = 'inbox', _('Inbox')
+        OUTBOX = 'outbox', _('Outbox')
+
+    mailbox = models.ForeignKey(
+        UserMailboxSettings,
+        on_delete=models.CASCADE,
+        related_name='received_messages',
+        verbose_name=_('Mailbox'),
+    )
+    direction = models.CharField(
+        max_length=10,
+        choices=MessageDirection.choices,
+        default=MessageDirection.INBOX,
+        verbose_name=_('Direction'),
+    )
+    external_id = models.CharField(max_length=255, verbose_name=_('External ID'))
+    message_id = models.CharField(max_length=255, blank=True, verbose_name=_('Message-ID'))
+    folder_name = models.CharField(max_length=120, blank=True, verbose_name=_('Folder'))
+    subject = models.CharField(max_length=255, blank=True, verbose_name=_('Subject'))
+    sender = models.CharField(max_length=255, blank=True, verbose_name=_('Sender'))
+    recipients = models.TextField(blank=True, verbose_name=_('Recipients'))
+    received_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Received At'))
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Sent At'))
+    body_preview = models.TextField(blank=True, verbose_name=_('Body Preview'))
+    body_text = models.TextField(blank=True, verbose_name=_('Body Text'))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    is_read = models.BooleanField(default=False, verbose_name=_('Read'))
+    synced_at = models.DateTimeField(auto_now=True, verbose_name=_('Synced At'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+
+    class Meta:
+        verbose_name = _('Received Email Message')
+        verbose_name_plural = _('Received Email Messages')
+        ordering = ['-received_at', '-sent_at', '-id']
+        constraints = [
+            models.UniqueConstraint(fields=['mailbox', 'direction', 'external_id'], name='uniq_mailbox_direction_external_message'),
+        ]
+
+    def __str__(self):
+        return self.subject or self.external_id
+
+    @property
+    def event_at(self):
+        return self.received_at or self.sent_at or self.created_at
     
     # Legacy permission methods (for backward compatibility)
     def can_manage_assets_legacy(self):

@@ -1,0 +1,100 @@
+{% extends 'base/base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">{{ audit.audit_number }} - {{ audit.name }}</h1>
+            <p class="text-muted mb-0">{% trans "Detailed asset audit information and recent verification records." %}</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if audit.status != 'completed' %}
+            <a href="{% url 'audit:assetaudit_update' audit.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i>{% trans "Edit Audit" %}
+            </a>
+            {% endif %}
+            <a href="{{ back_url }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>{% trans "Back" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card h-100"><div class="card-body"><div class="text-muted small">{% trans "Status" %}</div><div class="h5 mb-0">{{ audit.get_status_display }}</div></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100"><div class="card-body"><div class="text-muted small">{% trans "Type" %}</div><div class="h5 mb-0">{{ audit.get_audit_type_display }}</div></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100"><div class="card-body"><div class="text-muted small">{% trans "Completion" %}</div><div class="h5 mb-0">{{ audit.get_completion_percentage|floatformat:0 }}%</div></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100"><div class="card-body"><div class="text-muted small">{% trans "Primary Auditor" %}</div><div class="h5 mb-0">{{ audit.primary_auditor.get_full_name|default:audit.primary_auditor.username }}</div></div></div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header"><h5 class="card-title mb-0">{% trans "Audit Scope" %}</h5></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6"><div class="text-muted small">{% trans "Company" %}</div><div>{{ audit.company.name }}</div></div>
+                        <div class="col-md-6"><div class="text-muted small">{% trans "Planned Dates" %}</div><div>{{ audit.planned_start_date|date:"M d, Y" }} - {{ audit.planned_end_date|date:"M d, Y" }}</div></div>
+                        <div class="col-12"><div class="text-muted small">{% trans "Description" %}</div><div>{{ audit.description|default:"-" }}</div></div>
+                        <div class="col-12"><div class="text-muted small">{% trans "Notes" %}</div><div>{{ audit.notes|default:"-" }}</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">{% trans "Recent Verification Records" %}</h5></div>
+                <div class="card-body p-0">
+                    {% if recent_records %}
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Asset" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Audited By" %}</th>
+                                    <th>{% trans "Audited At" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in recent_records %}
+                                <tr>
+                                    <td>{{ record.asset.asset_number }}</td>
+                                    <td>{{ record.get_status_display }}</td>
+                                    <td>{{ record.audited_by.get_full_name|default:record.audited_by.username }}</td>
+                                    <td>{{ record.audited_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-3 text-muted">{% trans "No verification records have been captured for this audit yet." %}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h5 class="card-title mb-0">{% trans "Results Summary" %}</h5></div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2"><span>{% trans "Expected" %}</span><strong>{{ audit.total_assets_expected }}</strong></div>
+                    <div class="d-flex justify-content-between mb-2"><span>{% trans "Found" %}</span><strong>{{ audit.total_assets_found }}</strong></div>
+                    <div class="d-flex justify-content-between mb-2"><span>{% trans "Missing" %}</span><strong>{{ audit.total_assets_missing }}</strong></div>
+                    <div class="d-flex justify-content-between"><span>{% trans "Discrepancies" %}</span><strong>{{ audit.total_discrepancies }}</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

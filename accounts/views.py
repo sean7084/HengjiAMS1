@@ -1,10 +1,6 @@
 """
 Views for HengJi Asset Management System - Accounts App.
-This mod                return redirect('dashboard:dashboard')
-            else:
-                messages.error(self.request, _('Your account has been disabled.'))
-        else:
-            messages.error(self.request, _('Invalid username or password.'))hentication, user management, and profile-related views.
+This module handles authentication, user management, and profile-related views.
 Includes 2FA support, multi-language interface, and role-based access control.
 """
 
@@ -22,6 +18,7 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse, HttpResponseRedirect
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import activate
 from django.utils.decorators import method_decorator
@@ -37,13 +34,23 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
 
-from .models import User, UserSession
+from .models import AdminRole, ReceivedEmailMessage, User, UserMailboxSettings, UserSession
+from .mailbox_sync import maybe_auto_sync_mailbox, sync_mailbox_messages
 from .forms import (
     CustomLoginForm, UserRegistrationForm, SuperuserUserForm, UserProfileForm, 
-    UserSettingsForm, TwoFactorSetupForm, TwoFactorVerifyForm
+    UserSettingsForm, UserMailboxSettingsForm, TwoFactorSetupForm, TwoFactorVerifyForm
 )
 
 
+class OrderManagementAccessMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.can_manage_orders()
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated:
+            messages.error(self.request, _('You do not have access to Order Management.'))
+            return redirect('dashboard:dashboard')
+        return super().handle_no_permission()
 class LoginView(FormView):
     """
     Custom login view with 2FA support and multi-language interface.
@@ -328,6 +335,51 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
     
     def get_object(self):
         return self.request.user
+
+    def get_mailbox_form(self):
+        if not self.request.user.can_manage_orders():
+            return None
+        mailbox_instance = getattr(self.request.user, 'mailbox_settings', None)
+        if self.request.method == 'POST':
+            return UserMailboxSettingsForm(self.request.POST, instance=mailbox_instance)
+        return UserMailboxSettingsForm(instance=mailbox_instance)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        settings_form = self.get_form()
+        mailbox_form = self.get_mailbox_form()
+
+        if 'test_mailbox' in request.POST and mailbox_form is not None:
+            if mailbox_form.is_valid():
+                mailbox_settings = mailbox_form.save(commit=False)
+                mailbox_settings.user = request.user
+                try:
+                    mailbox_form.test_connections()
+                except Exception as exc:
+                    mailbox_settings.last_connection_test_at = timezone.now()
+                    mailbox_settings.last_connection_status = 'failed'
+                    mailbox_settings.last_connection_message = str(exc)
+                    mailbox_settings.save()
+                    messages.error(request, _('Mailbox connection test failed: {error}').format(error=exc))
+                else:
+                    mailbox_settings.save()
+                    messages.success(request, _('Mailbox connection test succeeded.'))
+            return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form))
+
+        if settings_form.is_valid() and (mailbox_form is None or mailbox_form.is_valid()):
+            return self.forms_valid(settings_form, mailbox_form)
+        return self.forms_invalid(settings_form, mailbox_form)
+
+    def forms_valid(self, settings_form, mailbox_form):
+        response = self.form_valid(settings_form)
+        if mailbox_form is not None:
+            mailbox_settings = mailbox_form.save(commit=False)
+            mailbox_settings.user = self.request.user
+            mailbox_settings.save()
+        return response
+
+    def forms_invalid(self, settings_form, mailbox_form):
+        return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form))
     
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -340,7 +392,88 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Settings')
+        context.setdefault('mailbox_form', self.get_mailbox_form())
+        context['can_manage_orders'] = self.request.user.can_manage_orders()
+        context['two_factor_enabled'] = self.request.user.two_factor_enabled
+        context['backup_token_count'] = len(self.request.user.backup_tokens or [])
         return context
+
+
+class MailboxInboxView(LoginRequiredMixin, OrderManagementAccessMixin, ListView):
+    template_name = 'accounts/mailbox_inbox.html'
+    context_object_name = 'mailbox_messages'
+    paginate_by = 20
+
+    def get_queryset(self):
+        mailbox = getattr(self.request.user, 'mailbox_settings', None)
+        if not mailbox:
+            return ReceivedEmailMessage.objects.none()
+        maybe_auto_sync_mailbox(mailbox)
+        queryset = mailbox.received_messages.all()
+        direction = self.request.GET.get('direction') or ReceivedEmailMessage.MessageDirection.INBOX
+        if direction in dict(ReceivedEmailMessage.MessageDirection.choices):
+            queryset = queryset.filter(direction=direction)
+        search = (self.request.GET.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(subject__icontains=search)
+                | Q(sender__icontains=search)
+                | Q(recipients__icontains=search)
+                | Q(body_preview__icontains=search)
+            )
+        return queryset.order_by('-received_at', '-sent_at', '-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Order Management Email')
+        mailbox = getattr(self.request.user, 'mailbox_settings', None)
+        active_direction = self.request.GET.get('direction') or ReceivedEmailMessage.MessageDirection.INBOX
+        context['mailbox'] = mailbox
+        context['search_query'] = self.request.GET.get('search', '')
+        context['active_direction'] = active_direction
+        context['inbox_count'] = mailbox.received_messages.filter(direction=ReceivedEmailMessage.MessageDirection.INBOX).count() if mailbox else 0
+        context['outbox_count'] = mailbox.received_messages.filter(direction=ReceivedEmailMessage.MessageDirection.OUTBOX).count() if mailbox else 0
+        context['time_column_label'] = _('Receive Time') if active_direction == ReceivedEmailMessage.MessageDirection.INBOX else _('Sent Time')
+        return context
+
+
+class MailboxMessageDetailView(LoginRequiredMixin, OrderManagementAccessMixin, DetailView):
+    model = ReceivedEmailMessage
+    template_name = 'accounts/mailbox_detail.html'
+    context_object_name = 'message'
+
+    def get_queryset(self):
+        mailbox = getattr(self.request.user, 'mailbox_settings', None)
+        if not mailbox:
+            return ReceivedEmailMessage.objects.none()
+        return mailbox.received_messages.all()
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if not self.object.is_read:
+            self.object.is_read = True
+            self.object.save(update_fields=['is_read', 'synced_at'])
+        return response
+
+
+class MailboxSyncView(LoginRequiredMixin, OrderManagementAccessMixin, View):
+    def post(self, request, *args, **kwargs):
+        mailbox = getattr(request.user, 'mailbox_settings', None)
+        if not mailbox or not mailbox.is_active:
+            messages.error(request, _('Configure and activate your mailbox settings first.'))
+            return redirect('accounts:mailbox_inbox')
+
+        try:
+            synced_count = sync_mailbox_messages(mailbox)
+        except Exception as exc:
+            mailbox.last_connection_test_at = timezone.now()
+            mailbox.last_connection_status = 'failed'
+            mailbox.last_connection_message = str(exc)
+            mailbox.save(update_fields=['last_connection_test_at', 'last_connection_status', 'last_connection_message', 'updated_at'])
+            messages.error(request, _('Mailbox sync failed: {error}').format(error=exc))
+        else:
+            messages.success(request, _('Mailbox synchronized. Inbox: {inbox}, Outbox: {outbox}.').format(inbox=synced_count['inbox'], outbox=synced_count['outbox']))
+        return redirect('accounts:mailbox_inbox')
 
 
 class ChangePasswordView(LoginRequiredMixin, FormView):
@@ -383,7 +516,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         queryset = User.objects.all().select_related(
             'managed_company', 'company', 'division'
-        ).prefetch_related('managed_divisions', 'managed_locations').order_by('username')
+        ).prefetch_related('roles', 'managed_divisions', 'managed_locations').order_by('username')
         
         # Search filter
         search = self.request.GET.get('search')
@@ -399,7 +532,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         # Admin role filter
         admin_role = self.request.GET.get('admin_role')
         if admin_role:
-            queryset = queryset.filter(admin_role=admin_role)
+            queryset = queryset.filter(roles__code=admin_role).distinct()
         
         # Status filter
         status = self.request.GET.get('status')
@@ -415,6 +548,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['title'] = _('Administrator Management')
         context['search'] = self.request.GET.get('search', '')
         context['admin_role'] = self.request.GET.get('admin_role', '')
+        context['admin_role_choices'] = AdminRole.objects.filter(is_active=True).order_by('name')
         context['status'] = self.request.GET.get('status', '')
         return context
 
@@ -729,7 +863,7 @@ def disable_2fa(request):
         StaticDevice.objects.filter(user=user).delete()
 
         messages.success(request, _('Two-factor authentication has been disabled.'))
-        return redirect('accounts:profile')
+        return redirect('accounts:settings')
 
     return render(request, 'accounts/disable_2fa.html')
 

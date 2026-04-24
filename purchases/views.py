@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.db import transaction
@@ -16,7 +17,16 @@ from quotations.models import Quotation
 from .models import PurchaseOrder, PurchaseOrderItem, PurchaseReceipt
 
 
-class PurchaseListView(ListView):
+class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.can_manage_orders()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
+
+
+class PurchaseListView(OrderManagementAccessMixin, ListView):
     """List view for purchased assets from quotations."""
     model = Asset
     template_name = 'purchases/list.html'
@@ -61,7 +71,7 @@ class PurchaseListView(ListView):
         return context
 
 
-class StockOverviewView(ListView):
+class StockOverviewView(OrderManagementAccessMixin, ListView):
     """Overview of stock from purchased assets."""
     model = Asset
     template_name = 'purchases/stock.html'
@@ -136,7 +146,7 @@ class StockOverviewView(ListView):
         return context
 
 
-class PurchaseDetailView(DetailView):
+class PurchaseDetailView(OrderManagementAccessMixin, DetailView):
     """Detail view for a purchased asset."""
     model = Asset
     template_name = 'purchases/detail.html'
@@ -151,6 +161,9 @@ class PurchaseDetailView(DetailView):
 
 def edit_asset_serial(request, pk):
     """Update serial number for an asset."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     asset = get_object_or_404(Asset, pk=pk)
 
     if request.method == 'POST':
@@ -169,6 +182,9 @@ def edit_asset_serial(request, pk):
 
 def purchase_receipt_view(request, pk):
     """Receive stock for a purchase order and create linked assets."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     purchase_order = get_object_or_404(
         PurchaseOrder.objects.select_related('quotation', 'quotation__customer'),
         pk=pk,

@@ -40,7 +40,7 @@ class QuotationForm(forms.ModelForm):
         customer = self.cleaned_data.get('customer')
         if customer:
             contact = customer.primary_contact_company_user
-            if contact:
+            if contact and contact.user:
                 if not cleaned_data.get('attn'):
                     cleaned_data['attn'] = contact.user.get_display_name()
                 if not cleaned_data.get('tel'):

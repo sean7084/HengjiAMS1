@@ -1,7 +1,7 @@
 {% extends 'base/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Audit Logs" %} - {{ block.super }}{% endblock %}
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -10,12 +10,12 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-history"></i> {% trans "Audit Logs" %}
+                        <i class="fas fa-history"></i> {{ title }}
                     </h3>
                     <div class="card-tools">
                         <form class="form-inline" method="get">
                             <input type="text" name="search" class="form-control form-control-sm mr-2" 
-                                   placeholder="{% trans 'Search logs...' %}" value="{{ request.GET.search }}">
+                                   placeholder="{% trans 'Search asset change logs...' %}" value="{{ search }}">
                             <button type="submit" class="btn btn-sm btn-primary">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -31,58 +31,52 @@
                                         <th>{% trans "Timestamp" %}</th>
                                         <th>{% trans "User" %}</th>
                                         <th>{% trans "Action" %}</th>
-                                        <th>{% trans "Object" %}</th>
-                                        <th>{% trans "IP Address" %}</th>
                                         <th>{% trans "Details" %}</th>
+                                        <th>{% trans "Company" %}</th>
+                                        <th>{% trans "Actions" %}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for log in audit_logs %}
-                                    <tr>
+                                    <tr class="asset-log-row" data-href="{% url 'assets:asset_log_detail' log.pk %}">
                                         <td>
-                                            <small class="text-muted">
-                                                {{ log.timestamp|date:"M d, Y H:i:s" }}
-                                            </small>
+                                            <a href="{% url 'assets:asset_log_detail' log.pk %}" class="text-decoration-none text-reset">
+                                                <small class="text-muted">{{ log.timestamp|date:"M d, Y H:i:s" }}</small>
+                                            </a>
                                         </td>
                                         <td>
                                             {% if log.user %}
-                                                <span class="badge badge-info">{{ log.user.get_full_name|default:log.user.username }}</span>
+                                                <span class="badge bg-info text-dark">{{ log.user.get_full_name|default:log.user.username }}</span>
                                             {% else %}
-                                                <span class="badge badge-secondary">{% trans "System" %}</span>
+                                                <span class="badge bg-secondary">{% trans "System" %}</span>
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <span class="badge 
-                                                {% if log.action == 'CREATE' %}badge-success
-                                                {% elif log.action == 'UPDATE' %}badge-warning
-                                                {% elif log.action == 'DELETE' %}badge-danger
-                                                {% else %}badge-info{% endif %}">
+                                            <span class="badge {% if log.action == 'create' %}bg-success{% elif log.action == 'update' %}bg-warning text-dark{% elif log.action == 'delete' %}bg-danger{% elif log.action == 'assign' or log.action == 'return' %}bg-primary{% else %}bg-info text-dark{% endif %}">
                                                 {{ log.get_action_display|default:log.action }}
                                             </span>
                                         </td>
                                         <td>
-                                            <strong>{{ log.content_type.name|capfirst }}</strong>
-                                            {% if log.object_repr %}
-                                                <br><small class="text-muted">{{ log.object_repr }}</small>
-                                            {% endif %}
+                                            <div class="fw-semibold">{{ log.description|truncatechars:90 }}</div>
+                                            <small class="text-muted">
+                                                {% if log.content_object %}
+                                                    {{ log.content_object }}
+                                                {% else %}
+                                                    {{ log.content_type.name|capfirst }} #{{ log.object_id|default:"-" }}
+                                                {% endif %}
+                                            </small>
                                         </td>
                                         <td>
-                                            <code class="small">{{ log.ip_address|default:"-" }}</code>
-                                        </td>
-                                        <td>
-                                            {% if log.changes %}
-                                                <button type="button" class="btn btn-sm btn-outline-info" 
-                                                        data-toggle="collapse" data-target="#changes-{{ log.pk }}">
-                                                    <i class="fas fa-eye"></i> {% trans "View Changes" %}
-                                                </button>
-                                                <div class="collapse mt-2" id="changes-{{ log.pk }}">
-                                                    <div class="card card-body small">
-                                                        <pre class="mb-0">{{ log.changes|default:"No changes recorded" }}</pre>
-                                                    </div>
-                                                </div>
+                                            {% if log.company %}
+                                                {{ log.company.name }}
                                             {% else %}
                                                 <span class="text-muted">-</span>
                                             {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'assets:asset_log_detail' log.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> {% trans "View Details" %}
+                                            </a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -123,8 +117,8 @@
                     {% else %}
                         <div class="text-center text-muted py-4">
                             <i class="fas fa-history fa-3x mb-3"></i>
-                            <h5>{% trans "No audit logs found" %}</h5>
-                            <p>{% trans "Audit logs will appear here as system actions are performed." %}</p>
+                            <h5>{% trans "No asset change logs found" %}</h5>
+                            <p>{% trans "Asset change logs will appear here as asset actions are performed." %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -132,4 +126,20 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.asset-log-row').forEach(function (row) {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function (event) {
+            if (event.target.closest('a, button, input, textarea, select, label')) {
+                return;
+            }
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
 {% endblock %}

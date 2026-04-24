@@ -1,5 +1,0 @@
-name,category,brand,model,serial_number,description,purchase_price,purchase_date,current_location,status,condition
-Dell Laptop XPS 13,Laptop,Dell,XPS 13 9310,DL123456789,High-performance ultrabook for development work,1200.00,2024-01-15,IT Department,available,good
-iPhone 14 Pro,Mobile Device,Apple,iPhone 14 Pro,IP987654321,Company mobile phone for executives,999.00,2024-02-01,Executive Office,assigned,excellent
-HP Monitor 27",Monitor,HP,E27 G5,HP555777999,External monitor for workstations,299.99,2024-01-20,Desk 5A,available,good
-Epson Printer,Printer,Epson,WorkForce Pro,EP444555666,Office laser printer for documents,450.00,2024-03-01,Print Room,available,good

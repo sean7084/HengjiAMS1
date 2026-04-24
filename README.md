@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)]()
 
-A comprehensive SaaS asset management solution built with Django, supporting multi-language (English/Chinese), 2FA authentication, and multi-company asset tracking.
+A comprehensive SaaS IT asset management solution built with Django, supporting multi-language (English/Chinese), 2FA authentication, and multi-company asset tracking.
 
 ![Logo](media/logo.jpg)
 
@@ -20,9 +20,8 @@ A comprehensive SaaS asset management solution built with Django, supporting mul
 - [Configuration](#configuration)
 - [Project Progress](#project-progress)
 - [TODO](#todo)
-- [Quotation & Invoice Management System](#quotation--invoice-management-system)
+- [Order Management System](#order-management-system)
 - [Test Accounts](#test-accounts)
-- [Documentation](#documentation)
 
 ---
 
@@ -33,9 +32,11 @@ HengJi AMS is an enterprise asset management system designed for organizations t
 ### Key Capabilities
 
 - Multi-company, multi-division asset management
-- Role-based access control (Superadmin, IT Administrator, Viewer)
+- Additive administrator roles (Superadmin, IT Administrator, Viewer, Order Management & Procurement Specialist)
 - 2FA authentication enforcement
 - Asset lifecycle tracking (assignment, return, maintenance, disposal)
+- Order management workflow from quotation through dispatch and invoice processing
+- User-configurable mailbox sync and dispatch email support for order-management users
 - Multi-language support (English / Simplified Chinese)
 - Bulk import/export (CSV, Excel, PDF)
 - Mobile-responsive design
@@ -60,9 +61,10 @@ HengJi AMS is an enterprise asset management system designed for organizations t
 
 ### User Management
 
-- Three-tier role system: Superadmin, IT Administrator, Viewer
+- Additive admin-role system with persistent role records and multi-role assignment
 - Company-division-location based access control
 - 2FA enforcement for all users
+- Mailbox and order-management settings integrated into the account settings page
 - Profile management with avatar support
 
 ### Asset Numbering
@@ -99,61 +101,6 @@ Three asset numbering modes supported:
 
 UI design inspired by [Ralph](https://ralphapp.com/) and [Snipe-IT](https://snipeitapp.com/) with a lightweight aesthetic.
 
----
-
-## Project Structure
-
-```
-HengjiAMS1/
-├── accounts/              # User authentication, 2FA, user management
-│   ├── models.py          # Custom User model with roles
-│   ├── views.py           # Login, logout, profile views
-│   └── forms.py           # Authentication forms
-│
-├── assets/                # Core asset management
-│   ├── models.py          # Asset, Category, Brand, Model, Assignment
-│   ├── views.py           # Asset CRUD, import/export, categories, brands
-│   ├── forms.py           # Asset forms with validation
-│   └── urls.py            # Asset URL routing
-│
-├── companies/             # Company structure management
-│   ├── models.py          # Company, Division, Location, CompanyUser
-│   ├── views.py           # Company management views
-│   └── urls.py            # Company URL routing
-│
-├── audit/                 # Audit and tracking
-│   └── models.py          # Audit log models
-│
-├── reports/               # Reporting and analytics
-│   └── views.py           # Report generation views
-│
-├── dashboard/             # Main dashboard
-│   └── views.py           # Dashboard view with statistics
-│
-├── hengjiams/             # Django project settings
-│   ├── settings.py        # Main configuration
-│   ├── urls.py            # Root URL configuration
-│   └── wsgi.py            # WSGI application
-│
-├── templates/             # Global templates
-│   ├── base/              # Base template with navigation
-│   ├── accounts/          # Auth templates (login, etc.)
-│   ├── assets/            # Asset templates
-│   ├── companies/         # Company templates
-│   └── dashboard/         # Dashboard templates
-│
-├── locale/                # Translation files
-├── media/                 # User uploads
-├── static/                # Static files (CSS, JS, images)
-├── template_files/        # Excel templates for PDF generation
-│   ├── quotation template.xlsx
-│   ├── 签收单 template.xlsx
-│   └── invoice information template.xlsx
-├── docs/                  # Documentation and changelogs
-├── manage.py              # Django management script
-└── db.sqlite3             # Development database
-```
-
 ### App Responsibilities
 
 | App | Purpose |
@@ -169,7 +116,7 @@ HengjiAMS1/
 | `quotations` | Quotation creation, PDF generation, attachments |
 | `deliveries` | Delivery order (签收单) generation and tracking |
 | `invoices` | Invoice info sheets, weekly batch processing |
-| `emails` | Email composition, dispatch, Esker forwarding |
+| `accounts` mailbox module | User mailbox settings, inbox/outbox sync, and cached message views |
 
 ---
 
@@ -282,11 +229,11 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 | Version | Date | Focus |
 |---------|------|-------|
+| v0.1.5 | April 2026 | Multi-role admin controls + order-management mailbox + product price history |
 | v0.1.4 | April 2026 | Import Preview/Confirm + Rollback Safety + Company Contacts |
 | v0.1.3 | April 2026 | Warehouse Slot Workflows + Asset Batch Operations + Export/Route Stability |
-| v0.1.2 | April 2026 | Asset Create UX + i18n Attribute Coverage + Admin/Deletion Stability |
 
-### Current Status (v0.1.4)
+### Current Status (v0.1.5)
 
 #### Fully Operational Features
 
@@ -328,6 +275,16 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Expanded Location Schema** - Locations now support bilingual names, secondary codes, Chinese address, and linked company contacts
 - **Location Duplicate Update Mode** - Location import can update matched entries instead of only skipping duplicates
 - **Count Accuracy Fixes** - Company-contact and location list badges/cards now display full totals instead of page-size counts
+- **Multi-Role Admin System** - Users now support additive administrator roles with persistent role records and admin/API/template compatibility helpers
+- **Order Management Access Gating** - Navigation and direct workflow URLs are restricted to authorized order-management users
+- **Asset Change Logs** - Asset-related audit records now live under Assets with clickable list/detail pages and import/export coverage
+- **Audit Dashboard Split** - Asset audits are separated into Dashboard, New Audit, and History views with improved back-navigation and detail context
+- **Product Price Lifecycle Tracking** - Current prices derive from asset models, old prices are preserved as inactive history, and create defaults exclude already-priced current models
+- **Stable Product Model Selection** - Product add/edit uses a native filtered selector to avoid browser-specific issues with custom dropdown widgets
+- **Mailbox Module** - Order-management users can configure IMAP/POP3 receive plus SMTP send settings, browse inbox/outbox views, and sync messages from settings-driven windows
+- **Automatic Mail Sync** - Mailboxes can auto-sync every 5 minutes during local `runserver`, with in-process locking to avoid SQLite contention
+- **Settings Consolidation** - Account settings now include mailbox controls and 2FA management actions in one place
+- **Workflow Hardening** - Quotation contact fallbacks, mailbox sync locking, admin edit validation, and translated admin-role display issues were fixed
 
 #### Database Schema
 
@@ -346,9 +303,9 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - `assets.AssetMaintenance` - Maintenance scheduling and records
 - `audit.*` - Audit logging models
 
-### v0.1.4 Migration Notes
+### v0.1.5 Migration Notes
 
-Run database migrations before deploying v0.1.4:
+Run database migrations before deploying v0.1.5:
 
 ```bash
 python manage.py migrate
@@ -356,10 +313,10 @@ python manage.py migrate
 
 New migration files included in this release:
 
-- `companies/migrations/0009_alter_companyuser_options_companyuser_name_and_more.py`
-- `companies/migrations/0010_location_chinese_address_location_code_2_and_more.py`
-- `companies/migrations/0011_migrate_location_legacy_values.py`
-- `companies/migrations/0012_importrun_importrunchange_and_more.py`
+- `accounts/migrations/0012_admin_roles_m2m.py`
+- `accounts/migrations/0013_user_mailbox_settings_and_received_messages.py`
+- `accounts/migrations/0014_mailbox_sync_window_and_outbox.py`
+- `products/migrations/0002_productprice_history_and_current_constraint.py`
 
 ---
 
@@ -397,7 +354,7 @@ New migration files included in this release:
 
 - [ ] Fix view pages: replace `assigned_at`, `returned_at`, `maintenance_date` with `assign_date`, `return_date`, `scheduled_at`
 
-## Quotation & Invoice Management System
+## Order Management System
 
 ### Overview
 
@@ -410,9 +367,10 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 - Scope delivered in v0.1.2: asset create UX modernization (searchable selects, brand-filtered models, batch creation), broader template attribute translation coverage, and admin/delete stability hardening.
 - Scope delivered in v0.1.3: warehouse slot schema + UI integration, grouped asset listing with batch edit workflow, export/access-scope fixes, and company user edit-route completion.
 - Scope delivered in v0.1.4: preview-confirm CSV import flows for companies/locations/contacts, shared import-result reporting, rollback tracking for imports, and company-contact/location data model expansion.
+- Scope delivered in v0.1.5: multi-role admin migration, order-management permission gating, product price history/derived-model behavior, and user-configurable mailbox inbox/outbox workflows with auto-sync.
 - Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
-- Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, and bulk weekly Sharepoint import.
+- Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, bulk weekly Sharepoint import, mailbox inbox/outbox sync, and SMTP dispatch caching.
 - Workflow governance: dashboard Kanban, cross-entity workflow search, status badge standardization, and status-change audit trail.
 - Operational validation baseline: full smoke transition run verified quotation -> purchase -> delivery -> invoice -> dispatch transitions in Django test client flow.
 
@@ -693,16 +651,6 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 
 ---
 
-## Documentation
-
-- [Changelog v0.0.1](docs/CHANGELOG_v0.0.1.md)
-- [Changelog v0.0.2](docs/CHANGELOG_v0.0.2.md)
-- [Changelog v0.0.3](docs/CHANGELOG_v0.0.3.md)
-- [Changelog v0.0.4](docs/CHANGELOG_v0.0.4.md)
-- [Development Notes](notes.md)
-
----
-
 ## Development Guidelines
 
 1. **Coding Standards**
@@ -718,8 +666,3 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 3. **Branching**
    - Work in feature branches
    - Commit message convention: clear, descriptive
-
----
-
-*Last Updated: April 2026*
-*HengJi Asset Management System v0.1.2*

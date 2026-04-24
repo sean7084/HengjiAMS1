@@ -25,6 +25,9 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('profile/edit/', views.ProfileEditView.as_view(), name='profile_edit'),
     path('settings/', views.UserSettingsView.as_view(), name='settings'),
+    path('mailbox/', views.MailboxInboxView.as_view(), name='mailbox_inbox'),
+    path('mailbox/sync/', views.MailboxSyncView.as_view(), name='mailbox_sync'),
+    path('mailbox/<int:pk>/', views.MailboxMessageDetailView.as_view(), name='mailbox_detail'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
     
     # User Management (Admin only)

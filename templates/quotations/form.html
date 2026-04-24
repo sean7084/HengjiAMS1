@@ -40,8 +40,8 @@
                                     <option
                                         value="{{ customer.pk }}"
                                         data-code="{{ customer.code }}"
-                                        data-contact="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.user.get_display_name }}{% endif %}"
-                                        data-phone="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.work_phone|default:customer.primary_contact_company_user.user.phone_number }}{% endif %}"
+                                        data-contact="{% if customer.primary_contact_company_user and customer.primary_contact_company_user.user %}{{ customer.primary_contact_company_user.user.get_display_name }}{% endif %}"
+                                        data-phone="{% if customer.primary_contact_company_user and customer.primary_contact_company_user.user %}{{ customer.primary_contact_company_user.work_phone|default:customer.primary_contact_company_user.user.phone_number }}{% endif %}"
                                         {% if form.customer.value|stringformat:'s' == customer.pk|stringformat:'s' %}selected{% endif %}
                                     >
                                         {{ customer.name }}

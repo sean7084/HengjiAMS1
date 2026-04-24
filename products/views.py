@@ -5,16 +5,45 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator
 from django.db import models
 
-from assets.models import AssetBrand
+from assets.models import AssetBrand, AssetModel
 from .models import ProductPrice
 from .forms import ProductPriceForm
 
 
-class ProductPriceListView(ListView):
+class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.can_manage_orders()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
+
+
+class ProductModelCatalogMixin:
+    """Provide model metadata for derived form fields and search UI."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        models_qs = AssetModel.objects.filter(is_active=True).select_related('brand').order_by('brand__name', 'name')
+        context['model_catalog'] = [
+            {
+                'id': str(asset_model.pk),
+                'brand_name': asset_model.brand.name,
+                'unit': asset_model.unit or 'PCS',
+                'label': str(asset_model),
+                'model_number': asset_model.model_number or '',
+            }
+            for asset_model in models_qs
+        ]
+        return context
+
+
+class ProductPriceListView(OrderManagementAccessMixin, ListView):
     """List view for product prices with filtering."""
     model = ProductPrice
     template_name = 'products/price_list.html'
@@ -48,7 +77,7 @@ class ProductPriceListView(ListView):
         return context
 
 
-class ProductPriceCreateView(CreateView):
+class ProductPriceCreateView(OrderManagementAccessMixin, ProductModelCatalogMixin, CreateView):
     """Create view for product prices."""
     model = ProductPrice
     form_class = ProductPriceForm
@@ -60,7 +89,7 @@ class ProductPriceCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ProductPriceUpdateView(UpdateView):
+class ProductPriceUpdateView(OrderManagementAccessMixin, ProductModelCatalogMixin, UpdateView):
     """Update view for product prices."""
     model = ProductPrice
     form_class = ProductPriceForm
@@ -72,7 +101,7 @@ class ProductPriceUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class ProductPriceDeleteView(DeleteView):
+class ProductPriceDeleteView(OrderManagementAccessMixin, DeleteView):
     """Delete view for product prices."""
     model = ProductPrice
     template_name = 'products/price_confirm_delete.html'
@@ -85,6 +114,9 @@ class ProductPriceDeleteView(DeleteView):
 
 def import_prices_view(request):
     """Import product prices from Excel file."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     from django.conf import settings
     import openpyxl
     from io import BytesIO
@@ -115,7 +147,6 @@ def import_prices_view(request):
             try:
                 brand_code = str(row[0]).strip()
                 model_number = str(row[1]).strip() if row[1] else ''
-                unit = str(row[2]).strip() if row[2] else 'PCS'
                 price_without_tax = float(row[3]) if row[3] else 0
                 tax_rate = float(row[4]) if row[4] else 13.00
 
@@ -134,11 +165,11 @@ def import_prices_view(request):
 
                 # Create or update price
                 price_with_tax = price_without_tax * (1 + tax_rate / 100)
-                price, created = ProductPrice.objects.update_or_create(
-                    brand=brand,
+                price, created = ProductPrice.objects.filter(is_current=True).update_or_create(
                     model=model,
                     defaults={
-                        'unit': unit,
+                        'brand': model.brand,
+                        'unit': model.unit or 'PCS',
                         'price_without_tax': price_without_tax,
                         'price_with_tax': price_with_tax,
                         'tax_rate': tax_rate,
@@ -163,6 +194,9 @@ def import_prices_view(request):
 
 def download_import_template(request):
     """Download Excel template for price import."""
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     import openpyxl
     from io import BytesIO
 

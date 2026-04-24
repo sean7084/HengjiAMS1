@@ -1,7 +1,7 @@
 {% extends 'base/base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Asset Audits" %} - {{ block.super }}{% endblock %}
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -10,11 +10,17 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-clipboard-check"></i> {% trans "Asset Audits" %}
+                        <i class="fas fa-clipboard-check"></i> {{ title }}
                     </h3>
                     <div class="card-tools">
                         <div class="btn-group mr-2">
-                            <a href="{% url 'audit:assetaudit_create' %}" class="btn btn-sm btn-success">
+                            <a href="{{ dashboard_url }}" class="btn btn-sm {% if current_section == 'dashboard' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                <i class="fas fa-chart-line"></i> {% trans "Dashboard" %}
+                            </a>
+                            <a href="{{ history_url }}" class="btn btn-sm {% if current_section == 'history' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                <i class="fas fa-clock-rotate-left"></i> {% trans "History" %}
+                            </a>
+                            <a href="{{ new_url }}" class="btn btn-sm btn-success">
                                 <i class="fas fa-plus"></i> {% trans "New Audit" %}
                             </a>
                         </div>
@@ -52,10 +58,10 @@
                                         </td>
                                         <td>{{ audit.name }}</td>
                                         <td>
-                                            <span class="badge badge-info">{{ audit.get_audit_type_display }}</span>
+                                            <span class="badge bg-info text-dark">{{ audit.get_audit_type_display }}</span>
                                         </td>
                                         <td>
-                                            <span class="badge badge-{% if audit.status == 'completed' %}success{% elif audit.status == 'in_progress' %}warning{% elif audit.status == 'planned' %}info{% else %}secondary{% endif %}">
+                                            <span class="badge {% if audit.status == 'completed' %}bg-success{% elif audit.status == 'in_progress' %}bg-warning text-dark{% elif audit.status == 'planned' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
                                                 {{ audit.get_status_display }}
                                             </span>
                                         </td>
@@ -144,7 +150,7 @@
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">{% trans "No asset audits found" %}</h5>
+                        <h5 class="text-muted">{{ empty_title }}</h5>
                             <p class="text-muted">
                                 {% if request.GET.search %}
                                     {% trans "No audits match your search criteria." %}
@@ -153,7 +159,7 @@
                                         <i class="fas fa-times"></i> {% trans "Clear search" %}
                                     </a>
                                 {% else %}
-                                    {% trans "Create your first asset audit to get started." %}
+                                    {{ empty_message }}
                                 {% endif %}
                             </p>
                         </div>

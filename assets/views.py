@@ -2,13 +2,16 @@
 Views for Assets app - Asset Management System.
 Provides CRUD operations, search, filtering, and reporting for assets.
 """
+import json
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views.decorators.http import require_POST
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, Count, Sum
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -70,6 +73,82 @@ def _perform_assets_rollback(request):
         }
     )
     return redirect('assets:asset_import')
+
+
+def _get_accessible_asset_log_queryset(user):
+    asset_content_type = ContentType.objects.get_for_model(Asset)
+    queryset = AuditLog.objects.select_related('user', 'content_type', 'company').prefetch_related('change_logs').filter(
+        Q(content_type=asset_content_type) |
+        Q(action__in=[AuditLog.ActionType.EXPORT, AuditLog.ActionType.IMPORT], description__icontains='asset')
+    )
+
+    if hasattr(user, 'is_superadmin') and user.is_superadmin():
+        return queryset
+
+    return queryset.filter(company__in=user.get_accessible_companies())
+
+
+class AssetChangeLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    """List asset-related audit log entries."""
+
+    model = AuditLog
+    template_name = 'audit/auditlog_list.html'
+    context_object_name = 'audit_logs'
+    paginate_by = 20
+
+    def test_func(self):
+        return self.request.user.can_view_audit()
+
+    def get_queryset(self):
+        queryset = _get_accessible_asset_log_queryset(self.request.user)
+        search = (self.request.GET.get('search') or '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(action__icontains=search) |
+                Q(description__icontains=search) |
+                Q(object_id__icontains=search) |
+                Q(company__name__icontains=search) |
+                Q(user__username__icontains=search) |
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search)
+            )
+        return queryset.order_by('-timestamp')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Asset Change Logs')
+        context['search'] = self.request.GET.get('search', '')
+        context['back_url'] = reverse('assets:asset_list')
+        return context
+
+
+class AssetChangeLogDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    """Show one asset audit-log entry in detail."""
+
+    model = AuditLog
+    template_name = 'audit/auditlog_detail.html'
+    context_object_name = 'audit_log'
+
+    def test_func(self):
+        return self.request.user.can_view_audit()
+
+    def get_queryset(self):
+        return _get_accessible_asset_log_queryset(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        audit_log = self.object
+        context['title'] = _('Asset Change Log Details')
+        context['back_url'] = reverse('assets:asset_log_list')
+        context['metadata_json'] = json.dumps(audit_log.metadata or {}, indent=2, ensure_ascii=False, default=str)
+
+        related_asset = None
+        if audit_log.content_type and audit_log.content_type.model == 'asset' and audit_log.object_id:
+            related_asset = self.request.user.get_accessible_assets().filter(pk=audit_log.object_id).first()
+
+        context['related_asset'] = related_asset
+        context['related_asset_url'] = reverse('assets:asset_detail', kwargs={'pk': related_asset.pk}) if related_asset else None
+        return context
 
 
 class AssetListView(LoginRequiredMixin, ListView):
@@ -1356,10 +1435,12 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
                             
                             # Log the import action
                             AuditLog.objects.create(
+                                company=company,
                                 content_object=asset,
-                                action='created',
+                                action=AuditLog.ActionType.IMPORT,
                                 user=user,
-                                changes={'imported': True, 'row_number': row_num}
+                                description=f'Imported asset {asset.asset_number} from row {row_num}',
+                                metadata={'imported': True, 'row_number': row_num},
                             )
                         else:
                             imported_count += 1
@@ -1391,6 +1472,20 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
         result['imported_count'] = imported_count
         result['processed_rows'] = len(result['processed_assets'])
         result['success'] = imported_count > 0 or validate_only
+
+        if not validate_only and imported_count > 0:
+            AuditLog.objects.create(
+                user=user,
+                company=company,
+                action=AuditLog.ActionType.IMPORT,
+                description=f'Imported {imported_count} assets from {file.name}',
+                metadata={
+                    'imported_count': imported_count,
+                    'total_rows': result['total_rows'],
+                    'processed_rows': result['processed_rows'],
+                    'error_count': len(result['errors']),
+                },
+            )
 
         if import_run is not None:
             finalize_import_run(

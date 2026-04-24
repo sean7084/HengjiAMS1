@@ -1,18 +1,24 @@
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
+from email.message import EmailMessage as SMTPEmailMessage
+from email.utils import formataddr
 from pathlib import Path
 import shutil
 import subprocess
 import mimetypes
+import smtplib
 
 import openpyxl
 from openpyxl import load_workbook
 
 from django.conf import settings
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage as DjangoEmailMessage
 from django.db import transaction
 from django.http import HttpResponse
 from django.utils import timezone
+
+from accounts.mailbox_sync import cache_dispatch_outbox_message
+from accounts.models import UserMailboxSettings
 
 from .models import EmailDispatch, InvoiceInfo, InvoiceInfoItem, WeeklyOrderBatch
 
@@ -507,31 +513,96 @@ def collect_email_attachments(dispatch):
     return list(dedup.values())
 
 
-def send_email_dispatch(dispatch):
-    """Send dispatch email and persist the attachment manifest."""
-    attachments = collect_email_attachments(dispatch)
-
-    email_message = EmailMessage(
-        subject=dispatch.subject,
-        body=dispatch.body,
-        to=_parse_recipients(dispatch.sent_to),
-        cc=_parse_recipients(dispatch.cc),
-        bcc=_parse_recipients(dispatch.bcc),
-    )
+def _build_smtp_message(dispatch, attachments, mailbox_settings):
+    message = SMTPEmailMessage()
+    message['Subject'] = dispatch.subject
+    message['From'] = formataddr((mailbox_settings.display_name or mailbox_settings.user.get_display_name(), mailbox_settings.email_address))
+    message['To'] = ', '.join(_parse_recipients(dispatch.sent_to))
+    if dispatch.cc:
+        message['Cc'] = ', '.join(_parse_recipients(dispatch.cc))
+    if dispatch.bcc:
+        message['Bcc'] = ', '.join(_parse_recipients(dispatch.bcc))
+    message.set_content(dispatch.body or '')
 
     for entry in attachments:
         path = Path(entry['path'])
         if not path.exists():
             continue
         mime_type, _ = mimetypes.guess_type(path.name)
+        main_type, sub_type = (mime_type or 'application/octet-stream').split('/', 1)
         with open(path, 'rb') as file_obj:
-            email_message.attach(path.name, file_obj.read(), mime_type or 'application/octet-stream')
+            message.add_attachment(file_obj.read(), maintype=main_type, subtype=sub_type, filename=path.name)
 
-    email_message.send(fail_silently=False)
+    return message
+
+
+def _send_via_user_mailbox(dispatch, attachments):
+    creator = dispatch.created_by
+    mailbox_settings = getattr(creator, 'mailbox_settings', None) if creator else None
+    if not mailbox_settings or not mailbox_settings.is_active or not mailbox_settings.password:
+        return False
+
+    message = _build_smtp_message(dispatch, attachments, mailbox_settings)
+    recipients = _parse_recipients(dispatch.sent_to) + _parse_recipients(dispatch.cc) + _parse_recipients(dispatch.bcc)
+
+    if mailbox_settings.smtp_security == UserMailboxSettings.ConnectionSecurity.SSL_TLS:
+        client = smtplib.SMTP_SSL(mailbox_settings.smtp_host, mailbox_settings.smtp_port)
+    else:
+        client = smtplib.SMTP(mailbox_settings.smtp_host, mailbox_settings.smtp_port)
+        if mailbox_settings.smtp_security == UserMailboxSettings.ConnectionSecurity.STARTTLS:
+            client.starttls()
+
+    try:
+        client.login(mailbox_settings.username, mailbox_settings.password)
+        client.send_message(message, to_addrs=recipients)
+    except Exception as exc:
+        mailbox_settings.last_connection_test_at = timezone.now()
+        mailbox_settings.last_connection_status = 'failed'
+        mailbox_settings.last_connection_message = str(exc)
+        mailbox_settings.save(update_fields=['last_connection_test_at', 'last_connection_status', 'last_connection_message', 'updated_at'])
+        raise
+    else:
+        mailbox_settings.last_connection_test_at = timezone.now()
+        mailbox_settings.last_connection_status = 'success'
+        mailbox_settings.last_connection_message = 'SMTP send succeeded.'
+        mailbox_settings.save(update_fields=['last_connection_test_at', 'last_connection_status', 'last_connection_message', 'updated_at'])
+        return True
+    finally:
+        client.quit()
+
+
+def send_email_dispatch(dispatch):
+    """Send dispatch email and persist the attachment manifest."""
+    attachments = collect_email_attachments(dispatch)
+
+    sent_via_mailbox = _send_via_user_mailbox(dispatch, attachments)
+    if not sent_via_mailbox:
+        email_message = DjangoEmailMessage(
+            subject=dispatch.subject,
+            body=dispatch.body,
+            to=_parse_recipients(dispatch.sent_to),
+            cc=_parse_recipients(dispatch.cc),
+            bcc=_parse_recipients(dispatch.bcc),
+        )
+
+        for entry in attachments:
+            path = Path(entry['path'])
+            if not path.exists():
+                continue
+            mime_type, _ = mimetypes.guess_type(path.name)
+            with open(path, 'rb') as file_obj:
+                email_message.attach(path.name, file_obj.read(), mime_type or 'application/octet-stream')
+
+        email_message.send(fail_silently=False)
 
     dispatch.attachments = attachments
     dispatch.sent_at = timezone.now()
     dispatch.status = EmailDispatch.DispatchStatus.SENT
     dispatch.save(update_fields=['attachments', 'sent_at', 'status', 'updated_at'])
+
+    creator = dispatch.created_by
+    mailbox_settings = getattr(creator, 'mailbox_settings', None) if creator else None
+    if mailbox_settings and mailbox_settings.is_active:
+        cache_dispatch_outbox_message(dispatch, mailbox_settings)
 
     return attachments

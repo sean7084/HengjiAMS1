@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import transaction
 from django.db.models import Q
@@ -20,8 +21,29 @@ from .forms import QuotationForm, QuotationItemForm
 from .services import render_quotation_pdf_html
 
 
+class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.can_manage_orders()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
+
+
 def _normalize_name(name):
     return ' '.join((name or '').split()).strip()
+
+
+def _get_membership_user_name(membership):
+    user = getattr(membership, 'user', None)
+    if not user:
+        return ''
+    return _normalize_name(user.get_display_name() or user.get_full_name())
+
+
+def _get_membership_user_phone(membership):
+    user = getattr(membership, 'user', None)
+    return membership.work_phone or getattr(user, 'phone_number', '') or ''
 
 
 def _find_company_user_by_name(company, name):
@@ -31,8 +53,11 @@ def _find_company_user_by_name(company, name):
 
     memberships = company.company_users.select_related('user').all()
     for membership in memberships:
-        display_name = _normalize_name(membership.user.get_display_name()).lower()
-        full_name = _normalize_name(membership.user.get_full_name()).lower()
+        user = getattr(membership, 'user', None)
+        if not user:
+            continue
+        display_name = _normalize_name(user.get_display_name()).lower()
+        full_name = _normalize_name(user.get_full_name()).lower()
         if target == display_name or (full_name and target == full_name):
             return membership
     return None
@@ -95,7 +120,7 @@ def _build_customer_user_context(customers):
         seen = set()
         users = []
         for membership in customer.company_users.select_related('user').all():
-            name = _normalize_name(membership.user.get_display_name())
+            name = _get_membership_user_name(membership)
             if not name:
                 continue
             key = name.lower()
@@ -104,7 +129,7 @@ def _build_customer_user_context(customers):
             seen.add(key)
             users.append({
                 'name': name,
-                'phone': membership.work_phone or membership.user.phone_number or '',
+                'phone': _get_membership_user_phone(membership),
             })
         company_users_by_customer[str(customer.pk)] = users
 
@@ -119,7 +144,7 @@ def _build_customer_user_context(customers):
     return company_users_by_customer, company_codes
 
 
-class QuotationListView(ListView):
+class QuotationListView(OrderManagementAccessMixin, ListView):
     """List view for quotations with filtering."""
     model = Quotation
     template_name = 'quotations/list.html'
@@ -160,7 +185,7 @@ class QuotationListView(ListView):
         return context
 
 
-class QuotationDetailView(DetailView):
+class QuotationDetailView(OrderManagementAccessMixin, DetailView):
     """Detail view for quotation."""
     model = Quotation
     template_name = 'quotations/detail.html'
@@ -175,7 +200,7 @@ class QuotationDetailView(DetailView):
         return context
 
 
-class QuotationCreateView(CreateView):
+class QuotationCreateView(OrderManagementAccessMixin, CreateView):
     """Create view for quotation."""
     model = Quotation
     form_class = QuotationForm
@@ -211,17 +236,19 @@ class QuotationCreateView(CreateView):
             quotation.tel,
         )
         if company_user:
-            quotation.attn = company_user.user.get_display_name()
-            resolved_phone = company_user.work_phone or company_user.user.phone_number or ''
+            resolved_name = _get_membership_user_name(company_user)
+            if resolved_name:
+                quotation.attn = resolved_name
+            resolved_phone = _get_membership_user_phone(company_user)
             if resolved_phone:
                 quotation.tel = resolved_phone
 
         contact = quotation.customer.primary_contact_company_user
         if contact:
             if not quotation.attn:
-                quotation.attn = contact.user.get_display_name()
+                quotation.attn = _get_membership_user_name(contact)
             if not quotation.tel:
-                quotation.tel = contact.work_phone or contact.user.phone_number or ''
+                quotation.tel = _get_membership_user_phone(contact)
 
         quotation.save()
 
@@ -301,8 +328,10 @@ class QuotationUpdateView(UpdateView):
             quotation.tel,
         )
         if company_user:
-            quotation.attn = company_user.user.get_display_name()
-            resolved_phone = company_user.work_phone or company_user.user.phone_number or ''
+            resolved_name = _get_membership_user_name(company_user)
+            if resolved_name:
+                quotation.attn = resolved_name
+            resolved_phone = _get_membership_user_phone(company_user)
             if resolved_phone:
                 quotation.tel = resolved_phone
             quotation.save(update_fields=['attn', 'tel', 'updated_at'])

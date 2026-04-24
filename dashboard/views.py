@@ -18,6 +18,13 @@ from quotations.models import Quotation
 import json
 
 
+def _ensure_order_management_access(request):
+    if request.user.can_manage_orders():
+        return None
+    messages.error(request, _('You do not have access to Order Management.'))
+    return redirect('dashboard:dashboard')
+
+
 @login_required
 def dashboard_view(request):
     """
@@ -111,6 +118,9 @@ def save_dashboard_config(request):
 @login_required
 def workflow_dashboard_view(request):
     """Q9 integrated workflow dashboard with kanban stages and status audit stream."""
+    denied_response = _ensure_order_management_access(request)
+    if denied_response:
+        return denied_response
     quotation_stage_qs = Quotation.objects.filter(status__in=['draft', 'sent']).select_related('customer').order_by('-created_at')
     confirmed_stage_qs = Quotation.objects.filter(status='confirmed').select_related('customer').order_by('-created_at')
     purchased_stage_qs = PurchaseOrder.objects.select_related('quotation', 'quotation__customer').order_by('-created_at')
@@ -175,6 +185,9 @@ def workflow_dashboard_view(request):
 @login_required
 def workflow_search_view(request):
     """Q9 cross-search across quotations, deliveries, and invoices."""
+    denied_response = _ensure_order_management_access(request)
+    if denied_response:
+        return denied_response
     query = (request.GET.get('q') or '').strip()
 
     quotation_results = Quotation.objects.none()

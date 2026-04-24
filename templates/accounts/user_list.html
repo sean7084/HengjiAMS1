@@ -32,9 +32,9 @@
                     <label for="admin_role" class="form-label">{% trans "Admin Role" %}</label>
                     <select class="form-select" id="admin_role" name="admin_role">
                         <option value="">{% trans "All Admin Roles" %}</option>
-                        <option value="superadmin" {% if admin_role == 'superadmin' %}selected{% endif %}>{% trans "Superadmin" %}</option>
-                        <option value="it_administrator" {% if admin_role == 'it_administrator' %}selected{% endif %}>{% trans "IT Administrator" %}</option>
-                        <option value="viewer" {% if admin_role == 'viewer' %}selected{% endif %}>{% trans "Viewer" %}</option>
+                        {% for role in admin_role_choices %}
+                        <option value="{{ role.code }}" {% if admin_role == role.code %}selected{% endif %}>{{ role.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
@@ -95,20 +95,17 @@
                                 </div>
                             </td>
                             <td>
-                                {% if user.admin_role %}
-                                <span class="badge bg-{% if user.admin_role == 'superadmin' %}danger{% elif user.admin_role == 'it_administrator' %}info{% elif user.admin_role == 'viewer' %}secondary{% else %}dark{% endif %}">
-                                    {{ user.get_admin_role_display }}
+                                {% if user.roles.all %}
+                                {% for role in user.roles.all %}
+                                <span class="badge bg-{% if role.code == 'superadmin' %}danger{% elif role.code == 'it_administrator' %}info{% elif role.code == 'viewer' %}secondary{% else %}dark{% endif %} me-1 mb-1">
+                                    {{ role.name }}
                                 </span>
+                                {% endfor %}
                                 <div class="small text-muted mt-1">
                                     {{ user.get_access_scope_display }}
                                 </div>
                                 {% else %}
-                                <span class="badge bg-{% if user.role == 'admin' %}danger{% elif user.role == 'manager' %}warning{% elif user.role == 'staff' %}info{% else %}secondary{% endif %}">
-                                    {{ user.get_role_display }}
-                                </span>
-                                <div class="small text-muted mt-1">
-                                    {% trans "Legacy Role" %}
-                                </div>
+                                <span class="text-muted">{% trans "No admin roles" %}</span>
                                 {% endif %}
                             </td>
                             <td>{{ user.department|default:"-" }}</td>

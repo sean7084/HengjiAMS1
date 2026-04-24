@@ -17,8 +17,7 @@ class Command(BaseCommand):
         # Set existing admin as superadmin
         try:
             admin_user = User.objects.get(username='admin')
-            admin_user.admin_role = User.AdminRole.SUPERADMIN
-            admin_user.save()
+            admin_user.set_admin_roles([User.AdminRole.SUPERADMIN])
             self.stdout.write(self.style.SUCCESS(f'Updated admin user to Superadmin'))
         except User.DoesNotExist:
             self.stdout.write(self.style.WARNING('Admin user not found'))
@@ -137,7 +136,6 @@ class Command(BaseCommand):
                     'email': 'it@acme.com',
                     'first_name': 'Alice',
                     'last_name': 'Tech',
-                    'admin_role': User.AdminRole.IT_ADMINISTRATOR,
                     'is_active': True,
                     'is_staff': True
                 }
@@ -148,6 +146,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Created IT Administrator: {it_administrator.username}'))
             else:
                 self.stdout.write(f'IT Administrator already exists: {it_administrator.username}')
+            it_administrator.set_admin_roles([User.AdminRole.IT_ADMINISTRATOR])
             
             # Set managed divisions (this is safe to run multiple times)
             it_administrator.managed_divisions.set([it_division, hr_division])
@@ -162,7 +161,6 @@ class Command(BaseCommand):
                     'email': 'viewer@global.com',
                     'first_name': 'Bob',
                     'last_name': 'Observer',
-                    'admin_role': User.AdminRole.VIEWER,
                     'is_active': True,
                     'is_staff': True
                 }
@@ -173,6 +171,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Created Viewer: {viewer_user.username}'))
             else:
                 self.stdout.write(f'Viewer already exists: {viewer_user.username}')
+            viewer_user.set_admin_roles([User.AdminRole.VIEWER])
             
             # Set managed locations (this is safe to run multiple times)
             if chicago_warehouse:

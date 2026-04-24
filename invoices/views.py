@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import FileResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,7 +20,16 @@ from .services import (
 )
 
 
-class WeeklyOrderBatchListView(LoginRequiredMixin, ListView):
+class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.can_manage_orders()
+
+    def handle_no_permission(self):
+        messages.error(self.request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
+
+
+class WeeklyOrderBatchListView(OrderManagementAccessMixin, ListView):
     model = WeeklyOrderBatch
     template_name = 'invoices/weekly_batch_list.html'
     context_object_name = 'batches'
@@ -51,7 +60,7 @@ class WeeklyOrderBatchListView(LoginRequiredMixin, ListView):
         return context
 
 
-class WeeklyOrderBatchDetailView(LoginRequiredMixin, DetailView):
+class WeeklyOrderBatchDetailView(OrderManagementAccessMixin, DetailView):
     model = WeeklyOrderBatch
     template_name = 'invoices/weekly_batch_detail.html'
     context_object_name = 'batch'
@@ -62,7 +71,7 @@ class WeeklyOrderBatchDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class InvoiceInfoListView(LoginRequiredMixin, ListView):
+class InvoiceInfoListView(OrderManagementAccessMixin, ListView):
     model = InvoiceInfo
     template_name = 'invoices/invoice_info_list.html'
     context_object_name = 'invoice_infos'
@@ -99,7 +108,7 @@ class InvoiceInfoListView(LoginRequiredMixin, ListView):
         return context
 
 
-class InvoiceInfoDetailView(LoginRequiredMixin, DetailView):
+class InvoiceInfoDetailView(OrderManagementAccessMixin, DetailView):
     model = InvoiceInfo
     template_name = 'invoices/invoice_info_detail.html'
     context_object_name = 'invoice_info'
@@ -111,7 +120,7 @@ class InvoiceInfoDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class EmailDispatchListView(LoginRequiredMixin, ListView):
+class EmailDispatchListView(OrderManagementAccessMixin, ListView):
     model = EmailDispatch
     template_name = 'invoices/email_dispatch_list.html'
     context_object_name = 'dispatches'
@@ -150,6 +159,9 @@ class EmailDispatchListView(LoginRequiredMixin, ListView):
 
 @login_required
 def import_sharepoint_batch_view(request):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     if request.method == 'POST':
         form = SharepointImportForm(request.POST, request.FILES)
         if form.is_valid():
@@ -200,6 +212,9 @@ def import_sharepoint_batch_view(request):
 
 @login_required
 def invoice_info_update_view(request, pk):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     invoice_info = get_object_or_404(InvoiceInfo, pk=pk)
 
     if request.method != 'POST':
@@ -219,6 +234,9 @@ def invoice_info_update_view(request, pk):
 
 @login_required
 def invoice_info_recalculate_view(request, pk):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
         return redirect('invoices:invoice_detail', pk=pk)
@@ -235,6 +253,9 @@ def invoice_info_recalculate_view(request, pk):
 
 @login_required
 def invoice_info_document_view(request, pk):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     invoice_info = get_object_or_404(InvoiceInfo, pk=pk)
     if invoice_info.delivery_order_id:
         recalculate_invoice_from_delivery(invoice_info)
@@ -255,6 +276,9 @@ def invoice_info_document_view(request, pk):
 
 @login_required
 def invoice_info_export_view(request):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     queryset = InvoiceInfo.objects.select_related('quotation', 'delivery_order', 'weekly_batch').all()
 
     search = request.GET.get('search')
@@ -281,6 +305,9 @@ def invoice_info_export_view(request):
 
 @login_required
 def email_dispatch_compose_view(request, quotation_pk=None):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     quotation = None
     preview_files = []
     preview_dispatch = None
@@ -332,6 +359,9 @@ def email_dispatch_compose_view(request, quotation_pk=None):
 
 @login_required
 def email_dispatch_mark_client_confirmed_view(request, pk):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
         return redirect('invoices:email_dispatch_list')
@@ -349,6 +379,9 @@ def email_dispatch_mark_client_confirmed_view(request, pk):
 
 @login_required
 def email_dispatch_mark_esker_view(request, pk):
+    if not request.user.can_manage_orders():
+        messages.error(request, 'You do not have access to Order Management.')
+        return redirect('dashboard:dashboard')
     if request.method != 'POST':
         messages.warning(request, 'Invalid request method.')
         return redirect('invoices:email_dispatch_list')

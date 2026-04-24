@@ -5,7 +5,15 @@ Configures Django admin interface for User and UserSession models.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import User, UserSession
+from .models import AdminRole, User, UserSession
+
+
+@admin.register(AdminRole)
+class AdminRoleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'is_active', 'updated_at')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'code', 'description')
+    ordering = ('name',)
 
 
 @admin.register(User)
@@ -14,11 +22,11 @@ class UserAdmin(BaseUserAdmin):
     Custom admin interface for the User model.
     Extends Django's built-in UserAdmin to support additional fields and admin roles.
     """
-    list_display = ('username', 'email', 'first_name', 'last_name', 'admin_role', 'two_factor_enabled', 'is_active', 'date_joined')
-    list_filter = ('admin_role', 'two_factor_enabled', 'is_active', 'is_staff', 'is_superuser', 'date_joined', 'language_preference')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'admin_roles_display', 'two_factor_enabled', 'is_active', 'date_joined')
+    list_filter = ('roles', 'two_factor_enabled', 'is_active', 'is_staff', 'is_superuser', 'date_joined', 'language_preference')
     search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'employee_id')
     ordering = ('username',)
-    filter_horizontal = ('groups', 'user_permissions', 'managed_divisions', 'managed_locations')
+    filter_horizontal = ('roles', 'groups', 'user_permissions', 'managed_divisions', 'managed_locations')
     
     # Define fieldsets for the admin form
     fieldsets = (
@@ -29,7 +37,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('first_name', 'last_name', 'email', 'phone_number', 'profile_image', 'employee_id')
         }),
         (_('Administrator Role System'), {
-            'fields': ('admin_role', 'managed_company', 'managed_divisions', 'managed_locations'),
+            'fields': ('roles', 'managed_company', 'managed_divisions', 'managed_locations'),
             'description': _('Configure administrator access levels and scope')
         }),
         (_('Company Association'), {
@@ -59,7 +67,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'admin_role'),
+            'fields': ('username', 'email', 'password1', 'password2', 'roles'),
         }),
     )
     
@@ -69,7 +77,11 @@ class UserAdmin(BaseUserAdmin):
         """Optimize queryset with related objects."""
         return super().get_queryset(request).select_related(
             'company', 'division', 'managed_company', 'manager'
-        ).prefetch_related('managed_divisions', 'managed_locations')
+        ).prefetch_related('roles', 'managed_divisions', 'managed_locations')
+
+    def admin_roles_display(self, obj):
+        return obj.get_admin_roles_display()
+    admin_roles_display.short_description = _('Administrator Roles')
     
     def get_access_scope(self, obj):
         """Display the user's access scope."""
@@ -104,7 +116,7 @@ class UserAdmin(BaseUserAdmin):
             # Only show companies for IT administrator role
             if hasattr(request, '_editing_user'):
                 user = request._editing_user
-                if user and user.admin_role != User.AdminRole.IT_ADMINISTRATOR:
+                if user and not user.has_admin_role(User.AdminRole.IT_ADMINISTRATOR):
                     kwargs["queryset"] = kwargs["queryset"].none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
@@ -114,13 +126,13 @@ class UserAdmin(BaseUserAdmin):
             # Only show divisions for IT administrator role
             if hasattr(request, '_editing_user'):
                 user = request._editing_user
-                if user and user.admin_role != User.AdminRole.IT_ADMINISTRATOR:
+                if user and not user.has_admin_role(User.AdminRole.IT_ADMINISTRATOR):
                     kwargs["queryset"] = kwargs["queryset"].none()
         elif db_field.name == "managed_locations":
             # Only show locations for viewer role
             if hasattr(request, '_editing_user'):
                 user = request._editing_user
-                if user and user.admin_role != User.AdminRole.VIEWER:
+                if user and not user.has_admin_role(User.AdminRole.VIEWER):
                     kwargs["queryset"] = kwargs["queryset"].none()
         return super().formfield_for_manytomany(db_field, request, **kwargs)
     

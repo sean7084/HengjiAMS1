@@ -14,11 +14,17 @@ from accounts.models import User
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model."""
 
+    admin_role = serializers.CharField(read_only=True)
+    admin_roles = serializers.SerializerMethodField()
+
+    def get_admin_roles(self, obj):
+        return obj.get_admin_role_codes()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'admin_role', 'phone_number', 'department', 'job_title',
+            'admin_role', 'admin_roles', 'phone_number', 'department', 'job_title',
             'two_factor_enabled', 'language_preference', 'profile_image'
         ]
         read_only_fields = ['id', 'two_factor_enabled']
