@@ -15,7 +15,7 @@ from quotations.models import Quotation
 
 from .forms import DeliveryOrderForm, SignedCopyUploadForm
 from .models import DeliveryItem, DeliveryOrder
-from .services import render_delivery_pdf_html
+from .services import get_dispatch_asset_queryset, render_delivery_pdf_html
 
 
 class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -92,14 +92,11 @@ def delivery_create_view(request, quotation_pk):
         pk=quotation_pk,
     )
 
-    available_assets = Asset.objects.filter(
-        source_quotation=quotation,
-        status=Asset.AssetStatus.AVAILABLE,
-    ).select_related('brand', 'model').order_by('asset_number')
+    available_assets = get_dispatch_asset_queryset(quotation)
 
     if not available_assets.exists():
         messages.error(request, 'No available assets found for this quotation.')
-        return redirect(reverse('purchases:stock'))
+        return redirect(reverse('dashboard:workflow_dashboard'))
 
     initial_data = {
         'delivery_date': quotation.quotation_date,

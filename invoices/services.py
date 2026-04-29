@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import mimetypes
 import smtplib
+import tempfile
 
 import openpyxl
 from openpyxl import load_workbook
@@ -19,6 +20,7 @@ from django.utils import timezone
 
 from accounts.mailbox_sync import cache_dispatch_outbox_message
 from accounts.models import UserMailboxSettings
+from quotations.services import render_quotation_pdf_html
 
 from .models import EmailDispatch, InvoiceInfo, InvoiceInfoItem, WeeklyOrderBatch
 
@@ -423,11 +425,54 @@ def _parse_recipients(value):
     return [item.strip() for item in (value or '').split(',') if item.strip()]
 
 
+def _get_effective_dispatch_recipients(dispatch):
+    intended_to = _parse_recipients(dispatch.sent_to)
+    intended_cc = _parse_recipients(dispatch.cc)
+    intended_bcc = _parse_recipients(dispatch.bcc)
+
+    override = (getattr(settings, 'TEST_OUTBOUND_EMAIL_OVERRIDE', '') or '').strip()
+    if not override:
+        return {
+            'header_to': intended_to,
+            'header_cc': intended_cc,
+            'header_bcc': intended_bcc,
+            'send_to': intended_to,
+            'send_cc': intended_cc,
+            'send_bcc': intended_bcc,
+        }
+
+    override_list = [override]
+    return {
+        'header_to': override_list,
+        'header_cc': [],
+        'header_bcc': [],
+        'send_to': override_list,
+        'send_cc': [],
+        'send_bcc': [],
+    }
+
+
 def collect_email_attachments(dispatch):
     """Collect all related quotation, delivery, and invoice files for email dispatch."""
     files = []
 
     quotation = dispatch.quotation
+    try:
+        quotation_pdf_bytes = render_quotation_pdf_html(quotation)
+    except Exception:
+        quotation_pdf_bytes = None
+    if quotation_pdf_bytes:
+        temp_pdf = Path(tempfile.gettempdir()) / f'{quotation.quotation_number}.pdf'
+        temp_pdf.write_bytes(quotation_pdf_bytes)
+        files.append(
+            {
+                'category': 'quotation_document',
+                'label': 'Quotation PDF',
+                'name': temp_pdf.name,
+                'path': str(temp_pdf),
+            }
+        )
+
     for attachment in quotation.attachments.all().order_by('uploaded_at'):
         if not attachment.file:
             continue
@@ -513,15 +558,19 @@ def collect_email_attachments(dispatch):
     return list(dedup.values())
 
 
-def _build_smtp_message(dispatch, attachments, mailbox_settings):
+def _build_smtp_message(dispatch, attachments, mailbox_settings, recipients):
     message = SMTPEmailMessage()
     message['Subject'] = dispatch.subject
     message['From'] = formataddr((mailbox_settings.display_name or mailbox_settings.user.get_display_name(), mailbox_settings.email_address))
-    message['To'] = ', '.join(_parse_recipients(dispatch.sent_to))
-    if dispatch.cc:
-        message['Cc'] = ', '.join(_parse_recipients(dispatch.cc))
-    if dispatch.bcc:
-        message['Bcc'] = ', '.join(_parse_recipients(dispatch.bcc))
+    message['To'] = ', '.join(recipients['header_to'])
+    if recipients['header_cc']:
+        message['Cc'] = ', '.join(recipients['header_cc'])
+    if recipients['header_bcc']:
+        message['Bcc'] = ', '.join(recipients['header_bcc'])
+    if dispatch.reply_message_id:
+        message['In-Reply-To'] = dispatch.reply_message_id
+    if dispatch.reply_references:
+        message['References'] = dispatch.reply_references
     message.set_content(dispatch.body or '')
 
     for entry in attachments:
@@ -542,8 +591,9 @@ def _send_via_user_mailbox(dispatch, attachments):
     if not mailbox_settings or not mailbox_settings.is_active or not mailbox_settings.password:
         return False
 
-    message = _build_smtp_message(dispatch, attachments, mailbox_settings)
-    recipients = _parse_recipients(dispatch.sent_to) + _parse_recipients(dispatch.cc) + _parse_recipients(dispatch.bcc)
+    recipients = _get_effective_dispatch_recipients(dispatch)
+    message = _build_smtp_message(dispatch, attachments, mailbox_settings, recipients)
+    send_recipients = recipients['send_to'] + recipients['send_cc'] + recipients['send_bcc']
 
     if mailbox_settings.smtp_security == UserMailboxSettings.ConnectionSecurity.SSL_TLS:
         client = smtplib.SMTP_SSL(mailbox_settings.smtp_host, mailbox_settings.smtp_port)
@@ -554,7 +604,7 @@ def _send_via_user_mailbox(dispatch, attachments):
 
     try:
         client.login(mailbox_settings.username, mailbox_settings.password)
-        client.send_message(message, to_addrs=recipients)
+        client.send_message(message, to_addrs=send_recipients)
     except Exception as exc:
         mailbox_settings.last_connection_test_at = timezone.now()
         mailbox_settings.last_connection_status = 'failed'
@@ -577,12 +627,13 @@ def send_email_dispatch(dispatch):
 
     sent_via_mailbox = _send_via_user_mailbox(dispatch, attachments)
     if not sent_via_mailbox:
+        recipients = _get_effective_dispatch_recipients(dispatch)
         email_message = DjangoEmailMessage(
             subject=dispatch.subject,
             body=dispatch.body,
-            to=_parse_recipients(dispatch.sent_to),
-            cc=_parse_recipients(dispatch.cc),
-            bcc=_parse_recipients(dispatch.bcc),
+            to=recipients['send_to'],
+            cc=recipients['send_cc'],
+            bcc=recipients['send_bcc'],
         )
 
         for entry in attachments:

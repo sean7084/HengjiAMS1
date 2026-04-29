@@ -132,13 +132,6 @@ class DeliveryItem(models.Model):
 
     def clean(self):
         super().clean()
-        if (
-            self.asset_id
-            and self.delivery_order_id
-            and self.asset.source_quotation_id != self.delivery_order.quotation_id
-        ):
-            raise ValidationError('Selected asset must come from the same source quotation.')
-
         if self.asset_id and self.delivery_order_id:
             active_statuses = [
                 DeliveryOrder.Status.PENDING,
@@ -158,7 +151,7 @@ class DeliveryItem(models.Model):
             self.brand_name = self.asset.brand.name if self.asset.brand else ''
             self.product_description = self.asset.description or ''
 
-            if self.delivery_order_id and self.delivery_order.quotation_id:
+            if self.delivery_order_id and self.delivery_order.quotation_id and not self.user_brand and not self.user_name:
                 match = self.delivery_order.quotation.items.filter(
                     product_price__brand=self.asset.brand,
                     product_price__model=self.asset.model,

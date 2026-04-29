@@ -28,6 +28,7 @@ urlpatterns = [
     path('mailbox/', views.MailboxInboxView.as_view(), name='mailbox_inbox'),
     path('mailbox/sync/', views.MailboxSyncView.as_view(), name='mailbox_sync'),
     path('mailbox/<int:pk>/', views.MailboxMessageDetailView.as_view(), name='mailbox_detail'),
+    path('mailbox/<int:pk>/reprocess-rfq/', views.MailboxRFQReprocessView.as_view(), name='mailbox_reprocess_rfq'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
     
     # User Management (Admin only)

@@ -388,8 +388,11 @@
                                 <i class="fas fa-shopping-cart"></i> {% trans "Order Management" %}
                             </a>
                             <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'dashboard:workflow_dashboard' %}">
+                                    <i class="fas fa-columns"></i> {% trans "Workflow Dashboard" %}
+                                </a></li>
                                 <li><a class="dropdown-item" href="{% url 'products:price_list' %}">
-                                    <i class="fas fa-tags"></i> {% trans "Product Price List" %}
+                                    <i class="fas fa-tags"></i> {% trans "Price List" %}
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'quotations:list' %}">
@@ -397,9 +400,6 @@
                                 </a></li>
                                 <li><a class="dropdown-item" href="{% url 'purchases:list' %}">
                                     <i class="fas fa-shopping-cart"></i> {% trans "Purchases" %}
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'purchases:stock' %}">
-                                    <i class="fas fa-warehouse"></i> {% trans "Stock Overview" %}
                                 </a></li>
                                 <li><a class="dropdown-item" href="{% url 'deliveries:list' %}">
                                     <i class="fas fa-truck"></i> {% trans "Delivery Orders" %}
@@ -421,13 +421,6 @@
                                 </a></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:mailbox_inbox' %}">
                                     <i class="fas fa-envelope-open-text"></i> {% trans "Email Module" %}
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'dashboard:workflow_dashboard' %}">
-                                    <i class="fas fa-columns"></i> {% trans "Workflow Dashboard" %}
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'dashboard:workflow_search' %}">
-                                    <i class="fas fa-search"></i> {% trans "Workflow Search" %}
                                 </a></li>
                             </ul>
                         </li>
@@ -479,6 +472,31 @@
                     
                     <ul class="navbar-nav">
                         {% if user.is_authenticated %}
+                        <li class="nav-item dropdown me-2">
+                            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                {% if pending_tasks_total %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ pending_tasks_total }}
+                                </span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" style="min-width: 340px; max-height: 420px; overflow-y: auto;">
+                                <li><h6 class="dropdown-header">{% trans "Pending Tasks" %}</h6></li>
+                                {% if pending_tasks %}
+                                {% for task in pending_tasks %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ task.url }}">
+                                        <div class="fw-semibold">{{ task.label }}</div>
+                                        <div class="small text-muted">{{ task.meta }}</div>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                                {% else %}
+                                <li><span class="dropdown-item-text text-muted">{% trans "No pending tasks" %}</span></li>
+                                {% endif %}
+                            </ul>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> {{ user.get_full_name_display }}

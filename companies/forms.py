@@ -372,7 +372,7 @@ class CompanyUserForm(forms.ModelForm):
 
     class Meta:
         model = CompanyUser
-        fields = ['name', 'company', 'role', 'location', 'status', 'employee_id', 'department', 'job_title', 'work_phone', 'work_email']
+        fields = ['name', 'company', 'role', 'location', 'status', 'employee_id', 'department', 'job_title', 'work_phone', 'work_email', 'is_authorized_rfq_sender']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'company': forms.Select(attrs={'class': 'form-select'}),
@@ -384,6 +384,7 @@ class CompanyUserForm(forms.ModelForm):
             'job_title': forms.TextInput(attrs={'class': 'form-control'}),
             'work_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'work_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'is_authorized_rfq_sender': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -409,6 +410,7 @@ class CompanyUserForm(forms.ModelForm):
             ).order_by('name')
         else:
             self.fields['location'].queryset = Location.objects.none()
+        self.fields['is_authorized_rfq_sender'].required = False
 
     def clean(self):
         cleaned_data = super().clean()

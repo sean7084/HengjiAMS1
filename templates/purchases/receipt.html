@@ -35,9 +35,10 @@
                                 <select name="location" class="form-select" required>
                                     <option value="">-- {% trans "Select location" %} --</option>
                                     {% for loc in locations %}
-                                    <option value="{{ loc.pk }}">{{ loc.name }}</option>
+                                    <option value="{{ loc.pk }}" {% if locations|length == 1 and forloop.first %}selected{% endif %}>{{ loc.name }}</option>
                                     {% endfor %}
                                 </select>
+                                <div class="form-text">{% trans "Only internal warehouse locations are available for purchase receipts." %}</div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">{% trans "Received By" %}</label>

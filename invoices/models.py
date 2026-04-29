@@ -203,6 +203,13 @@ class EmailDispatch(models.Model):
         on_delete=models.CASCADE,
         related_name='email_dispatches',
     )
+    source_email_message = models.ForeignKey(
+        'accounts.ReceivedEmailMessage',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='email_dispatches',
+    )
     invoice_info = models.ForeignKey(
         InvoiceInfo,
         on_delete=models.SET_NULL,
@@ -226,6 +233,8 @@ class EmailDispatch(models.Model):
     bcc = models.TextField(blank=True, help_text='Comma separated BCC recipients')
 
     attachments = models.JSONField(default=list, blank=True)
+    reply_message_id = models.CharField(max_length=255, blank=True)
+    reply_references = models.TextField(blank=True)
 
     status = models.CharField(max_length=30, choices=DispatchStatus.choices, default=DispatchStatus.DRAFT)
     sent_at = models.DateTimeField(null=True, blank=True)
@@ -249,6 +258,7 @@ class EmailDispatch(models.Model):
             models.Index(fields=['quotation', 'status']),
             models.Index(fields=['sent_at']),
             models.Index(fields=['esker_sent']),
+            models.Index(fields=['source_email_message', 'status']),
         ]
 
     def __str__(self):

@@ -8,6 +8,7 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 import datetime
 
+from accounts.models import ReceivedEmailMessage
 from companies.models import Company
 from products.models import ProductPrice
 
@@ -39,6 +40,14 @@ class Quotation(models.Model):
         related_name='quotations',
         verbose_name=_('Customer')
     )
+    source_email_message = models.ForeignKey(
+        ReceivedEmailMessage,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='linked_quotations',
+        verbose_name=_('Source RFQ Email')
+    )
 
     # Date fields
     quotation_date = models.DateField(
@@ -59,6 +68,10 @@ class Quotation(models.Model):
         max_length=20,
         blank=True,
         verbose_name=_('Telephone')
+    )
+    attn_email = models.EmailField(
+        blank=True,
+        verbose_name=_('Attention Email')
     )
 
     # Status
@@ -96,6 +109,10 @@ class Quotation(models.Model):
     notes = models.TextField(
         blank=True,
         verbose_name=_('Notes')
+    )
+    requires_confirmation = models.BooleanField(
+        default=False,
+        verbose_name=_('Requires Confirmation')
     )
 
     # Metadata
@@ -163,7 +180,7 @@ class Quotation(models.Model):
         return {
             'attn': self.attn or fallback_name,
             'tel': self.tel or fallback_phone,
-            'email': fallback_email or self.customer.email,
+            'email': self.attn_email or fallback_email or self.customer.email,
             'delivery_address': first_location.get_full_address() if first_location else self.customer.get_full_address(),
             'delivery_city': first_location.city if first_location else self.customer.city,
         }

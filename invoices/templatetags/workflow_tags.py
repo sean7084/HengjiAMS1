@@ -46,9 +46,15 @@ def quotation_next_action(quotation):
     if status == 'sent':
         return 'Confirm Quotation'
     if status == 'confirmed':
-        if not hasattr(quotation, 'purchase_order'):
-            return 'Convert to Purchase'
-        return 'Proceed with Delivery / Invoice'
+        delivery_order = quotation.delivery_orders.order_by('-created_at').first()
+        if delivery_order:
+            return 'Open Delivery'
+        purchase_order = getattr(quotation, 'purchase_order', None)
+        if not purchase_order:
+            return 'Create Purchase Order'
+        if purchase_order.status == 'complete':
+            return 'Create Delivery'
+        return 'Receive Stock'
     if status == 'expired':
         return 'Duplicate and Re-issue'
     if status == 'cancelled':

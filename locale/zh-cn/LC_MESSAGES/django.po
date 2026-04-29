@@ -1071,8 +1071,8 @@ msgstr "处理于"
 msgid "Product"
 msgstr "产品"
 
-msgid "Product Price List"
-msgstr "产品价格表"
+msgid "Price List"
+msgstr "价格表"
 
 msgid "Products & Sales"
 msgstr "产品与销售"
@@ -1324,7 +1324,7 @@ msgid "System events pagination"
 msgstr "系统事件分页"
 
 msgid "Price list pagination"
-msgstr "价格列表分页"
+msgstr "价格表分页"
 
 msgid "Categories pagination"
 msgstr "类别分页"

@@ -827,6 +827,12 @@ class CompanyUser(models.Model):
         verbose_name=_('Work Email'),
         help_text=_('Company email address if different from user email')
     )
+
+    is_authorized_rfq_sender = models.BooleanField(
+        default=False,
+        verbose_name=_('Authorized RFQ Sender'),
+        help_text=_('Only authorized contacts can trigger quotation auto-generation from RFQ emails.')
+    )
     
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)

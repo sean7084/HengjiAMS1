@@ -4,15 +4,21 @@ Views for Products app.
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.db import models
 
 from assets.models import AssetBrand, AssetModel
+from assets.models import AssetCategory
 from .models import ProductPrice
-from .forms import ProductPriceForm
+from .forms import ProductPriceForm, ServicePriceForm
+
+
+SERVICE_CATEGORY_CODE = 'SERVICE'
+SERVICE_CATEGORY_NAME = 'Services'
+SERVICE_BRAND_CODE = 'SERVICE'
+SERVICE_BRAND_NAME = 'Service'
 
 
 class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -43,6 +49,55 @@ class ProductModelCatalogMixin:
         return context
 
 
+def _get_or_create_service_category():
+    category, created = AssetCategory.objects.get_or_create(
+        code=SERVICE_CATEGORY_CODE,
+        defaults={
+            'name': SERVICE_CATEGORY_NAME,
+            'description': 'Service items for quotations and the price list.',
+            'item_type': AssetCategory.ItemType.SERVICE,
+            'requires_serial_number': False,
+            'default_warranty_months': 0,
+            'depreciation_rate': 0,
+            'is_active': True,
+        },
+    )
+    fields_to_update = []
+    if category.item_type != AssetCategory.ItemType.SERVICE:
+        category.item_type = AssetCategory.ItemType.SERVICE
+        fields_to_update.append('item_type')
+    if category.requires_serial_number:
+        category.requires_serial_number = False
+        fields_to_update.append('requires_serial_number')
+    if category.default_warranty_months != 0:
+        category.default_warranty_months = 0
+        fields_to_update.append('default_warranty_months')
+    if category.depreciation_rate != 0:
+        category.depreciation_rate = 0
+        fields_to_update.append('depreciation_rate')
+    if not category.is_active:
+        category.is_active = True
+        fields_to_update.append('is_active')
+    if fields_to_update:
+        category.save(update_fields=fields_to_update + ['updated_at'])
+    return category
+
+
+def _get_or_create_service_brand():
+    brand, _created = AssetBrand.objects.get_or_create(
+        code=SERVICE_BRAND_CODE,
+        defaults={
+            'name': SERVICE_BRAND_NAME,
+            'description': 'Default brand for service quotation items.',
+            'is_active': True,
+        },
+    )
+    if not brand.is_active:
+        brand.is_active = True
+        brand.save(update_fields=['is_active', 'updated_at'])
+    return brand
+
+
 class ProductPriceListView(OrderManagementAccessMixin, ListView):
     """List view for product prices with filtering."""
     model = ProductPrice
@@ -50,8 +105,51 @@ class ProductPriceListView(OrderManagementAccessMixin, ListView):
     context_object_name = 'prices'
     paginate_by = 20
 
+    def post(self, request, *args, **kwargs):
+        category_id = request.POST.get('category_id')
+        default_model_id = request.POST.get('default_model_id')
+        category = AssetCategory.objects.filter(pk=category_id, is_active=True).first()
+        if not category:
+            messages.error(request, 'Selected category was not found.')
+            return redirect('products:price_list')
+
+        if default_model_id:
+            model = AssetModel.objects.filter(pk=default_model_id, is_active=True, category=category).first()
+            if not model:
+                messages.error(request, 'Selected default model does not belong to this category.')
+                return redirect('products:price_list')
+            category.default_asset_model = model
+            category.save(update_fields=['default_asset_model', 'updated_at'])
+            messages.success(request, 'Default model updated successfully.')
+        else:
+            category.default_asset_model = None
+            category.save(update_fields=['default_asset_model', 'updated_at'])
+            messages.success(request, 'Default model cleared successfully.')
+        return redirect('products:price_list')
+
     def get_queryset(self):
-        queryset = ProductPrice.objects.all().select_related('brand', 'model')
+        queryset = ProductPrice.objects.all().select_related('brand', 'model', 'model__category')
+
+        self.selected_type = self.request.GET.get('type') or 'all'
+        if self.selected_type not in {'all', AssetCategory.ItemType.HARDWARE, AssetCategory.ItemType.SERVICE}:
+            self.selected_type = 'all'
+
+        self.selected_status = self.request.GET.get('status') or 'current'
+        if self.selected_status not in {'current', 'inactive', 'all'}:
+            self.selected_status = 'current'
+
+        if self.selected_type == AssetCategory.ItemType.SERVICE:
+            queryset = queryset.filter(model__category__item_type=AssetCategory.ItemType.SERVICE)
+        elif self.selected_type == AssetCategory.ItemType.HARDWARE:
+            queryset = queryset.filter(
+                models.Q(model__category__item_type=AssetCategory.ItemType.HARDWARE) |
+                models.Q(model__category__isnull=True)
+            )
+
+        if self.selected_status == 'current':
+            queryset = queryset.filter(is_current=True)
+        elif self.selected_status == 'inactive':
+            queryset = queryset.filter(is_current=False)
 
         # Filter by brand
         brand_id = self.request.GET.get('brand')
@@ -64,7 +162,8 @@ class ProductPriceListView(OrderManagementAccessMixin, ListView):
             queryset = queryset.filter(
                 models.Q(brand__name__icontains=search) |
                 models.Q(model__name__icontains=search) |
-                models.Q(model__model_number__icontains=search)
+                models.Q(model__model_number__icontains=search) |
+                models.Q(model__description__icontains=search)
             )
 
         return queryset
@@ -74,6 +173,20 @@ class ProductPriceListView(OrderManagementAccessMixin, ListView):
         context['brands'] = AssetBrand.objects.filter(is_active=True).order_by('name')
         context['selected_brand'] = self.request.GET.get('brand', '')
         context['search_query'] = self.request.GET.get('search', '')
+        context['selected_type'] = getattr(self, 'selected_type', 'all')
+        context['selected_status'] = getattr(self, 'selected_status', 'current')
+        categories = AssetCategory.objects.filter(
+            is_active=True,
+        ).exclude(
+            item_type=AssetCategory.ItemType.SERVICE,
+        ).prefetch_related('asset_models__brand').select_related('default_asset_model__brand').order_by('name')
+        context['category_default_models'] = [
+            {
+                'category': category,
+                'models': category.asset_models.filter(is_active=True).select_related('brand').order_by('brand__name', 'name'),
+            }
+            for category in categories
+        ]
         return context
 
 
@@ -86,6 +199,27 @@ class ProductPriceCreateView(OrderManagementAccessMixin, ProductModelCatalogMixi
 
     def form_valid(self, form):
         messages.success(self.request, 'Product price created successfully.')
+        return super().form_valid(form)
+
+
+class ServicePriceCreateView(OrderManagementAccessMixin, FormView):
+    """Create a service item and price in one step."""
+
+    template_name = 'products/service_price_form.html'
+    form_class = ServicePriceForm
+    success_url = reverse_lazy('products:price_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['default_service_brand_name'] = SERVICE_BRAND_NAME
+        context['default_service_category_name'] = SERVICE_CATEGORY_NAME
+        return context
+
+    def form_valid(self, form):
+        category = form.cleaned_data.get('category') or _get_or_create_service_category()
+        brand = _get_or_create_service_brand()
+        form.save(category=category, brand=brand)
+        messages.success(self.request, 'Service item created successfully.')
         return super().form_valid(form)
 
 

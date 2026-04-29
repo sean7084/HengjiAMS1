@@ -3,6 +3,15 @@
 
 {% block title %}{% trans "Compose Dispatch Email" %} - {{ block.super }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .email-line-input {
+        min-height: calc(1.5em + 0.75rem + 2px);
+        height: calc(1.5em + 0.75rem + 2px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">

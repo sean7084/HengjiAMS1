@@ -10,9 +10,19 @@
             <h1 class="h4 mb-1">{{ message.subject|default:_('Mailbox Message') }}</h1>
             <p class="text-muted mb-0">{% if message.direction == 'inbox' %}{{ message.sender }}{% else %}{{ message.recipients }}{% endif %} · {{ message.event_at|date:"M d, Y H:i" }}</p>
         </div>
-        <a href="{% url 'accounts:mailbox_inbox' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> {% trans "Back to Inbox" %}
-        </a>
+        <div class="d-flex gap-2">
+            {% if message.direction == 'inbox' %}
+            <form method="post" action="{% url 'accounts:mailbox_reprocess_rfq' message.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-rotate-right"></i> {% trans "Reprocess RFQ" %}
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'accounts:mailbox_inbox' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Inbox" %}
+            </a>
+        </div>
     </div>
 
     <div class="card mb-3">
@@ -24,9 +34,37 @@
                 <div class="col-md-6"><strong>{% trans "To" %}:</strong> {{ message.recipients|default:"-" }}</div>
                 <div class="col-md-6"><strong>{% trans "Message ID" %}:</strong> {{ message.message_id|default:"-" }}</div>
                 <div class="col-md-6"><strong>{% trans "Protocol" %}:</strong> {{ message.metadata.protocol|default:"-" }}</div>
+                <div class="col-md-6"><strong>{% trans "RFQ Status" %}:</strong> {{ message.get_rfq_status_display }}</div>
+                <div class="col-md-6"><strong>{% trans "RFQ Confidence" %}:</strong> {{ message.rfq_confidence|default:"-" }}</div>
             </div>
         </div>
     </div>
+
+    {% if message.rfq_summary or linked_quotation or reply_draft or message.rfq_error %}
+    <div class="card mb-3">
+        <div class="card-header"><h5 class="card-title mb-0">{% trans "RFQ Workflow" %}</h5></div>
+        <div class="card-body">
+            {% if message.rfq_summary %}
+            <p class="mb-3"><strong>{% trans "Summary" %}:</strong> {{ message.rfq_summary }}</p>
+            {% endif %}
+            {% if linked_quotation %}
+            <p class="mb-2">
+                <strong>{% trans "Linked Draft Quotation" %}:</strong>
+                <a href="{% url 'quotations:detail' linked_quotation.pk %}">{{ linked_quotation.quotation_number }}</a>
+            </p>
+            {% endif %}
+            {% if reply_draft %}
+            <p class="mb-2">
+                <strong>{% trans "Reply Draft" %}:</strong>
+                <a href="{% url 'invoices:email_dispatch_compose_from_quotation' reply_draft.quotation.pk %}">{{ reply_draft.subject }}</a>
+            </p>
+            {% endif %}
+            {% if message.rfq_error %}
+            <div class="alert alert-warning mb-0">{{ message.rfq_error }}</div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
     <div class="card">
         <div class="card-header"><h5 class="card-title mb-0">{% trans "Message Body" %}</h5></div>

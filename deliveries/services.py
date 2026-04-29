@@ -5,10 +5,48 @@ import shutil
 import subprocess
 
 from django.conf import settings
+from django.db.models import Q
 from django.template.loader import render_to_string
+
+from assets.models import Asset
+
+from .models import DeliveryOrder
 
 from openpyxl import load_workbook
 from weasyprint import HTML
+
+
+INTERNAL_WAREHOUSE_LOCATION_ID = 3
+
+
+def get_dispatch_asset_queryset(quotation):
+    if quotation is None:
+        return Asset.objects.none()
+
+    item_filters = Q()
+    quotation_items = quotation.items.select_related('product_price__brand', 'product_price__model')
+    for item in quotation_items:
+        if not item.product_price_id or not item.product_price.brand_id or not item.product_price.model_id:
+            continue
+        item_filters |= Q(brand_id=item.product_price.brand_id, model_id=item.product_price.model_id)
+
+    if not item_filters:
+        return Asset.objects.none()
+
+    active_delivery_statuses = [
+        DeliveryOrder.Status.PENDING,
+        DeliveryOrder.Status.PREPARED,
+        DeliveryOrder.Status.DISPATCHED,
+    ]
+
+    return Asset.objects.filter(
+        status=Asset.AssetStatus.AVAILABLE,
+        location_id=INTERNAL_WAREHOUSE_LOCATION_ID,
+    ).filter(
+        item_filters,
+    ).exclude(
+        delivery_items__delivery_order__status__in=active_delivery_statuses,
+    ).select_related('brand', 'model').distinct().order_by('asset_number')
 
 
 def _find_label_cell(sheet, label):

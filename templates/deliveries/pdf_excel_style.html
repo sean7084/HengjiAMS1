@@ -235,8 +235,8 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th class="wrap-col">品牌</th>
-                                <th class="wrap-col">商品描述</th>
+                                <th class="wrap-col">产品品牌</th>
+                                <th class="wrap-col">产品描述</th>
                                 <th class="wrap-col">采购方品牌</th>
                                 <th class="wrap-col">采购方用户</th>
                                 <th>数量</th>
@@ -256,9 +256,9 @@
                         </tbody>
                     </table>
 
-                    <div class="note-row note-address"><span class="note-label">一: 交货地址:</span>{{ delivery.delivery_address|default:"-" }}</div>
-                    <div class="note-row note-method"><span class="note-label">二: 交货方式:</span>{{ delivery_method_display }}</div>
-                    <div class="note-row note-acceptance"><span class="note-label">三: 验收方式:</span>{{ acceptance_text }}</div>
+                    <div class="note-row note-address"><span class="note-label">一、交货地址:</span>{{ delivery.delivery_address|default:"-" }}</div>
+                    <div class="note-row note-method"><span class="note-label">二、交货方式:</span>{{ delivery_method_display }}</div>
+                    <div class="note-row note-acceptance"><span class="note-label">三、验收方式:</span>{{ acceptance_text }}</div>
                 </div>
             </td>
         </tr>

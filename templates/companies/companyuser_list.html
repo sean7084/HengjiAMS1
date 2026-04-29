@@ -32,7 +32,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <div class="input-group">
                         <span class="input-group-text">
                             <i class="fas fa-search"></i>
@@ -44,7 +44,15 @@
                                placeholder="{% trans 'Search company contacts...' %}">
                     </div>
                 </div>
-                <div class="col-md-4 d-flex align-items-end">
+                <div class="col-md-3">
+                    <label for="id_rfq_sender" class="form-label">{% trans "RFQ Sender" %}</label>
+                    <select name="rfq_sender" id="id_rfq_sender" class="form-select">
+                        <option value="">{% trans "All Contacts" %}</option>
+                        <option value="authorized" {% if rfq_sender == 'authorized' %}selected{% endif %}>{% trans "Authorized Only" %}</option>
+                        <option value="unauthorized" {% if rfq_sender == 'unauthorized' %}selected{% endif %}>{% trans "Unauthorized Only" %}</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary me-2">
                         <i class="fas fa-search"></i> {% trans "Search" %}
                     </button>
@@ -74,6 +82,7 @@
                             <th>{% trans "Company" %}</th>
                             <th>{% trans "Location" %}</th>
                             <th>{% trans "Role" %}</th>
+                            <th>{% trans "RFQ Sender" %}</th>
                             <th>{% trans "Email" %}</th>
                             <th>{% trans "Phone" %}</th>
                             <th>{% trans "Start Date" %}</th>
@@ -100,6 +109,13 @@
                             <td>{{ company_user.company.name }}</td>
                             <td>{{ company_user.location.name|default:"-" }}</td>
                             <td>{{ company_user.role|default:"-" }}</td>
+                            <td>
+                                {% if company_user.is_authorized_rfq_sender %}
+                                <span class="badge bg-success">{% trans "Authorized" %}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{% trans "No" %}</span>
+                                {% endif %}
+                            </td>
                             <td>{{ company_user.get_contact_email|default:"-" }}</td>
                             <td>{{ company_user.get_contact_phone|default:"-" }}</td>
                             <td>{{ company_user.start_date|date:"M d, Y"|default:"-" }}</td>
@@ -139,12 +155,12 @@
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">
+                <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if rfq_sender %}&rfq_sender={{ rfq_sender }}{% endif %}">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if rfq_sender %}&rfq_sender={{ rfq_sender }}{% endif %}">
                     <i class="fas fa-angle-left"></i>
                 </a>
             </li>
@@ -158,12 +174,12 @@
             
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if rfq_sender %}&rfq_sender={{ rfq_sender }}{% endif %}">
                     <i class="fas fa-angle-right"></i>
                 </a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if rfq_sender %}&rfq_sender={{ rfq_sender }}{% endif %}">
                     <i class="fas fa-angle-double-right"></i>
                 </a>
             </li>

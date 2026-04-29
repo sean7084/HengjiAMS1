@@ -31,6 +31,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+MINIMAX_TOKEN_PLAN_KEY = os.environ.get('minimax_token_plan_key', '')
+MINIMAX_RFQ_API_URL = os.environ.get('MINIMAX_RFQ_API_URL', 'https://api.minimaxi.com/anthropic/v1/messages')
+MINIMAX_RFQ_MODEL = os.environ.get('MINIMAX_RFQ_MODEL', 'MiniMax-M2.7-highspeed')
+MINIMAX_RFQ_TIMEOUT_SECONDS = float(os.environ.get('MINIMAX_RFQ_TIMEOUT_SECONDS', '30'))
+MINIMAX_RFQ_MAX_TOKENS = int(os.environ.get('MINIMAX_RFQ_MAX_TOKENS', '800'))
+TEST_OUTBOUND_EMAIL_OVERRIDE = os.environ.get('TEST_OUTBOUND_EMAIL_OVERRIDE', 'sean.liu@istore-tech.com').strip()
+
 
 # Application definition
 
@@ -91,6 +98,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',  # For internationalization
+                'dashboard.context_processors.pending_tasks',
             ],
         },
     },

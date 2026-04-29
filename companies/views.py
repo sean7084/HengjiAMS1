@@ -379,6 +379,12 @@ class CompanyUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(company__name__icontains=search) |
                 Q(location__name__icontains=search)
             )
+
+        rfq_sender = self.request.GET.get('rfq_sender')
+        if rfq_sender == 'authorized':
+            queryset = queryset.filter(is_authorized_rfq_sender=True)
+        elif rfq_sender == 'unauthorized':
+            queryset = queryset.filter(is_authorized_rfq_sender=False)
         
         return queryset.order_by('company__name', 'name', 'user__username')
     
@@ -386,6 +392,7 @@ class CompanyUserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Company Contact Management')
         context['search'] = self.request.GET.get('search', '')
+        context['rfq_sender'] = self.request.GET.get('rfq_sender', '')
         context['import_url'] = reverse('companies:company_contact_import_csv')
         return context
 

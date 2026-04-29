@@ -2,7 +2,7 @@
 Dashboard views for HengJi Asset Management System.
 Provides main dashboard and overview functionality.
 """
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q, Sum
 from django.utils.translation import gettext_lazy as _
@@ -12,8 +12,8 @@ from assets.models import Asset, AssetCategory, AssetBrand, AssetMaintenance
 from companies.models import Company, Division
 from accounts.models import User
 from deliveries.models import DeliveryOrder
-from invoices.models import InvoiceInfo, WorkflowStatusAudit
-from purchases.models import PurchaseOrder
+from invoices.models import InvoiceInfo
+from purchases.models import PurchaseOrder, PurchaseReceipt
 from quotations.models import Quotation
 import json
 
@@ -23,6 +23,59 @@ def _ensure_order_management_access(request):
         return None
     messages.error(request, _('You do not have access to Order Management.'))
     return redirect('dashboard:dashboard')
+
+
+def _build_stock_overview_context():
+    assets = Asset.objects.filter(
+        source_quotation__isnull=False
+    ).select_related('source_quotation', 'brand', 'model', 'category')
+    purchase_orders = PurchaseOrder.objects.select_related('quotation')
+
+    by_brand = {}
+    for asset in assets:
+        brand_name = asset.brand.name if asset.brand else 'Unknown'
+        if brand_name not in by_brand:
+            by_brand[brand_name] = {
+                'total': 0,
+                'available': 0,
+                'assigned': 0,
+            }
+        by_brand[brand_name]['total'] += 1
+        if asset.status == Asset.AssetStatus.AVAILABLE:
+            by_brand[brand_name]['available'] += 1
+        elif asset.status == Asset.AssetStatus.ASSIGNED:
+            by_brand[brand_name]['assigned'] += 1
+
+    by_quotation = {}
+    for asset in assets:
+        quotation_number = asset.source_quotation.quotation_number if asset.source_quotation else 'Unknown'
+        if quotation_number not in by_quotation:
+            by_quotation[quotation_number] = {
+                'total': 0,
+                'available': 0,
+                'assets': [],
+                'quotation_pk': asset.source_quotation.pk if asset.source_quotation else None,
+            }
+        by_quotation[quotation_number]['total'] += 1
+        by_quotation[quotation_number]['assets'].append(asset)
+        if asset.status == Asset.AssetStatus.AVAILABLE:
+            by_quotation[quotation_number]['available'] += 1
+
+    return {
+        'total_count': assets.count(),
+        'available_count': assets.filter(status=Asset.AssetStatus.AVAILABLE).count(),
+        'assigned_count': assets.filter(status=Asset.AssetStatus.ASSIGNED).count(),
+        'in_use_count': assets.filter(status=Asset.AssetStatus.IN_USE).count(),
+        'po_total': purchase_orders.count(),
+        'po_receiving': purchase_orders.filter(status=PurchaseOrder.Status.RECEIVING).count(),
+        'po_complete': purchase_orders.filter(status=PurchaseOrder.Status.COMPLETE).count(),
+        'converted_quotations': Quotation.objects.filter(purchase_order__isnull=False).count(),
+        'ready_dispatch_count': assets.filter(status=Asset.AssetStatus.AVAILABLE).count(),
+        'by_brand': by_brand,
+        'by_quotation': by_quotation,
+        'by_location': assets.values('location__name').annotate(total=Count('id')).order_by('-total'),
+        'recent_receipts': PurchaseReceipt.objects.select_related('purchase_order', 'quotation', 'location').order_by('-created_at')[:10],
+    }
 
 
 @login_required
@@ -117,7 +170,7 @@ def save_dashboard_config(request):
 
 @login_required
 def workflow_dashboard_view(request):
-    """Q9 integrated workflow dashboard with kanban stages and status audit stream."""
+    """Q9 integrated workflow dashboard with kanban stages and stock overview."""
     denied_response = _ensure_order_management_access(request)
     if denied_response:
         return denied_response
@@ -173,11 +226,9 @@ def workflow_dashboard_view(request):
         },
     ]
 
-    recent_status_audits = WorkflowStatusAudit.objects.order_by('-changed_at')[:40]
-
     context = {
         'workflow_stages': workflow_stages,
-        'recent_status_audits': recent_status_audits,
+        **_build_stock_overview_context(),
     }
     return render(request, 'dashboard/workflow_dashboard.html', context)
 

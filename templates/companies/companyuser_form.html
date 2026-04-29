@@ -78,6 +78,15 @@
                         <label for="{{ form.work_email.id_for_label }}" class="form-label">{% trans "Work Email" %}</label>
                         {{ form.work_email }}
                     </div>
+                    <div class="col-12">
+                        <div class="form-check mt-2">
+                            {{ form.is_authorized_rfq_sender }}
+                            <label class="form-check-label" for="{{ form.is_authorized_rfq_sender.id_for_label }}">
+                                {% trans "Authorized RFQ Sender" %}
+                            </label>
+                        </div>
+                        <div class="form-text">{% trans "Only authorized contacts can trigger quotation auto-generation from RFQ emails." %}</div>
+                    </div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4">

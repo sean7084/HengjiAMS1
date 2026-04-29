@@ -3,11 +3,12 @@
 import os
 import sys
 
-from hengjiams.runtime_setup import configure_windows_fontconfig
+from hengjiams.runtime_setup import configure_windows_fontconfig, load_local_env
 
 
 def main():
     """Run administrative tasks."""
+    load_local_env()
     configure_windows_fontconfig()
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hengjiams.settings')
     try:

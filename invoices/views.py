@@ -317,12 +317,24 @@ def email_dispatch_compose_view(request, quotation_pk=None):
 
         quotation = get_object_or_404(Quotation, pk=quotation_pk)
 
+    existing_draft = None
+    if quotation is not None and quotation.source_email_message_id:
+        existing_draft = quotation.email_dispatches.filter(
+            source_email_message=quotation.source_email_message,
+            status=EmailDispatch.DispatchStatus.DRAFT,
+        ).order_by('-updated_at').first()
+
     if request.method == 'POST':
-        form = EmailDispatchForm(request.POST, quotation=quotation)
+        form = EmailDispatchForm(request.POST, quotation=quotation, instance=existing_draft)
         if form.is_valid():
             action = request.POST.get('action', 'preview')
             draft_dispatch = form.save(commit=False)
-            draft_dispatch.created_by = request.user
+            if not draft_dispatch.created_by_id:
+                draft_dispatch.created_by = request.user
+            if quotation is not None and quotation.source_email_message_id and not draft_dispatch.source_email_message_id:
+                draft_dispatch.source_email_message = quotation.source_email_message
+                draft_dispatch.reply_message_id = quotation.source_email_message.message_id or ''
+                draft_dispatch.reply_references = quotation.source_email_message.message_id or ''
 
             if action == 'send':
                 draft_dispatch.status = EmailDispatch.DispatchStatus.DRAFT
@@ -343,7 +355,13 @@ def email_dispatch_compose_view(request, quotation_pk=None):
                 except Exception as exc:
                     messages.error(request, f'Preview generation failed: {exc}')
     else:
-        form = EmailDispatchForm(quotation=quotation)
+        form = EmailDispatchForm(quotation=quotation, instance=existing_draft)
+        if existing_draft is not None:
+            preview_dispatch = existing_draft
+            try:
+                preview_files = collect_email_attachments(existing_draft)
+            except Exception:
+                preview_files = []
 
     return render(
         request,

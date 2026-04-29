@@ -2,19 +2,23 @@
 Views for Purchases app.
 """
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.contrib import messages
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.db import transaction
 from django.utils import timezone
 import uuid
 
 from assets.models import Asset
+from companies.models import Location
 from quotations.models import Quotation
-from .models import PurchaseOrder, PurchaseOrderItem, PurchaseReceipt
+from .models import PurchaseOrder, PurchaseReceipt
+
+
+INTERNAL_WAREHOUSE_LOCATION_ID = 3
 
 
 class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -27,21 +31,19 @@ class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class PurchaseListView(OrderManagementAccessMixin, ListView):
-    """List view for purchased assets from quotations."""
-    model = Asset
+    """List view for purchase orders created from quotations."""
+    model = PurchaseOrder
     template_name = 'purchases/list.html'
-    context_object_name = 'assets'
+    context_object_name = 'purchase_orders'
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Asset.objects.filter(
-            source_quotation__isnull=False
-        ).select_related('source_quotation', 'brand', 'model', 'category')
+        queryset = PurchaseOrder.objects.select_related('quotation', 'quotation__customer').prefetch_related('quotation__delivery_orders').all()
 
         # Filter by quotation
         quotation_id = self.request.GET.get('quotation')
         if quotation_id:
-            queryset = queryset.filter(source_quotation_id=quotation_id)
+            queryset = queryset.filter(quotation_id=quotation_id)
 
         # Filter by status
         status = self.request.GET.get('status')
@@ -52,97 +54,24 @@ class PurchaseListView(OrderManagementAccessMixin, ListView):
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
-                Q(asset_number__icontains=search) |
-                Q(serial_number__icontains=search) |
-                Q(description__icontains=search)
+                Q(po_number__icontains=search) |
+                Q(quotation__quotation_number__icontains=search) |
+                Q(quotation__customer__name__icontains=search)
             )
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['status_choices'] = Asset.AssetStatus.choices
+        context['status_choices'] = PurchaseOrder.Status.choices
         context['selected_status'] = self.request.GET.get('status', '')
         context['search_query'] = self.request.GET.get('search', '')
         context['selected_quotation'] = self.request.GET.get('quotation', '')
         context['quotations'] = Quotation.objects.filter(
-            purchased_assets__isnull=False
+            purchase_order__isnull=False
         ).distinct().order_by('-created_at')
-        return context
-
-
-class StockOverviewView(OrderManagementAccessMixin, ListView):
-    """Overview of stock from purchased assets."""
-    model = Asset
-    template_name = 'purchases/stock.html'
-    context_object_name = 'assets'
-
-    def get_queryset(self):
-        return Asset.objects.filter(
-            source_quotation__isnull=False
-        ).select_related('source_quotation', 'brand', 'model', 'category')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        assets = self.get_queryset()
-        purchase_orders = PurchaseOrder.objects.select_related('quotation')
-
-        # Summary stats
-        context['total_count'] = assets.count()
-        context['available_count'] = assets.filter(status='available').count()
-        context['assigned_count'] = assets.filter(status='assigned').count()
-        context['in_use_count'] = assets.filter(status='in_use').count()
-        context['po_total'] = purchase_orders.count()
-        context['po_receiving'] = purchase_orders.filter(status=PurchaseOrder.Status.RECEIVING).count()
-        context['po_complete'] = purchase_orders.filter(status=PurchaseOrder.Status.COMPLETE).count()
-        context['converted_quotations'] = Quotation.objects.filter(purchase_order__isnull=False).count()
-
-        # Ready for dispatch = purchased assets currently available.
-        context['ready_dispatch_count'] = assets.filter(status=Asset.AssetStatus.AVAILABLE).count()
-
-        # Group by brand
-        context['by_brand'] = {}
-        for asset in assets:
-            brand_name = asset.brand.name if asset.brand else 'Unknown'
-            if brand_name not in context['by_brand']:
-                context['by_brand'][brand_name] = {
-                    'total': 0,
-                    'available': 0,
-                    'assigned': 0,
-                }
-            context['by_brand'][brand_name]['total'] += 1
-            if asset.status == 'available':
-                context['by_brand'][brand_name]['available'] += 1
-            elif asset.status == 'assigned':
-                context['by_brand'][brand_name]['assigned'] += 1
-
-        # Group by source quotation
-        context['by_quotation'] = {}
-        for asset in assets:
-            qn = asset.source_quotation.quotation_number if asset.source_quotation else 'Unknown'
-            if qn not in context['by_quotation']:
-                context['by_quotation'][qn] = {
-                    'total': 0,
-                    'available': 0,
-                    'assets': [],
-                    'quotation_pk': asset.source_quotation.pk if asset.source_quotation else None,
-                }
-            context['by_quotation'][qn]['total'] += 1
-            context['by_quotation'][qn]['assets'].append(asset)
-            if asset.status == 'available':
-                context['by_quotation'][qn]['available'] += 1
-
-        context['by_location'] = assets.values(
-            'location__name'
-        ).annotate(
-            total=Count('id')
-        ).order_by('-total')
-
-        context['recent_receipts'] = PurchaseReceipt.objects.select_related(
-            'purchase_order', 'quotation', 'location'
-        ).order_by('-created_at')[:10]
-
+        for purchase_order in context['purchase_orders']:
+            purchase_order.current_delivery_order = purchase_order.quotation.delivery_orders.order_by('-created_at').first()
         return context
 
 
@@ -195,7 +124,11 @@ def purchase_receipt_view(request, pk):
         messages.error(request, 'This purchase order has no items to receive.')
         return redirect(reverse('quotations:detail', args=[purchase_order.quotation.pk]))
 
-    available_locations = purchase_order.quotation.customer.locations.filter(status='active').order_by('name')
+    available_locations = Location.objects.filter(pk=INTERNAL_WAREHOUSE_LOCATION_ID, status='active').order_by('name')
+
+    if not available_locations.exists():
+        messages.error(request, 'The internal warehouse location is not available for receipts.')
+        return redirect(reverse('quotations:detail', args=[purchase_order.quotation.pk]))
 
     if request.method == 'POST':
         location_id = request.POST.get('location')
@@ -325,7 +258,7 @@ def purchase_receipt_view(request, pk):
             request,
             f'Received {created_assets} asset(s) for {purchase_order.po_number}.',
         )
-        return redirect('purchases:stock')
+        return redirect('dashboard:workflow_dashboard')
 
     return render(request, 'purchases/receipt.html', {
         'purchase_order': purchase_order,

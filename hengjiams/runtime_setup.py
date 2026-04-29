@@ -2,6 +2,25 @@ import os
 from pathlib import Path
 
 
+def load_local_env() -> None:
+    """Load key=value pairs from the repo-local .env file into os.environ."""
+    project_root = Path(__file__).resolve().parent.parent
+    env_path = project_root / '.env'
+    if not env_path.exists():
+        return
+
+    for raw_line in env_path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        value = value.strip().strip('"').strip("'")
+        os.environ[key] = value
+
+
 def configure_windows_fontconfig() -> None:
     """Provide a local Fontconfig config on Windows for WeasyPrint usage."""
     if os.name != "nt":

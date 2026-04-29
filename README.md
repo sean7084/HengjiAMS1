@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg)]()
 
-A comprehensive SaaS IT asset management solution built with Django, supporting multi-language (English/Chinese), 2FA authentication, and multi-company asset tracking.
+A comprehensive SaaS IT asset management solution built with Django, supporting multi-language (English/Chinese), 2FA authentication, multi-company asset tracking, and order-management workflows from mailbox RFQ intake through dispatch.
 
 ![Logo](media/logo.jpg)
 
@@ -36,7 +36,10 @@ HengJi AMS is an enterprise asset management system designed for organizations t
 - 2FA authentication enforcement
 - Asset lifecycle tracking (assignment, return, maintenance, disposal)
 - Order management workflow from quotation through dispatch and invoice processing
+- Mailbox-driven RFQ intake with draft quotation generation, reply drafting, and review queues
 - User-configurable mailbox sync and dispatch email support for order-management users
+- Stock-first fulfillment workflow with purchase receipt, internal-warehouse checks, and delivery orchestration
+- Hardware and service price-list management with category default-model matching for generic RFQs
 - Multi-language support (English / Simplified Chinese)
 - Bulk import/export (CSV, Excel, PDF)
 - Mobile-responsive design
@@ -63,6 +66,7 @@ HengJi AMS is an enterprise asset management system designed for organizations t
 
 - Additive admin-role system with persistent role records and multi-role assignment
 - Company-division-location based access control
+- Authorized RFQ-sender controls on company contacts for mailbox automation
 - 2FA enforcement for all users
 - Mailbox and order-management settings integrated into the account settings page
 - Profile management with avatar support
@@ -105,17 +109,17 @@ UI design inspired by [Ralph](https://ralphapp.com/) and [Snipe-IT](https://snip
 
 | App | Purpose |
 |-----|---------|
-| `accounts` | User authentication, 2FA, profile management, role management |
+| `accounts` | User authentication, 2FA, mailbox sync, RFQ classification, profile management, role management |
 | `assets` | Asset CRUD, categories, brands, models, assignments, maintenance |
 | `companies` | Company, Division, Location, Company-User associations |
 | `audit` | System audit logging and compliance tracking |
 | `reports` | Analytics and reporting views |
-| `dashboard` | Main landing page with statistics |
-| `products` | Product price list (extends AssetBrand/AssetModel) |
+| `dashboard` | Main landing page, workflow dashboard, pending tasks |
+| `products` | Hardware/service price list and service-item creation (extends AssetBrand/AssetModel) |
 | `customers` | Customer profiles (extends Company) |
-| `quotations` | Quotation creation, PDF generation, attachments |
+| `quotations` | Quotation creation, RFQ-linked drafts, PDF generation, attachments |
 | `deliveries` | Delivery order (签收单) generation and tracking |
-| `invoices` | Invoice info sheets, weekly batch processing |
+| `invoices` | Invoice info sheets, weekly batch processing, dispatch email threading |
 | `accounts` mailbox module | User mailbox settings, inbox/outbox sync, and cached message views |
 
 ---
@@ -172,6 +176,14 @@ Access the application at: http://127.0.0.1:8000/
 | `DJANGO_SETTINGS_MODULE` | Django settings module | `hengjiams.settings` |
 | `SECRET_KEY` | Django secret key | (dev key in settings) |
 | `DEBUG` | Debug mode | `True` |
+| `TEST_OUTBOUND_EMAIL_OVERRIDE` | Override all outbound email recipients during test runs | `sean.liu@istore-tech.com` |
+| `minimax_token_plan_key` | Minimax API token used for RFQ classification and draft generation | empty |
+| `MINIMAX_RFQ_API_URL` | Minimax messages endpoint for RFQ workflows | `https://api.minimaxi.com/anthropic/v1/messages` |
+| `MINIMAX_RFQ_MODEL` | Minimax model name used for RFQ workflows | `MiniMax-M2.7-highspeed` |
+| `MINIMAX_RFQ_TIMEOUT_SECONDS` | Request timeout for RFQ AI calls | `30` |
+| `MINIMAX_RFQ_MAX_TOKENS` | Maximum tokens for RFQ AI responses | `800` |
+
+Repository-local `.env` values are loaded automatically by `manage.py`, `hengjiams/asgi.py`, and `hengjiams/wsgi.py`. Keep mailbox credentials, Minimax keys, and test-only overrides in that file and out of version control.
 
 ### Database Configuration
 
@@ -229,11 +241,11 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 | Version | Date | Focus |
 |---------|------|-------|
+| v0.1.6 | April 2026 | RFQ mailbox automation + quotation hardening + service items + workflow dashboard stock view |
 | v0.1.5 | April 2026 | Multi-role admin controls + order-management mailbox + product price history |
 | v0.1.4 | April 2026 | Import Preview/Confirm + Rollback Safety + Company Contacts |
-| v0.1.3 | April 2026 | Warehouse Slot Workflows + Asset Batch Operations + Export/Route Stability |
 
-### Current Status (v0.1.5)
+### Current Status (v0.1.6)
 
 #### Fully Operational Features
 
@@ -253,6 +265,14 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Enhanced Mobile Features** - Barcode scanning with Html5-QRCode
 - **REST API** - Full API endpoints at /api/v1/ with documentation at /docs/
 - **Quotation & Invoice Management System** - End-to-end quotation -> purchase -> delivery -> invoice -> dispatch workflow
+- **RFQ Mailbox Automation** - Inbox messages can be classified, reprocessed, linked to quotations, and surfaced as pending review work
+- **Authorized RFQ Sender Controls** - Company contacts can be flagged as approved sources for automatic quotation drafting
+- **Quotation Review & PDF Flow** - Quotations now store attention email, source RFQ linkage, review-required drafts, and create-download PDF behavior
+- **Service Item Pricing** - The price list now supports service items, type/status filtering, and one-step service item + price creation
+- **Default Model Matching** - Categories can define default asset models so generic RFQ requests still draft useful quotation items
+- **Workflow Dashboard Stock Overview** - Stock overview is consolidated into the workflow dashboard and replaces the standalone stock page
+- **Internal Warehouse Fulfillment Rules** - Purchase receipts and dispatch asset selection now enforce the internal warehouse path used by current operations
+- **Repo-local .env Loading** - Runtime bootstrap loads local `.env` values for mailbox, RFQ AI, and test outbound-email overrides
 - **LibreOffice-free Document Generation** - Quotation and Delivery PDFs rendered directly from HTML templates via WeasyPrint
 - **Template Fidelity Tuning** - Excel-style quotation and 签收单 layouts tuned against reference PDF output
 - **Asset Create Batch Flow** - Create multiple assets in one submission with per-row serial/status input
@@ -303,9 +323,9 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - `assets.AssetMaintenance` - Maintenance scheduling and records
 - `audit.*` - Audit logging models
 
-### v0.1.5 Migration Notes
+### v0.1.6 Migration Notes
 
-Run database migrations before deploying v0.1.5:
+Run database migrations before deploying v0.1.6:
 
 ```bash
 python manage.py migrate
@@ -313,10 +333,13 @@ python manage.py migrate
 
 New migration files included in this release:
 
-- `accounts/migrations/0012_admin_roles_m2m.py`
-- `accounts/migrations/0013_user_mailbox_settings_and_received_messages.py`
-- `accounts/migrations/0014_mailbox_sync_window_and_outbox.py`
-- `products/migrations/0002_productprice_history_and_current_constraint.py`
+- `accounts/migrations/0015_receivedemailmessage_rfq_confidence_and_more.py`
+- `assets/migrations/0013_assetcategory_default_asset_model.py`
+- `assets/migrations/0014_assetcategory_item_type.py`
+- `companies/migrations/0013_companyuser_is_authorized_rfq_sender.py`
+- `invoices/migrations/0005_emaildispatch_reply_message_id_and_more.py`
+- `quotations/migrations/0004_quotation_attn_email.py`
+- `quotations/migrations/0005_quotation_requires_confirmation_and_more.py`
 
 ---
 
@@ -368,10 +391,11 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 - Scope delivered in v0.1.3: warehouse slot schema + UI integration, grouped asset listing with batch edit workflow, export/access-scope fixes, and company user edit-route completion.
 - Scope delivered in v0.1.4: preview-confirm CSV import flows for companies/locations/contacts, shared import-result reporting, rollback tracking for imports, and company-contact/location data model expansion.
 - Scope delivered in v0.1.5: multi-role admin migration, order-management permission gating, product price history/derived-model behavior, and user-configurable mailbox inbox/outbox workflows with auto-sync.
+- Scope delivered in v0.1.6: mailbox RFQ classification/reprocessing with authorized-sender gating, quotation review/download hardening, service-item pricing and category default-model matching, workflow-dashboard stock consolidation, and repo-local `.env` runtime loading.
 - Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
-- Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, bulk weekly Sharepoint import, mailbox inbox/outbox sync, and SMTP dispatch caching.
-- Workflow governance: dashboard Kanban, cross-entity workflow search, status badge standardization, and status-change audit trail.
+- Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, bulk weekly Sharepoint import, mailbox inbox/outbox sync, RFQ classification/draft quotation generation, and SMTP dispatch caching.
+- Workflow governance: dashboard Kanban with integrated stock overview, pending-task notifications, cross-entity workflow search, and status badge standardization.
 - Operational validation baseline: full smoke transition run verified quotation -> purchase -> delivery -> invoice -> dispatch transitions in Django test client flow.
 
 ### Integration with Asset Management

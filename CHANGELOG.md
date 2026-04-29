@@ -1,6 +1,75 @@
 # HengJi Asset Management System (AMS) - Changelog
 
-# HengJi Asset Management System (AMS) - Release Note v0.0.1
+## Release Notes v0.1.6
+
+**Version:** 0.1.6  
+**Release Date:** April 29, 2026  
+**Focus:** RFQ mailbox automation, quotation workflow hardening, service-item pricing, and workflow-dashboard stock consolidation
+
+---
+
+### Highlights
+
+1. Mailbox sync can now classify RFQ emails, track RFQ processing state, and support reprocessing plus draft quotation/reply workflows for authorized customer senders.
+2. Quotation create/edit/detail/list flows were hardened around recipient email capture, RFQ review state, stock-first fulfillment actions, and create-and-download PDF behavior.
+3. The price list now supports service items, category-level default models, and better handling of generic RFQ requests that do not specify an exact catalog SKU.
+4. The standalone stock page was retired in favor of a workflow dashboard view that combines Kanban stages, stock overview, receipts, and pending order-management tasks.
+
+### Delivered Scope (65-file iteration)
+
+1. RFQ mailbox automation and sender authorization
+- Added RFQ classification, extraction, and quotation-draft orchestration in `accounts/rfq_ai.py`.
+- Extended `accounts.ReceivedEmailMessage` with RFQ status, confidence, summary, extracted data, error, processed-at fields, and supporting indexes.
+- Triggered pending RFQ processing after mailbox sync and added mailbox-detail reprocessing from the UI.
+- Added `is_authorized_rfq_sender` on company contacts, surfaced it in forms/lists, and used it to gate automatic RFQ quotation generation.
+- Added pending-task notifications in the base layout for RFQ drafts, likely RFQs, and mailbox failures.
+
+2. Quotation workflow, PDF, and email threading
+- Added quotation `attn_email`, `source_email_message`, and `requires_confirmation` fields plus create/edit autofill updates.
+- Reworked quotation create to support `Save as Draft` and `Create and Download PDF`, including redirect-based download triggering on detail pages.
+- Linked quotation detail/list screens to RFQ source emails, item-matching warnings, purchase/delivery next actions, and clickable list rows.
+- Updated quotation PDF remark generation to deduplicate remark targets and align output wording with the current template.
+- Extended dispatch email compose/send flows to reply against source mailbox messages, prefill recipients/subject/body, and include quotation PDFs.
+
+3. Product catalog and service-item support
+- Added `default_asset_model` and `item_type` on asset categories so hardware and service categories can be treated differently.
+- Added category-form support for default-model assignment and validation.
+- Updated the price list with type/status filters, a default-model management panel, and a renamed `Price List` entry in navigation and translations.
+- Added one-step service item + price creation with a dedicated form/view/template and default service brand/category helpers.
+- Excluded service categories from the regular hardware product-price add flow.
+
+4. Purchase, delivery, and dashboard workflow consolidation
+- Replaced the old purchased-assets list with a purchase-order-oriented list and action model.
+- Removed `/purchases/stock/` and moved stock overview content into the workflow dashboard.
+- Restricted purchase receipts to the internal warehouse location path used by current operations.
+- Centralized dispatch asset selection so delivery creation uses matching available internal stock and avoids assets already in active deliveries.
+- Updated workflow next-action labels, delivery/purchase back-links, and dashboard stock/receipt summaries to match the new flow.
+
+5. Runtime, navigation, and regression fixes
+- Added repo-local `.env` loading in `manage.py`, `hengjiams/asgi.py`, and `hengjiams/wsgi.py`, and ignored `*.env` in Git.
+- Added RFQ/Minimax and test outbound email override settings in Django settings.
+- Fixed authenticated login redirects to the namespaced dashboard route.
+- Renamed the product navigation entry to `Price List`, cleaned up stock links, and updated related zh-cn translations.
+- Applied focused UX fixes including quotation form comboboxes, item editing, delivery PDF wording polish, and receipt-page warehouse guidance.
+
+### Migration Files Added
+
+1. `accounts/migrations/0015_receivedemailmessage_rfq_confidence_and_more.py`
+2. `assets/migrations/0013_assetcategory_default_asset_model.py`
+3. `assets/migrations/0014_assetcategory_item_type.py`
+4. `companies/migrations/0013_companyuser_is_authorized_rfq_sender.py`
+5. `invoices/migrations/0005_emaildispatch_reply_message_id_and_more.py`
+6. `quotations/migrations/0004_quotation_attn_email.py`
+7. `quotations/migrations/0005_quotation_requires_confirmation_and_more.py`
+
+### Validation
+
+1. `git status --porcelain` reported 65 file changes for this iteration before release-note finalization.
+2. Browser validation covered authenticated login redirect behavior, workflow dashboard stock view, removal of `/purchases/stock/`, and quotation create actions including `Save as Draft` and `Create and Download PDF`.
+3. Server-side log validation confirmed the create-download flow now persists quotations before triggering PDF downloads.
+4. `python manage.py check` completed successfully after the final workflow and documentation pass.
+
+## HengJi Asset Management System (AMS) - Release Note v0.0.1
 
 **Version:** 0.0.1  
 **Release Date:** July 7, 2025  
@@ -8,13 +77,13 @@
 
 ---
 
-## 🚀 Overview
+### 🚀 Overview
 
 Version 0.0.1 marks the successful establishment of the HengJi AMS foundational architecture. This release includes the complete Django project setup and a fully implemented, secure user authentication system with a modern user interface.
 
-## ✅ Key Features Delivered
+### ✅ Key Features Delivered
 
-### 1. Core Project Initialization
+#### 1. Core Project Initialization
 
 - **Modular Django Architecture**: Established a scalable project structure with a dedicated `accounts` app for user management.
 
@@ -29,7 +98,7 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
 
 - **Database Migrations**: Ensured the initial database schema is clean and all migrations are successfully applied.
 
-### 2. Full Authentication & Login Page Implementation
+#### 2. Full Authentication & Login Page Implementation
 
 - **Custom User Model**: Implemented a secure, extended `AbstractUser` model with:
   - UUID primary keys to prevent enumeration attacks.
@@ -45,41 +114,42 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
 
 - **Admin Interface**: Fully configured the Django admin for the custom user model, allowing for easy user management.
 
-## 🔧 Technical Stack
+### 🔧 Technical Stack
 
 - **Framework**: Django 4.2+
 - **Database**: SQLite (Development)
 - **Frontend**: Bootstrap 5, HTML, Vanilla JavaScript
 
-## 🎯 Success Criteria Met
+### 🎯 Success Criteria Met
 
 - ✅ Django project runs without errors (`manage.py check` passes).
 - ✅ The admin interface is fully functional for user management.
 - ✅ The login page at `/accounts/login/` renders correctly and is fully functional.
 - ✅ Multi-language switching is operational on the login page.
 - ✅ Core security best practices (UUID keys, session tracking) are in place.
-# Release Notes and Progress Report for Version 0.0.2
+
+## Release Notes and Progress Report for Version 0.0.2
 
 ---
 
-## Release Notes for Version 0.0.2
+### Release Notes for Version 0.0.2
 
-### Key Enhancements and New Features
+#### Key Enhancements and New Features
 
-#### 1. Asset Models
+##### 1. Asset Models
 
 - Re-enabled and fixed the models in the assets application.
 
-#### 2. Audit System
+##### 2. Audit System
 
 - Re-enabled and fixed the models in the audit application.
 
-#### 3. Dashboard
+##### 3. Dashboard
 
 - Created the main dashboard for users after login.
 - Updated the dashboard to display sample assets and provide real-time data.
 
-#### 4. Additional Templates
+##### 4. Additional Templates
 
 - Added templates for:
   - Two-Factor Authentication (2FA) setup.
@@ -87,19 +157,19 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
   - Company and user management pages.
   - Admin pages for companies, divisions, locations, and audit logs.
 
-#### 5. Asset Import/Export
+##### 5. Asset Import/Export
 
 - Introduced CSV and Excel import/export functionality for assets.
 
-#### 6. Reporting System
+##### 6. Reporting System
 
 - Implemented charts and analytics for enhanced reporting capabilities.
 
-#### 7. Mobile Optimization
+##### 7. Mobile Optimization
 
 - Added barcode scanning support for mobile devices.
 
-#### 8. Role-Based Access Control
+##### 8. Role-Based Access Control
 
 - Defined and implemented four administrator roles:
   - **Superadmin**: Access to all data.
@@ -107,28 +177,28 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
   - **IT Specialist**: Access to assets in one or multiple divisions within their company.
   - **Viewer**: Read-only access to specific locations within their company.
 
-#### 9. Language Support
+##### 9. Language Support
 
 - Completed English and Chinese language support for all HTML templates.
 
 ---
 
-### Fixes and Adjustments
+#### Fixes and Adjustments
 
-#### 1. QR Code for 2FA
+##### 1. QR Code for 2FA
 
 - Resolved an issue where the QR code was not displayed on the 2FA setup page (`/accounts/2fa/setup-simple/`).
 
-#### 2. Navigation and URLs
+##### 2. Navigation and URLs
 
 - Updated the dashboard URL to `/dashboard` (previously `/`).
 - Ensured all key components (e.g., dashboard, asset management, audit, location management, reports, user management) are accessible via the navigation pane.
 
-#### 3. User Roles Display
+##### 3. User Roles Display
 
 - Fixed an issue where user roles were displayed as "Staff" instead of their actual roles.
 
-#### 4. Default Templates for Admin Pages
+##### 4. Default Templates for Admin Pages
 
 - Updated default Django admin templates to align with the base template's style.
 - Introduced new pages for:
@@ -139,17 +209,17 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
   - `/audit/assetaudit/`
   - `/audit/systemevent/`
 
-#### 5. Asset Visibility
+##### 5. Asset Visibility
 
 - Ensured asset visibility on the dashboard matches user permissions on the assets page.
 
-#### 6. Legacy Role Removal
+##### 6. Legacy Role Removal
 
 - Removed legacy role support and references from all relevant pages.
 
 ---
 
-### Merges and Consolidations
+#### Merges and Consolidations
 
 - Merged `assets/urls_old.py` with `assets/urls.py` for extended support.
 - Merged `audit/urls_old.py` with `audit/urls_new.py` to finalize URL development for the audit app.
@@ -157,7 +227,7 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
 
 ---
 
-### Known Issues
+#### Known Issues
 
 1. **Method Not Allowed (GET): `/zh-hans/accounts/logout/`**
    - Logout functionality for Chinese language support needs further investigation.
@@ -172,7 +242,7 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
 
 ---
 
-### Testing Notes
+#### Testing Notes
 
 - Use the admin account for testing:
   - **Username**: `admin`
@@ -181,28 +251,28 @@ Version 0.0.1 marks the successful establishment of the HengJi AMS foundational 
 
 ---
 
-### Rollbacks
+#### Rollbacks
 
 - Reverted changes to admin pages (`/admin/companies/...`, `/admin/audit/...`) that aligned them with the base template's style. Instead, focused on creating new user-facing pages aligned with the base template.
 
 ---
 
-## HengJi AMS Development Progress Report v0.0.2
+### HengJi AMS Development Progress Report v0.0.2
 
 **Date:** July 8, 2025  
 **Focus:** Complete Implementation of Core Asset & Company Management Systems
 
 ---
 
-### 🎯 Overview
+#### 🎯 Overview
 
 Building on the foundation of v0.0.1, this development cycle focused on implementing the primary business logic of the HengJi AMS. Version 0.0.2 delivers a fully functional, end-to-end asset management system and the complete company/location organizational structure.
 
 ---
 
-### ✅ Completed Components in This Iteration
+#### ✅ Completed Components in This Iteration
 
-#### 1. Asset Management System - Full Implementation
+##### 1. Asset Management System - Full Implementation
 
 - **Core Models**: Implemented the full suite of asset-related models: `AssetCategory`, `AssetBrand`, `Asset`, `AssetAssignment`, and `AssetMaintenance`.
 
@@ -215,7 +285,7 @@ Building on the foundation of v0.0.1, this development cycle focused on implemen
 
 - **UI/UX**: Created modern, responsive, and user-friendly templates for asset lists, details, and forms using Bootstrap 5.
 
-#### 2. Company & Location Structure - Full Implementation
+##### 2. Company & Location Structure - Full Implementation
 
 - **Core Models**: Implemented the `Company`, `Division`, and hierarchical `Location` models to structure the organization.
 
@@ -223,13 +293,13 @@ Building on the foundation of v0.0.1, this development cycle focused on implemen
 
 - **Data Integrity**: Ensured all relationships between assets, users, and locations are correctly established.
 
-#### 3. Audit System Integration
+##### 3. Audit System Integration
 
 - **Enabled Audit App**: With all core models in place, the `audit` app was successfully integrated.
 
 - **Automated Logging**: The system now automatically logs all creation, update, and deletion events for assets, providing a complete audit trail for compliance.
 
-#### 4. UI & Navigation Enhancements
+##### 4. UI & Navigation Enhancements
 
 - **Updated Main Navigation**: The base template now includes navigation links to the new asset management sections.
 
@@ -239,7 +309,7 @@ Building on the foundation of v0.0.1, this development cycle focused on implemen
 
 ---
 
-### 🚀 System Status: Core Functionality Complete
+#### 🚀 System Status: Core Functionality Complete
 
 The system is now operational with the following end-to-end features:
 
@@ -252,25 +322,25 @@ The system is now operational with the following end-to-end features:
 
 ---
 
-### 📈 Next Steps (v0.0.3 Roadmap)
+#### 📈 Next Steps (v0.0.3 Roadmap)
 
-#### High Priority
+##### High Priority
 
 1. **2FA Implementation**: Complete the user setup and verification workflow.
 2. **Reporting & Dashboard**: Build out the main dashboard with asset analytics and charts.
 3. **Company Management Views**: Create a user-facing UI for managing locations.
 
-#### Medium Priority
+##### Medium Priority
 
 1. **Asset Data Import**: Implement CSV/Excel import functionality.
 2. **Mobile Optimization**: Enhance mobile views and prepare for barcode scanning integration.
 
 ---
 
-### 🏁 Conclusion
+#### 🏁 Conclusion
 
 Version 0.0.2 marks a major milestone, transforming the project from a foundational shell into a fully functional asset management system. The core business requirements are now met, providing a stable platform for building advanced features.
-# HengJi Asset Management System (AMS) - Changelog v0.0.3
+## HengJi Asset Management System (AMS) - Changelog v0.0.3
 
 **Version:** 0.0.3  
 **Release Date:** August 11, 2025  
@@ -278,13 +348,13 @@ Version 0.0.2 marks a major milestone, transforming the project from a foundatio
 
 ---
 
-## 🎯 Release Overview
+### 🎯 Release Overview
 
 Version 0.0.3 represents a significant enhancement to the HengJi Asset Management System with a focus on comprehensive asset management features, advanced category and brand management capabilities, improved export functionality, and substantial UI/UX improvements. This release consolidates system architecture, implements missing navigation functionality, and introduces powerful data export capabilities.
 
-## ✅ Major Changes and Improvements
+### ✅ Major Changes and Improvements
 
-### 1. Asset Management System Enhancements
+#### 1. Asset Management System Enhancements
 
 #### **Complete Category and Brand Management System**
 - **Category Management**: Comprehensive CRUD system for asset categories
@@ -299,13 +369,13 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
   - Combined brands_models view for efficient management workflow
   - Professional templates with consistent UI/UX design
 
-#### **Asset Data Structure Improvements**
+##### **Asset Data Structure Improvements**
 - **Asset Number System**: Replaced "Asset Name" with "Asset Number" as primary identifier
   - Auto-generated asset numbers with manual override capability
   - Updated all templates and forms to reflect the new naming convention
   - Enhanced data consistency and asset tracking capabilities
 
-#### **Advanced Export System**
+##### **Advanced Export System**
 - **Comprehensive Data Export**: Replaced simple CSV export with full-featured export system
   - AssetExportForm with comprehensive filtering options (status, category, brand, date ranges)
   - Multiple export formats: CSV, Excel (.xlsx), and PDF
@@ -313,61 +383,61 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
   - Professional export interface with preview and configuration options
   - Integration with openpyxl for Excel exports and reportlab for PDF generation
 
-### 2. User Role Management Refactoring
+#### 2. User Role Management Refactoring
 
-#### **Role Structure Optimization**
+##### **Role Structure Optimization**
 - **Role Consolidation**: Streamlined user role system
   - Removed "Manager" role from the entire Django project
   - Renamed "IT Specialist" to "IT Administrator" throughout the system
   - Updated all references, templates, and documentation to reflect new role structure
 
-#### **Enhanced Access Control**
+##### **Enhanced Access Control**
 - **Multi-Company and Division Access**: Advanced permission system
   - IT Administrators can be assigned to multiple companies and divisions
   - Granular access control allowing specific company-division combinations
   - Superadmin capability to manage user assignments during creation and editing
   - Flexible permission matrix supporting complex organizational structures
 
-### 3. UI/UX and Visual Improvements
+#### 3. UI/UX and Visual Improvements
 
-#### **Enhanced Visual Design**
+##### **Enhanced Visual Design**
 - **Button and Status Badge Improvements**: Enhanced visibility and accessibility
   - Updated button colors for better visibility under current theme
   - Improved status badge styling with enhanced contrast and readability
   - Professional color scheme for "In Use", "Disposed", and other asset statuses
   - Consistent styling across all asset management pages
 
-#### **Dashboard Optimization**
+##### **Dashboard Optimization**
 - **Streamlined Dashboard Layout**: Improved focus and usability
   - Removed Quick Action block for cleaner interface
   - Removed System Statistics block for better space utilization
   - Recent assets display at full width for better visibility
   - Enhanced responsive design for mobile and tablet devices
 
-#### **Navigation Enhancements**
+##### **Navigation Enhancements**
 - **Asset Management Navigation**: Comprehensive dropdown menu system
   - Added "Import Assets" option for bulk asset management
   - Added "Manage Categories" and "Manage Brands & Models" options
   - Fixed navigation links for category and brand management
   - Improved user workflow with logical menu organization
 
-### 4. Import/Export Functionality
+#### 4. Import/Export Functionality
 
-#### **Asset Import System**
+##### **Asset Import System**
 - **Bulk Asset Import**: CSV and Excel file import capabilities
   - Support for both .csv and .xlsx file formats
   - Data validation and error reporting during import process
   - Template download for proper import file formatting
   - Batch processing with progress indicators
 
-#### **Data Export Enhancement**
+##### **Data Export Enhancement**
 - **Professional Export Interface**: Comprehensive data export capabilities
   - Filter-based export with multiple criteria options
   - Format selection (CSV, Excel, PDF) with appropriate formatting
   - Field selection allowing customized export content
   - Export preview and validation before file generation
 
-### 5. URL Configuration Consolidation
+#### 5. URL Configuration Consolidation
 
 - **Assets URLs Merged**: Consolidated `assets/urls_old.py` into `assets/urls.py`
   - Maintained backward compatibility with legacy routes
@@ -379,7 +449,7 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
   - Included audit management, execution, asset verification, mobile interface, logs, system events, compliance, and API endpoints
   - Maintained existing route names for backward compatibility
 
-### 6. Template System Improvements
+#### 6. Template System Improvements
 
 - **Fixed Blank Company Page**: Created comprehensive `company_list.html` template
   - Modern card-based layout with Bootstrap 5 styling
@@ -400,39 +470,39 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
   - Added proper URL name references for audit functionality
   - Improved user experience with consistent navigation
 
-### 7. Role-Based Access Control Enhancements
+#### 7. Role-Based Access Control Enhancements
 
 - **Consistent Asset Filtering**: Implemented role-based asset visibility
   - Updated dashboard and asset views to use `user.get_accessible_assets()`
   - Ensured consistent asset filtering across all views (list, detail, update, delete, assign, return)
   - Fixed permission method calls in companies and audit views
 
-### 8. Admin Interface Cleanup
+#### 8. Admin Interface Cleanup
 
 - **Restored Default Django Admin Styling**: Removed custom admin templates
   - Deleted custom templates for companies and audit admin pages
   - Restored clean, default Django admin interface
   - Improved consistency across admin pages
 
-### 9. Documentation Consolidation
+#### 9. Documentation Consolidation
 
 - **Merged Progress Reports**: Consolidated multiple documentation files
   - Combined `PROGRESS_REPORT_v0.0.1.md`, `PROGRESS_REPORT_v0.0.2.md`, and `v 0.0.1.md`
   - Created comprehensive project history
   - Removed duplicate documentation files
 
-### 10. System Stability Improvements
+#### 10. System Stability Improvements
 
 - **Database and URL Integrity**: Fixed system configuration issues
   - Resolved non-existent view references in URL patterns
   - Ensured all URL patterns point to existing views
   - Maintained proper app namespace consistency
 
-## 🔧 Technical Details
+### 🔧 Technical Details
 
-### Files Created/Enhanced
+#### Files Created/Enhanced
 
-#### **New Views and Templates**
+##### **New Views and Templates**
 - `assets/views.py` - Enhanced with comprehensive category/brand management views:
   - CategoryListView, CategoryCreateView, CategoryUpdateView, CategoryDeleteView
   - BrandListView, BrandCreateView, BrandUpdateView, BrandDeleteView
@@ -446,7 +516,7 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
   - Field selection for customized exports
   - Export format selection (CSV, Excel, PDF)
 
-#### **Template System Expansion**
+##### **Template System Expansion**
 - `templates/assets/category_list.html` - Professional category management interface
 - `templates/assets/category_form.html` - Category creation/editing form
 - `templates/assets/category_confirm_delete.html` - Category deletion confirmation
@@ -459,7 +529,7 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
 - `templates/assets/brands_models.html` - Combined brand and model management
 - `templates/assets/asset_export.html` - Comprehensive export interface
 
-#### **URL Configuration Updates**
+##### **URL Configuration Updates**
 - `assets/urls.py` - Enhanced with new routing patterns:
   - Category CRUD routes (list, create, edit, delete)
   - Brand CRUD routes (list, create, edit, delete)
@@ -467,9 +537,9 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
   - Combined brands_models view route
   - Enhanced export route with filtering capabilities
 
-### Files Modified
+#### Files Modified
 
-#### **Core System Updates**
+##### **Core System Updates**
 - `assets/urls.py` - Consolidated and cleaned up asset URL patterns
 - `audit/urls.py` - Merged all audit URL configurations
 - `templates/companies/company_list.html` - Created comprehensive company list template
@@ -479,13 +549,13 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
 - `templates/dashboard.html` - Streamlined layout with full-width recent assets
 - `docs/PROGRESS_REPORT_v0.0.1.md` - Consolidated project documentation
 
-#### **Styling and UI Enhancements**
+##### **Styling and UI Enhancements**
 - Enhanced CSS styling for status badges with improved color schemes
 - Updated button styling for better visibility under current theme
 - Responsive design improvements across all asset management templates
 - Professional form styling with Bootstrap 5 integration
 
-### Files Removed
+#### Files Removed
 
 - `assets/urls_old.py` - Merged into main assets URLs
 - `audit/urls_old.py` - Merged into main audit URLs
@@ -494,54 +564,54 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
 - `docs/v 0.0.1.md` - Consolidated into main progress report
 - Custom admin templates for companies and audit modules
 
-### New Dependencies
+#### New Dependencies
 
-#### **Python Packages**
+##### **Python Packages**
 - `openpyxl` - For Excel file generation and export functionality
 - `reportlab` - For PDF generation and advanced report formatting
 
-#### **Frontend Enhancements**
+##### **Frontend Enhancements**
 - Enhanced Bootstrap 5 styling with custom CSS modifications
 - Improved responsive design patterns for mobile compatibility
 - Professional status badge styling with accessibility improvements
 
-### Database Schema Considerations
+#### Database Schema Considerations
 
 - Asset model updated to prioritize Asset Number over Asset Name
 - Enhanced category and brand relationship management
 - Improved audit logging for all CRUD operations
 - Optimized queries for role-based asset filtering
 
-### New Features Implementation
+#### New Features Implementation
 
-#### **Category and Brand Management**
+##### **Category and Brand Management**
 - Complete CRUD system with professional templates
 - Search and filtering capabilities across all management interfaces
 - Audit logging integration for all operations
 - Role-based access control for management functions
 
-#### **Advanced Export System**
+##### **Advanced Export System**
 - Multi-format export support (CSV, Excel, PDF)
 - Comprehensive filtering system with date ranges
 - Field selection for customized export content
 - Professional export interface with preview capabilities
 
-#### **Enhanced User Experience**
+##### **Enhanced User Experience**
 - Streamlined navigation with logical menu organization
 - Improved visual feedback with enhanced status indicators
 - Responsive design for mobile and tablet compatibility
 - Professional form validation and error handling
 
-### Performance Optimizations
+#### Performance Optimizations
 
 - Optimized database queries for category and brand listings
 - Efficient filtering systems with proper indexing considerations
 - Streamlined template rendering with reduced redundancy
 - Enhanced caching strategies for frequently accessed data
 
-## 🚀 Upgrade Instructions
+### 🚀 Upgrade Instructions
 
-### For Existing Installations
+#### For Existing Installations
 
 1. **Install New Dependencies**:
    ```bash
@@ -564,15 +634,15 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
    - "IT Specialist" role automatically renamed to "IT Administrator"
    - Review and update user permissions as needed
 
-### Configuration Updates
+#### Configuration Updates
 
 - Verify navigation menu functionality for category/brand management
 - Test export functionality with various filter combinations
 - Validate role-based access control with new permission structure
 
-## 🧪 Testing and Validation
+### 🧪 Testing and Validation
 
-### Tested Functionality
+#### Tested Functionality
 
 - ✅ Category and Brand CRUD operations with proper validation
 - ✅ Advanced export system with CSV, Excel, and PDF formats
@@ -582,7 +652,7 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
 - ✅ Import functionality for bulk asset management
 - ✅ Dashboard optimization with streamlined layout
 
-### Validation Checklist
+#### Validation Checklist
 
 - [ ] All navigation links functional
 - [ ] Category and brand management accessible
@@ -592,26 +662,26 @@ Version 0.0.3 represents a significant enhancement to the HengJi Asset Managemen
 - [ ] Import functionality operational
 - [ ] Mobile responsiveness confirmed
 
-## 📋 Known Issues and Limitations
+### 📋 Known Issues and Limitations
 
-### Current Limitations
+#### Current Limitations
 
 - Export functionality requires appropriate file permissions on server
 - Large dataset exports may require increased timeout settings
 - Mobile interface optimization ongoing for complex management forms
 
-### Future Enhancements
+#### Future Enhancements
 
 - Advanced filtering options for category and brand management
 - Bulk operations for category and brand assignments
 - Enhanced mobile interface for management functions
 - Additional export format support (e.g., XML, JSON)
 
-## 🤝 Contributors and Acknowledgments
+### 🤝 Contributors and Acknowledgments
 
 This release represents significant system enhancements developed through collaborative effort focusing on user experience improvements, comprehensive feature implementation, and system reliability enhancements.
 
-### Key Development Areas
+#### Key Development Areas
 
 - **Asset Management Enhancement**: Complete category and brand management system
 - **Export System Development**: Advanced multi-format export capabilities
@@ -631,9 +701,9 @@ This release represents significant system enhancements developed through collab
   - Professional table-based list layout replacing card view
   - Enhanced search capabilities with instant results
 
-## 🚀 Current System Status
+### 🚀 Current System Status
 
-### ✅ Fully Operational Features
+#### ✅ Fully Operational Features
 
 1. **User Authentication & Management** with role-based permissions
 2. **Dashboard with Statistics** using role-based asset filtering
@@ -646,30 +716,30 @@ This release represents significant system enhancements developed through collab
 9. **Data Export (CSV)** with filtering capabilities
 10. **Mobile-Responsive Design** with Bootstrap 5 styling
 
-### Performance Improvements
+#### Performance Improvements
 
 - Reduced URL configuration complexity
 - Eliminated dead code and unused routes
 - Improved template loading efficiency
 - Enhanced user navigation experience
 
-## 🎯 Next Development Phase (v0.0.4)
+### 🎯 Next Development Phase (v0.0.4)
 
-### High Priority
+#### High Priority
 
 1. **2FA Implementation**: Complete TOTP setup and verification workflow
 2. **Advanced Reporting System**: Charts and analytics dashboard
 3. **Enhanced Mobile Features**: Barcode scanning and offline capability
 4. **API Enhancement**: REST API development for mobile integration
 
-### Medium Priority
+#### Medium Priority
 
 1. **Performance Optimization**: Query optimization and caching
 2. **Advanced Asset Features**: Maintenance scheduling and depreciation
 3. **Workflow Automation**: Automated processes and notifications
 4. **Integration Features**: Third-party system integrations
 
-## 📊 Quality Metrics
+### 📊 Quality Metrics
 
 - **System Health**: ✅ Excellent (no Django check errors)
 - **Feature Completeness**: 90% of core requirements
@@ -677,7 +747,7 @@ This release represents significant system enhancements developed through collab
 - **User Experience**: Modern, intuitive, and fully responsive
 - **Documentation**: Comprehensive and up-to-date
 
-## 🏁 Conclusion
+### 🏁 Conclusion
 
 Version 0.0.3 successfully consolidates the system architecture, fixes critical user interface issues, and improves the overall user experience. The HengJi Asset Management System now provides a clean, unified interface with consistent role-based access control and modern responsive design.
 
@@ -949,6 +1019,127 @@ Version 0.1.2 focuses on asset creation workflow usability, broader translation 
 
 *Generated on April 17, 2026 - HengJi Asset Management System v0.1.2*
 
+## Release Notes v0.1.3
+
+**Version:** 0.1.3  
+**Release Date:** April 20, 2026  
+**Focus:** Warehouse slot workflows, asset batch operations, export stability, and company user editing
+
+---
+
+### Highlights
+
+1. Warehouse slot support is now integrated from company/location setup through asset create, list, and bulk edit flows.
+2. Asset create and list experiences now support practical batch operations and grouped drill-down workflows.
+3. Export and edit-route defects found during QA were fixed and validated.
+4. Navigation and localization were updated to match the revised operational model.
+
+### Delivered Scope (22-file release set)
+
+1. Asset create improvements
+- Model selection now auto-fills category and brand.
+- Batch row inputs preserve values while quantity changes.
+- Duplicate serials are blocked on frontend and backend, with persistent warnings.
+- Zone/rack/shelf dropdowns are dynamically populated and validated from selected warehouses.
+
+2. Asset list and batch operations
+- Grouped rows for non-serialized assets with drill-down behavior.
+- Quantity-aware batch edit panel with selection preview.
+- Grouped-row selection expansion and server-side bulk edit endpoint.
+
+3. Data model and migrations
+- Added `location_zone`, `location_rack`, `location_shelf` on assets.
+- Added `zone`, `rack`, `shelf` on locations with range expansion helpers.
+- Added optional `category` on asset models for filtering consistency.
+- Added supporting migrations in assets and companies apps.
+
+4. Import/export updates
+- Import now enforces required `category` and `brand` and supports normalized headers.
+- Export now uses accessible-assets scope and current location display mapping.
+- Fixed invalid `select_related` and outdated legacy export field mappings.
+
+5. Company user management fix
+- Added company user update view and edit route.
+- Wired list-page edit action to real route and fixed URL converter mismatch (`int` vs `uuid`).
+
+6. UI/navigation and i18n
+- Split "Manage Brands" and "Manage Models" in assets navigation.
+- Removed timed global auto-dismiss for alerts.
+- Added/updated zh-cn translations for new fields and labels.
+
+### Migration Files Added
+
+1. `assets/migrations/0009_alter_asset_barcode.py`
+2. `assets/migrations/0010_alter_assetmodel_model_number.py`
+3. `assets/migrations/0011_asset_location_rack_asset_location_shelf_and_more.py`
+4. `assets/migrations/0012_assetmodel_category.py`
+5. `companies/migrations/0008_location_rack_location_shelf_location_zone.py`
+
+### Validation
+
+1. `python manage.py check` executed after each major change set.
+2. Reported defects for bulk-edit slot validation, export CSV behavior, and company-user edit route were resolved.
+
+## Release Notes v0.1.4
+
+**Version:** 0.1.4  
+**Release Date:** April 21, 2026  
+**Focus:** Company/location/contact import workflows, rollback safety, and import-result visibility
+
+---
+
+### Highlights
+
+1. Companies, locations, company contacts, and assets now support rollback of the latest import per user and module.
+2. Companies-module CSV imports now use a preview-and-confirm flow with clearer result reporting and downloadable samples.
+3. Company users were refactored into company contacts, improving recipient/contact workflows across locations and quotations.
+4. Import UX and list summaries were corrected to show real totals, clearer validation feedback, and safer duplicate handling.
+
+### Delivered Scope (30-file release set)
+
+1. Companies CSV import workflows
+- Added dedicated CSV import pages for companies, locations, and company contacts.
+- Added preview/confirm flow with shared upload UI, sample CSV downloads, and required/optional column guidance.
+- Added location-specific "update existing matched entries" support instead of always skipping duplicates.
+- Added tolerant CSV decoding helpers for UTF-8, GB18030/CP936, and Big5 inputs.
+
+2. Import rollback system
+- Added shared rollback tracking models: `ImportRun` and `ImportRunChange`.
+- Added shared rollback utilities to snapshot created/updated records and restore them in reverse order.
+- Enabled rollback actions for company, location, company contact, and asset imports.
+- Exposed rollback buttons on upload, preview, and result pages when a rollback-eligible run exists.
+
+3. Import result visibility and validation
+- Added a shared import result page with total rows, processed rows, created, updated, skipped, and error counts.
+- Added row-level issue reporting and updated-field diff summaries for location update imports.
+- Hardened import validation so unsupported asset status/condition values and invalid location/status enums surface as errors instead of silent defaults.
+- Fixed JSON snapshot serialization for non-primitive model fields during rollback logging.
+
+4. Company contacts and location data model updates
+- Refactored `CompanyUser` into a company-contact-oriented workflow with optional linked auth user, explicit contact name, and contact helper methods.
+- Added company contact create/edit/remove workflows and updated UI labels from "Company Users" to "Company Contacts".
+- Extended locations with `name_en`, `code_2`, `chinese_address`, and linked company contact support.
+- Added dynamic contact loading on the location form and updated quotation fallbacks to use contact helper methods safely.
+
+5. List-page and admin improvements
+- Added import entry points from company, location, and company contact list pages.
+- Fixed list badges to use total paginator counts instead of current page length.
+- Updated the locations summary card to show total locations rather than warehouse-slot aggregates.
+- Updated admin/API support for the expanded location and company-contact schema.
+
+### Migration Files Added
+
+1. `companies/migrations/0009_alter_companyuser_options_companyuser_name_and_more.py`
+2. `companies/migrations/0010_location_chinese_address_location_code_2_and_more.py`
+3. `companies/migrations/0011_migrate_location_legacy_values.py`
+4. `companies/migrations/0012_importrun_importrunchange_and_more.py`
+
+### Validation
+
+1. `python manage.py check` executed successfully after each major implementation step.
+2. End-to-end manual verification confirmed import and rollback behavior for companies, locations, company contacts, and assets.
+3. Verified rollback restored counts correctly after import runs and exposed/fixed snapshot serialization edge cases.
+
 ## Release Notes v0.1.5
 
 **Version:** 0.1.5  
@@ -1014,124 +1205,3 @@ Version 0.1.2 focuses on asset creation workflow usability, broader translation 
 2. `python manage.py migrate accounts` and `python manage.py migrate products` were applied locally and verified.
 3. `python manage.py check` executed successfully after the role, product, mailbox, and regression-fix slices.
 4. Focused runtime probes verified product-price history creation, mailbox schema availability, and mailbox sync lock behavior.
-
-## Release Notes v0.1.4
-
-**Version:** 0.1.4  
-**Release Date:** April 21, 2026  
-**Focus:** Company/location/contact import workflows, rollback safety, and import-result visibility
-
----
-
-### Highlights
-
-1. Companies, locations, company contacts, and assets now support rollback of the latest import per user and module.
-2. Companies-module CSV imports now use a preview-and-confirm flow with clearer result reporting and downloadable samples.
-3. Company users were refactored into company contacts, improving recipient/contact workflows across locations and quotations.
-4. Import UX and list summaries were corrected to show real totals, clearer validation feedback, and safer duplicate handling.
-
-### Delivered Scope (30-file release set)
-
-1. Companies CSV import workflows
-- Added dedicated CSV import pages for companies, locations, and company contacts.
-- Added preview/confirm flow with shared upload UI, sample CSV downloads, and required/optional column guidance.
-- Added location-specific "update existing matched entries" support instead of always skipping duplicates.
-- Added tolerant CSV decoding helpers for UTF-8, GB18030/CP936, and Big5 inputs.
-
-2. Import rollback system
-- Added shared rollback tracking models: `ImportRun` and `ImportRunChange`.
-- Added shared rollback utilities to snapshot created/updated records and restore them in reverse order.
-- Enabled rollback actions for company, location, company contact, and asset imports.
-- Exposed rollback buttons on upload, preview, and result pages when a rollback-eligible run exists.
-
-3. Import result visibility and validation
-- Added a shared import result page with total rows, processed rows, created, updated, skipped, and error counts.
-- Added row-level issue reporting and updated-field diff summaries for location update imports.
-- Hardened import validation so unsupported asset status/condition values and invalid location/status enums surface as errors instead of silent defaults.
-- Fixed JSON snapshot serialization for non-primitive model fields during rollback logging.
-
-4. Company contacts and location data model updates
-- Refactored `CompanyUser` into a company-contact-oriented workflow with optional linked auth user, explicit contact name, and contact helper methods.
-- Added company contact create/edit/remove workflows and updated UI labels from "Company Users" to "Company Contacts".
-- Extended locations with `name_en`, `code_2`, `chinese_address`, and linked company contact support.
-- Added dynamic contact loading on the location form and updated quotation fallbacks to use contact helper methods safely.
-
-5. List-page and admin improvements
-- Added import entry points from company, location, and company contact list pages.
-- Fixed list badges to use total paginator counts instead of current page length.
-- Updated the locations summary card to show total locations rather than warehouse-slot aggregates.
-- Updated admin/API support for the expanded location and company-contact schema.
-
-### Migration Files Added
-
-1. `companies/migrations/0009_alter_companyuser_options_companyuser_name_and_more.py`
-2. `companies/migrations/0010_location_chinese_address_location_code_2_and_more.py`
-3. `companies/migrations/0011_migrate_location_legacy_values.py`
-4. `companies/migrations/0012_importrun_importrunchange_and_more.py`
-
-### Validation
-
-1. `python manage.py check` executed successfully after each major implementation step.
-2. End-to-end manual verification confirmed import and rollback behavior for companies, locations, company contacts, and assets.
-3. Verified rollback restored counts correctly after import runs and exposed/fixed snapshot serialization edge cases.
-
-## Release Notes v0.1.3
-
-**Version:** 0.1.3  
-**Release Date:** April 20, 2026  
-**Focus:** Warehouse slot workflows, asset batch operations, export stability, and company user editing
-
----
-
-### Highlights
-
-1. Warehouse slot support is now integrated from company/location setup through asset create, list, and bulk edit flows.
-2. Asset create and list experiences now support practical batch operations and grouped drill-down workflows.
-3. Export and edit-route defects found during QA were fixed and validated.
-4. Navigation and localization were updated to match the revised operational model.
-
-### Delivered Scope (22-file release set)
-
-1. Asset create improvements
-- Model selection now auto-fills category and brand.
-- Batch row inputs preserve values while quantity changes.
-- Duplicate serials are blocked on frontend and backend, with persistent warnings.
-- Zone/rack/shelf dropdowns are dynamically populated and validated from selected warehouses.
-
-2. Asset list and batch operations
-- Grouped rows for non-serialized assets with drill-down behavior.
-- Quantity-aware batch edit panel with selection preview.
-- Grouped-row selection expansion and server-side bulk edit endpoint.
-
-3. Data model and migrations
-- Added `location_zone`, `location_rack`, `location_shelf` on assets.
-- Added `zone`, `rack`, `shelf` on locations with range expansion helpers.
-- Added optional `category` on asset models for filtering consistency.
-- Added supporting migrations in assets and companies apps.
-
-4. Import/export updates
-- Import now enforces required `category` and `brand` and supports normalized headers.
-- Export now uses accessible-assets scope and current location display mapping.
-- Fixed invalid `select_related` and outdated legacy export field mappings.
-
-5. Company user management fix
-- Added company user update view and edit route.
-- Wired list-page edit action to real route and fixed URL converter mismatch (`int` vs `uuid`).
-
-6. UI/navigation and i18n
-- Split "Manage Brands" and "Manage Models" in assets navigation.
-- Removed timed global auto-dismiss for alerts.
-- Added/updated zh-cn translations for new fields and labels.
-
-### Migration Files Added
-
-1. `assets/migrations/0009_alter_asset_barcode.py`
-2. `assets/migrations/0010_alter_assetmodel_model_number.py`
-3. `assets/migrations/0011_asset_location_rack_asset_location_shelf_and_more.py`
-4. `assets/migrations/0012_assetmodel_category.py`
-5. `companies/migrations/0008_location_rack_location_shelf_location_zone.py`
-
-### Validation
-
-1. `python manage.py check` executed after each major change set.
-2. Reported defects for bulk-edit slot validation, export CSV behavior, and company-user edit route were resolved.

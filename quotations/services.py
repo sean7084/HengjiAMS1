@@ -12,6 +12,10 @@ from openpyxl import load_workbook
 from weasyprint import HTML
 
 
+def _normalize_quotation_text(value):
+    return ' '.join(str(value or '').split()).strip()
+
+
 def _find_label_cell(sheet, label):
     label = str(label).strip()
     for row in sheet.iter_rows():
@@ -161,7 +165,6 @@ def convert_xlsx_to_pdf(xlsx_path):
 def render_quotation_pdf_html(quotation):
     """Render quotation PDF bytes from Django HTML template (LibreOffice-free path)."""
     ordered_items = list(quotation.items.all().order_by('id'))
-    first_item = ordered_items[0] if ordered_items else None
     display_rows = []
     for item in ordered_items:
         unit_price_with_tax = item.unit_price * (Decimal('1.00') + (item.tax_rate / Decimal('100.00')))
@@ -198,12 +201,26 @@ def render_quotation_pdf_html(quotation):
     if quotation.total_without_tax:
         vat_percent = (quotation.total_tax / quotation.total_without_tax) * Decimal('100')
 
-    first_item_user_brand = first_item.user_brand if first_item and first_item.user_brand else '-'
-    first_item_user_name = first_item.user_name if first_item and first_item.user_name else '-'
-    default_remark_line = (
-        f'1. 此报价为 {quotation.customer.name} {first_item_user_brand} '
-        f'{first_item_user_name}采购项目。'
-    )
+    unique_remark_targets = []
+    seen_remark_targets = set()
+    for item in ordered_items:
+        remark_target = ' '.join(
+            part for part in [
+                _normalize_quotation_text(item.user_brand),
+                _normalize_quotation_text(item.user_name),
+            ]
+            if part
+        ).strip()
+        if not remark_target:
+            continue
+        key = remark_target.lower()
+        if key in seen_remark_targets:
+            continue
+        seen_remark_targets.add(key)
+        unique_remark_targets.append(remark_target)
+
+    remark_targets_text = ', '.join(unique_remark_targets) if unique_remark_targets else _normalize_quotation_text(quotation.customer.name)
+    default_remark_line = f'1. 此报价为 {remark_targets_text} 采购项目。'
 
     context = {
         'quotation': quotation,

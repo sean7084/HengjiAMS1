@@ -16,13 +16,14 @@ class QuotationForm(forms.ModelForm):
 
     class Meta:
         model = Quotation
-        fields = ['customer', 'quotation_date', 'valid_until', 'attn', 'tel', 'status', 'notes']
+        fields = ['customer', 'quotation_date', 'valid_until', 'attn', 'tel', 'attn_email', 'status', 'notes']
         widgets = {
             'customer': forms.Select(attrs={'class': 'form-select'}),
             'quotation_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'valid_until': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'attn': forms.TextInput(attrs={'class': 'form-control'}),
             'tel': forms.TextInput(attrs={'class': 'form-control'}),
+            'attn_email': forms.EmailInput(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
@@ -33,18 +34,19 @@ class QuotationForm(forms.ModelForm):
         # Set default validity to 30 days from today
         if not self.instance.pk:
             self.fields['valid_until'].initial = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
-            self.fields['status'].initial = Quotation.QuotationStatus.SENT
 
     def clean(self):
         cleaned_data = super().clean()
         customer = self.cleaned_data.get('customer')
         if customer:
             contact = customer.primary_contact_company_user
-            if contact and contact.user:
+            if contact:
                 if not cleaned_data.get('attn'):
-                    cleaned_data['attn'] = contact.user.get_display_name()
+                    cleaned_data['attn'] = contact.get_contact_name()
                 if not cleaned_data.get('tel'):
-                    cleaned_data['tel'] = contact.work_phone or contact.user.phone_number or ''
+                    cleaned_data['tel'] = contact.get_contact_phone()
+                if not cleaned_data.get('attn_email'):
+                    cleaned_data['attn_email'] = contact.get_contact_email()
         return cleaned_data
 
 

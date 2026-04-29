@@ -36,6 +36,7 @@ from django.contrib.auth.views import LogoutView as DjangoLogoutView
 
 from .models import AdminRole, ReceivedEmailMessage, User, UserMailboxSettings, UserSession
 from .mailbox_sync import maybe_auto_sync_mailbox, sync_mailbox_messages
+from .rfq_ai import process_rfq_message
 from .forms import (
     CustomLoginForm, UserRegistrationForm, SuperuserUserForm, UserProfileForm, 
     UserSettingsForm, UserMailboxSettingsForm, TwoFactorSetupForm, TwoFactorVerifyForm
@@ -57,7 +58,7 @@ class LoginView(FormView):
     """
     template_name = 'accounts/login.html'
     form_class = CustomLoginForm
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('dashboard:dashboard')
     
     def dispatch(self, request, *args, **kwargs):
         # Redirect if user is already logged in
@@ -200,7 +201,7 @@ class TwoFactorVerifyView(FormView):
     """
     template_name = 'accounts/2fa_verify.html'
     form_class = TwoFactorVerifyForm
-    success_url = reverse_lazy('dashboard')
+    success_url = reverse_lazy('dashboard:dashboard')
     
     def dispatch(self, request, *args, **kwargs):
         # Check if user is in pre-2FA state
@@ -285,7 +286,7 @@ class BackupTokensView(LoginRequiredMixin, TemplateView):
         # Clear backup tokens from session after user acknowledges them
         if 'backup_tokens' in request.session:
             del request.session['backup_tokens']
-        return redirect('dashboard')
+        return redirect('dashboard:dashboard')
 
 
 class ProfileView(LoginRequiredMixin, DetailView):
@@ -446,7 +447,13 @@ class MailboxMessageDetailView(LoginRequiredMixin, OrderManagementAccessMixin, D
         mailbox = getattr(self.request.user, 'mailbox_settings', None)
         if not mailbox:
             return ReceivedEmailMessage.objects.none()
-        return mailbox.received_messages.all()
+        return mailbox.received_messages.prefetch_related('linked_quotations', 'email_dispatches').all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['linked_quotation'] = self.object.linked_quotations.order_by('-created_at').first()
+        context['reply_draft'] = self.object.email_dispatches.filter(status='draft').order_by('-updated_at').first()
+        return context
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
@@ -474,6 +481,19 @@ class MailboxSyncView(LoginRequiredMixin, OrderManagementAccessMixin, View):
         else:
             messages.success(request, _('Mailbox synchronized. Inbox: {inbox}, Outbox: {outbox}.').format(inbox=synced_count['inbox'], outbox=synced_count['outbox']))
         return redirect('accounts:mailbox_inbox')
+
+
+class MailboxRFQReprocessView(LoginRequiredMixin, OrderManagementAccessMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        mailbox = getattr(request.user, 'mailbox_settings', None)
+        if not mailbox:
+            messages.error(request, _('Configure and activate your mailbox settings first.'))
+            return redirect('accounts:mailbox_inbox')
+
+        message = get_object_or_404(mailbox.received_messages.all(), pk=pk)
+        process_rfq_message(message)
+        messages.success(request, _('RFQ email reprocessed.'))
+        return redirect('accounts:mailbox_detail', pk=pk)
 
 
 class ChangePasswordView(LoginRequiredMixin, FormView):

@@ -1,0 +1,157 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Add Service Item" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">{% trans "Add Service Item" %}</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">{% trans "Service Category" %}</label>
+                                {{ form.category }}
+                                {% if form.category.help_text %}
+                                <div class="form-text">{{ form.category.help_text }}</div>
+                                {% endif %}
+                                {% if form.category.errors %}
+                                <div class="text-danger">{{ form.category.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">{% trans "Brand" %}</label>
+                                <input type="text" class="form-control" value="{{ default_service_brand_name }}" readonly>
+                                <div class="form-text">{% trans "Service items use the default service brand." %}</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">{% trans "Service Name" %} *</label>
+                                {{ form.service_name }}
+                                {% if form.service_name.errors %}
+                                <div class="text-danger">{{ form.service_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Unit" %}</label>
+                                {{ form.unit }}
+                                {% if form.unit.errors %}
+                                <div class="text-danger">{{ form.unit.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Description" %}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Price Without Tax" %} *</label>
+                                {{ form.price_without_tax }}
+                                {% if form.price_without_tax.errors %}
+                                <div class="text-danger">{{ form.price_without_tax.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Tax Rate" %} (%)</label>
+                                {{ form.tax_rate }}
+                                {% if form.tax_rate.errors %}
+                                <div class="text-danger">{{ form.tax_rate.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Price With Tax" %}</label>
+                                {{ form.price_with_tax }}
+                                {% if form.price_with_tax.errors %}
+                                <div class="text-danger">{{ form.price_with_tax.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Valid From" %}</label>
+                                {{ form.valid_from }}
+                                {% if form.valid_from.errors %}
+                                <div class="text-danger">{{ form.valid_from.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Valid Until" %}</label>
+                                {{ form.valid_until }}
+                                {% if form.valid_until.errors %}
+                                <div class="text-danger">{{ form.valid_until.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    {{ form.is_current }}
+                                    <label class="form-check-label" for="{{ form.is_current.id_for_label }}">
+                                        {% trans "Current Price" %}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Notes" %}</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'products:price_list' %}" class="btn btn-outline-secondary">
+                                {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> {% trans "Create Service Item" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Help" %}</h5>
+                </div>
+                <div class="card-body">
+                    <h6>{% trans "Service item workflow" %}</h6>
+                    <ul class="small mb-0">
+                        <li>{% trans "This form creates both the service item and its first price entry." %}</li>
+                        <li>{% trans "If you leave Service Category blank, the default Services category will be used." %}</li>
+                        <li>{% trans "Service items appear in the same Price List as hardware items and can be filtered by Type." %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

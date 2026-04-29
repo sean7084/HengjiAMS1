@@ -17,6 +17,11 @@ class AssetCategory(models.Model):
     """
     Asset categories for organizing different types of assets.
     """
+
+    class ItemType(models.TextChoices):
+        HARDWARE = 'hardware', _('Hardware')
+        SERVICE = 'service', _('Service')
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(
         max_length=255,
@@ -39,6 +44,22 @@ class AssetCategory(models.Model):
         blank=True,
         related_name='subcategories',
         verbose_name=_('Parent Category')
+    )
+    default_asset_model = models.ForeignKey(
+        'AssetModel',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='default_for_categories',
+        verbose_name=_('Default Asset Model'),
+        help_text=_('Used when RFQ requests only specify a generic device type for this category.')
+    )
+    item_type = models.CharField(
+        max_length=20,
+        choices=ItemType.choices,
+        default=ItemType.HARDWARE,
+        verbose_name=_('Item Type'),
+        help_text=_('Determines whether this category represents hardware or a service.')
     )
     
     # Category settings
@@ -72,6 +93,11 @@ class AssetCategory(models.Model):
     
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self.pk and self.default_asset_model_id and self.default_asset_model.category_id and self.default_asset_model.category_id != self.id:
+            raise ValueError('Default asset model must belong to the selected category.')
+        super().save(*args, **kwargs)
     
     def get_absolute_url(self):
         return reverse('assets:category_detail', kwargs={'pk': self.pk})

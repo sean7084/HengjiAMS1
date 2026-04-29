@@ -1042,7 +1042,7 @@ class CategoryForm(forms.ModelForm):
     
     class Meta:
         model = AssetCategory
-        fields = ['name', 'code', 'description', 'parent', 'depreciation_rate', 'is_active']
+        fields = ['name', 'code', 'description', 'parent', 'default_asset_model', 'depreciation_rate', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -1060,6 +1060,9 @@ class CategoryForm(forms.ModelForm):
             'parent': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'default_asset_model': forms.Select(attrs={
+                'class': 'form-select'
+            }),
             'depreciation_rate': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'step': '0.01',
@@ -1071,6 +1074,21 @@ class CategoryForm(forms.ModelForm):
                 'class': 'form-check-input'
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['default_asset_model'].required = False
+        self.fields['default_asset_model'].queryset = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('category__name', 'brand__name', 'name')
+        self.fields['default_asset_model'].empty_label = _('No default model')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        default_asset_model = cleaned_data.get('default_asset_model')
+        if default_asset_model and not self.instance.pk:
+            self.add_error('default_asset_model', _('Save the category first, then assign a default model.'))
+        elif default_asset_model and default_asset_model.category_id and self.instance.pk and default_asset_model.category_id != self.instance.pk:
+            self.add_error('default_asset_model', _('Default asset model must belong to this category.'))
+        return cleaned_data
 
 
 class ModelForm(forms.ModelForm):

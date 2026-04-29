@@ -597,6 +597,14 @@ class ReceivedEmailMessage(models.Model):
         INBOX = 'inbox', _('Inbox')
         OUTBOX = 'outbox', _('Outbox')
 
+    class RFQStatus(models.TextChoices):
+        UNREVIEWED = 'unreviewed', _('Unreviewed')
+        CLASSIFIED_RFQ = 'classified_rfq', _('Classified RFQ')
+        CLASSIFIED_NON_RFQ = 'classified_non_rfq', _('Classified Non-RFQ')
+        QUOTATION_DRAFTED = 'quotation_drafted', _('Quotation Drafted')
+        QUOTATION_CONFIRMED = 'quotation_confirmed', _('Quotation Confirmed')
+        CLASSIFICATION_FAILED = 'classification_failed', _('Classification Failed')
+
     mailbox = models.ForeignKey(
         UserMailboxSettings,
         on_delete=models.CASCADE,
@@ -620,6 +628,23 @@ class ReceivedEmailMessage(models.Model):
     body_preview = models.TextField(blank=True, verbose_name=_('Body Preview'))
     body_text = models.TextField(blank=True, verbose_name=_('Body Text'))
     metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    rfq_status = models.CharField(
+        max_length=40,
+        choices=RFQStatus.choices,
+        default=RFQStatus.UNREVIEWED,
+        verbose_name=_('RFQ Status'),
+    )
+    rfq_confidence = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name=_('RFQ Confidence'),
+    )
+    rfq_summary = models.TextField(blank=True, verbose_name=_('RFQ Summary'))
+    rfq_extracted_data = models.JSONField(default=dict, blank=True, verbose_name=_('RFQ Extracted Data'))
+    rfq_error = models.TextField(blank=True, verbose_name=_('RFQ Error'))
+    rfq_processed_at = models.DateTimeField(null=True, blank=True, verbose_name=_('RFQ Processed At'))
     is_read = models.BooleanField(default=False, verbose_name=_('Read'))
     synced_at = models.DateTimeField(auto_now=True, verbose_name=_('Synced At'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
@@ -630,6 +655,10 @@ class ReceivedEmailMessage(models.Model):
         ordering = ['-received_at', '-sent_at', '-id']
         constraints = [
             models.UniqueConstraint(fields=['mailbox', 'direction', 'external_id'], name='uniq_mailbox_direction_external_message'),
+        ]
+        indexes = [
+            models.Index(fields=['rfq_status', '-rfq_processed_at']),
+            models.Index(fields=['direction', 'rfq_status']),
         ]
 
     def __str__(self):

@@ -11,7 +11,7 @@
                 <h1 class="h3 mb-0">{% trans "Create Delivery Order" %}</h1>
                 <small class="text-muted">{{ quotation.quotation_number }} / {{ quotation.customer.name }}</small>
             </div>
-            <a href="{% url 'purchases:stock' %}" class="btn btn-outline-secondary">
+            <a href="{% url 'dashboard:workflow_dashboard' %}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i> {% trans "Back" %}
             </a>
         </div>

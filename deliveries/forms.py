@@ -5,6 +5,7 @@ from django import forms
 from assets.models import Asset
 
 from .models import DeliveryOrder
+from .services import get_dispatch_asset_queryset
 
 
 class DeliveryOrderForm(forms.ModelForm):
@@ -33,10 +34,7 @@ class DeliveryOrderForm(forms.ModelForm):
         self.quotation = quotation
 
         if quotation is not None:
-            self.fields['selected_assets'].queryset = Asset.objects.filter(
-                source_quotation=quotation,
-                status=Asset.AssetStatus.AVAILABLE,
-            ).select_related('brand', 'model').order_by('asset_number')
+            self.fields['selected_assets'].queryset = get_dispatch_asset_queryset(quotation)
             self.fields['selected_assets'].label_from_instance = (
                 lambda obj: f"{obj.asset_number} - {obj.serial_number} - "
                 f"{obj.brand.name if obj.brand else '-'} - {obj.description or '-'}"

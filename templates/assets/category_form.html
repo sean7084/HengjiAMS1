@@ -180,6 +180,19 @@
                     {% endif %}
                 </div>
 
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.default_asset_model.id_for_label }}" class="form-label">{{ form.default_asset_model.label }}</label>
+                    {{ form.default_asset_model }}
+                    {% if form.default_asset_model.help_text %}
+                        <div class="form-text">{{ form.default_asset_model.help_text }}</div>
+                    {% endif %}
+                    {% if form.default_asset_model.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.default_asset_model.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
                 <!-- Depreciation Rate -->
                 <div class="col-md-6 mb-3">
                     <label for="{{ form.depreciation_rate.id_for_label }}" class="form-label">{{ form.depreciation_rate.label }}</label>

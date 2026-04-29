@@ -25,14 +25,23 @@
                     <i class="fas fa-check"></i> {% trans "Confirm" %}
                 </a>
                 {% endif %}
-                {% if quotation.status == 'confirmed' and not purchase_order %}
-                <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
-                    <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
+                {% if current_delivery_order %}
+                <a href="{% url 'deliveries:detail' current_delivery_order.pk %}" class="btn btn-success">
+                    <i class="fas fa-truck"></i> {% trans "Open Delivery" %}
                 </a>
-                {% endif %}
-                {% if purchase_order %}
+                {% elif purchase_order %}
+                    {% if purchase_order.status == 'complete' %}
+                <a href="{% url 'deliveries:create_from_quotation' quotation.pk %}" class="btn btn-success">
+                    <i class="fas fa-truck"></i> {% trans "Create Delivery" %}
+                </a>
+                    {% else %}
                 <a href="{% url 'purchases:receive' purchase_order.pk %}" class="btn btn-success">
                     <i class="fas fa-truck-loading"></i> {% trans "Receive Stock" %}
+                </a>
+                    {% endif %}
+                {% elif quotation.status == 'confirmed' %}
+                <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
+                    <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
                 </a>
                 {% endif %}
                 {% if quotation.status != 'cancelled' and quotation.status != 'confirmed' %}
@@ -40,18 +49,6 @@
                     <i class="fas fa-times"></i> {% trans "Cancel" %}
                 </a>
                 {% endif %}
-                <a href="{% url 'quotations:pdf' quotation.pk %}" class="btn btn-info" target="_blank">
-                    <i class="fas fa-file-pdf"></i> {% trans "PDF" %}
-                </a>
-                <a href="{% url 'quotations:duplicate' quotation.pk %}" class="btn btn-primary">
-                    <i class="fas fa-copy"></i> {% trans "Duplicate" %}
-                </a>
-                <a href="{% url 'quotations:edit' quotation.pk %}" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> {% trans "Edit" %}
-                </a>
-                <a href="{% url 'invoices:email_dispatch_compose_from_quotation' quotation.pk %}" class="btn btn-success">
-                    <i class="fas fa-paper-plane"></i> {% trans "Compose Dispatch Email" %}
-                </a>
                 </div>
             </div>
         </div>
@@ -90,6 +87,16 @@
                                     <th>{% trans "Customer" %}</th>
                                     <td>{{ quotation.customer.name }}</td>
                                 </tr>
+                                {% if quotation.source_email_message %}
+                                <tr>
+                                    <th>{% trans "Source RFQ Email" %}</th>
+                                    <td>
+                                        <a href="{% url 'accounts:mailbox_detail' quotation.source_email_message.pk %}">
+                                            {{ quotation.source_email_message.subject|default:quotation.source_email_message.sender }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endif %}
                             </table>
                         </div>
                         <div class="col-md-6">
@@ -124,9 +131,35 @@
                                     <th>{% trans "Tel" %}</th>
                                     <td>{{ quotation.tel|default:"-" }}</td>
                                 </tr>
+                                <tr>
+                                    <th>{% trans "Email" %}</th>
+                                    <td>{{ quotation.attn_email|default:"-" }}</td>
+                                </tr>
                             </table>
                         </div>
+                        {% if quotation.source_email_message %}
+                        <div class="col-md-6">
+                            <h6>{% trans "RFQ Email" %}</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="30%">{% trans "From" %}</th>
+                                    <td>{{ quotation.source_email_message.sender|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Recipients" %}</th>
+                                    <td>{{ quotation.source_email_message.recipients|default:"-" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        {% endif %}
                     </div>
+
+                    {% if quotation.requires_confirmation %}
+                    <hr>
+                    <div class="alert alert-warning mb-0">
+                        {% trans "This RFQ-generated draft quotation is pending confirmation." %}
+                    </div>
+                    {% endif %}
 
                     {% if quotation.notes %}
                     <hr>
@@ -142,6 +175,33 @@
                     <h5 class="card-title mb-0">{% trans "Items" %}</h5>
                 </div>
                 <div class="card-body">
+                    {% if rfq_item_warnings %}
+                    <div class="alert alert-warning">
+                        <div class="fw-semibold mb-2">{% trans "RFQ item matching needs review" %}</div>
+                        <ul class="mb-0">
+                            {% for warning in rfq_item_warnings %}
+                            <li>
+                                {% if warning.type == 'default_model_used' %}
+                                    {% blocktrans with requested=warning.requested category=warning.category model=warning.model %}{{ requested }} matched by default model for category {{ category }}: {{ model }}.{% endblocktrans %}
+                                {% elif warning.type == 'missing_current_price' %}
+                                    {% blocktrans with requested=warning.requested model=warning.model %}{{ requested }} matched model {{ model }}, but no current product price is configured for it.{% endblocktrans %}
+                                {% elif warning.type == 'missing_price_for_default_model' %}
+                                    {% blocktrans with requested=warning.requested category=warning.category model=warning.model %}{{ requested }} mapped to category {{ category }}, but the default model {{ model }} has no current product price.{% endblocktrans %}
+                                {% elif warning.type == 'missing_default_model' %}
+                                    {% blocktrans with requested=warning.requested category=warning.category %}{{ requested }} matched category {{ category }}, but no default model is configured.{% endblocktrans %}
+                                {% elif warning.type == 'ambiguous_match_unresolved' %}
+                                    {% blocktrans with requested=warning.requested %}{{ requested }} matched multiple catalog items and still needs manual review.{% endblocktrans %}
+                                    {% if warning.candidates %}
+                                        {% blocktrans with candidates=warning.candidates|join:", " %} Candidates: {{ candidates }}.{% endblocktrans %}
+                                    {% endif %}
+                                {% else %}
+                                    {% blocktrans with requested=warning.requested %}No product match was found for {{ requested }}.{% endblocktrans %}
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                     {% if items %}
                     <div class="table-responsive">
                         <table class="table table-sm">
@@ -254,14 +314,23 @@
                         <a href="{% url 'quotations:pdf' quotation.pk %}" class="btn btn-info" target="_blank">
                             <i class="fas fa-file-pdf"></i> {% trans "Download PDF" %}
                         </a>
-                        {% if quotation.status == 'confirmed' and not purchase_order %}
-                        <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
-                            <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
+                        {% if current_delivery_order %}
+                        <a href="{% url 'deliveries:detail' current_delivery_order.pk %}" class="btn btn-success">
+                            <i class="fas fa-truck"></i> {% trans "Open Delivery" %}
                         </a>
-                        {% endif %}
-                        {% if purchase_order %}
+                        {% elif purchase_order %}
+                            {% if purchase_order.status == 'complete' %}
+                        <a href="{% url 'deliveries:create_from_quotation' quotation.pk %}" class="btn btn-success">
+                            <i class="fas fa-truck"></i> {% trans "Create Delivery" %}
+                        </a>
+                            {% else %}
                         <a href="{% url 'purchases:receive' purchase_order.pk %}" class="btn btn-success">
                             <i class="fas fa-truck-loading"></i> {% trans "Receive Stock" %}
+                        </a>
+                            {% endif %}
+                        {% elif quotation.status == 'confirmed' %}
+                        <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
+                            <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
                         </a>
                         {% endif %}
                         <a href="{% url 'quotations:duplicate' quotation.pk %}" class="btn btn-outline-primary">
@@ -269,9 +338,6 @@
                         </a>
                         <a href="{% url 'quotations:edit' quotation.pk %}" class="btn btn-primary">
                             <i class="fas fa-edit"></i> {% trans "Edit Quotation" %}
-                        </a>
-                        <a href="{% url 'invoices:email_dispatch_compose_from_quotation' quotation.pk %}" class="btn btn-outline-success">
-                            <i class="fas fa-envelope"></i> {% trans "Dispatch Email" %}
                         </a>
                     </div>
                 </div>
@@ -295,29 +361,6 @@
                         </li>
                         {% endif %}
                     </ul>
-
-                    <hr>
-                    <h6 class="mb-3">{% trans "Email Dispatches" %}</h6>
-                    {% if email_dispatches %}
-                    <ul class="list-unstyled small mb-0">
-                        {% for dispatch in email_dispatches|slice:":5" %}
-                        <li class="mb-2">
-                            <i class="fas fa-envelope text-primary"></i>
-                            {{ dispatch.get_status_display }} -
-                            {% if dispatch.sent_at %}
-                            {{ dispatch.sent_at|date:"Y-m-d H:i" }}
-                            {% else %}
-                            {{ dispatch.created_at|date:"Y-m-d H:i" }}
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <a href="{% url 'invoices:email_dispatch_list' %}?quotation={{ quotation.pk }}" class="btn btn-sm btn-outline-secondary mt-2">
-                        <i class="fas fa-history"></i> {% trans "View Full Email History" %}
-                    </a>
-                    {% else %}
-                    <p class="text-muted small mb-0">{% trans "No email dispatch records yet." %}</p>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -365,4 +408,21 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if auto_download_pdf %}
+<script>
+window.addEventListener('load', function () {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = "{% url 'quotations:pdf' quotation.pk %}";
+    document.body.appendChild(iframe);
+
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('download_pdf');
+    window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+});
+</script>
+{% endif %}
 {% endblock %}

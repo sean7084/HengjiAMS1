@@ -226,6 +226,9 @@ def _sync_mailbox_messages_unlocked(mailbox_settings):
     mailbox_settings.last_connection_status = 'success'
     mailbox_settings.last_connection_message = 'Mailbox synchronized successfully.'
     mailbox_settings.save(update_fields=['last_mailbox_sync_at', 'last_connection_test_at', 'last_connection_status', 'last_connection_message', 'updated_at'])
+    from .rfq_ai import process_pending_rfq_messages
+
+    process_pending_rfq_messages(mailbox_settings)
     return synced_count
 
 

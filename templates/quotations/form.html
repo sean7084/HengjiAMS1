@@ -4,7 +4,49 @@
 {% block title %}{% if is_edit %}{% trans "Edit Quotation" %}{% else %}{% trans "Create Quotation" %}{% endif %} - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+<style>
+.combo-box {
+    position: relative;
+}
+
+.combo-box__menu {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    max-height: 240px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.12);
+    display: none;
+}
+
+.combo-box__menu.is-open {
+    display: block;
+}
+
+.combo-box__option {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+.combo-box__option:hover,
+.combo-box__option.is-active {
+    background: #e9f2ff;
+}
+
+.combo-box__empty {
+    padding: 0.5rem 0.75rem;
+    color: #6c757d;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -34,14 +76,28 @@
                         <div class="row mb-3">
                             <div class="col-md-5">
                                 <label class="form-label">{% trans "Customer" %} *</label>
-                                <select name="customer" id="id_customer" class="form-select" required>
+                                <div class="combo-box">
+                                    <input
+                                        type="text"
+                                        id="customer-combobox"
+                                        class="form-control"
+                                        placeholder="{% trans 'Search and select customer...' %}"
+                                        autocomplete="off"
+                                        role="combobox"
+                                        aria-expanded="false"
+                                        aria-controls="customer-combobox-list"
+                                    >
+                                    <div id="customer-combobox-list" class="combo-box__menu" role="listbox"></div>
+                                </div>
+                                <select name="customer" id="id_customer" class="form-select d-none" required tabindex="-1" aria-hidden="true">
                                     <option value="">-- {% trans "Select customer" %} --</option>
                                     {% for customer in customers %}
                                     <option
                                         value="{{ customer.pk }}"
                                         data-code="{{ customer.code }}"
-                                        data-contact="{% if customer.primary_contact_company_user and customer.primary_contact_company_user.user %}{{ customer.primary_contact_company_user.user.get_display_name }}{% endif %}"
-                                        data-phone="{% if customer.primary_contact_company_user and customer.primary_contact_company_user.user %}{{ customer.primary_contact_company_user.work_phone|default:customer.primary_contact_company_user.user.phone_number }}{% endif %}"
+                                        data-contact="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.get_contact_name }}{% endif %}"
+                                        data-phone="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.get_contact_phone }}{% endif %}"
+                                        data-email="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.get_contact_email }}{% endif %}"
                                         {% if form.customer.value|stringformat:'s' == customer.pk|stringformat:'s' %}selected{% endif %}
                                     >
                                         {{ customer.name }}
@@ -69,20 +125,46 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label class="form-label">{% trans "Attention" %}</label>
-                                <select name="attn" id="id_attn" class="form-select">
-                                    <option value="">-- {% trans "Select attention" %} --</option>
-                                </select>
-                                <input type="hidden" id="initial-attn" value="{{ form.attn.value|default:'' }}">
+                                <div class="combo-box">
+                                    <input
+                                        type="text"
+                                        name="attn"
+                                        id="id_attn"
+                                        class="form-control"
+                                        value="{{ form.attn.value|default:'' }}"
+                                        placeholder="{% trans 'Select or enter attention' %}"
+                                        autocomplete="off"
+                                        role="combobox"
+                                        aria-expanded="false"
+                                        aria-controls="attn-combobox-list"
+                                    >
+                                    <div id="attn-combobox-list" class="combo-box__menu" role="listbox"></div>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">{% trans "Telephone" %}</label>
                                 {{ form.tel }}
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">{% trans "Status" %}</label>
-                                {{ form.status }}
+                                <label class="form-label">{% trans "Attention Email" %}</label>
+                                {{ form.attn_email }}
+                                {% if form.attn_email.errors %}
+                                <div class="text-danger small">{{ form.attn_email.errors.0 }}</div>
+                                {% endif %}
                             </div>
                         </div>
+
+                        {% if is_edit %}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Status" %}</label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                <div class="text-danger small">{{ form.status.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <div class="mb-0">
                             <label class="form-label">{% trans "Notes" %}</label>
@@ -129,6 +211,9 @@
                                         <td>{{ item.user_brand|default:'-' }}</td>
                                         <td>{{ item.user_name|default:'-' }}</td>
                                         <td>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary edit-item me-1">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
                                             <button type="button" class="btn btn-sm btn-outline-danger remove-item">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -146,9 +231,18 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-grid gap-2">
+                            {% if is_edit %}
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> {% if is_edit %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %}
+                                <i class="fas fa-save"></i> {% trans "Update" %}
                             </button>
+                            {% else %}
+                            <button type="submit" name="submit_action" value="save_draft" class="btn btn-outline-secondary">
+                                <i class="fas fa-file"></i> {% trans "Save as Draft" %}
+                            </button>
+                            <button type="submit" name="submit_action" value="create_download_pdf" class="btn btn-primary">
+                                <i class="fas fa-file-pdf"></i> {% trans "Create and Download PDF" %}
+                            </button>
+                            {% endif %}
                             <a href="{% if is_edit %}{% url 'quotations:detail' quotation.pk %}{% else %}{% url 'quotations:list' %}{% endif %}" class="btn btn-outline-secondary">
                                 {% trans "Cancel" %}
                             </a>
@@ -184,7 +278,20 @@
                     <div class="card-body">
                         <div class="mb-2">
                             <label class="form-label small">{% trans "Product" %}</label>
-                            <select id="product-select" class="form-select form-select-sm">
+                            <div class="combo-box">
+                                <input
+                                    type="text"
+                                    id="product-combobox"
+                                    class="form-control form-control-sm"
+                                    placeholder="{% trans 'Search and select product...' %}"
+                                    autocomplete="off"
+                                    role="combobox"
+                                    aria-expanded="false"
+                                    aria-controls="product-combobox-list"
+                                >
+                                <div id="product-combobox-list" class="combo-box__menu" role="listbox"></div>
+                            </div>
+                            <select id="product-select" class="form-select form-select-sm d-none" tabindex="-1" aria-hidden="true">
                                 <option value="">-- {% trans "Select a product" %} --</option>
                                 {% for product in products %}
                                 <option
@@ -216,15 +323,35 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label small">{% trans "User Brand" %}</label>
-                            <select id="item-user-brand" class="form-select form-select-sm">
-                                <option value="">-- {% trans "Select user brand" %} --</option>
-                            </select>
+                            <div class="combo-box">
+                                <input
+                                    type="text"
+                                    id="item-user-brand"
+                                    class="form-control form-control-sm"
+                                    placeholder="{% trans 'Select or enter user brand' %}"
+                                    autocomplete="off"
+                                    role="combobox"
+                                    aria-expanded="false"
+                                    aria-controls="user-brand-combobox-list"
+                                >
+                                <div id="user-brand-combobox-list" class="combo-box__menu" role="listbox"></div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">{% trans "User" %}</label>
-                            <select id="item-user-name" class="form-select form-select-sm">
-                                <option value="">-- {% trans "Select user" %} --</option>
-                            </select>
+                            <div class="combo-box">
+                                <input
+                                    type="text"
+                                    id="item-user-name"
+                                    class="form-control form-control-sm"
+                                    placeholder="{% trans 'Select or enter user' %}"
+                                    autocomplete="off"
+                                    role="combobox"
+                                    aria-expanded="false"
+                                    aria-controls="item-user-combobox-list"
+                                >
+                                <div id="item-user-combobox-list" class="combo-box__menu" role="listbox"></div>
+                            </div>
                         </div>
                         <button type="button" id="add-to-quotation" class="btn btn-outline-primary btn-sm w-100">
                             <i class="fas fa-plus"></i> {% trans "Add to Quotation" %}
@@ -238,28 +365,58 @@
 
 {{ company_users_by_customer|json_script:"company-users-data" }}
 {{ company_codes|json_script:"company-codes-data" }}
+{{ authorized_attention_contacts|json_script:"authorized-attention-contacts-data" }}
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
 (function () {
     const companyUsersByCustomer = JSON.parse(document.getElementById('company-users-data').textContent || '{}');
     const companyCodes = JSON.parse(document.getElementById('company-codes-data').textContent || '[]');
+    const authorizedAttentionContacts = JSON.parse(document.getElementById('authorized-attention-contacts-data').textContent || '[]');
 
     const customerSelect = document.getElementById('id_customer');
+    const customerComboboxInput = document.getElementById('customer-combobox');
+    const customerComboboxList = document.getElementById('customer-combobox-list');
     const codeInput = document.getElementById('customer-code');
-    const attnSelect = document.getElementById('id_attn');
+    const attnInput = document.getElementById('id_attn');
+    const attnComboboxList = document.getElementById('attn-combobox-list');
     const telInput = document.getElementById('id_tel');
-    const itemUserNameSelect = document.getElementById('item-user-name');
-    const itemUserBrandSelect = document.getElementById('item-user-brand');
+    const attnEmailInput = document.getElementById('id_attn_email');
+    const productSelect = document.getElementById('product-select');
+    const productComboboxInput = document.getElementById('product-combobox');
+    const productComboboxList = document.getElementById('product-combobox-list');
+    const itemUserNameInput = document.getElementById('item-user-name');
+    const itemUserComboboxList = document.getElementById('item-user-combobox-list');
+    const itemUserBrandInput = document.getElementById('item-user-brand');
+    const userBrandComboboxList = document.getElementById('user-brand-combobox-list');
+    const addToQuotationButton = document.getElementById('add-to-quotation');
+    let hasInitializedCustomerFields = false;
+    let editingRow = null;
 
-    let customerTom = null;
-    let attnTom = null;
-    let productTom = null;
-    let itemUserTom = null;
-    let itemUserBrandTom = null;
+    const originalCustomerOptions = Array.from(customerSelect.options).map(function (option) {
+        return {
+            value: option.value,
+            text: option.text,
+            selected: option.selected,
+            dataCode: option.dataset.code || '',
+            dataContact: option.dataset.contact || '',
+            dataPhone: option.dataset.phone || '',
+        };
+    });
+    const originalProductOptions = Array.from(productSelect.options).map(function (option) {
+        return {
+            value: option.value,
+            text: option.text,
+            selected: option.selected,
+            dataLabel: option.dataset.label || '',
+            dataDescription: option.dataset.description || '',
+            dataPrice: option.dataset.price || '',
+            dataTax: option.dataset.tax || '',
+            dataUnit: option.dataset.unit || '',
+        };
+    });
 
     function getSelectedCustomerOption() {
         return customerSelect.options[customerSelect.selectedIndex] || null;
@@ -270,117 +427,658 @@
         return option && option.value ? option.value : '';
     }
 
+    function getSelectedCustomerData() {
+        return companyUsersByCustomer[getSelectedCustomerId()] || {
+            attention_contacts: [],
+            product_users: [],
+        };
+    }
+
+    function getSelectedCustomerContacts() {
+        return getSelectedCustomerData().attention_contacts || [];
+    }
+
+    function getAuthorizedAttentionContacts() {
+        return authorizedAttentionContacts || [];
+    }
+
     function getSelectedCustomerUsers() {
-        return companyUsersByCustomer[getSelectedCustomerId()] || [];
+        return getSelectedCustomerData().product_users || [];
     }
 
-    function initTomSelectInstances() {
-        customerTom = new TomSelect('#id_customer', {
-            create: false,
-            maxItems: 1,
-            persist: false,
+    function createCombobox(config) {
+        const inputEl = config.inputEl;
+        const listEl = config.listEl;
+        const selectEl = config.selectEl;
+        const options = config.options.filter(function (option) {
+            return option.value;
         });
+        let filteredOptions = options.slice();
+        let activeIndex = -1;
 
-        attnTom = new TomSelect('#id_attn', {
-            create: true,
-            maxItems: 1,
-            persist: false,
-            createOnBlur: true,
-            sortField: { field: 'text', direction: 'asc' },
-        });
-
-        productTom = new TomSelect('#product-select', {
-            create: false,
-            maxItems: 1,
-            persist: false,
-        });
-
-        itemUserTom = new TomSelect('#item-user-name', {
-            create: true,
-            maxItems: 1,
-            persist: false,
-            createOnBlur: true,
-            sortField: { field: 'text', direction: 'asc' },
-        });
-
-        itemUserBrandTom = new TomSelect('#item-user-brand', {
-            create: true,
-            maxItems: 1,
-            persist: false,
-            createOnBlur: true,
-            sortField: { field: 'text', direction: 'asc' },
-        });
-    }
-
-    function setTomOptions(tom, options, selectedValue) {
-        tom.clearOptions();
-        options.forEach((opt) => tom.addOption(opt));
-        tom.refreshOptions(false);
-        if (selectedValue) {
-            tom.addOption({ value: selectedValue, text: selectedValue });
-            tom.setValue(selectedValue, true);
-        } else {
-            tom.clear(true);
+        function exactMatch(query) {
+            const normalizedQuery = (query || '').trim().toLowerCase();
+            if (!normalizedQuery) {
+                return null;
+            }
+            return options.find(function (option) {
+                return option.text.toLowerCase() === normalizedQuery;
+            }) || null;
         }
+
+        function selectedOption() {
+            return options.find(function (option) {
+                return option.value === selectEl.value;
+            }) || null;
+        }
+
+        function closeMenu() {
+            listEl.classList.remove('is-open');
+            inputEl.setAttribute('aria-expanded', 'false');
+            activeIndex = -1;
+        }
+
+        function openMenu() {
+            listEl.classList.add('is-open');
+            inputEl.setAttribute('aria-expanded', 'true');
+        }
+
+        function renderOptions(query) {
+            const normalizedQuery = (query || '').trim().toLowerCase();
+            filteredOptions = options.filter(function (option) {
+                if (!normalizedQuery) {
+                    return true;
+                }
+                return option.text.toLowerCase().includes(normalizedQuery);
+            });
+
+            listEl.innerHTML = '';
+            if (!filteredOptions.length) {
+                const empty = document.createElement('div');
+                empty.className = 'combo-box__empty';
+                empty.textContent = config.emptyText;
+                listEl.appendChild(empty);
+                activeIndex = -1;
+                openMenu();
+                return;
+            }
+
+            filteredOptions.forEach(function (option, index) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'combo-box__option';
+                button.textContent = option.text;
+                button.dataset.value = option.value;
+                button.setAttribute('role', 'option');
+                button.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                });
+                button.addEventListener('click', function () {
+                    setValue(option.value, true);
+                });
+                if (index === activeIndex) {
+                    button.classList.add('is-active');
+                }
+                listEl.appendChild(button);
+            });
+            openMenu();
+        }
+
+        function setValue(value, triggerCallback) {
+            selectEl.value = value || '';
+            const option = selectedOption();
+            inputEl.value = option ? option.text : '';
+            closeMenu();
+            if (triggerCallback && config.onSelect) {
+                config.onSelect(option);
+            }
+        }
+
+        function applyInputValue() {
+            const match = exactMatch(inputEl.value);
+            if (match) {
+                setValue(match.value, true);
+                return;
+            }
+            if (!inputEl.value.trim()) {
+                setValue('', true);
+                return;
+            }
+            selectEl.value = '';
+            if (config.onSelect) {
+                config.onSelect(null);
+            }
+        }
+
+        inputEl.addEventListener('focus', function () {
+            renderOptions(inputEl.value);
+        });
+
+        inputEl.addEventListener('input', function () {
+            renderOptions(inputEl.value);
+        });
+
+        inputEl.addEventListener('keydown', function (event) {
+            if (!listEl.classList.contains('is-open') && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+                renderOptions(inputEl.value);
+            }
+            if (event.key === 'ArrowDown') {
+                if (filteredOptions.length) {
+                    activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1);
+                    renderOptions(inputEl.value);
+                }
+                event.preventDefault();
+            } else if (event.key === 'ArrowUp') {
+                if (filteredOptions.length) {
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    renderOptions(inputEl.value);
+                }
+                event.preventDefault();
+            } else if (event.key === 'Enter') {
+                if (listEl.classList.contains('is-open') && activeIndex >= 0 && filteredOptions[activeIndex]) {
+                    setValue(filteredOptions[activeIndex].value, true);
+                    event.preventDefault();
+                } else {
+                    applyInputValue();
+                }
+            } else if (event.key === 'Escape') {
+                const option = selectedOption();
+                inputEl.value = option ? option.text : '';
+                closeMenu();
+            }
+        });
+
+        inputEl.addEventListener('blur', function () {
+            window.setTimeout(function () {
+                applyInputValue();
+                closeMenu();
+            }, 120);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!inputEl.closest('.combo-box').contains(event.target)) {
+                closeMenu();
+            }
+        });
+
+        setValue(selectEl.value, false);
+
+        return {
+            getValue: function () {
+                return selectEl.value;
+            },
+            clear: function () {
+                setValue('', true);
+            },
+            setValue: function (value) {
+                setValue(value, true);
+            },
+            refresh: function () {
+                const option = selectedOption();
+                inputEl.value = option ? option.text : '';
+            },
+        };
     }
+
+    function createSuggestionCombobox(config) {
+        const inputEl = config.inputEl;
+        const listEl = config.listEl;
+        let options = [];
+        let filteredOptions = [];
+        let activeIndex = -1;
+
+        function normalizeValue(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function normalizeOption(option) {
+            if (!option) {
+                return null;
+            }
+            if (typeof option === 'string') {
+                const text = option.trim();
+                if (!text) {
+                    return null;
+                }
+                return {
+                    value: text,
+                    display: text,
+                    searchText: text.toLowerCase(),
+                };
+            }
+            const value = String(option.value || option.display || '').trim();
+            if (!value) {
+                return null;
+            }
+            const display = String(option.display || value).trim();
+            const searchText = String(option.searchText || option.search_text || [display, value].join(' ')).toLowerCase();
+            return {
+                ...option,
+                value: value,
+                display: display,
+                searchText: searchText,
+            };
+        }
+
+        function exactMatch(query) {
+            const normalizedQuery = normalizeValue(query);
+            if (!normalizedQuery) {
+                return null;
+            }
+            return options.find(function (option) {
+                return normalizeValue(option.value) === normalizedQuery || normalizeValue(option.display) === normalizedQuery;
+            }) || null;
+        }
+
+        function closeMenu() {
+            listEl.classList.remove('is-open');
+            inputEl.setAttribute('aria-expanded', 'false');
+            activeIndex = -1;
+        }
+
+        function openMenu() {
+            listEl.classList.add('is-open');
+            inputEl.setAttribute('aria-expanded', 'true');
+        }
+
+        function renderOptions(query) {
+            const normalizedQuery = normalizeValue(query);
+            filteredOptions = options.filter(function (option) {
+                if (!normalizedQuery) {
+                    return true;
+                }
+                return option.searchText.includes(normalizedQuery)
+                    || normalizeValue(option.value).includes(normalizedQuery)
+                    || normalizeValue(option.display).includes(normalizedQuery);
+            });
+
+            listEl.innerHTML = '';
+            if (!filteredOptions.length) {
+                const empty = document.createElement('div');
+                empty.className = 'combo-box__empty';
+                empty.textContent = config.emptyText;
+                listEl.appendChild(empty);
+                activeIndex = -1;
+                openMenu();
+                return;
+            }
+
+            filteredOptions.forEach(function (option, index) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'combo-box__option';
+                button.textContent = option.display;
+                button.setAttribute('role', 'option');
+                button.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                });
+                button.addEventListener('click', function () {
+                    inputEl.value = option.value;
+                    closeMenu();
+                    if (config.onCommit) {
+                        config.onCommit(option.value, option, true);
+                    }
+                });
+                if (index === activeIndex) {
+                    button.classList.add('is-active');
+                }
+                listEl.appendChild(button);
+            });
+            openMenu();
+        }
+
+        function commitCurrentValue(fromSelection) {
+            const matchedOption = exactMatch(inputEl.value);
+            if (matchedOption) {
+                inputEl.value = matchedOption.value;
+            }
+            if (config.onCommit) {
+                config.onCommit(inputEl.value, matchedOption, !!fromSelection);
+            }
+        }
+
+        inputEl.addEventListener('focus', function () {
+            renderOptions(inputEl.value);
+        });
+
+        inputEl.addEventListener('input', function () {
+            renderOptions(inputEl.value);
+            if (config.onInput) {
+                config.onInput(inputEl.value);
+            }
+        });
+
+        inputEl.addEventListener('keydown', function (event) {
+            if (!listEl.classList.contains('is-open') && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+                renderOptions(inputEl.value);
+            }
+            if (event.key === 'ArrowDown') {
+                if (filteredOptions.length) {
+                    activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1);
+                    renderOptions(inputEl.value);
+                }
+                event.preventDefault();
+            } else if (event.key === 'ArrowUp') {
+                if (filteredOptions.length) {
+                    activeIndex = Math.max(activeIndex - 1, 0);
+                    renderOptions(inputEl.value);
+                }
+                event.preventDefault();
+            } else if (event.key === 'Enter') {
+                if (listEl.classList.contains('is-open') && activeIndex >= 0 && filteredOptions[activeIndex]) {
+                    inputEl.value = filteredOptions[activeIndex];
+                    closeMenu();
+                    commitCurrentValue(true);
+                    event.preventDefault();
+                } else {
+                    commitCurrentValue(false);
+                }
+            } else if (event.key === 'Escape') {
+                closeMenu();
+            }
+        });
+
+        inputEl.addEventListener('blur', function () {
+            window.setTimeout(function () {
+                commitCurrentValue(false);
+                closeMenu();
+            }, 120);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!inputEl.closest('.combo-box').contains(event.target)) {
+                closeMenu();
+            }
+        });
+
+        return {
+            setOptions: function (values) {
+                const deduped = [];
+                const seen = new Set();
+                (values || []).forEach(function (value) {
+                    const normalizedOption = normalizeOption(value);
+                    if (!normalizedOption) {
+                        return;
+                    }
+                    const key = normalizeValue(normalizedOption.value);
+                    if (seen.has(key)) {
+                        return;
+                    }
+                    seen.add(key);
+                    deduped.push(normalizedOption);
+                });
+                options = deduped;
+            },
+            clear: function () {
+                inputEl.value = '';
+                closeMenu();
+                commitCurrentValue(false);
+            },
+            setValue: function (value, triggerCommit) {
+                inputEl.value = value || '';
+                if (triggerCommit && config.onCommit) {
+                    commitCurrentValue(false);
+                }
+            },
+            getSelectedOption: function () {
+                return exactMatch(inputEl.value);
+            },
+        };
+    }
+
+    const attnCombobox = createSuggestionCombobox({
+        inputEl: attnInput,
+        listEl: attnComboboxList,
+        emptyText: '{% trans "No matching contacts found" %}',
+        onInput: function () {
+            syncAttnFields(false);
+        },
+        onCommit: function () {
+            syncAttnFields(true);
+        },
+    });
+
+    const itemUserCombobox = createSuggestionCombobox({
+        inputEl: itemUserNameInput,
+        listEl: itemUserComboboxList,
+        emptyText: '{% trans "No matching users found" %}',
+    });
+
+    const itemUserBrandCombobox = createSuggestionCombobox({
+        inputEl: itemUserBrandInput,
+        listEl: userBrandComboboxList,
+        emptyText: '{% trans "No matching brands found" %}',
+    });
 
     function populateAttnOptions(preferredValue) {
-        const users = getSelectedCustomerUsers();
-        const options = users.map((u) => ({ value: u.name, text: u.name }));
-        const initialAttn = preferredValue || document.getElementById('initial-attn').value;
-        setTomOptions(attnTom, options, initialAttn);
+        const contacts = getAuthorizedAttentionContacts().map(function (contact) {
+            return {
+                value: contact.name || contact.value || '',
+                display: contact.display || contact.name || contact.value || '',
+                searchText: contact.search_text || [contact.name, contact.phone, contact.email, contact.company_name].join(' '),
+                phone: contact.phone || '',
+                email: contact.email || '',
+                companyName: contact.company_name || '',
+            };
+        });
+        const selectedValue = preferredValue || attnInput.value || '';
+        attnCombobox.setOptions(contacts);
+        if (selectedValue) {
+            attnCombobox.setValue(selectedValue, false);
+        } else {
+            attnCombobox.clear();
+        }
     }
 
     function populateItemUserOptions(preferredValue) {
         const users = getSelectedCustomerUsers();
-        const options = users.map((u) => ({ value: u.name, text: u.name }));
-        setTomOptions(itemUserTom, options, preferredValue || '');
+        const values = users.map(function (user) {
+            return {
+                value: user.value || user.display || user.name || '',
+                display: user.display || user.value || user.name || '',
+                searchText: user.search_text || [user.name, user.code, user.code_2, user.email, user.phone].join(' '),
+                type: user.type || 'contact',
+            };
+        });
+        itemUserCombobox.setOptions(values);
+        itemUserCombobox.setValue(preferredValue || '', false);
     }
 
     function populateUserBrandOptions(preferredValue) {
-        const options = companyCodes.map((code) => ({ value: code, text: code }));
         const selected = getSelectedCustomerOption();
         const defaultCode = preferredValue || (selected ? (selected.dataset.code || '') : '');
-        setTomOptions(itemUserBrandTom, options, defaultCode);
+        itemUserBrandCombobox.setOptions(companyCodes);
+        itemUserBrandCombobox.setValue(defaultCode, false);
     }
 
-    function syncTelFromAttn(alwaysOverwrite) {
-        const value = attnTom ? attnTom.getValue() : '';
+    function syncAttnFields(alwaysOverwrite) {
+        const value = attnInput.value || '';
         if (!value) {
             return;
         }
-        const users = getSelectedCustomerUsers();
-        const match = users.find((u) => (u.name || '').toLowerCase() === String(value).toLowerCase());
+        const contacts = getAuthorizedAttentionContacts();
+        const match = contacts.find(function (contact) {
+            const contactName = String(contact.name || contact.value || '').toLowerCase();
+            return contactName === String(value).toLowerCase();
+        });
         if (match && (alwaysOverwrite || !telInput.value)) {
             telInput.value = match.phone || '';
+        }
+        if (match && (alwaysOverwrite || !attnEmailInput.value)) {
+            attnEmailInput.value = match.email || '';
         }
     }
 
     function refreshCustomerFields() {
         const selected = getSelectedCustomerOption();
+        const useExistingValues = !hasInitializedCustomerFields;
+        const contacts = getSelectedCustomerContacts();
+        const defaultAuthorizedContact = contacts.length ? contacts[0] : null;
         if (!selected || !selected.value) {
             codeInput.value = '';
+            telInput.value = '';
+            attnEmailInput.value = '';
             populateAttnOptions('');
             populateItemUserOptions('');
             populateUserBrandOptions('');
+            hasInitializedCustomerFields = true;
             return;
         }
 
         codeInput.value = selected.dataset.code || '';
-        const preferredContact = selected.dataset.contact || '';
+        const preferredContact = useExistingValues
+            ? (attnInput.value || (defaultAuthorizedContact ? defaultAuthorizedContact.value : ''))
+            : (defaultAuthorizedContact ? defaultAuthorizedContact.value : '');
         populateAttnOptions(preferredContact);
         populateItemUserOptions('');
-        populateUserBrandOptions(selected.dataset.code || '');
+        populateUserBrandOptions(useExistingValues ? (itemUserBrandInput.value || selected.dataset.code || '') : (selected.dataset.code || ''));
 
-        if (preferredContact && selected.dataset.phone) {
-            telInput.value = selected.dataset.phone;
-        } else {
-            syncTelFromAttn(true);
+        if (preferredContact) {
+            attnCombobox.setValue(preferredContact, false);
         }
+        if (!useExistingValues || !telInput.value) {
+            telInput.value = defaultAuthorizedContact ? (defaultAuthorizedContact.phone || '') : '';
+        }
+        if (!useExistingValues || !attnEmailInput.value) {
+            attnEmailInput.value = defaultAuthorizedContact ? (defaultAuthorizedContact.email || '') : '';
+        }
+
+        if (!preferredContact && !defaultAuthorizedContact) {
+            if (!useExistingValues) {
+                telInput.value = '';
+                attnEmailInput.value = '';
+            }
+            syncAttnFields(true);
+        } else {
+            syncAttnFields(useExistingValues ? false : true);
+        }
+        hasInitializedCustomerFields = true;
     }
 
     function parseCurrency(value) {
         return Number.parseFloat(value || '0') || 0;
+    }
+
+    function parseQuantity(value) {
+        const parsed = Number.parseInt(value || '0', 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function getProductOptionById(productId) {
+        return Array.from(productSelect.options).find(function (option) {
+            return String(option.value) === String(productId);
+        }) || null;
+    }
+
+    function parseItemPayload(payload) {
+        const parts = String(payload || '').split('|');
+        return {
+            marker: parts[0] || 'new',
+            productId: parts[1] || '',
+            quantity: parts[2] || '1',
+            userBrand: parts[3] || '',
+            userName: parts[4] || '',
+            unitPrice: parts[5] || '0.00',
+            taxRate: parts[6] || '0.00',
+        };
+    }
+
+    function buildItemPayload(marker, data) {
+        return [
+            marker,
+            data.productId,
+            data.quantity,
+            data.userBrand,
+            data.userName,
+            data.unitPrice,
+            data.taxRate,
+        ].join('|');
+    }
+
+    function resetItemEditor() {
+        editingRow = null;
+        addToQuotationButton.innerHTML = '<i class="fas fa-plus"></i> {% trans "Add to Quotation" %}';
+        document.getElementById('item-qty').value = '1';
+        document.getElementById('item-price').value = '';
+        document.getElementById('item-tax').value = '13';
+        productCombobox.clear();
+        populateUserBrandOptions(codeInput.value || '');
+        itemUserBrandCombobox.setValue(codeInput.value || '', false);
+        populateItemUserOptions('');
+        itemUserCombobox.setValue('', false);
+    }
+
+    function renderItemRow(row, marker, data) {
+        const option = getProductOptionById(data.productId);
+        const productLabel = option ? (option.dataset.label || option.text || '') : '';
+        const unit = option ? (option.dataset.unit || 'PCS') : '';
+        const quantity = parseQuantity(data.quantity);
+        const unitPrice = parseCurrency(data.unitPrice);
+        const taxRate = parseCurrency(data.taxRate);
+        const lineEx = quantity * unitPrice;
+        const lineTax = lineEx * (taxRate / 100);
+        const lineInc = lineEx + lineTax;
+        row.className = 'item-row';
+        if (marker.startsWith('item_')) {
+            row.dataset.itemId = marker.replace('item_', '');
+        } else {
+            delete row.dataset.itemId;
+        }
+        row.innerHTML = `
+            <input type="hidden" name="items" value="${escapeHtml(buildItemPayload(marker, {
+                productId: data.productId,
+                quantity: quantity,
+                userBrand: data.userBrand,
+                userName: data.userName,
+                unitPrice: unitPrice.toFixed(2),
+                taxRate: taxRate.toFixed(2),
+            }))}">
+            <td>${escapeHtml(productLabel)}</td>
+            <td class="text-center">${quantity}</td>
+            <td>${escapeHtml(unit)}</td>
+            <td class="text-end">¥${unitPrice.toFixed(2)}</td>
+            <td class="text-end">${taxRate.toFixed(2)}</td>
+            <td class="text-end">¥${lineTax.toFixed(2)}</td>
+            <td class="text-end">¥${lineInc.toFixed(2)}</td>
+            <td>${escapeHtml(data.userBrand || '-')}</td>
+            <td>${escapeHtml(data.userName || '-')}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-secondary edit-item me-1">
+                    <i class="fas fa-pen"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+    }
+
+    function loadRowIntoEditor(row) {
+        const payloadInput = row.querySelector('input[name="items"]');
+        if (!payloadInput) {
+            return;
+        }
+        const data = parseItemPayload(payloadInput.value);
+        editingRow = row;
+        productCombobox.setValue(data.productId);
+        document.getElementById('item-qty').value = parseQuantity(data.quantity);
+        document.getElementById('item-price').value = parseCurrency(data.unitPrice).toFixed(2);
+        document.getElementById('item-tax').value = parseCurrency(data.taxRate).toFixed(2);
+        populateUserBrandOptions(data.userBrand || codeInput.value || '');
+        itemUserBrandCombobox.setValue(data.userBrand || '', false);
+        populateItemUserOptions(data.userName || '');
+        itemUserCombobox.setValue(data.userName || '', false);
+        addToQuotationButton.innerHTML = '<i class="fas fa-save"></i> {% trans "Update Item" %}';
+        addToQuotationButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function renderTotals() {
@@ -407,8 +1105,8 @@
         document.getElementById('total-inc').textContent = `¥${(subtotal + tax).toFixed(2)}`;
     }
 
-    document.getElementById('product-select').addEventListener('change', function () {
-        const option = this.options[this.selectedIndex];
+    function updateProductFields() {
+        const option = productSelect.options[productSelect.selectedIndex];
         if (!option || !option.value) {
             document.getElementById('item-price').value = '';
             document.getElementById('item-tax').value = '13';
@@ -416,9 +1114,31 @@
         }
         document.getElementById('item-price').value = option.dataset.price || '';
         document.getElementById('item-tax').value = option.dataset.tax || '13';
+    }
+
+    const customerCombobox = createCombobox({
+        inputEl: customerComboboxInput,
+        listEl: customerComboboxList,
+        selectEl: customerSelect,
+        options: originalCustomerOptions,
+        emptyText: '{% trans "No customers found" %}',
+        onSelect: function () {
+            refreshCustomerFields();
+        },
     });
 
-    document.getElementById('add-to-quotation').addEventListener('click', function () {
+    const productCombobox = createCombobox({
+        inputEl: productComboboxInput,
+        listEl: productComboboxList,
+        selectEl: productSelect,
+        options: originalProductOptions,
+        emptyText: '{% trans "No products found" %}',
+        onSelect: function () {
+            updateProductFields();
+        },
+    });
+
+    addToQuotationButton.addEventListener('click', function () {
         const select = document.getElementById('product-select');
         const option = select.options[select.selectedIndex];
         if (!option || !option.value) {
@@ -432,59 +1152,50 @@
         const unit = option.dataset.unit || 'PCS';
         const unitPrice = parseCurrency(document.getElementById('item-price').value);
         const taxRate = parseCurrency(document.getElementById('item-tax').value);
-        const userBrand = (itemUserBrandTom ? itemUserBrandTom.getValue() : '') || codeInput.value || '';
-        const userName = itemUserTom ? itemUserTom.getValue() : '';
+        const userBrand = itemUserBrandInput.value || codeInput.value || '';
+        const userName = itemUserNameInput.value || '';
+        const quantityValue = parseQuantity(document.getElementById('item-qty').value);
+        const marker = editingRow ? parseItemPayload(editingRow.querySelector('input[name="items"]').value).marker : 'new';
 
-        const lineEx = quantity * unitPrice;
-        const lineTax = lineEx * (taxRate / 100);
-        const lineInc = lineEx + lineTax;
-
-        const row = document.createElement('tr');
-        row.className = 'item-row';
-        row.innerHTML = `
-            <input type="hidden" name="items" value="new|${productId}|${quantity}|${userBrand}|${userName}|${unitPrice.toFixed(2)}|${taxRate.toFixed(2)}">
-            <td>${productLabel}</td>
-            <td class="text-center">${quantity}</td>
-            <td>${unit}</td>
-            <td class="text-end">¥${unitPrice.toFixed(2)}</td>
-            <td class="text-end">${taxRate.toFixed(2)}</td>
-            <td class="text-end">¥${lineTax.toFixed(2)}</td>
-            <td class="text-end">¥${lineInc.toFixed(2)}</td>
-            <td>${userBrand || '-'}</td>
-            <td>${userName || '-'}</td>
-            <td>
-                <button type="button" class="btn btn-sm btn-outline-danger remove-item">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        document.getElementById('items-tbody').appendChild(row);
-
-        select.value = '';
-        document.getElementById('item-qty').value = '1';
-        document.getElementById('item-price').value = '';
-        document.getElementById('item-tax').value = '13';
-        if (productTom) {
-            productTom.clear(true);
+        const row = editingRow || document.createElement('tr');
+        renderItemRow(row, marker, {
+            productId: productId,
+            quantity: quantityValue,
+            userBrand: userBrand,
+            userName: userName,
+            unitPrice: unitPrice.toFixed(2),
+            taxRate: taxRate.toFixed(2),
+            unit: unit,
+            productLabel: productLabel,
+        });
+        if (!editingRow) {
+            document.getElementById('items-tbody').appendChild(row);
         }
-        populateUserBrandOptions(codeInput.value || '');
-        populateItemUserOptions('');
+
+        resetItemEditor();
 
         renderTotals();
     });
 
     document.getElementById('items-tbody').addEventListener('click', function(e) {
+        if (e.target.closest('.edit-item')) {
+            loadRowIntoEditor(e.target.closest('tr'));
+            return;
+        }
         if (e.target.closest('.remove-item')) {
-            e.target.closest('tr').remove();
+            const row = e.target.closest('tr');
+            if (editingRow === row) {
+                resetItemEditor();
+            }
+            row.remove();
             renderTotals();
         }
     });
 
-    initTomSelectInstances();
-    customerSelect.addEventListener('change', refreshCustomerFields);
-    attnSelect.addEventListener('change', function () { syncTelFromAttn(true); });
-
+    customerCombobox.refresh();
+    productCombobox.refresh();
     refreshCustomerFields();
+    updateProductFields();
     renderTotals();
 })();
 </script>

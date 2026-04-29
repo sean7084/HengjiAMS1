@@ -4,6 +4,14 @@
 
 {% block title %}{% trans "Quotations" %} - {{ block.super }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .quotation-row.clickable-row {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <!-- Page Header -->
@@ -86,7 +94,7 @@
                             </thead>
                             <tbody>
                                 {% for quote in quotations %}
-                                <tr>
+                                <tr class="quotation-row clickable-row" data-row-url="{% url 'quotations:detail' quote.pk %}">
                                     <td>
                                         <a href="{% url 'quotations:detail' quote.pk %}">
                                             {{ quote.quotation_number }}
@@ -97,14 +105,34 @@
                                     <td>{{ quote.attn|default:"-" }}</td>
                                     <td>
                                         <span class="badge {{ quote.status|workflow_badge_class:'quotation' }}">{{ quote.get_status_display }}</span>
+                                        {% if quote.requires_confirmation %}
+                                        <span class="badge bg-warning text-dark">{% trans "RFQ Review" %}</span>
+                                        {% endif %}
                                     </td>
-                                    <td class="small text-muted">{{ quote|quotation_next_action }}</td>
+                                    <td>
+                                        {% if quote.status == 'draft' %}
+                                        <a href="{% url 'quotations:send' quote.pk %}" class="btn btn-sm btn-outline-primary">{% trans "Mark as Sent" %}</a>
+                                        {% elif quote.status == 'sent' %}
+                                        <a href="{% url 'quotations:confirm' quote.pk %}" class="btn btn-sm btn-success">{% trans "Confirm" %}</a>
+                                        {% elif quote.current_delivery_order %}
+                                        <a href="{% url 'deliveries:detail' quote.current_delivery_order.pk %}" class="btn btn-sm btn-outline-success">{% trans "Open Delivery" %}</a>
+                                        {% elif quote.purchase_order %}
+                                            {% if quote.purchase_order.status == 'complete' %}
+                                            <a href="{% url 'deliveries:create_from_quotation' quote.pk %}" class="btn btn-sm btn-outline-success">{% trans "Create Delivery" %}</a>
+                                            {% else %}
+                                            <a href="{% url 'purchases:receive' quote.purchase_order.pk %}" class="btn btn-sm btn-outline-success">{% trans "Receive Stock" %}</a>
+                                            {% endif %}
+                                        {% elif quote.status == 'confirmed' %}
+                                        <a href="{% url 'quotations:convert_to_purchase' quote.pk %}" class="btn btn-sm btn-outline-success">{% trans "Create Purchase Order" %}</a>
+                                        {% elif quote.status == 'expired' %}
+                                        <a href="{% url 'quotations:duplicate' quote.pk %}" class="btn btn-sm btn-outline-secondary">{% trans "Duplicate" %}</a>
+                                        {% else %}
+                                        <span class="small text-muted">{% trans "No Action" %}</span>
+                                        {% endif %}
+                                    </td>
                                     <td class="text-end">¥{{ quote.total_with_tax|floatformat:2 }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="{% url 'quotations:detail' quote.pk %}" class="btn btn-outline-primary" title="{% trans 'View' %}">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
                                             <a href="{% url 'quotations:pdf' quote.pk %}" class="btn btn-outline-info" title="{% trans 'PDF' %}" target="_blank">
                                                 <i class="fas fa-file-pdf"></i>
                                             </a>
@@ -164,4 +192,19 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.quotation-row.clickable-row').forEach(function (row) {
+        row.addEventListener('click', function (event) {
+            if (event.target.closest('a, button, input, select, textarea, label')) {
+                return;
+            }
+            const targetUrl = row.getAttribute('data-row-url');
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

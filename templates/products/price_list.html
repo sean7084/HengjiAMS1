@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Product Price List" %} - {{ block.super }}{% endblock %}
+{% block title %}{% trans "Price List" %} - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -13,6 +13,13 @@
         color: #17a2b8;
         font-size: 0.9em;
     }
+    .default-model-card .table td,
+    .default-model-card .table th {
+        vertical-align: middle;
+    }
+    .default-model-toggle {
+        cursor: pointer;
+    }
 </style>
 {% endblock %}
 
@@ -21,10 +28,13 @@
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h1 class="h3">{% trans "Product Price List" %}</h1>
-            <div>
+            <h1 class="h3">{% trans "Price List" %}</h1>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
                 <a href="{% url 'products:price_import' %}" class="btn btn-outline-primary">
                     <i class="fas fa-file-import"></i> {% trans "Import" %}
+                </a>
+                <a href="{% url 'products:service_price_add' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-screwdriver-wrench"></i> {% trans "Add Service Item" %}
                 </a>
                 <a href="{% url 'products:price_add' %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> {% trans "Add Price" %}
@@ -50,13 +60,29 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
+                            <label class="form-label">{% trans "Type" %}</label>
+                            <select name="type" class="form-select">
+                                <option value="all" {% if selected_type == 'all' %}selected{% endif %}>{% trans "All Types" %}</option>
+                                <option value="hardware" {% if selected_type == 'hardware' %}selected{% endif %}>{% trans "Hardware" %}</option>
+                                <option value="service" {% if selected_type == 'service' %}selected{% endif %}>{% trans "Service" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">{% trans "Status" %}</label>
+                            <select name="status" class="form-select">
+                                <option value="current" {% if selected_status == 'current' %}selected{% endif %}>{% trans "Current Only" %}</option>
+                                <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>{% trans "Inactive Only" %}</option>
+                                <option value="all" {% if selected_status == 'all' %}selected{% endif %}>{% trans "All Statuses" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label">{% trans "Search" %}</label>
                             <input type="text" name="search" class="form-control"
                                    placeholder="{% trans 'Search by brand or model...' %}"
                                    value="{{ search_query }}">
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
+                        <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary me-2">
                                 <i class="fas fa-search"></i> {% trans "Filter" %}
                             </button>
@@ -70,7 +96,66 @@
         </div>
     </div>
 
-    <!-- Price List -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card default-model-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{% trans "Default Models By Category" %}</h5>
+                    <button class="btn btn-sm btn-outline-secondary default-model-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#defaultModelsByCategory" aria-expanded="false" aria-controls="defaultModelsByCategory">
+                        <i class="fas fa-chevron-down me-1"></i>{% trans "Expand" %}
+                    </button>
+                </div>
+                <div class="collapse" id="defaultModelsByCategory">
+                <div class="card-body border-top">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Category" %}</th>
+                                    <th>{% trans "Default Model" %}</th>
+                                    <th class="text-end">{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in category_default_models %}
+                                <tr>
+                                    <td>{{ row.category.name }}</td>
+                                    <td>
+                                        <form method="post" class="row g-2 align-items-center justify-content-end">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="category_id" value="{{ row.category.pk }}">
+                                            <div class="col-md-8 col-lg-9">
+                                                <select name="default_model_id" class="form-select form-select-sm">
+                                                    <option value="">{% trans "No default model" %}</option>
+                                                    {% for model in row.models %}
+                                                    <option value="{{ model.pk }}" {% if row.category.default_asset_model_id == model.pk %}selected{% endif %}>
+                                                        {{ model.brand.name }} - {{ model.name }}{% if model.model_number %} ({{ model.model_number }}){% endif %}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4 col-lg-3 text-end">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">{% trans "Save" %}</button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'assets:category_update' row.category.pk %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product List -->
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -80,6 +165,7 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th>{% trans "Type" %}</th>
                                     <th>{% trans "Brand" %}</th>
                                     <th>{% trans "Model" %}</th>
                                     <th>{% trans "Model Number" %}</th>
@@ -94,6 +180,13 @@
                             <tbody>
                                 {% for price in prices %}
                                 <tr>
+                                    <td>
+                                        {% if price.model.category_id and price.model.category.item_type == 'service' %}
+                                        <span class="badge text-bg-info">{% trans "Service" %}</span>
+                                        {% else %}
+                                        <span class="badge text-bg-secondary">{% trans "Hardware" %}</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ price.brand.name }}</td>
                                     <td>{{ price.model.name }}</td>
                                     <td>{{ price.model.model_number|default:"-" }}</td>
@@ -128,7 +221,7 @@
                         <ul class="pagination justify-content-center">
                             {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
                                     {% trans "Previous" %}
                                 </a>
                             </li>
@@ -138,13 +231,13 @@
                             {% if page_obj.number == num %}
                             <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
                             {% endif %}
                             {% endfor %}
 
                             {% if page_obj.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
                                     {% trans "Next" %}
                                 </a>
                             </li>
@@ -156,10 +249,15 @@
                     {% else %}
                     <div class="text-center py-5">
                         <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
-                        <p class="text-muted">{% trans "No product prices found." %}</p>
-                        <a href="{% url 'products:price_add' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> {% trans "Add First Price" %}
-                        </a>
+                        <p class="text-muted">{% trans "No products found." %}</p>
+                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                            <a href="{% url 'products:service_price_add' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-screwdriver-wrench"></i> {% trans "Add Service Item" %}
+                            </a>
+                            <a href="{% url 'products:price_add' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> {% trans "Add First Price" %}
+                            </a>
+                        </div>
                     </div>
                     {% endif %}
                 </div>

@@ -83,20 +83,37 @@ class EmailDispatchForm(forms.ModelForm):
             self.fields['quotation'].queryset = Quotation.objects.filter(pk=quotation.pk)
             self.fields['delivery_order'].queryset = DeliveryOrder.objects.filter(quotation=quotation).order_by('-created_at')
             self.fields['invoice_info'].queryset = InvoiceInfo.objects.filter(quotation=quotation).order_by('-invoice_date')
+            source_email_message = quotation.source_email_message
 
             primary_contact = quotation.customer.primary_contact_company_user
-            if primary_contact and (primary_contact.work_email or primary_contact.user.email):
-                self.fields['sent_to'].initial = primary_contact.work_email or primary_contact.user.email
+            if quotation.attn_email:
+                self.fields['sent_to'].initial = quotation.attn_email
+            elif source_email_message and source_email_message.sender:
+                self.fields['sent_to'].initial = source_email_message.sender
+            elif primary_contact and primary_contact.get_contact_email():
+                self.fields['sent_to'].initial = primary_contact.get_contact_email()
             elif quotation.customer.email:
                 self.fields['sent_to'].initial = quotation.customer.email
 
-            self.fields['subject'].initial = f"Document Package - {quotation.quotation_number}"
+            if source_email_message and source_email_message.subject:
+                if source_email_message.subject.lower().startswith('re:'):
+                    self.fields['subject'].initial = source_email_message.subject
+                else:
+                    self.fields['subject'].initial = f"Re: {source_email_message.subject}"
+                reply_body = quotation.email_dispatches.filter(source_email_message=source_email_message, status=EmailDispatch.DispatchStatus.DRAFT).order_by('-updated_at').first()
+                if reply_body and reply_body.body:
+                    self.fields['body'].initial = reply_body.body
+            else:
+                self.fields['subject'].initial = f"Document Package - {quotation.quotation_number}"
 
         for name, field in self.fields.items():
             css_class = 'form-control'
             if isinstance(field.widget, forms.Select):
                 css_class = 'form-select'
             field.widget.attrs['class'] = css_class
+
+        for field_name in ['sent_to', 'cc', 'bcc', 'subject']:
+            self.fields[field_name].widget.attrs['class'] = 'form-control email-line-input'
 
     def _parse_recipients(self, value):
         return [item.strip() for item in (value or '').split(',') if item.strip()]

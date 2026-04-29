@@ -15,6 +15,7 @@ from decimal import Decimal, InvalidOperation
 import datetime
 
 from companies.models import Company, CompanyUser
+from deliveries.services import get_dispatch_asset_queryset
 from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
 from .forms import QuotationForm, QuotationItemForm
@@ -35,6 +36,9 @@ def _normalize_name(name):
 
 
 def _get_membership_user_name(membership):
+    if hasattr(membership, 'get_contact_name'):
+        name = _normalize_name(membership.get_contact_name())
+        return '' if name == '-' else name
     user = getattr(membership, 'user', None)
     if not user:
         return ''
@@ -42,8 +46,17 @@ def _get_membership_user_name(membership):
 
 
 def _get_membership_user_phone(membership):
+    if hasattr(membership, 'get_contact_phone'):
+        return membership.get_contact_phone() or ''
     user = getattr(membership, 'user', None)
     return membership.work_phone or getattr(user, 'phone_number', '') or ''
+
+
+def _get_membership_user_email(membership):
+    if hasattr(membership, 'get_contact_email'):
+        return membership.get_contact_email() or ''
+    user = getattr(membership, 'user', None)
+    return getattr(user, 'email', '') or ''
 
 
 def _find_company_user_by_name(company, name):
@@ -53,14 +66,32 @@ def _find_company_user_by_name(company, name):
 
     memberships = company.company_users.select_related('user').all()
     for membership in memberships:
-        user = getattr(membership, 'user', None)
-        if not user:
-            continue
-        display_name = _normalize_name(user.get_display_name()).lower()
-        full_name = _normalize_name(user.get_full_name()).lower()
-        if target == display_name or (full_name and target == full_name):
+        display_name = _get_membership_user_name(membership).lower()
+        if target == display_name:
             return membership
     return None
+
+
+def _build_location_display(location):
+    name = _normalize_name(location.name)
+    codes = []
+    for code in [location.code, location.code_2]:
+        normalized = _normalize_name(code)
+        if normalized and normalized.lower() not in [value.lower() for value in codes]:
+            codes.append(normalized)
+    if name and codes:
+        return f"{name} ({' / '.join(codes)})"
+    return name or ' / '.join(codes)
+
+
+def _customer_has_location_label(company, label):
+    target = _normalize_name(label).lower()
+    if not target:
+        return False
+    for location in company.locations.all():
+        if _build_location_display(location).lower() == target:
+            return True
+    return False
 
 
 def _split_name(full_name):
@@ -72,7 +103,7 @@ def _split_name(full_name):
     return parts[0], ' '.join(parts[1:])
 
 
-def _create_company_user(company, full_name, phone=''):
+def _create_company_user(company, full_name, phone='', email=''):
     UserModel = get_user_model()
     first_name, last_name = _split_name(full_name)
 
@@ -88,6 +119,7 @@ def _create_company_user(company, full_name, phone=''):
         first_name=first_name[:150],
         last_name=last_name[:150],
         phone_number=(phone or '')[:20],
+        email=(email or '')[:254],
         company=company,
     )
     user.set_unusable_password()
@@ -99,39 +131,126 @@ def _create_company_user(company, full_name, phone=''):
         role=CompanyUser.CompanyRole.EMPLOYEE,
         status=CompanyUser.UserStatus.ACTIVE,
         work_phone=(phone or '')[:20],
+        work_email=(email or '')[:254],
     )
     return membership
 
 
-def _ensure_company_user(company, full_name, phone=''):
+def _ensure_company_user(company, full_name, phone='', email=''):
     normalized = _normalize_name(full_name)
     if not normalized:
         return None, False
 
     existing = _find_company_user_by_name(company, normalized)
     if existing:
+        fields_to_update = []
+        normalized_phone = (phone or '').strip()
+        normalized_email = (email or '').strip()
+        if normalized_phone and existing.work_phone != normalized_phone:
+            existing.work_phone = normalized_phone[:20]
+            fields_to_update.append('work_phone')
+        if normalized_email and existing.work_email != normalized_email:
+            existing.work_email = normalized_email[:254]
+            fields_to_update.append('work_email')
+        user = getattr(existing, 'user', None)
+        if user is not None:
+            if normalized_phone and getattr(user, 'phone_number', '') != normalized_phone:
+                user.phone_number = normalized_phone[:20]
+                user.save(update_fields=['phone_number'])
+            if normalized_email and getattr(user, 'email', '') != normalized_email:
+                user.email = normalized_email[:254]
+                user.save(update_fields=['email'])
+        if fields_to_update:
+            existing.save(update_fields=fields_to_update + ['updated_at'])
         return existing, False
-    return _create_company_user(company, normalized, phone), True
+    return _create_company_user(company, normalized, phone, email), True
 
 
 def _build_customer_user_context(customers):
     company_users_by_customer = {}
+    global_authorized_attention_contacts = []
+    global_authorized_contact_keys = set()
     for customer in customers:
-        seen = set()
-        users = []
+        seen_contacts = set()
+        seen_product_users = set()
+        attention_contacts = []
+        product_users = []
         for membership in customer.company_users.select_related('user').all():
             name = _get_membership_user_name(membership)
             if not name:
                 continue
             key = name.lower()
-            if key in seen:
-                continue
-            seen.add(key)
-            users.append({
+            phone = _get_membership_user_phone(membership)
+            email = _get_membership_user_email(membership)
+            contact_payload = {
                 'name': name,
-                'phone': _get_membership_user_phone(membership),
+                'phone': phone,
+                'email': email,
+                'value': name,
+                'display': name,
+                'search_text': ' '.join(filter(None, [name, phone, email])).lower(),
+            }
+            if membership.is_authorized_rfq_sender and key not in seen_contacts:
+                seen_contacts.add(key)
+                attention_contacts.append(contact_payload)
+            if membership.is_authorized_rfq_sender:
+                global_key = '|'.join([
+                    key,
+                    (email or '').lower(),
+                    (phone or '').lower(),
+                    str(customer.pk),
+                ])
+                if global_key not in global_authorized_contact_keys:
+                    global_authorized_contact_keys.add(global_key)
+                    global_authorized_attention_contacts.append({
+                        **contact_payload,
+                        'company_name': customer.name,
+                        'search_text': ' '.join(filter(None, [name, phone, email, customer.name])).lower(),
+                    })
+            if key not in seen_product_users:
+                seen_product_users.add(key)
+                product_users.append({
+                    'type': 'contact',
+                    **contact_payload,
+                })
+
+        for location in customer.locations.select_related('contact__user').all():
+            display = _build_location_display(location)
+            if not display:
+                continue
+            key = display.lower()
+            if key in seen_product_users:
+                continue
+            seen_product_users.add(key)
+            contact_name = _get_membership_user_name(location.contact) if location.contact_id else ''
+            location_email = (location.email or '').strip()
+            if not location_email and location.contact_id:
+                location_email = _get_membership_user_email(location.contact)
+            location_phone = (location.phone_number or '').strip()
+            if not location_phone and location.contact_id:
+                location_phone = _get_membership_user_phone(location.contact)
+            product_users.append({
+                'type': 'location',
+                'name': _normalize_name(location.name),
+                'phone': location_phone,
+                'email': location_email,
+                'code': _normalize_name(location.code),
+                'code_2': _normalize_name(location.code_2),
+                'value': display,
+                'display': display,
+                'search_text': ' '.join(filter(None, [
+                    location.name,
+                    location.code,
+                    location.code_2,
+                    display,
+                    contact_name,
+                ])).lower(),
             })
-        company_users_by_customer[str(customer.pk)] = users
+
+        company_users_by_customer[str(customer.pk)] = {
+            'attention_contacts': attention_contacts,
+            'product_users': product_users,
+        }
 
     company_codes = list(
         Company.objects.filter(status=Company.CompanyStatus.ACTIVE)
@@ -141,7 +260,108 @@ def _build_customer_user_context(customers):
         .distinct()
     )
 
-    return company_users_by_customer, company_codes
+    return company_users_by_customer, company_codes, global_authorized_attention_contacts
+
+
+def _apply_product_price_snapshot(item, product_price):
+    item.brand_name = product_price.brand.name if product_price.brand_id else ''
+    item.product_description = product_price.model.description or product_price.model.name if product_price.model_id else ''
+    item.model_number = product_price.model.model_number or '' if product_price.model_id else ''
+    item.unit = product_price.unit or (product_price.model.unit if product_price.model_id else '')
+    return item
+
+
+def _get_latest_delivery_order(quotation):
+    prefetched = getattr(quotation, '_prefetched_objects_cache', {}).get('delivery_orders')
+    if prefetched is not None:
+        return prefetched[0] if prefetched else None
+    return quotation.delivery_orders.order_by('-created_at').first()
+
+
+def _create_or_get_purchase_order_from_quotation(quotation):
+    from purchases.models import PurchaseOrder, PurchaseOrderItem
+
+    purchase_order, created = PurchaseOrder.objects.get_or_create(
+        quotation=quotation,
+        defaults={
+            'status': PurchaseOrder.Status.ORDERED,
+        }
+    )
+
+    created_items = 0
+    for item in quotation.items.select_related('product_price__brand', 'product_price__model'):
+        _, item_created = PurchaseOrderItem.objects.get_or_create(
+            purchase_order=purchase_order,
+            quotation_item=item,
+            defaults={
+                'product_price': item.product_price,
+                'brand': item.product_price.brand if item.product_price else None,
+                'model': item.product_price.model if item.product_price else None,
+                'product_description': item.product_description,
+                'unit': item.unit,
+                'quantity_ordered': item.quantity,
+                'unit_price': item.unit_price,
+            }
+        )
+        if item_created:
+            created_items += 1
+
+    purchase_order.recalculate_progress()
+    return purchase_order, created, created_items
+
+
+def _allocate_internal_assets_for_quotation(quotation):
+    available_assets_by_key = {}
+    for asset in get_dispatch_asset_queryset(quotation):
+        available_assets_by_key.setdefault((asset.brand_id, asset.model_id), []).append(asset)
+
+    assignments = []
+    quotation_items = list(quotation.items.select_related('product_price__brand', 'product_price__model').all())
+    for item in quotation_items:
+        if not item.product_price_id or not item.product_price.brand_id or not item.product_price.model_id:
+            return None
+
+        key = (item.product_price.brand_id, item.product_price.model_id)
+        matching_assets = available_assets_by_key.get(key, [])
+        if len(matching_assets) < item.quantity:
+            return None
+
+        selected_assets = matching_assets[:item.quantity]
+        available_assets_by_key[key] = matching_assets[item.quantity:]
+        assignments.append((item, selected_assets))
+
+    return assignments
+
+
+def _create_delivery_order_from_internal_stock(quotation, assignments):
+    from deliveries.models import DeliveryItem, DeliveryOrder
+
+    existing_delivery = _get_latest_delivery_order(quotation)
+    if existing_delivery:
+        return existing_delivery, False
+
+    customer_info = quotation.get_customer_info()
+    delivery_order = DeliveryOrder.objects.create(
+        quotation=quotation,
+        delivery_date=datetime.date.today(),
+        receiver_name=customer_info.get('attn') or quotation.attn or quotation.customer.name,
+        receiver_phone=customer_info.get('tel') or quotation.tel or '',
+        delivery_address=customer_info.get('delivery_address') or quotation.customer.get_full_address(),
+        delivery_method='',
+        remarks='Created automatically from confirmed quotation using internal warehouse stock.',
+    )
+
+    for quotation_item, assets in assignments:
+        for asset in assets:
+            DeliveryItem.objects.create(
+                delivery_order=delivery_order,
+                asset=asset,
+                quantity=1,
+                user_brand=quotation_item.user_brand,
+                user_name=quotation_item.user_name,
+            )
+
+    return delivery_order, True
 
 
 class QuotationListView(OrderManagementAccessMixin, ListView):
@@ -152,7 +372,7 @@ class QuotationListView(OrderManagementAccessMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Quotation.objects.select_related('customer').all()
+        queryset = Quotation.objects.select_related('customer', 'source_email_message', 'purchase_order').prefetch_related('delivery_orders').all()
 
         # Filter by status
         status = self.request.GET.get('status')
@@ -182,6 +402,8 @@ class QuotationListView(OrderManagementAccessMixin, ListView):
         context['selected_customer'] = self.request.GET.get('customer', '')
         context['search_query'] = self.request.GET.get('search', '')
         context['customers'] = Company.objects.filter(status='active').order_by('name')
+        for quotation in context['quotations']:
+            quotation.current_delivery_order = _get_latest_delivery_order(quotation)
         return context
 
 
@@ -196,7 +418,12 @@ class QuotationDetailView(OrderManagementAccessMixin, DetailView):
         context['items'] = self.object.items.all()
         context['attachments'] = self.object.attachments.all()
         context['purchase_order'] = getattr(self.object, 'purchase_order', None)
-        context['email_dispatches'] = self.object.email_dispatches.all().order_by('-created_at')
+        context['current_delivery_order'] = _get_latest_delivery_order(self.object)
+        context['auto_download_pdf'] = self.request.GET.get('download_pdf') == '1'
+        rfq_extracted_data = getattr(self.object.source_email_message, 'rfq_extracted_data', {}) if self.object.source_email_message_id else {}
+        item_matching = rfq_extracted_data.get('item_matching') or {}
+        context['rfq_item_warnings'] = item_matching.get('warnings') or []
+        context['rfq_matched_items'] = item_matching.get('matched_items') or []
         return context
 
 
@@ -206,34 +433,42 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
     form_class = QuotationForm
     template_name = 'quotations/form.html'
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields.pop('status', None)
+        return form
+
     def get_initial(self):
         initial = super().get_initial()
         initial['quotation_date'] = datetime.date.today()
         initial['valid_until'] = datetime.date.today() + datetime.timedelta(days=30)
-        initial['status'] = Quotation.QuotationStatus.SENT
         return initial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user').order_by('name')
-        company_users_by_customer, company_codes = _build_customer_user_context(customers)
+        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user', 'locations__contact__user').order_by('name')
+        company_users_by_customer, company_codes, authorized_attention_contacts = _build_customer_user_context(customers)
         context['customers'] = customers
         context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model').order_by('brand__name', 'model__name')
         context['company_users_by_customer'] = company_users_by_customer
         context['company_codes'] = company_codes
+        context['authorized_attention_contacts'] = authorized_attention_contacts
         context['is_edit'] = False
         return context
 
     def form_valid(self, form):
         quotation = form.save(commit=False)
-
-        if not quotation.status:
+        submit_action = self.request.POST.get('submit_action')
+        if submit_action == 'save_draft':
+            quotation.status = Quotation.QuotationStatus.DRAFT
+        else:
             quotation.status = Quotation.QuotationStatus.SENT
 
         company_user, created = _ensure_company_user(
             quotation.customer,
             quotation.attn,
             quotation.tel,
+            quotation.attn_email,
         )
         if company_user:
             resolved_name = _get_membership_user_name(company_user)
@@ -242,6 +477,9 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
             resolved_phone = _get_membership_user_phone(company_user)
             if resolved_phone:
                 quotation.tel = resolved_phone
+            resolved_email = _get_membership_user_email(company_user)
+            if resolved_email:
+                quotation.attn_email = resolved_email
 
         contact = quotation.customer.primary_contact_company_user
         if contact:
@@ -249,6 +487,8 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
                 quotation.attn = _get_membership_user_name(contact)
             if not quotation.tel:
                 quotation.tel = _get_membership_user_phone(contact)
+            if not quotation.attn_email:
+                quotation.attn_email = _get_membership_user_email(contact)
 
         quotation.save()
 
@@ -278,9 +518,9 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
                 tax_rate = None
 
             try:
-                product_price = ProductPrice.objects.get(pk=product_price_id)
+                product_price = ProductPrice.objects.select_related('brand', 'model').get(pk=product_price_id)
                 quantity = int(quantity)
-                if user_name:
+                if user_name and not _customer_has_location_label(quotation.customer, user_name):
                     _ensure_company_user(quotation.customer, user_name, '')
                 item = QuotationItem(
                     quotation=quotation,
@@ -289,15 +529,16 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
                     user_brand=user_brand or quotation.customer.code,
                     user_name=user_name
                 )
-                if unit_price:
-                    item.unit_price = Decimal(unit_price)
-                if tax_rate:
-                    item.tax_rate = Decimal(tax_rate)
+                _apply_product_price_snapshot(item, product_price)
+                item.unit_price = Decimal(unit_price) if unit_price else product_price.price_without_tax
+                item.tax_rate = Decimal(tax_rate) if tax_rate else product_price.tax_rate
                 item.save()
             except (ProductPrice.DoesNotExist, ValueError, InvalidOperation):
                 pass
 
         messages.success(self.request, f'Quotation {quotation.quotation_number} created successfully.')
+        if submit_action == 'create_download_pdf':
+            return HttpResponseRedirect(f"{reverse_lazy('quotations:detail', args=[quotation.pk])}?download_pdf=1")
         return HttpResponseRedirect(reverse_lazy('quotations:detail', args=[quotation.pk]))
 
 
@@ -309,12 +550,13 @@ class QuotationUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user').order_by('name')
-        company_users_by_customer, company_codes = _build_customer_user_context(customers)
+        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user', 'locations__contact__user').order_by('name')
+        company_users_by_customer, company_codes, authorized_attention_contacts = _build_customer_user_context(customers)
         context['customers'] = customers
         context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model').order_by('brand__name', 'model__name')
         context['company_users_by_customer'] = company_users_by_customer
         context['company_codes'] = company_codes
+        context['authorized_attention_contacts'] = authorized_attention_contacts
         context['items'] = self.object.items.all()
         context['is_edit'] = True
         return context
@@ -326,6 +568,7 @@ class QuotationUpdateView(UpdateView):
             quotation.customer,
             quotation.attn,
             quotation.tel,
+            quotation.attn_email,
         )
         if company_user:
             resolved_name = _get_membership_user_name(company_user)
@@ -334,7 +577,13 @@ class QuotationUpdateView(UpdateView):
             resolved_phone = _get_membership_user_phone(company_user)
             if resolved_phone:
                 quotation.tel = resolved_phone
-            quotation.save(update_fields=['attn', 'tel', 'updated_at'])
+            resolved_email = _get_membership_user_email(company_user)
+            if resolved_email:
+                quotation.attn_email = resolved_email
+            quotation.save(update_fields=['attn', 'tel', 'attn_email', 'updated_at'])
+        elif quotation.customer.primary_contact_company_user and not quotation.attn_email:
+            quotation.attn_email = _get_membership_user_email(quotation.customer.primary_contact_company_user)
+            quotation.save(update_fields=['attn_email', 'updated_at'])
 
         # Update line items
         # First, delete removed items
@@ -357,26 +606,25 @@ class QuotationUpdateView(UpdateView):
             tax_rate = parts[6] if len(parts) > 6 else None
 
             try:
-                product_price = ProductPrice.objects.get(pk=product_price_id)
+                product_price = ProductPrice.objects.select_related('brand', 'model').get(pk=product_price_id)
                 quantity = int(quantity)
 
                 if marker.startswith('item_'):
                     item_pk = marker.replace('item_', '')
                     submitted_ids.add(item_pk)
                     item = QuotationItem.objects.get(pk=item_pk, quotation=quotation)
-                    if user_name:
+                    if user_name and not _customer_has_location_label(quotation.customer, user_name):
                         _ensure_company_user(quotation.customer, user_name, '')
                     item.product_price = product_price
                     item.quantity = quantity
                     item.user_brand = user_brand or quotation.customer.code
                     item.user_name = user_name
-                    if unit_price:
-                        item.unit_price = Decimal(unit_price)
-                    if tax_rate:
-                        item.tax_rate = Decimal(tax_rate)
+                    _apply_product_price_snapshot(item, product_price)
+                    item.unit_price = Decimal(unit_price) if unit_price else product_price.price_without_tax
+                    item.tax_rate = Decimal(tax_rate) if tax_rate else product_price.tax_rate
                     item.save()
                 elif marker == 'new':
-                    if user_name:
+                    if user_name and not _customer_has_location_label(quotation.customer, user_name):
                         _ensure_company_user(quotation.customer, user_name, '')
                     item = QuotationItem(
                         quotation=quotation,
@@ -385,10 +633,9 @@ class QuotationUpdateView(UpdateView):
                         user_brand=user_brand or quotation.customer.code,
                         user_name=user_name,
                     )
-                    if unit_price:
-                        item.unit_price = Decimal(unit_price)
-                    if tax_rate:
-                        item.tax_rate = Decimal(tax_rate)
+                    _apply_product_price_snapshot(item, product_price)
+                    item.unit_price = Decimal(unit_price) if unit_price else product_price.price_without_tax
+                    item.tax_rate = Decimal(tax_rate) if tax_rate else product_price.tax_rate
                     item.save()
                     submitted_ids.add(str(item.pk))
             except (ProductPrice.DoesNotExist, QuotationItem.DoesNotExist, ValueError, InvalidOperation):
@@ -476,19 +723,51 @@ def cancel_quotation(request, pk):
 
 
 def confirm_quotation(request, pk):
-    """Mark quotation as confirmed."""
+    """Mark quotation as confirmed and advance fulfillment."""
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation.status = Quotation.QuotationStatus.CONFIRMED
-    quotation.save()
-    messages.success(request, f'Quotation {quotation.quotation_number} confirmed.')
-    return redirect(reverse_lazy('quotations:detail', args=[quotation.pk]))
+    quotation.requires_confirmation = False
+    quotation.save(update_fields=['status', 'requires_confirmation', 'updated_at'])
+    if quotation.source_email_message_id:
+        quotation.source_email_message.rfq_status = quotation.source_email_message.RFQStatus.QUOTATION_CONFIRMED
+        quotation.source_email_message.save(update_fields=['rfq_status', 'synced_at'])
+
+    existing_delivery = _get_latest_delivery_order(quotation)
+    if existing_delivery:
+        messages.info(request, f'Quotation {quotation.quotation_number} is already linked to delivery order {existing_delivery.delivery_number}.')
+        return redirect('deliveries:detail', pk=existing_delivery.pk)
+
+    purchase_order = getattr(quotation, 'purchase_order', None)
+    if purchase_order:
+        messages.info(request, f'Quotation {quotation.quotation_number} is already linked to purchase order {purchase_order.po_number}.')
+        if purchase_order.status == purchase_order.Status.COMPLETE:
+            return redirect('deliveries:create_from_quotation', quotation_pk=quotation.pk)
+        return redirect('purchases:receive', pk=purchase_order.pk)
+
+    with transaction.atomic():
+        assignments = _allocate_internal_assets_for_quotation(quotation)
+        if assignments:
+            delivery_order, _ = _create_delivery_order_from_internal_stock(quotation, assignments)
+            messages.success(request, f'Quotation {quotation.quotation_number} confirmed and delivery order {delivery_order.delivery_number} was created from internal stock.')
+            return redirect('deliveries:detail', pk=delivery_order.pk)
+
+        purchase_order, created, created_items = _create_or_get_purchase_order_from_quotation(quotation)
+
+    if created_items:
+        messages.success(request, f'Quotation {quotation.quotation_number} confirmed and purchase order {purchase_order.po_number} was created with {created_items} line(s).')
+    elif created:
+        messages.warning(request, f'Quotation {quotation.quotation_number} confirmed and purchase order {purchase_order.po_number} was created without lines.')
+    else:
+        messages.info(request, f'Quotation {quotation.quotation_number} confirmed. Purchase order {purchase_order.po_number} already exists.')
+    return redirect('purchases:receive', pk=purchase_order.pk)
 
 
 def send_quotation(request, pk):
     """Mark quotation as sent."""
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation.status = Quotation.QuotationStatus.SENT
-    quotation.save()
+    quotation.requires_confirmation = False
+    quotation.save(update_fields=['status', 'requires_confirmation', 'updated_at'])
     messages.success(request, f'Quotation {quotation.quotation_number} marked as sent.')
     return redirect(reverse_lazy('quotations:detail', args=[quotation.pk]))
 
@@ -549,51 +828,19 @@ def convert_to_purchase(request, pk):
         messages.error(request, 'Only confirmed quotations can be converted to purchase.')
         return redirect(reverse_lazy('quotations:detail', args=[pk]))
 
-    if request.method == 'POST':
-        from purchases.models import PurchaseOrder, PurchaseOrderItem
+    existing_delivery = _get_latest_delivery_order(quotation)
+    if existing_delivery:
+        messages.info(request, f'Quotation {quotation.quotation_number} already has delivery order {existing_delivery.delivery_number}.')
+        return redirect('deliveries:detail', pk=existing_delivery.pk)
 
-        created_items = 0
+    with transaction.atomic():
+        purchase_order, created, created_items = _create_or_get_purchase_order_from_quotation(quotation)
 
-        with transaction.atomic():
-            purchase_order, created = PurchaseOrder.objects.get_or_create(
-                quotation=quotation,
-                defaults={
-                    'status': PurchaseOrder.Status.ORDERED,
-                }
-            )
+    if created_items:
+        messages.success(request, f'Created purchase order {purchase_order.po_number} with {created_items} line(s).')
+    elif created:
+        messages.warning(request, f'Purchase order {purchase_order.po_number} was created without lines.')
+    else:
+        messages.info(request, f'Purchase order {purchase_order.po_number} already exists. You can continue receiving stock.')
 
-            for item in quotation.items.all():
-                _, item_created = PurchaseOrderItem.objects.get_or_create(
-                    purchase_order=purchase_order,
-                    quotation_item=item,
-                    defaults={
-                        'product_price': item.product_price,
-                        'brand': item.product_price.brand if item.product_price else None,
-                        'model': item.product_price.model if item.product_price else None,
-                        'product_description': item.product_description,
-                        'unit': item.unit,
-                        'quantity_ordered': item.quantity,
-                        'unit_price': item.unit_price,
-                    }
-                )
-                if item_created:
-                    created_items += 1
-
-            purchase_order.recalculate_progress()
-
-        if created_items:
-            messages.success(request, f'Created purchase order {purchase_order.po_number} with {created_items} line(s).')
-        elif created:
-            messages.warning(request, f'Purchase order {purchase_order.po_number} was created without lines.')
-        else:
-            messages.info(request, f'Purchase order {purchase_order.po_number} already exists. You can continue receiving stock.')
-
-        return redirect(reverse_lazy('purchases:receive', args=[purchase_order.pk]))
-
-    # Show confirmation page
-    purchase_order = getattr(quotation, 'purchase_order', None)
-    return render(request, 'quotations/convert_confirm.html', {
-        'quotation': quotation,
-        'total_items': sum(item.quantity for item in quotation.items.all()),
-        'purchase_order': purchase_order,
-    })
+    return redirect('purchases:receive', pk=purchase_order.pk)
