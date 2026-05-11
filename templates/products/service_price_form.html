@@ -1,13 +1,13 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Add Service Item" %} - {{ block.super }}{% endblock %}
+{% block title %}{% if product_price %}{% trans "Edit Service Item" %}{% else %}{% trans "Add Service Item" %}{% endif %} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="h3">{% trans "Add Service Item" %}</h1>
+            <h1 class="h3">{% if product_price %}{% trans "Edit Service Item" %}{% else %}{% trans "Add Service Item" %}{% endif %}</h1>
         </div>
     </div>
 
@@ -25,20 +25,25 @@
                         {% endif %}
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">{% trans "Service Category" %}</label>
-                                {{ form.category }}
-                                {% if form.category.help_text %}
-                                <div class="form-text">{{ form.category.help_text }}</div>
+                            <div class="col-md-8">
+                                <label class="form-label">{% trans "Service Group" %}</label>
+                                {{ form.service_group }}
+                                <datalist id="service-group-options">
+                                    {% for group in service_group_suggestions %}
+                                    <option value="{{ group }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                                {% if form.service_group.help_text %}
+                                <div class="form-text">{{ form.service_group.help_text }}</div>
                                 {% endif %}
-                                {% if form.category.errors %}
-                                <div class="text-danger">{{ form.category.errors }}</div>
+                                {% if form.service_group.errors %}
+                                <div class="text-danger">{{ form.service_group.errors }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">{% trans "Brand" %}</label>
-                                <input type="text" class="form-control" value="{{ default_service_brand_name }}" readonly>
-                                <div class="form-text">{% trans "Service items use the default service brand." %}</div>
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "Catalog Type" %}</label>
+                                <input type="text" class="form-control" value="{% trans 'Service' %}" readonly>
+                                <div class="form-text">{% trans "Service items are managed in the shared product/service catalog." %}</div>
                             </div>
                         </div>
 
@@ -129,7 +134,11 @@
                                 {% trans "Cancel" %}
                             </a>
                             <button type="submit" class="btn btn-primary">
+                                {% if product_price %}
+                                <i class="fas fa-save"></i> {% trans "Update Service Item" %}
+                                {% else %}
                                 <i class="fas fa-plus"></i> {% trans "Create Service Item" %}
+                                {% endif %}
                             </button>
                         </div>
                     </form>
@@ -145,9 +154,9 @@
                 <div class="card-body">
                     <h6>{% trans "Service item workflow" %}</h6>
                     <ul class="small mb-0">
-                        <li>{% trans "This form creates both the service item and its first price entry." %}</li>
-                        <li>{% trans "If you leave Service Category blank, the default Services category will be used." %}</li>
-                        <li>{% trans "Service items appear in the same Price List as hardware items and can be filtered by Type." %}</li>
+                        <li>{% trans "This form stores the service definition separately from hardware asset models." %}</li>
+                        <li>{% trans "Service items still appear in the same price list and quotation selector as hardware items." %}</li>
+                        <li>{% trans "Use Service Group to keep related offerings together without placing them in the Assets app." %}</li>
                     </ul>
                 </div>
             </div>

@@ -174,8 +174,7 @@ def workflow_dashboard_view(request):
     denied_response = _ensure_order_management_access(request)
     if denied_response:
         return denied_response
-    quotation_stage_qs = Quotation.objects.filter(status__in=['draft', 'sent']).select_related('customer').order_by('-created_at')
-    confirmed_stage_qs = Quotation.objects.filter(status='confirmed').select_related('customer').order_by('-created_at')
+    quotation_stage_qs = Quotation.objects.filter(status__in=['draft', 'sent', 'confirmed']).select_related('customer').order_by('-created_at')
     purchased_stage_qs = PurchaseOrder.objects.select_related('quotation', 'quotation__customer').order_by('-created_at')
     dispatched_stage_qs = DeliveryOrder.objects.filter(status='dispatched').select_related('quotation', 'quotation__customer').order_by('-created_at')
     delivered_stage_qs = DeliveryOrder.objects.filter(status='completed').select_related('quotation', 'quotation__customer').order_by('-created_at')
@@ -188,13 +187,6 @@ def workflow_dashboard_view(request):
             'count': quotation_stage_qs.count(),
             'value': quotation_stage_qs.aggregate(total=Sum('total_with_tax')).get('total') or 0,
             'items': quotation_stage_qs[:8],
-        },
-        {
-            'key': 'confirmed',
-            'title': 'Confirmed',
-            'count': confirmed_stage_qs.count(),
-            'value': confirmed_stage_qs.aggregate(total=Sum('total_with_tax')).get('total') or 0,
-            'items': confirmed_stage_qs[:8],
         },
         {
             'key': 'purchased',

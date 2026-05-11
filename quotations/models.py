@@ -10,7 +10,7 @@ import datetime
 
 from accounts.models import ReceivedEmailMessage
 from companies.models import Company
-from products.models import ProductPrice
+from products.models import ProductPrice, ServiceItem
 
 
 class Quotation(models.Model):
@@ -211,6 +211,14 @@ class QuotationItem(models.Model):
         related_name='quotation_items',
         verbose_name=_('Product Price')
     )
+    service_item = models.ForeignKey(
+        ServiceItem,
+        on_delete=models.SET_NULL,
+        related_name='quotation_items',
+        null=True,
+        blank=True,
+        verbose_name=_('Service Item')
+    )
 
     # Snapshot of product info at time of quote
     brand_name = models.CharField(
@@ -299,13 +307,15 @@ class QuotationItem(models.Model):
 
     def save(self, *args, **kwargs):
         # Copy product info from ProductPrice if not set
-        if self.product_price and not self.brand_name:
-            self.brand_name = self.product_price.brand.name
-            self.product_description = self.product_price.model.description or self.product_price.model.name
-            self.model_number = self.product_price.model.model_number or ''
-            self.unit = self.product_price.unit
-            self.unit_price = self.product_price.price_without_tax
-            self.tax_rate = self.product_price.tax_rate
+        if self.product_price:
+            self.service_item = self.product_price.service_item if self.product_price.service_item_id else None
+            if not self.brand_name:
+                self.brand_name = self.product_price.display_brand_name
+                self.product_description = self.product_price.display_description
+                self.model_number = self.product_price.display_model_number
+                self.unit = self.product_price.display_unit
+                self.unit_price = self.product_price.price_without_tax
+                self.tax_rate = self.product_price.tax_rate
 
         # Calculate line totals
         self.price_without_tax = self.unit_price * self.quantity

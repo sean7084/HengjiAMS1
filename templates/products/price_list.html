@@ -181,16 +181,16 @@
                                 {% for price in prices %}
                                 <tr>
                                     <td>
-                                        {% if price.model.category_id and price.model.category.item_type == 'service' %}
+                                        {% if price.is_service %}
                                         <span class="badge text-bg-info">{% trans "Service" %}</span>
                                         {% else %}
                                         <span class="badge text-bg-secondary">{% trans "Hardware" %}</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ price.brand.name }}</td>
-                                    <td>{{ price.model.name }}</td>
-                                    <td>{{ price.model.model_number|default:"-" }}</td>
-                                    <td>{{ price.unit }}</td>
+                                    <td>{{ price.display_brand_name|default:"-" }}</td>
+                                    <td>{{ price.display_name|default:"-" }}</td>
+                                    <td>{{ price.display_model_number|default:"-" }}</td>
+                                    <td>{{ price.display_unit }}</td>
                                     <td class="price-display">¥{{ price.price_without_tax|floatformat:2 }}</td>
                                     <td>{{ price.tax_rate }}%</td>
                                     <td class="price-with-tax">¥{{ price.price_with_tax|floatformat:2 }}</td>
@@ -202,7 +202,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{% url 'products:price_edit' price.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{% if price.is_service %}{% url 'products:service_price_edit' price.pk %}{% else %}{% url 'products:price_edit' price.pk %}{% endif %}" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="{% url 'products:price_delete' price.pk %}" class="btn btn-sm btn-outline-danger">

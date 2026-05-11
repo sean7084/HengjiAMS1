@@ -15,7 +15,14 @@ from quotations.models import Quotation
 
 from .forms import DeliveryOrderForm, SignedCopyUploadForm
 from .models import DeliveryItem, DeliveryOrder
-from .services import get_dispatch_asset_queryset, render_delivery_pdf_html
+from .services import (
+    build_dispatch_asset_assignments,
+    create_delivery_items_from_asset_assignments,
+    get_dispatch_asset_queryset,
+    render_delivery_pdf_html,
+    split_quotation_items_for_delivery,
+    sync_service_delivery_items,
+)
 
 
 class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -76,7 +83,7 @@ class DeliveryOrderDetailView(OrderManagementAccessMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['items'] = self.object.items.select_related('asset').all()
+        context['items'] = self.object.items.select_related('asset', 'quotation_item').all()
         context['upload_form'] = SignedCopyUploadForm(instance=self.object)
         return context
 
@@ -92,10 +99,15 @@ def delivery_create_view(request, quotation_pk):
         pk=quotation_pk,
     )
 
+    hardware_items, service_items = split_quotation_items_for_delivery(quotation)
     available_assets = get_dispatch_asset_queryset(quotation)
 
-    if not available_assets.exists():
-        messages.error(request, 'No available assets found for this quotation.')
+    if hardware_items and not available_assets.exists():
+        messages.error(request, 'No available assets found for the hardware items in this quotation.')
+        return redirect(reverse('dashboard:workflow_dashboard'))
+
+    if not hardware_items and not service_items:
+        messages.error(request, 'This quotation has no deliverable items.')
         return redirect(reverse('dashboard:workflow_dashboard'))
 
     initial_data = {
@@ -113,18 +125,21 @@ def delivery_create_view(request, quotation_pk):
         form = DeliveryOrderForm(request.POST, quotation=quotation)
         if form.is_valid():
             try:
+                selected_assets = list(form.cleaned_data['selected_assets'])
+                assignments = build_dispatch_asset_assignments(quotation, selected_assets)
+                if assignments is None:
+                    raise ValidationError('Selected assets do not fully cover the hardware items in this quotation.')
+                assigned_count = sum(len(assets) for _, assets in assignments)
+                if assigned_count != len(selected_assets):
+                    raise ValidationError('Selected assets do not match the quotation hardware quantities.')
+
                 with transaction.atomic():
                     delivery = form.save(commit=False)
                     delivery.quotation = quotation
                     delivery.save()
 
-                    selected_assets = form.cleaned_data['selected_assets']
-                    for asset in selected_assets:
-                        DeliveryItem.objects.create(
-                            delivery_order=delivery,
-                            asset=asset,
-                            quantity=1,
-                        )
+                    create_delivery_items_from_asset_assignments(delivery, assignments)
+                    sync_service_delivery_items(delivery)
             except ValidationError as exc:
                 form.add_error('selected_assets', '; '.join(exc.messages))
             else:
@@ -140,29 +155,9 @@ def delivery_create_view(request, quotation_pk):
             'form': form,
             'quotation': quotation,
             'available_assets': available_assets,
+            'service_items': service_items,
         },
     )
-
-
-def mark_prepared(request, pk):
-    """Mark delivery as prepared."""
-    if not request.user.can_manage_orders():
-        messages.error(request, 'You do not have access to Order Management.')
-        return redirect('dashboard:dashboard')
-
-    if request.method != 'POST':
-        messages.warning(request, 'Invalid request method.')
-        return redirect('deliveries:detail', pk=pk)
-
-    delivery = get_object_or_404(DeliveryOrder, pk=pk)
-    if delivery.status != DeliveryOrder.Status.PENDING:
-        messages.warning(request, 'Only pending deliveries can be marked prepared.')
-        return redirect('deliveries:detail', pk=pk)
-
-    delivery.status = DeliveryOrder.Status.PREPARED
-    delivery.save(update_fields=['status', 'updated_at'])
-    messages.success(request, f'{delivery.delivery_number} is now prepared.')
-    return redirect('deliveries:detail', pk=pk)
 
 
 def mark_dispatched(request, pk):
@@ -176,11 +171,13 @@ def mark_dispatched(request, pk):
         return redirect('deliveries:detail', pk=pk)
 
     delivery = get_object_or_404(DeliveryOrder.objects.prefetch_related('items__asset'), pk=pk)
-    if delivery.status not in {DeliveryOrder.Status.PENDING, DeliveryOrder.Status.PREPARED}:
-        messages.warning(request, 'Only pending or prepared deliveries can be dispatched.')
+    if delivery.status != DeliveryOrder.Status.PENDING:
+        messages.warning(request, 'Only pending deliveries can be dispatched.')
         return redirect('deliveries:detail', pk=pk)
 
     for item in delivery.items.all():
+        if not item.asset_id:
+            continue
         if item.asset.status != Asset.AssetStatus.AVAILABLE:
             messages.error(
                 request,
@@ -190,6 +187,8 @@ def mark_dispatched(request, pk):
 
     with transaction.atomic():
         for item in delivery.items.all():
+            if not item.asset_id:
+                continue
             asset = item.asset
             asset.status = Asset.AssetStatus.ASSIGNED
             asset.save(update_fields=['status', 'updated_at'])
@@ -245,6 +244,8 @@ def mark_completed(request, pk):
 
     with transaction.atomic():
         for item in delivery.items.all():
+            if not item.asset_id:
+                continue
             asset = item.asset
             asset.status = Asset.AssetStatus.IN_USE
             asset.save(update_fields=['status', 'updated_at'])
@@ -252,7 +253,7 @@ def mark_completed(request, pk):
         delivery.status = DeliveryOrder.Status.COMPLETED
         delivery.save(update_fields=['status', 'updated_at'])
 
-    messages.success(request, f'{delivery.delivery_number} marked as completed.')
+    messages.success(request, f'{delivery.delivery_number} marked as delivered.')
     return redirect('deliveries:detail', pk=pk)
 
 

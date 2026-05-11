@@ -28,7 +28,20 @@ from decimal import Decimal, InvalidOperation
 from collections import OrderedDict
 
 from .models import Asset, AssetCategory, AssetBrand, AssetModel, AssetAssignment, AssetMaintenance
-from .forms import AssetForm, AssetSearchForm, AssetAssignmentForm, AssetImportForm, AssetExportForm, BrandForm, CategoryForm, ModelForm, AssetBulkEditForm
+from .forms import (
+    AssetAssignmentForm,
+    AssetBulkEditForm,
+    AssetExportForm,
+    AssetForm,
+    AssetImportForm,
+    AssetSearchForm,
+    BrandForm,
+    CategoryForm,
+    ModelForm,
+    hardware_brand_queryset,
+    hardware_category_queryset,
+    hardware_model_queryset,
+)
 from companies.models import Company, Division, Location, ImportRunChange
 from audit.models import AuditLog
 from utils.csv_import import read_csv_rows_with_fallback
@@ -88,6 +101,10 @@ def _get_accessible_asset_log_queryset(user):
     return queryset.filter(company__in=user.get_accessible_companies())
 
 
+def _get_accessible_hardware_assets(user):
+    return user.get_accessible_assets().exclude(category__item_type=AssetCategory.ItemType.SERVICE)
+
+
 class AssetChangeLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     """List asset-related audit log entries."""
 
@@ -144,7 +161,7 @@ class AssetChangeLogDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 
         related_asset = None
         if audit_log.content_type and audit_log.content_type.model == 'asset' and audit_log.object_id:
-            related_asset = self.request.user.get_accessible_assets().filter(pk=audit_log.object_id).first()
+            related_asset = _get_accessible_hardware_assets(self.request.user).filter(pk=audit_log.object_id).first()
 
         context['related_asset'] = related_asset
         context['related_asset_url'] = reverse('assets:asset_detail', kwargs={'pk': related_asset.pk}) if related_asset else None
@@ -162,7 +179,7 @@ class AssetListView(LoginRequiredMixin, ListView):
         return bool((self.request.GET.get('drill_ids') or '').strip())
 
     def _build_base_queryset(self):
-        queryset = self.request.user.get_accessible_assets().select_related(
+        queryset = _get_accessible_hardware_assets(self.request.user).select_related(
             'category', 'brand', 'model', 'company', 'assigned_to', 'location'
         )
 
@@ -267,7 +284,7 @@ class AssetListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = AssetCategory.objects.filter(is_active=True)
+        context['categories'] = hardware_category_queryset().order_by('name')
         context['locations'] = Location.objects.filter(status='active')
         context['search_form'] = AssetSearchForm(self.request.GET)
         context['status_choices'] = Asset.AssetStatus.choices
@@ -320,7 +337,7 @@ def asset_bulk_edit_view(request):
         return _redirect_to_list()
 
     selected_ids = form.cleaned_data['asset_ids']
-    accessible_assets = request.user.get_accessible_assets().filter(pk__in=selected_ids)
+    accessible_assets = _get_accessible_hardware_assets(request.user).filter(pk__in=selected_ids)
     asset_map = {str(asset.pk): asset for asset in accessible_assets}
     ordered_assets = [asset_map[asset_id] for asset_id in selected_ids if asset_id in asset_map]
 
@@ -374,7 +391,7 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'asset'
     
     def get_object(self):
-        accessible_assets = self.request.user.get_accessible_assets()
+        accessible_assets = _get_accessible_hardware_assets(self.request.user)
         obj = get_object_or_404(accessible_assets, pk=self.kwargs['pk'])
         return obj
     
@@ -426,7 +443,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
         return None
 
     def _build_model_catalog(self):
-        models = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name')
+        models = hardware_model_queryset().select_related('brand', 'category').order_by('brand__name', 'name')
         return [
             {
                 'id': str(model.pk),
@@ -666,7 +683,7 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'assets/asset_form.html'
     
     def get_object(self):
-        accessible_assets = self.request.user.get_accessible_assets()
+        accessible_assets = _get_accessible_hardware_assets(self.request.user)
         return get_object_or_404(accessible_assets, pk=self.kwargs['pk'])
     
     def form_valid(self, form):
@@ -711,7 +728,7 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        models = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name')
+        models = hardware_model_queryset().select_related('brand', 'category').order_by('brand__name', 'name')
         context['model_catalog'] = [
             {
                 'id': str(model.pk),
@@ -735,7 +752,7 @@ class AssetDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('assets:asset_list')
     
     def get_object(self):
-        accessible_assets = self.request.user.get_accessible_assets()
+        accessible_assets = _get_accessible_hardware_assets(self.request.user)
         return get_object_or_404(accessible_assets, pk=self.kwargs['pk'])
     
     def delete(self, request, *args, **kwargs):
@@ -768,7 +785,7 @@ class AssetDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def asset_assign_view(request, pk):
     """Assign asset to a user."""
-    accessible_assets = request.user.get_accessible_assets()
+    accessible_assets = _get_accessible_hardware_assets(request.user)
     asset = get_object_or_404(accessible_assets, pk=pk)
     
     if request.method == 'POST':
@@ -827,7 +844,7 @@ def asset_assign_view(request, pk):
 @login_required
 def asset_return_view(request, pk):
     """Return asset from current assignment."""
-    accessible_assets = request.user.get_accessible_assets()
+    accessible_assets = _get_accessible_hardware_assets(request.user)
     asset = get_object_or_404(accessible_assets, pk=pk)
     
     current_assignment = AssetAssignment.objects.filter(
@@ -877,7 +894,7 @@ def asset_return_view(request, pk):
 @login_required
 def asset_export_view(request):
     """View for asset export with filters and format selection."""
-    accessible_assets = request.user.get_accessible_assets().select_related(
+    accessible_assets = _get_accessible_hardware_assets(request.user).select_related(
         'category', 'brand', 'model', 'assigned_to', 'location'
     )
 
@@ -1151,7 +1168,7 @@ def asset_export_csv(request):
         'Warranty End Date', 'Created At'
     ])
     
-    assets = request.user.get_accessible_assets().select_related(
+    assets = _get_accessible_hardware_assets(request.user).select_related(
         'category', 'brand', 'model', 'assigned_to', 'location'
     )
     
@@ -1187,12 +1204,12 @@ def asset_export_csv(request):
 @login_required
 def asset_stats_api(request):
     """API endpoint for asset statistics (for dashboard charts)."""
-    company = request.user.company
+    accessible_assets = _get_accessible_hardware_assets(request.user)
     
     # Status distribution
     status_stats = {}
     for status, label in Asset.AssetStatus.choices:
-        count = Asset.objects.filter(company=company, status=status).count()
+        count = accessible_assets.filter(status=status).count()
         status_stats[status] = {
             'label': label,
             'count': count
@@ -1200,7 +1217,7 @@ def asset_stats_api(request):
     
     # Category distribution
     category_stats = list(
-        Asset.objects.filter(company=company)
+        accessible_assets
         .values('category__name')
         .annotate(count=Count('id'))
         .order_by('-count')[:10]
@@ -1208,7 +1225,7 @@ def asset_stats_api(request):
     
     # Location distribution
     location_stats = list(
-        Asset.objects.filter(company=company)
+        accessible_assets
         .values('current_location')
         .annotate(count=Count('id'))
         .order_by('-count')[:10]
@@ -1225,8 +1242,7 @@ def asset_stats_api(request):
         month_start = current_date - relativedelta(months=i)
         month_end = month_start + relativedelta(months=1) - relativedelta(days=1)
         
-        count = Asset.objects.filter(
-            company=company,
+        count = accessible_assets.filter(
             created_at__date__gte=month_start,
             created_at__date__lte=month_end
         ).count()
@@ -1573,7 +1589,7 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
             result['errors'].append(_('Category is required.'))
         else:
             try:
-                category = AssetCategory.objects.get(name__iexact=category_name)
+                category = hardware_category_queryset().get(name__iexact=category_name)
                 asset_fields['category'] = category
             except AssetCategory.DoesNotExist:
                 result['errors'].append(
@@ -1599,7 +1615,7 @@ def process_asset_row(row_data, row_num, company, asset_number_mode,
             if 'brand' not in asset_fields or 'category' not in asset_fields:
                 result['errors'].append(_('Model requires valid category and brand.'))
             else:
-                model_qs = AssetModel.objects.filter(
+                model_qs = hardware_model_queryset().filter(
                     name__iexact=model_name,
                     brand=asset_fields['brand'],
                 )
@@ -1809,7 +1825,7 @@ class CategoryListView(LoginRequiredMixin, ListView):
     ordering = ['name']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().exclude(item_type=AssetCategory.ItemType.SERVICE)
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
@@ -1873,7 +1889,7 @@ class BrandListView(LoginRequiredMixin, ListView):
     ordering = ['name']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = hardware_brand_queryset()
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
@@ -1937,7 +1953,7 @@ class ModelListView(LoginRequiredMixin, ListView):
     ordering = ['brand__name', 'name']
 
     def get_queryset(self):
-        queryset = super().get_queryset().select_related('brand')
+        queryset = hardware_model_queryset().select_related('brand', 'category')
         search = self.request.GET.get('search')
         brand_id = self.request.GET.get('brand')
         unit = self.request.GET.get('unit')
@@ -1961,10 +1977,10 @@ class ModelListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_query'] = self.request.GET.get('search', '')
-        context['brands'] = AssetBrand.objects.filter(is_active=True).order_by('name')
+        context['brands'] = hardware_brand_queryset().order_by('name')
         context['selected_brand'] = self.request.GET.get('brand', '')
         context['selected_unit'] = self.request.GET.get('unit', '')
-        context['units'] = AssetModel.objects.exclude(unit='').values_list('unit', flat=True).distinct().order_by('unit')
+        context['units'] = hardware_model_queryset().exclude(unit='').values_list('unit', flat=True).distinct().order_by('unit')
         return context
 
 
@@ -1981,7 +1997,7 @@ class ModelCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['brands'] = AssetBrand.objects.filter(is_active=True).order_by('name')
+        context['brands'] = hardware_brand_queryset().order_by('name')
         return context
 
 
@@ -2002,7 +2018,7 @@ class ModelUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['brands'] = AssetBrand.objects.filter(is_active=True).order_by('name')
+        context['brands'] = hardware_brand_queryset().order_by('name')
         return context
 
 
@@ -2057,7 +2073,7 @@ def brands_models_view(request):
     brand_id = request.GET.get('brand', '').strip()
     unit = request.GET.get('unit', '').strip()
 
-    models_qs = AssetModel.objects.select_related('brand').order_by('brand__name', 'name')
+    models_qs = hardware_model_queryset().select_related('brand', 'category').order_by('brand__name', 'name')
     if search:
         models_qs = models_qs.filter(
             Q(name__icontains=search)
@@ -2070,14 +2086,14 @@ def brands_models_view(request):
     if unit:
         models_qs = models_qs.filter(unit__iexact=unit)
 
-    brands = AssetBrand.objects.filter(models__in=models_qs).distinct().order_by('name')
+    brands = hardware_brand_queryset().filter(models__in=models_qs).distinct().order_by('name')
     context = {
         'brands': brands,
         'models': models_qs,
         'search_query': search,
         'selected_brand': brand_id,
         'selected_unit': unit,
-        'brand_filter_options': AssetBrand.objects.filter(is_active=True).order_by('name'),
-        'unit_filter_options': AssetModel.objects.exclude(unit='').values_list('unit', flat=True).distinct().order_by('unit'),
+        'brand_filter_options': hardware_brand_queryset().order_by('name'),
+        'unit_filter_options': hardware_model_queryset().exclude(unit='').values_list('unit', flat=True).distinct().order_by('unit'),
     }
     return render(request, 'assets/brands_models.html', context)

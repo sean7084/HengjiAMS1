@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-f(g_zcqk%xwx=g3#lnyp=@$c+r%cj=aw8xpr(*=4wc=iwq+!i4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Allow all hosts for development
 
 MINIMAX_TOKEN_PLAN_KEY = os.environ.get('minimax_token_plan_key', '')
 MINIMAX_RFQ_API_URL = os.environ.get('MINIMAX_RFQ_API_URL', 'https://api.minimaxi.com/anthropic/v1/messages')

@@ -19,13 +19,100 @@ from weasyprint import HTML
 INTERNAL_WAREHOUSE_LOCATION_ID = 3
 
 
+def is_service_quotation_item(item):
+    if getattr(item, 'service_item_id', None):
+        return True
+    product_price = getattr(item, 'product_price', None)
+    return bool(getattr(product_price, 'service_item_id', None))
+
+
+def split_quotation_items_for_delivery(quotation):
+    hardware_items = []
+    service_items = []
+
+    if quotation is None:
+        return hardware_items, service_items
+
+    quotation_items = quotation.items.select_related(
+        'product_price__brand',
+        'product_price__model__category',
+        'product_price__service_item',
+        'service_item',
+    )
+    for item in quotation_items:
+        if is_service_quotation_item(item):
+            service_items.append(item)
+        else:
+            hardware_items.append(item)
+
+    return hardware_items, service_items
+
+
+def build_dispatch_asset_assignments(quotation, assets):
+    hardware_items, _ = split_quotation_items_for_delivery(quotation)
+    available_assets_by_key = {}
+    for asset in assets:
+        available_assets_by_key.setdefault((asset.brand_id, asset.model_id), []).append(asset)
+
+    assignments = []
+    for item in hardware_items:
+        if not item.product_price_id or not item.product_price.brand_id or not item.product_price.model_id:
+            return None
+
+        key = (item.product_price.brand_id, item.product_price.model_id)
+        matching_assets = available_assets_by_key.get(key, [])
+        if len(matching_assets) < item.quantity:
+            return None
+
+        selected_assets = matching_assets[:item.quantity]
+        available_assets_by_key[key] = matching_assets[item.quantity:]
+        assignments.append((item, selected_assets))
+
+    return assignments
+
+
+def create_delivery_items_from_asset_assignments(delivery_order, assignments):
+    from .models import DeliveryItem
+
+    for quotation_item, assets in assignments:
+        for asset in assets:
+            DeliveryItem.objects.create(
+                delivery_order=delivery_order,
+                asset=asset,
+                quotation_item=quotation_item,
+                quantity=1,
+                user_brand=quotation_item.user_brand,
+                user_name=quotation_item.user_name,
+            )
+
+
+def sync_service_delivery_items(delivery_order):
+    from .models import DeliveryItem
+
+    _, service_items = split_quotation_items_for_delivery(delivery_order.quotation)
+    for quotation_item in service_items:
+        DeliveryItem.objects.update_or_create(
+            delivery_order=delivery_order,
+            asset=None,
+            quotation_item=quotation_item,
+            defaults={
+                'serial_number': '',
+                'brand_name': quotation_item.brand_name,
+                'product_description': quotation_item.product_description,
+                'user_brand': quotation_item.user_brand,
+                'user_name': quotation_item.user_name,
+                'quantity': quotation_item.quantity,
+            },
+        )
+
+
 def get_dispatch_asset_queryset(quotation):
     if quotation is None:
         return Asset.objects.none()
 
     item_filters = Q()
-    quotation_items = quotation.items.select_related('product_price__brand', 'product_price__model')
-    for item in quotation_items:
+    hardware_items, _ = split_quotation_items_for_delivery(quotation)
+    for item in hardware_items:
         if not item.product_price_id or not item.product_price.brand_id or not item.product_price.model_id:
             continue
         item_filters |= Q(brand_id=item.product_price.brand_id, model_id=item.product_price.model_id)
@@ -35,7 +122,6 @@ def get_dispatch_asset_queryset(quotation):
 
     active_delivery_statuses = [
         DeliveryOrder.Status.PENDING,
-        DeliveryOrder.Status.PREPARED,
         DeliveryOrder.Status.DISPATCHED,
     ]
 

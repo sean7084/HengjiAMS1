@@ -55,13 +55,22 @@
 
             <div class="col-lg-6">
                 <div class="card mb-4">
-                    <div class="card-header"><h5 class="card-title mb-0">{% trans "Select Assets (Serial Numbers)" %}</h5></div>
+                    <div class="card-header"><h5 class="card-title mb-0">{% trans "Select Hardware Assets (Serial Numbers)" %}</h5></div>
                     <div class="card-body">
+                        {% if service_items %}
+                        <div class="alert alert-info py-2 small">
+                            {% trans "Service lines from the quotation will be added to the delivery automatically." %}
+                        </div>
+                        {% endif %}
+                        {% if available_assets %}
                         <p class="text-muted small">{% trans "Only available assets from this quotation can be selected." %}</p>
                         <div class="border rounded p-2" style="max-height: 500px; overflow-y: auto;">
                             {{ form.selected_assets.errors }}
                             {{ form.selected_assets }}
                         </div>
+                        {% else %}
+                        <p class="text-muted small mb-0">{% trans "No hardware asset selection is required for this delivery." %}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

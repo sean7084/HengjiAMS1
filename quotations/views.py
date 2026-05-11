@@ -15,7 +15,13 @@ from decimal import Decimal, InvalidOperation
 import datetime
 
 from companies.models import Company, CompanyUser
-from deliveries.services import get_dispatch_asset_queryset
+from deliveries.services import (
+    build_dispatch_asset_assignments,
+    create_delivery_items_from_asset_assignments,
+    get_dispatch_asset_queryset,
+    split_quotation_items_for_delivery,
+    sync_service_delivery_items,
+)
 from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
 from .forms import QuotationForm, QuotationItemForm
@@ -264,10 +270,11 @@ def _build_customer_user_context(customers):
 
 
 def _apply_product_price_snapshot(item, product_price):
-    item.brand_name = product_price.brand.name if product_price.brand_id else ''
-    item.product_description = product_price.model.description or product_price.model.name if product_price.model_id else ''
-    item.model_number = product_price.model.model_number or '' if product_price.model_id else ''
-    item.unit = product_price.unit or (product_price.model.unit if product_price.model_id else '')
+    item.service_item = product_price.service_item if product_price.service_item_id else None
+    item.brand_name = product_price.display_brand_name
+    item.product_description = product_price.display_description
+    item.model_number = product_price.display_model_number
+    item.unit = product_price.display_unit
     return item
 
 
@@ -278,8 +285,17 @@ def _get_latest_delivery_order(quotation):
     return quotation.delivery_orders.order_by('-created_at').first()
 
 
+def _can_dispatch_quotation_directly(quotation):
+    assignments = _allocate_internal_assets_for_quotation(quotation)
+    return assignments is not None
+
+
 def _create_or_get_purchase_order_from_quotation(quotation):
     from purchases.models import PurchaseOrder, PurchaseOrderItem
+
+    purchasable_items, _ = split_quotation_items_for_delivery(quotation)
+    if not purchasable_items:
+        return None, False, 0
 
     purchase_order, created = PurchaseOrder.objects.get_or_create(
         quotation=quotation,
@@ -289,7 +305,7 @@ def _create_or_get_purchase_order_from_quotation(quotation):
     )
 
     created_items = 0
-    for item in quotation.items.select_related('product_price__brand', 'product_price__model'):
+    for item in purchasable_items:
         _, item_created = PurchaseOrderItem.objects.get_or_create(
             purchase_order=purchase_order,
             quotation_item=item,
@@ -311,33 +327,15 @@ def _create_or_get_purchase_order_from_quotation(quotation):
 
 
 def _allocate_internal_assets_for_quotation(quotation):
-    available_assets_by_key = {}
-    for asset in get_dispatch_asset_queryset(quotation):
-        available_assets_by_key.setdefault((asset.brand_id, asset.model_id), []).append(asset)
-
-    assignments = []
-    quotation_items = list(quotation.items.select_related('product_price__brand', 'product_price__model').all())
-    for item in quotation_items:
-        if not item.product_price_id or not item.product_price.brand_id or not item.product_price.model_id:
-            return None
-
-        key = (item.product_price.brand_id, item.product_price.model_id)
-        matching_assets = available_assets_by_key.get(key, [])
-        if len(matching_assets) < item.quantity:
-            return None
-
-        selected_assets = matching_assets[:item.quantity]
-        available_assets_by_key[key] = matching_assets[item.quantity:]
-        assignments.append((item, selected_assets))
-
-    return assignments
+    return build_dispatch_asset_assignments(quotation, get_dispatch_asset_queryset(quotation))
 
 
-def _create_delivery_order_from_internal_stock(quotation, assignments):
-    from deliveries.models import DeliveryItem, DeliveryOrder
+def _create_delivery_order_from_direct_dispatch(quotation, assignments):
+    from deliveries.models import DeliveryOrder
 
     existing_delivery = _get_latest_delivery_order(quotation)
     if existing_delivery:
+        sync_service_delivery_items(existing_delivery)
         return existing_delivery, False
 
     customer_info = quotation.get_customer_info()
@@ -348,18 +346,11 @@ def _create_delivery_order_from_internal_stock(quotation, assignments):
         receiver_phone=customer_info.get('tel') or quotation.tel or '',
         delivery_address=customer_info.get('delivery_address') or quotation.customer.get_full_address(),
         delivery_method='',
-        remarks='Created automatically from confirmed quotation using internal warehouse stock.',
+        remarks='Created automatically from confirmed quotation for direct dispatch.',
     )
 
-    for quotation_item, assets in assignments:
-        for asset in assets:
-            DeliveryItem.objects.create(
-                delivery_order=delivery_order,
-                asset=asset,
-                quantity=1,
-                user_brand=quotation_item.user_brand,
-                user_name=quotation_item.user_name,
-            )
+    create_delivery_items_from_asset_assignments(delivery_order, assignments)
+    sync_service_delivery_items(delivery_order)
 
     return delivery_order, True
 
@@ -404,6 +395,11 @@ class QuotationListView(OrderManagementAccessMixin, ListView):
         context['customers'] = Company.objects.filter(status='active').order_by('name')
         for quotation in context['quotations']:
             quotation.current_delivery_order = _get_latest_delivery_order(quotation)
+            quotation.can_dispatch_directly = (
+                quotation.status == Quotation.QuotationStatus.CONFIRMED
+                and quotation.current_delivery_order is None
+                and _can_dispatch_quotation_directly(quotation)
+            )
         return context
 
 
@@ -419,6 +415,11 @@ class QuotationDetailView(OrderManagementAccessMixin, DetailView):
         context['attachments'] = self.object.attachments.all()
         context['purchase_order'] = getattr(self.object, 'purchase_order', None)
         context['current_delivery_order'] = _get_latest_delivery_order(self.object)
+        context['can_dispatch_directly'] = (
+            self.object.status == Quotation.QuotationStatus.CONFIRMED
+            and context['current_delivery_order'] is None
+            and _can_dispatch_quotation_directly(self.object)
+        )
         context['auto_download_pdf'] = self.request.GET.get('download_pdf') == '1'
         rfq_extracted_data = getattr(self.object.source_email_message, 'rfq_extracted_data', {}) if self.object.source_email_message_id else {}
         item_matching = rfq_extracted_data.get('item_matching') or {}
@@ -449,7 +450,7 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
         customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user', 'locations__contact__user').order_by('name')
         company_users_by_customer, company_codes, authorized_attention_contacts = _build_customer_user_context(customers)
         context['customers'] = customers
-        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model').order_by('brand__name', 'model__name')
+        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model', 'service_item').order_by('service_item__name', 'brand__name', 'model__name')
         context['company_users_by_customer'] = company_users_by_customer
         context['company_codes'] = company_codes
         context['authorized_attention_contacts'] = authorized_attention_contacts
@@ -518,7 +519,7 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
                 tax_rate = None
 
             try:
-                product_price = ProductPrice.objects.select_related('brand', 'model').get(pk=product_price_id)
+                product_price = ProductPrice.objects.select_related('brand', 'model', 'service_item').get(pk=product_price_id)
                 quantity = int(quantity)
                 if user_name and not _customer_has_location_label(quotation.customer, user_name):
                     _ensure_company_user(quotation.customer, user_name, '')
@@ -553,7 +554,7 @@ class QuotationUpdateView(UpdateView):
         customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user', 'locations__contact__user').order_by('name')
         company_users_by_customer, company_codes, authorized_attention_contacts = _build_customer_user_context(customers)
         context['customers'] = customers
-        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model').order_by('brand__name', 'model__name')
+        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model', 'service_item').order_by('service_item__name', 'brand__name', 'model__name')
         context['company_users_by_customer'] = company_users_by_customer
         context['company_codes'] = company_codes
         context['authorized_attention_contacts'] = authorized_attention_contacts
@@ -606,7 +607,7 @@ class QuotationUpdateView(UpdateView):
             tax_rate = parts[6] if len(parts) > 6 else None
 
             try:
-                product_price = ProductPrice.objects.select_related('brand', 'model').get(pk=product_price_id)
+                product_price = ProductPrice.objects.select_related('brand', 'model', 'service_item').get(pk=product_price_id)
                 quantity = int(quantity)
 
                 if marker.startswith('item_'):
@@ -697,6 +698,7 @@ def duplicate_quotation(request, pk):
             new_item = QuotationItem(
                 quotation=new_quotation,
                 product_price=item.product_price,
+                service_item=item.service_item,
                 brand_name=item.brand_name,
                 product_description=item.product_description,
                 model_number=item.model_number,
@@ -737,6 +739,13 @@ def confirm_quotation(request, pk):
         messages.info(request, f'Quotation {quotation.quotation_number} is already linked to delivery order {existing_delivery.delivery_number}.')
         return redirect('deliveries:detail', pk=existing_delivery.pk)
 
+    assignments = _allocate_internal_assets_for_quotation(quotation)
+    if assignments is not None:
+        with transaction.atomic():
+            delivery_order, _ = _create_delivery_order_from_direct_dispatch(quotation, assignments)
+        messages.success(request, f'Quotation {quotation.quotation_number} confirmed and delivery order {delivery_order.delivery_number} was created directly.')
+        return redirect('deliveries:detail', pk=delivery_order.pk)
+
     purchase_order = getattr(quotation, 'purchase_order', None)
     if purchase_order:
         messages.info(request, f'Quotation {quotation.quotation_number} is already linked to purchase order {purchase_order.po_number}.')
@@ -745,13 +754,11 @@ def confirm_quotation(request, pk):
         return redirect('purchases:receive', pk=purchase_order.pk)
 
     with transaction.atomic():
-        assignments = _allocate_internal_assets_for_quotation(quotation)
-        if assignments:
-            delivery_order, _ = _create_delivery_order_from_internal_stock(quotation, assignments)
-            messages.success(request, f'Quotation {quotation.quotation_number} confirmed and delivery order {delivery_order.delivery_number} was created from internal stock.')
-            return redirect('deliveries:detail', pk=delivery_order.pk)
-
         purchase_order, created, created_items = _create_or_get_purchase_order_from_quotation(quotation)
+
+    if purchase_order is None:
+        messages.error(request, f'Quotation {quotation.quotation_number} has no purchasable lines and could not be dispatched directly.')
+        return redirect('quotations:detail', pk=quotation.pk)
 
     if created_items:
         messages.success(request, f'Quotation {quotation.quotation_number} confirmed and purchase order {purchase_order.po_number} was created with {created_items} line(s).')
@@ -834,7 +841,17 @@ def convert_to_purchase(request, pk):
         return redirect('deliveries:detail', pk=existing_delivery.pk)
 
     with transaction.atomic():
+        assignments = _allocate_internal_assets_for_quotation(quotation)
+        if assignments is not None:
+            delivery_order, _ = _create_delivery_order_from_direct_dispatch(quotation, assignments)
+            messages.success(request, f'Quotation {quotation.quotation_number} can be dispatched directly. Delivery order {delivery_order.delivery_number} was created.')
+            return redirect('deliveries:detail', pk=delivery_order.pk)
+
         purchase_order, created, created_items = _create_or_get_purchase_order_from_quotation(quotation)
+
+    if purchase_order is None:
+        messages.error(request, f'Quotation {quotation.quotation_number} has no purchasable lines.')
+        return redirect('quotations:detail', pk=quotation.pk)
 
     if created_items:
         messages.success(request, f'Created purchase order {purchase_order.po_number} with {created_items} line(s).')

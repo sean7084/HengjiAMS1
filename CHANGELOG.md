@@ -1,5 +1,69 @@
 # HengJi Asset Management System (AMS) - Changelog
 
+## Release Notes v0.1.7
+
+**Version:** 0.1.7  
+**Release Date:** May 11, 2026  
+**Focus:** Separate service catalog adoption, direct-dispatch fulfillment, and hardware-only asset boundaries
+
+---
+
+### Highlights
+
+1. Services now live in a dedicated `products.ServiceItem` table while `products.ProductPrice` remains the unified price source across hardware and services.
+2. Confirmed quotations can now move straight to delivery when stock fully covers the hardware lines, and service-only quotations no longer create unnecessary purchase orders.
+3. Delivery orders now support asset-less service rows and use a simplified `Pending -> Dispatched -> Delivered` workflow.
+4. Asset-facing pages, exports, and catalog-management surfaces are now hardware-only, preventing legacy service records from leaking into the Assets app.
+5. Price-list, quotation, delivery, and workflow UI now label catalog type more clearly and expose service editing in the shared catalog flow.
+
+### Delivered Scope (35-file iteration)
+
+1. Separate service catalog and unified pricing
+- Added `products.ServiceItem` plus `ProductPrice` validation and constraints so each price row targets exactly one catalog object: `model` or `service_item`.
+- Added migrations to create/backfill service items from legacy service `AssetModel` records.
+- Added service price edit support, service-group suggestions, and mixed-catalog display helpers.
+- Updated RFQ AI matching and quotation snapshot generation to use hardware/service-safe display fields.
+
+2. Quotation selection and fulfillment orchestration
+- Updated quotation create/edit flows to present a unified hardware/service selector with explicit type filter and labels.
+- Added `QuotationItem.service_item` and wired quotation duplication/snapshot logic to preserve service associations.
+- Added direct-dispatch eligibility checks so confirmed quotations can create deliveries immediately when in-stock hardware fully matches.
+- Changed confirmed quotation actions from unconditional purchase creation to `Create Delivery` or `Continue Fulfillment` based on actual stock coverage.
+
+3. Service-aware delivery workflow
+- Removed the `prepared` delivery state from the active workflow and relabeled `completed` as `Delivered` in the UI.
+- Added `DeliveryItem.quotation_item` and nullable `asset` support so service lines can exist without asset records.
+- Updated delivery creation to auto-add service rows while keeping manual asset selection only for hardware lines.
+- Updated invoice rebuild logic and delivery templates to resolve mixed hardware/service delivery rows correctly.
+
+4. Hardware-only asset application cleanup
+- Centralized hardware-only category, brand, model, and accessible-asset querysets in asset forms and views.
+- Prevented service-category records from appearing in asset list/detail/edit/delete/export/stats flows and related asset audit links.
+- Restricted brands/models pages, filters, and export forms to hardware catalog data only.
+- Kept service catalog management inside Products instead of Assets.
+
+5. Workflow, dashboard, and UI polish
+- Updated workflow dashboard lane behavior and responsive grid sizing.
+- Refined product price list, quotation list/detail, and delivery detail/form actions to reflect mixed catalog types and direct delivery flow.
+- Renamed navigation wording for weekly Sharepoint batches and aligned delivery action labels with the simplified status model.
+- Added release-facing documentation updates for the new service catalog architecture.
+
+### Migration Files Added
+
+1. `deliveries/migrations/0002_deliveryitem_quotation_item_and_service_lines.py`
+2. `products/migrations/0003_serviceitem_alter_productprice_options_and_more.py`
+3. `products/migrations/0004_migrate_service_prices_to_service_items.py`
+4. `quotations/migrations/0006_quotationitem_service_item.py`
+5. `quotations/migrations/0007_backfill_quotationitem_service_item.py`
+
+### Validation
+
+1. `python manage.py check`
+2. `python manage.py makemigrations --check`
+3. Django shell smoke checks confirmed `ProductPrice` rows have no invalid mixed/null catalog target states after migration.
+4. Known direct-dispatch quotations (`QT-20260424-004` and `QT-20260429-006`) still resolve correctly and already own delivery orders.
+5. Asset smoke checks confirmed brand-list and asset-edit pages no longer render service names, and current asset-view grep checks show only the centralized hardware helper remains.
+
 ## Release Notes v0.1.6
 
 **Version:** 0.1.6  

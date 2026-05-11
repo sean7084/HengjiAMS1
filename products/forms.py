@@ -6,10 +6,11 @@ from decimal import Decimal, ROUND_HALF_UP
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 from assets.models import AssetCategory, AssetModel
 
-from .models import ProductPrice
+from .models import ProductPrice, ServiceItem
 
 
 class ProductPriceForm(forms.ModelForm):
@@ -98,12 +99,11 @@ class ProductPriceForm(forms.ModelForm):
 class ServicePriceForm(forms.Form):
     """Create a service item and its price in one step."""
 
-    category = forms.ModelChoiceField(
-        queryset=AssetCategory.objects.none(),
+    service_group = forms.CharField(
         required=False,
-        label=_('Service Category'),
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        help_text=_('Optional. Leave blank to use the default Services category.'),
+        label=_('Service Group'),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'list': 'service-group-options'}),
+        help_text=_('Optional. Use this to group related services in the catalog.'),
     )
     service_name = forms.CharField(
         label=_('Service Name'),
@@ -165,23 +165,34 @@ class ServicePriceForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        self.product_price = kwargs.pop('product_price', None)
+        self.service_item = getattr(self.product_price, 'service_item', None) if self.product_price else None
         super().__init__(*args, **kwargs)
-        self.fields['category'].queryset = AssetCategory.objects.filter(
-            is_active=True,
-            item_type=AssetCategory.ItemType.SERVICE,
-        ).order_by('name')
-        self.fields['category'].empty_label = _('Default Services category')
 
-        if not self.is_bound:
+        if not self.is_bound and self.service_item:
+            self.fields['service_group'].initial = self.service_item.service_group
+            self.fields['service_name'].initial = self.service_item.name
+            self.fields['description'].initial = self.service_item.description
+            self.fields['unit'].initial = self.service_item.unit
+            self.fields['price_without_tax'].initial = self.product_price.price_without_tax
+            self.fields['tax_rate'].initial = self.product_price.tax_rate
+            self.fields['price_with_tax'].initial = self.product_price.price_with_tax
+            self.fields['is_current'].initial = self.product_price.is_current
+            self.fields['valid_from'].initial = self.product_price.valid_from
+            self.fields['valid_until'].initial = self.product_price.valid_until
+            self.fields['notes'].initial = self.product_price.notes
+        elif not self.is_bound:
             self.fields['valid_from'].initial = timezone.localdate()
 
     def clean(self):
         cleaned_data = super().clean()
         price_without_tax = cleaned_data.get('price_without_tax')
         tax_rate = cleaned_data.get('tax_rate')
+        service_group = (cleaned_data.get('service_group') or '').strip()
         service_name = (cleaned_data.get('service_name') or '').strip()
         unit = (cleaned_data.get('unit') or '').strip()
 
+        cleaned_data['service_group'] = service_group
         if service_name:
             cleaned_data['service_name'] = service_name
         if unit:
@@ -193,27 +204,39 @@ class ServicePriceForm(forms.Form):
             calculated_price = price_without_tax * (Decimal('1') + (tax_rate / Decimal('100')))
             cleaned_data['price_with_tax'] = calculated_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
+        if self.service_item and cleaned_data.get('is_current'):
+            existing_current = ProductPrice.objects.filter(
+                service_item=self.service_item,
+                is_current=True,
+            )
+            if self.product_price:
+                existing_current = existing_current.exclude(pk=self.product_price.pk)
+            if existing_current.exists():
+                raise ValidationError(_('Another current price already exists for this service item.'))
+
         return cleaned_data
 
-    def save(self, *, category, brand):
-        service_model = AssetModel.objects.create(
-            brand=brand,
-            category=category,
-            name=self.cleaned_data['service_name'],
-            model_number=None,
-            unit=self.cleaned_data['unit'],
-            description=self.cleaned_data.get('description', ''),
-            specifications={},
-        )
-        return ProductPrice.objects.create(
-            brand=brand,
-            model=service_model,
-            unit=service_model.unit,
-            price_without_tax=self.cleaned_data['price_without_tax'],
-            price_with_tax=self.cleaned_data.get('price_with_tax'),
-            tax_rate=self.cleaned_data['tax_rate'],
-            is_current=self.cleaned_data.get('is_current', True),
-            valid_from=self.cleaned_data.get('valid_from'),
-            valid_until=self.cleaned_data.get('valid_until'),
-            notes=self.cleaned_data.get('notes', ''),
-        )
+    def save(self, *, product_price=None, service_item=None):
+        service_item = service_item or self.service_item or ServiceItem()
+        service_item.service_group = self.cleaned_data.get('service_group', '')
+        service_item.name = self.cleaned_data['service_name']
+        service_item.description = self.cleaned_data.get('description', '')
+        service_item.unit = self.cleaned_data['unit']
+        service_item.is_active = True
+        service_item.save()
+
+        product_price = product_price or self.product_price or ProductPrice()
+        product_price.brand = None
+        product_price.model = None
+        product_price.service_item = service_item
+        product_price.unit = service_item.unit
+        product_price.price_without_tax = self.cleaned_data['price_without_tax']
+        product_price.price_with_tax = self.cleaned_data.get('price_with_tax')
+        product_price.tax_rate = self.cleaned_data['tax_rate']
+        product_price.is_current = self.cleaned_data.get('is_current', True)
+        product_price.valid_from = self.cleaned_data.get('valid_from')
+        product_price.valid_until = self.cleaned_data.get('valid_until')
+        product_price.notes = self.cleaned_data.get('notes', '')
+        product_price.full_clean()
+        product_price.save()
+        return product_price

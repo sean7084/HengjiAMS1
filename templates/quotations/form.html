@@ -185,7 +185,7 @@
                             <table class="table table-sm" id="items-table">
                                 <thead>
                                     <tr>
-                                        <th>{% trans "Product" %}</th>
+                                        <th>{% trans "Item" %}</th>
                                         <th class="text-center">{% trans "Qty" %}</th>
                                         <th>{% trans "Unit" %}</th>
                                         <th class="text-end">{% trans "Unit Price" %}</th>
@@ -273,17 +273,25 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">{% trans "Select Product" %}</h6>
+                        <h6 class="mb-0">{% trans "Select Product / Service" %}</h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-2">
-                            <label class="form-label small">{% trans "Product" %}</label>
+                            <label class="form-label small">{% trans "Type" %}</label>
+                            <select id="product-type-filter" class="form-select form-select-sm">
+                                <option value="all">{% trans "All Types" %}</option>
+                                <option value="hardware">{% trans "Hardware" %}</option>
+                                <option value="service">{% trans "Service" %}</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">{% trans "Catalog Item" %}</label>
                             <div class="combo-box">
                                 <input
                                     type="text"
                                     id="product-combobox"
                                     class="form-control form-control-sm"
-                                    placeholder="{% trans 'Search and select product...' %}"
+                                    placeholder="{% trans 'Search and select catalog item...' %}"
                                     autocomplete="off"
                                     role="combobox"
                                     aria-expanded="false"
@@ -292,17 +300,18 @@
                                 <div id="product-combobox-list" class="combo-box__menu" role="listbox"></div>
                             </div>
                             <select id="product-select" class="form-select form-select-sm d-none" tabindex="-1" aria-hidden="true">
-                                <option value="">-- {% trans "Select a product" %} --</option>
+                                <option value="">-- {% trans "Select a catalog item" %} --</option>
                                 {% for product in products %}
                                 <option
                                     value="{{ product.pk }}"
-                                    data-label="{{ product.brand.name }} - {{ product.model.name }}"
-                                    data-description="{{ product.model.description }}"
+                                    data-type="{{ product.catalog_type }}"
+                                    data-label="{% if product.catalog_type == 'service' %}[{% trans 'Service' %}] {% else %}[{% trans 'Hardware' %}] {% endif %}{{ product.display_label }}"
+                                    data-description="{{ product.display_description }}"
                                     data-price="{{ product.price_without_tax }}"
                                     data-tax="{{ product.tax_rate }}"
-                                    data-unit="{{ product.unit|default:product.model.unit }}"
+                                    data-unit="{{ product.display_unit }}"
                                 >
-                                    {{ product.brand.name }} - {{ product.model.name }}
+                                    {% if product.catalog_type == 'service' %}[{% trans 'Service' %}] {% else %}[{% trans 'Hardware' %}] {% endif %}{{ product.display_label }}
                                 </option>
                                 {% endfor %}
                             </select>
@@ -385,6 +394,7 @@
     const telInput = document.getElementById('id_tel');
     const attnEmailInput = document.getElementById('id_attn_email');
     const productSelect = document.getElementById('product-select');
+    const productTypeFilter = document.getElementById('product-type-filter');
     const productComboboxInput = document.getElementById('product-combobox');
     const productComboboxList = document.getElementById('product-combobox-list');
     const itemUserNameInput = document.getElementById('item-user-name');
@@ -410,6 +420,7 @@
             value: option.value,
             text: option.text,
             selected: option.selected,
+            dataType: option.dataset.type || 'hardware',
             dataLabel: option.dataset.label || '',
             dataDescription: option.dataset.description || '',
             dataPrice: option.dataset.price || '',
@@ -486,6 +497,9 @@
         function renderOptions(query) {
             const normalizedQuery = (query || '').trim().toLowerCase();
             filteredOptions = options.filter(function (option) {
+                if (config.optionFilter && !config.optionFilter(option)) {
+                    return false;
+                }
                 if (!normalizedQuery) {
                     return true;
                 }
@@ -1010,6 +1024,9 @@
         document.getElementById('item-qty').value = '1';
         document.getElementById('item-price').value = '';
         document.getElementById('item-tax').value = '13';
+        if (productTypeFilter) {
+            productTypeFilter.value = 'all';
+        }
         productCombobox.clear();
         populateUserBrandOptions(codeInput.value || '');
         itemUserBrandCombobox.setValue(codeInput.value || '', false);
@@ -1069,6 +1086,10 @@
         }
         const data = parseItemPayload(payloadInput.value);
         editingRow = row;
+        const option = getProductOptionById(data.productId);
+        if (productTypeFilter && option && option.dataset.type) {
+            productTypeFilter.value = option.dataset.type;
+        }
         productCombobox.setValue(data.productId);
         document.getElementById('item-qty').value = parseQuantity(data.quantity);
         document.getElementById('item-price').value = parseCurrency(data.unitPrice).toFixed(2);
@@ -1133,16 +1154,30 @@
         selectEl: productSelect,
         options: originalProductOptions,
         emptyText: '{% trans "No products found" %}',
+        optionFilter: function (option) {
+            const selectedType = productTypeFilter ? productTypeFilter.value : 'all';
+            return selectedType === 'all' || (option.dataType || 'hardware') === selectedType;
+        },
         onSelect: function () {
             updateProductFields();
         },
     });
 
+    if (productTypeFilter) {
+        productTypeFilter.addEventListener('change', function () {
+            const option = productSelect.options[productSelect.selectedIndex];
+            if (option && option.value && productTypeFilter.value !== 'all' && option.dataset.type !== productTypeFilter.value) {
+                productCombobox.clear();
+                updateProductFields();
+            }
+        });
+    }
+
     addToQuotationButton.addEventListener('click', function () {
         const select = document.getElementById('product-select');
         const option = select.options[select.selectedIndex];
         if (!option || !option.value) {
-            alert('{% trans "Please select a product" %}');
+            alert('{% trans "Please select a catalog item" %}');
             return;
         }
 

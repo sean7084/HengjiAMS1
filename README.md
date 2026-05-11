@@ -115,7 +115,7 @@ UI design inspired by [Ralph](https://ralphapp.com/) and [Snipe-IT](https://snip
 | `audit` | System audit logging and compliance tracking |
 | `reports` | Analytics and reporting views |
 | `dashboard` | Main landing page, workflow dashboard, pending tasks |
-| `products` | Hardware/service price list and service-item creation (extends AssetBrand/AssetModel) |
+| `products` | Unified hardware/service catalog pricing; hardware uses AssetBrand/AssetModel, services use ServiceItem |
 | `customers` | Customer profiles (extends Company) |
 | `quotations` | Quotation creation, RFQ-linked drafts, PDF generation, attachments |
 | `deliveries` | Delivery order (签收单) generation and tracking |
@@ -241,11 +241,11 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 
 | Version | Date | Focus |
 |---------|------|-------|
+| v0.1.7 | May 2026 | Separate ServiceItem catalog + direct dispatch + hardware-only asset cleanup |
 | v0.1.6 | April 2026 | RFQ mailbox automation + quotation hardening + service items + workflow dashboard stock view |
 | v0.1.5 | April 2026 | Multi-role admin controls + order-management mailbox + product price history |
-| v0.1.4 | April 2026 | Import Preview/Confirm + Rollback Safety + Company Contacts |
 
-### Current Status (v0.1.6)
+### Current Status (v0.1.7)
 
 #### Fully Operational Features
 
@@ -268,9 +268,15 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **RFQ Mailbox Automation** - Inbox messages can be classified, reprocessed, linked to quotations, and surfaced as pending review work
 - **Authorized RFQ Sender Controls** - Company contacts can be flagged as approved sources for automatic quotation drafting
 - **Quotation Review & PDF Flow** - Quotations now store attention email, source RFQ linkage, review-required drafts, and create-download PDF behavior
-- **Service Item Pricing** - The price list now supports service items, type/status filtering, and one-step service item + price creation
+- **Separate Service Catalog** - Services now live in `products.ServiceItem`, while `products.ProductPrice` remains the unified price source for both hardware and services
+- **Unified Catalog Selection** - Price list and quotation forms support labeled hardware/service rows, type filtering, and dedicated service-item edit flows
+- **Direct Dispatch Fulfillment** - Confirmed quotations can create delivery orders immediately when hardware stock fully matches, and service-only quotations skip purchase-order creation
+- **Service-aware Delivery Workflow** - Delivery orders auto-add service lines, track them via `quotation_item`, and use `Pending -> Dispatched -> Delivered` without the old `Prepared` step
+- **Hardware-only Asset Surfaces** - Asset forms, list/detail/edit/export/stats, and brand/model pages exclude service-category records
+- **RFQ Mixed Catalog Matching** - RFQ matching and quotation snapshots use catalog display helpers so service rows no longer depend on hardware-only fields
 - **Default Model Matching** - Categories can define default asset models so generic RFQ requests still draft useful quotation items
 - **Workflow Dashboard Stock Overview** - Stock overview is consolidated into the workflow dashboard and replaces the standalone stock page
+- **Responsive Workflow Board** - Workflow dashboard columns auto-fit smaller screens and confirmed quotations share the quotation lane
 - **Internal Warehouse Fulfillment Rules** - Purchase receipts and dispatch asset selection now enforce the internal warehouse path used by current operations
 - **Repo-local .env Loading** - Runtime bootstrap loads local `.env` values for mailbox, RFQ AI, and test outbound-email overrides
 - **LibreOffice-free Document Generation** - Quotation and Delivery PDFs rendered directly from HTML templates via WeasyPrint
@@ -299,7 +305,7 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - **Order Management Access Gating** - Navigation and direct workflow URLs are restricted to authorized order-management users
 - **Asset Change Logs** - Asset-related audit records now live under Assets with clickable list/detail pages and import/export coverage
 - **Audit Dashboard Split** - Asset audits are separated into Dashboard, New Audit, and History views with improved back-navigation and detail context
-- **Product Price Lifecycle Tracking** - Current prices derive from asset models, old prices are preserved as inactive history, and create defaults exclude already-priced current models
+- **Product Price Lifecycle Tracking** - Unified prices enforce exactly one catalog target (`model` or `service_item`), preserve inactive history, and keep current rows unique per catalog item
 - **Stable Product Model Selection** - Product add/edit uses a native filtered selector to avoid browser-specific issues with custom dropdown widgets
 - **Mailbox Module** - Order-management users can configure IMAP/POP3 receive plus SMTP send settings, browse inbox/outbox views, and sync messages from settings-driven windows
 - **Automatic Mail Sync** - Mailboxes can auto-sync every 5 minutes during local `runserver`, with in-process locking to avoid SQLite contention
@@ -317,15 +323,17 @@ Configure `asset_prefix` on each `Company` model to control asset number generat
 - `companies.ImportRunChange` - Per-record rollback snapshot history
 - `assets.AssetCategory` - Asset categorization
 - `assets.AssetBrand` - Brand/manufacturer management
-- `assets.AssetModel` - Product models within brands
+- `assets.AssetModel` - Hardware models within brands
 - `assets.Asset` - Main asset model with full lifecycle
 - `assets.AssetAssignment` - Assignment history tracking
 - `assets.AssetMaintenance` - Maintenance scheduling and records
+- `products.ServiceItem` - Standalone catalog entries for non-asset service offerings
+- `products.ProductPrice` - Unified price list for hardware models and service items
 - `audit.*` - Audit logging models
 
-### v0.1.6 Migration Notes
+### v0.1.7 Migration Notes
 
-Run database migrations before deploying v0.1.6:
+Run database migrations before deploying v0.1.7:
 
 ```bash
 python manage.py migrate
@@ -333,32 +341,44 @@ python manage.py migrate
 
 New migration files included in this release:
 
-- `accounts/migrations/0015_receivedemailmessage_rfq_confidence_and_more.py`
-- `assets/migrations/0013_assetcategory_default_asset_model.py`
-- `assets/migrations/0014_assetcategory_item_type.py`
-- `companies/migrations/0013_companyuser_is_authorized_rfq_sender.py`
-- `invoices/migrations/0005_emaildispatch_reply_message_id_and_more.py`
-- `quotations/migrations/0004_quotation_attn_email.py`
-- `quotations/migrations/0005_quotation_requires_confirmation_and_more.py`
+- `deliveries/migrations/0002_deliveryitem_quotation_item_and_service_lines.py`
+- `products/migrations/0003_serviceitem_alter_productprice_options_and_more.py`
+- `products/migrations/0004_migrate_service_prices_to_service_items.py`
+- `quotations/migrations/0006_quotationitem_service_item.py`
+- `quotations/migrations/0007_backfill_quotationitem_service_item.py`
 
 ---
 
 ## TODO
 
+1. for do pages like http://127.0.0.1:8000/en-us/deliveries/16/, we should able to edit the fields
+2. for po, rename status ordered to purchasing
+3. for do creation http://127.0.0.1:8000/en-us/deliveries/create/from-quotation/60/, delivery method should be a droplist of: 送货上门，快递运输，订货方上门自取。 and default to 送货上门
+4. when an asset is dispatched, update its status
+5. on pages like http://127.0.0.1:8000/en-us/deliveries/20/, keep the upload button and rename it to upload more once we uploaded a file, and rename mark delivered button to upload and mark delivered while also adding the upload function to it
+
+for page http://127.0.0.1:8000/en-us/invoices/invoice-info/, we need this page, but need to build from scratch:
+1. for each quotation and delivery order combo, we need to import the invoice combo, refer to the ofd, pdf and zip files under template_files
+2. we then need to extract the total with customer name, tax, total without tax, tax, created date and invoice number from the pdf or xml file in the zip. it is 
+古驰（中国）贸易有限公司, 1210.23, 139.23, 1071
+2026年04月13日 and 26312000002243628076 for the sample files. we can use regex to extract these information. we will then match these file combos with the info to our existing quotations.
+
+
+
+### jd
+加入顺丰京东快递api for dispatching and delivery tracking
+
+
 ### High Priority
 
-- [x] **2FA Implementation** - Complete TOTP setup and verification workflow
-- [x] **Advanced Reporting** - Charts and analytics dashboard with filtering
-- [x] **Enhanced Mobile Features** - Barcode scanning and offline capability
-- [x] **REST API Development** - API endpoints for mobile integration
-- [x] **Quotation & Invoice System** - Full workflow from quotation to invoice (see [Quotation & Invoice Management System](#quotation--invoice-management-system))
+- [ ] **Enhanced Mobile Features** - Barcode scanning and offline capability
+- [ ] **REST API Development** - API endpoints for mobile integration
 
 ### Medium Priority
 
 - [ ] **Performance Optimization** - Query optimization and caching
-- [ ] **Maintenance Scheduling** - Automatic scheduling and notifications
 - [ ] **Depreciation Enhancement** - Detailed depreciation reports
-- [ ] **Workflow Automation** - Automated notifications for warranty expiry
+- [ ] **Workflow Automation**
 
 ### Future Features
 
@@ -373,15 +393,11 @@ New migration files included in this release:
 - [ ] **Photo-based Audit** - Audit with updated asset photos, SN, asset numbers
 - [ ] **Grouped Auditing** - Audit by company and location
 
-### Known Bugs
-
-- [ ] Fix view pages: replace `assigned_at`, `returned_at`, `maintenance_date` with `assign_date`, `return_date`, `scheduled_at`
-
 ## Order Management System
 
 ### Overview
 
-A complete business workflow for managing quotations, purchase orders, deliveries, and invoices, integrated with the asset management system. Products are purchased after client confirms quotations, then added to inventory as assets upon receipt, and dispatched to stores/offices with delivery orders.
+A complete business workflow for managing quotations, purchase orders, deliveries, and invoices, integrated with the asset management system. Hardware lines are purchased and received into inventory as assets, while service lines stay in a separate catalog and can flow through quotation and delivery without creating asset records.
 
 ### Future Reference Summary
 
@@ -391,8 +407,9 @@ A complete business workflow for managing quotations, purchase orders, deliverie
 - Scope delivered in v0.1.3: warehouse slot schema + UI integration, grouped asset listing with batch edit workflow, export/access-scope fixes, and company user edit-route completion.
 - Scope delivered in v0.1.4: preview-confirm CSV import flows for companies/locations/contacts, shared import-result reporting, rollback tracking for imports, and company-contact/location data model expansion.
 - Scope delivered in v0.1.5: multi-role admin migration, order-management permission gating, product price history/derived-model behavior, and user-configurable mailbox inbox/outbox workflows with auto-sync.
-- Scope delivered in v0.1.6: mailbox RFQ classification/reprocessing with authorized-sender gating, quotation review/download hardening, service-item pricing and category default-model matching, workflow-dashboard stock consolidation, and repo-local `.env` runtime loading.
-- Core workflow stages: quotation (draft/sent/confirmed) -> purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
+- Scope delivered in v0.1.6: mailbox RFQ classification/reprocessing with authorized-sender gating, separate `ServiceItem` catalog pricing, service-aware quotation and delivery handling, workflow-dashboard stock consolidation, and repo-local `.env` runtime loading.
+- Scope delivered in v0.1.7: dedicated service catalog adoption, direct-dispatch fulfillment for stock-covered quotations, service-aware delivery lines, and hardware-only cleanup across asset-facing pages.
+- Core workflow stages: quotation (draft/sent/confirmed) -> direct dispatch or purchase conversion and receipt -> delivery dispatch and signed completion -> invoice batch import/recalculation/document generation -> email dispatch tracking.
 - Key data extensions: `products.ProductPrice`, `customers.CustomerProfile`, `quotations.Quotation*`, `purchases.PurchaseOrder*`, `deliveries.DeliveryOrder*`, `invoices.WeeklyOrderBatch`, `invoices.InvoiceInfo*`, `invoices.EmailDispatch`, `invoices.WorkflowStatusAudit`.
 - Key automation paths: quotation HTML-PDF generation, delivery HTML-PDF generation, invoice information template generation with PDF fallback, bulk weekly Sharepoint import, mailbox inbox/outbox sync, RFQ classification/draft quotation generation, and SMTP dispatch caching.
 - Workflow governance: dashboard Kanban with integrated stock overview, pending-task notifications, cross-entity workflow search, and status badge standardization.
@@ -405,73 +422,24 @@ The system leverages existing HengJi AMS infrastructure:
 | Existing Component | Used For |
 |-------------------|----------|
 | `assets.AssetBrand` | Product brands (repurposed for product catalog) |
-| `assets.AssetModel` | Product models with pricing |
+| `assets.AssetModel` | Hardware product models |
+| `products.ServiceItem` | Service catalog entries kept outside the Assets app |
+| `products.ProductPrice` | Unified price list for both hardware and services |
 | `companies.Company` | Customer companies |
 | `customers.CustomerProfile` | Customer contacts and delivery defaults (attn, tel, address) |
 | `assets.Asset` | Purchased products added as assets |
 | `assets.AssetAssignment` | Dispatch to stores/offices |
 
-### Business Flow
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           QUOTATION WORKFLOW                                │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-  1. QUOTATION CREATION
-     ├── Select customer (from Company)
-     ├── Select products (from AssetBrand/AssetModel with pricing)
-     ├── Set quotation date, validity period
-      └── Generate PDF from quotation HTML template (Excel-style)
-
-  2. ATTACHMENTS (per quotation)
-     ├── Invoice PDF
-     ├── Invoice OFD
-     ├── Invoice XML (zipped)
-     └── Email confirmation screenshot
-
-  3. CLIENT CONFIRMATION
-     └── Status: Quotation Confirmed → Ready for Purchase
-
-  4. PURCHASE & RECEIPT
-     ├── Purchase confirmed products
-     ├── Add products as Assets (AssetModel → Asset)
-     └── Status: Stock Received
-
-  5. DISPATCH & DELIVERY
-     ├── Assign received assets to store/office location
-      ├── Generate 签收单 PDF from delivery HTML template (Excel-style)
-     └── Status: Dispatched → Awaiting Signed Copy
-
-  6. DELIVERY CONFIRMATION
-     └── Receive signed 签收单 → Status: Delivered
-
-  7. WEEKLY INVOICE PROCESSING (Sharepoint)
-     ├── Import completed orders from Sharepoint Excel
-     ├── Sort orders per Excel sequence
-     ├── Fill invoice numbers (yymmdd+##) and dates
-     └── Status: Ready for Invoice
-
-  8. INVOICE INFORMATION SHEET
-     ├── Generate from "invoice information template.xlsx"
-     ├── Fill: Bill To, PI Number, Amounts, PO/IO/SAP fields
-     └── Status: Invoice Generated
-
-  9. EMAIL DISPATCH
-     ├── Send all documents to client
-     ├── Client confirms integrity
-     └── Forward to client's Esker system
-```
-
 ### Data Models
 
-#### Products (extends existing AssetBrand/AssetModel)
+#### Catalog and Pricing
 
-The product price list uses existing `AssetBrand` and `AssetModel` with extensions:
+Hardware catalog entries continue to use `AssetBrand` and `AssetModel`. Service offerings are stored separately in `products.ServiceItem`. `products.ProductPrice` remains the unified pricing layer for both catalog types.
 
 | Model | Fields |
 |-------|--------|
-| `ProductPrice` | `brand` (FK→AssetBrand), `model` (FK→AssetModel), `unit`, `price_without_tax`, `price_with_tax`, `tax_rate`, `is_current` |
+| `ServiceItem` | `service_group`, `name`, `description`, `unit`, `is_active` |
+| `ProductPrice` | `brand`/`model` for hardware or `service_item` for services, `unit`, `price_without_tax`, `price_with_tax`, `tax_rate`, `is_current` |
 
 #### Customers (extends existing Company)
 
@@ -507,153 +475,9 @@ The product price list uses existing `AssetBrand` and `AssetModel` with extensio
 
 | Template | Purpose | Key Fields |
 |----------|---------|------------|
-| `quotation template.xlsx` | Customer quote (legacy source) | date, quote date, validity, attn, tel, products, prices, totals |
-| `签收单 template.xlsx` | Delivery receipt (legacy source) | 订货方, 收货人, 电话, serial numbers, brand, description, quantity, delivery address/method |
 | `invoice information template.xlsx` | Invoice info sheet | Bill To, PI Number, Invoice Date, Due Date, amounts, PO Number, SAP Cost Center, line items |
 | `quotations/pdf_excel_style.html` | Quotation PDF (active) | quote header, line items, totals, remark, signature blocks |
 | `deliveries/pdf_excel_style.html` | Delivery PDF (active) | 订货方, 收货人, 电话, delivery items, delivery info, signature blocks |
-
-### Implementation Tasks
-
-#### Phase Q1: Database Extension - Products & Customers
-
-- [x] **Q1.1** - Create `ProductPrice` model extending `AssetBrand`/`AssetModel`
-  - Add `price_without_tax`, `price_with_tax`, `tax_rate`, `unit`, `is_current` fields
-  - Create admin interface for price management
-
-- [x] **Q1.2** - Create `CustomerProfile` model extending `Company`
-  - Add delivery info fields: `delivery_address`, `delivery_city`, `delivery_contact`, `delivery_phone`, `delivery_method`
-  - Add contact fields: `contact_person`, `phone`, `email`
-
-- [x] **Q1.3** - Create product price list view with filtering by brand
-- [x] **Q1.4** - Create customer profile view linked to Company
-- [x] **Q1.5** - Add Excel import for bulk product pricing updates
-
-#### Phase Q2: Quotation System
-
-- [x] **Q2.1** - Create `Quotation` model
-  - Auto-generate `quotation_number` (QT-YYYYMMDD-### format)
-  - Fields: `customer`, `quotation_date`, `valid_until`, `attn`, `tel`, `status`, `total_without_tax`, `total_with_tax`, `notes`
-  - Status: `draft`, `sent`, `confirmed`, `expired`, `cancelled`
-
-- [x] **Q2.2** - Create `QuotationItem` model
-  - Link to `ProductPrice` for product info
-  - Calculate line totals with tax
-
-- [x] **Q2.3** - Create quotation creation view
-  - Select customer → Auto-fill attn/tel from CustomerProfile
-  - Add line items with product selection
-  - Auto-calculate totals
-
-- [x] **Q2.4** - Generate quotation PDF from template
-  - Map fields: date, quote date, validity, attn, tel
-  - Map products: brand, description, user's brand, user, unit, prices, amounts
-  - Calculate: total without tax, total with tax
-
-- [x] **Q2.5** - Create quotation list view with status filtering and search
-- [x] **Q2.6** - Add quotation actions: Edit, Duplicate, Cancel, Generate PDF
-
-#### Phase Q3: Attachment Management
-
-- [x] **Q3.1** - Create `QuotationAttachment` model
-  - Attachment types: `invoice_pdf`, `invoice_ofd`, `invoice_xml`, `email_confirmation`
-  - Store file path and upload timestamp
-
-- [x] **Q3.2** - Add attachment upload interface on quotation detail
-- [x] **Q3.3** - Add attachment preview and download
-- [x] **Q3.4** - Validate file types (PDF, OFD, ZIP only)
-
-#### Phase Q4: Purchase & Stock Management
-
-- [x] **Q4.1** - Create "Convert to Purchase Order" action
-  - Copy confirmed quotation items
-  - Create Asset entries from products (using AssetModel)
-
-- [x] **Q4.2** - Add purchase receipt view
-  - Input serial numbers for each asset
-  - Set initial location/status (received → ready for dispatch)
-
-- [x] **Q4.3** - Link purchased assets back to source quotation
-- [x] **Q4.4** - Add stock overview dashboard showing received products
-
-#### Phase Q5: Delivery Order (签收单)
-
-- [x] **Q5.1** - Create `DeliveryOrder` model
-  - Auto-generate `delivery_number` (DO-YYYYMMDD-###)
-  - Pull customer delivery info from `CustomerProfile`
-  - Status: `pending`, `prepared`, `dispatched`, `completed`
-
-- [x] **Q5.2** - Create `DeliveryItem` model
-  - Link to `Asset` for serial number tracking
-
-- [x] **Q5.3** - Generate 签收单 PDF from template
-  - Map fields: 订货方, 收货人, 电话, 序列号, 品牌, 商品描述, 采购方品牌, 采购方用户, 数量, 交货地址, 交货方式
-
-- [x] **Q5.4** - Add serial number input for each delivery item
-- [x] **Q5.5** - Add signed 签收单 upload functionality
-- [x] **Q5.6** - Create delivery order list with status tracking
-
-#### Phase Q6: Weekly Sharepoint Processing
-
-- [x] **Q6.1** - Create `WeeklyOrderBatch` model
-  - Store Sharepoint Excel file reference
-  - Track: `uploaded_at`, `processed_at`, `status`
-
-- [x] **Q6.2** - Create Sharepoint Excel import view
-  - Parse Excel for completed orders
-  - Extract: Kering Group PO Number, Internal Order, SAP Cost Center
-
-- [x] **Q6.3** - Implement invoice number auto-generation
-  - Format: `yymmdd+##` (e.g., 26041501 for first invoice on Apr 15, 2026)
-  - Track daily counter for `##` increment
-
-- [x] **Q6.4** - Auto-fill invoice date from processing date
-- [x] **Q6.5** - Create weekly batch list view showing processing status
-
-#### Phase Q7: Invoice Information Sheet
-
-- [x] **Q7.1** - Create `InvoiceInfo` model
-  - Generate `invoice_number` (yymmdd+##)
-  - Fields: `bill_to` (from brand), `kering_group_po_number`, `internal_order`, `sap_cost_center`
-  - Amount fields: `total_amount`, `net_amount`, `tax_amount`, `gross_amount`, `tax_rate`
-
-- [x] **Q7.2** - Create `InvoiceInfoItem` model
-  - Line items: description, unit_price, quantity, totals
-
-- [x] **Q7.3** - Generate invoice info PDF from template
-  - All invoice fields with proper formatting
-  - Line item table with tax breakdown
-
-- [x] **Q7.4** - Auto-calculate totals from linked delivery items
-- [x] **Q7.5** - Create invoice info list with export functionality
-
-#### Phase Q8: Email Integration
-
-- [x] **Q8.1** - Create email template for client dispatch
-  - Include all attachments (quotation, delivery, invoice)
-  - Support multiple recipients, CC, BCC
-
-- [x] **Q8.2** - Create `EmailDispatch` model for tracking
-  - Store: `sent_to`, `cc`, `sent_at`, `attachments`, `status`
-  - Track Esker forwarding separately
-
-- [x] **Q8.3** - Add email composition and sending interface
-  - Preview email before sending
-  - Attach all related documents automatically
-
-- [x] **Q8.4** - Add "Client Confirmed" button to trigger Esker send
-- [x] **Q8.5** - Create email history log per quotation
-
-#### Phase Q9: Integration & Workflow Dashboard
-
-- [x] **Q9.1** - Create workflow dashboard
-  - Visual Kanban: Quotations → Confirmed → Purchased → Dispatched → Delivered → Invoiced
-  - Show counts and values at each stage
-
-- [x] **Q9.2** - Add "Next Action" suggestions on each entity
-- [x] **Q9.3** - Add status badges with color coding throughout UI
-- [x] **Q9.4** - Create audit trail for all status changes
-- [x] **Q9.5** - Add search across quotations, deliveries, invoices
 
 ---
 

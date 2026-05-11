@@ -16,11 +16,11 @@
                     <table class="table">
                         <tr>
                             <th>{% trans "Brand" %}</th>
-                            <td>{{ object.brand.name }}</td>
+                            <td>{{ object.display_brand_name|default:"-" }}</td>
                         </tr>
                         <tr>
-                            <th>{% trans "Model" %}</th>
-                            <td>{{ object.model.name }}</td>
+                            <th>{% trans "Catalog Item" %}</th>
+                            <td>{{ object.display_name|default:"-" }}</td>
                         </tr>
                         <tr>
                             <th>{% trans "Price (excl. tax)" %}</th>

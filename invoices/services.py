@@ -177,9 +177,9 @@ def recalculate_invoice_from_delivery(invoice):
         total_net = Decimal('0.00')
         total_tax = Decimal('0.00')
 
-        for index, d_item in enumerate(delivery.items.select_related('asset', 'asset__brand', 'asset__model'), start=1):
-            q_item = None
-            if quotation and d_item.asset_id:
+        for index, d_item in enumerate(delivery.items.select_related('asset', 'asset__brand', 'asset__model', 'quotation_item'), start=1):
+            q_item = d_item.quotation_item
+            if quotation and q_item is None and d_item.asset_id:
                 q_item = quotation.items.filter(
                     product_price__brand=d_item.asset.brand,
                     product_price__model=d_item.asset.model,

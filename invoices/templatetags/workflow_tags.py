@@ -1,5 +1,7 @@
 from django import template
 
+from deliveries.services import build_dispatch_asset_assignments, get_dispatch_asset_queryset
+
 register = template.Library()
 
 
@@ -13,7 +15,6 @@ BADGE_MAP = {
     },
     'delivery': {
         'pending': 'bg-secondary',
-        'prepared': 'bg-info text-dark',
         'dispatched': 'bg-primary',
         'completed': 'bg-success',
     },
@@ -49,9 +50,15 @@ def quotation_next_action(quotation):
         delivery_order = quotation.delivery_orders.order_by('-created_at').first()
         if delivery_order:
             return 'Open Delivery'
+        can_dispatch_directly = getattr(quotation, 'can_dispatch_directly', None)
+        if can_dispatch_directly is None:
+            assignments = build_dispatch_asset_assignments(quotation, get_dispatch_asset_queryset(quotation))
+            can_dispatch_directly = assignments is not None
+        if can_dispatch_directly:
+            return 'Create Delivery'
         purchase_order = getattr(quotation, 'purchase_order', None)
         if not purchase_order:
-            return 'Create Purchase Order'
+            return 'Continue Fulfillment'
         if purchase_order.status == 'complete':
             return 'Create Delivery'
         return 'Receive Stock'
@@ -66,12 +73,10 @@ def quotation_next_action(quotation):
 def delivery_next_action(delivery):
     status = getattr(delivery, 'status', None)
     if status == 'pending':
-        return 'Mark Prepared'
-    if status == 'prepared':
         return 'Dispatch Delivery'
     if status == 'dispatched':
         if getattr(delivery, 'signed_file', None):
-            return 'Mark Completed'
+            return 'Mark Delivered'
         return 'Upload Signed Copy'
     if status == 'completed':
         return 'Generate / Send Invoice Docs'

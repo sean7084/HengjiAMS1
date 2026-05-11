@@ -116,6 +116,8 @@
                                         <a href="{% url 'quotations:confirm' quote.pk %}" class="btn btn-sm btn-success">{% trans "Confirm" %}</a>
                                         {% elif quote.current_delivery_order %}
                                         <a href="{% url 'deliveries:detail' quote.current_delivery_order.pk %}" class="btn btn-sm btn-outline-success">{% trans "Open Delivery" %}</a>
+                                        {% elif quote.can_dispatch_directly %}
+                                        <a href="{% url 'quotations:convert_to_purchase' quote.pk %}" class="btn btn-sm btn-outline-success">{% trans "Create Delivery" %}</a>
                                         {% elif quote.purchase_order %}
                                             {% if quote.purchase_order.status == 'complete' %}
                                             <a href="{% url 'deliveries:create_from_quotation' quote.pk %}" class="btn btn-sm btn-outline-success">{% trans "Create Delivery" %}</a>
@@ -123,7 +125,7 @@
                                             <a href="{% url 'purchases:receive' quote.purchase_order.pk %}" class="btn btn-sm btn-outline-success">{% trans "Receive Stock" %}</a>
                                             {% endif %}
                                         {% elif quote.status == 'confirmed' %}
-                                        <a href="{% url 'quotations:convert_to_purchase' quote.pk %}" class="btn btn-sm btn-outline-success">{% trans "Create Purchase Order" %}</a>
+                                        <a href="{% url 'quotations:convert_to_purchase' quote.pk %}" class="btn btn-sm btn-outline-success">{% trans "Continue Fulfillment" %}</a>
                                         {% elif quote.status == 'expired' %}
                                         <a href="{% url 'quotations:duplicate' quote.pk %}" class="btn btn-sm btn-outline-secondary">{% trans "Duplicate" %}</a>
                                         {% else %}

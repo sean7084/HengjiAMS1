@@ -16,6 +16,26 @@ from companies.models import Location, Division, Company
 User = get_user_model()
 
 
+def hardware_category_queryset():
+    return AssetCategory.objects.filter(is_active=True).exclude(
+        item_type=AssetCategory.ItemType.SERVICE,
+    )
+
+
+def hardware_model_queryset():
+    return AssetModel.objects.filter(is_active=True).exclude(
+        category__item_type=AssetCategory.ItemType.SERVICE,
+    )
+
+
+def hardware_brand_queryset():
+    return AssetBrand.objects.filter(is_active=True).filter(
+        Q(models__isnull=True)
+        | Q(models__category__isnull=True)
+        | Q(models__category__item_type=AssetCategory.ItemType.HARDWARE)
+    ).distinct()
+
+
 class AssetForm(forms.ModelForm):
     """Form for creating and updating assets."""
 
@@ -125,8 +145,20 @@ class AssetForm(forms.ModelForm):
             # Add company filter if needed
             pass
         
-        # Set up model choices with brand information
-        models_qs = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('brand__name', 'name')
+        category_qs = hardware_category_queryset()
+        if self.instance.pk and self.instance.category_id:
+            category_qs = AssetCategory.objects.filter(
+                Q(pk__in=category_qs.values('pk')) | Q(pk=self.instance.category_id)
+            )
+        self.fields['category'].queryset = category_qs.order_by('name')
+
+        # Set up model choices with brand information.
+        models_qs = hardware_model_queryset().select_related('brand', 'category')
+        if self.instance.pk and self.instance.model_id:
+            models_qs = AssetModel.objects.filter(
+                Q(pk__in=models_qs.values('pk')) | Q(pk=self.instance.model_id)
+            ).select_related('brand', 'category')
+        models_qs = models_qs.order_by('brand__name', 'name')
         
         # Create custom choices that include brand name in the display
         model_choices = [('', _('Select model'))]
@@ -143,7 +175,7 @@ class AssetForm(forms.ModelForm):
         self.fields['category'].empty_label = _('Select category')
         self.fields['brand'].empty_label = _('Select brand')
 
-        brand_qs = AssetBrand.objects.filter(is_active=True)
+        brand_qs = hardware_brand_queryset()
         if selected_category_id:
             brand_qs = brand_qs.filter(models__is_active=True, models__category_id=selected_category_id).distinct()
         if self.instance.pk and self.instance.brand_id:
@@ -428,6 +460,10 @@ class AssetBulkEditForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
+        self.fields['category'].queryset = hardware_category_queryset().order_by('name')
+        self.fields['brand'].queryset = hardware_brand_queryset().order_by('name')
+        self.fields['model'].queryset = hardware_model_queryset().select_related('brand', 'category').order_by('brand__name', 'name')
 
         location_qs = Location.objects.filter(status=Location.LocationStatus.ACTIVE)
         if self.user and hasattr(self.user, 'company') and self.user.company:
@@ -959,13 +995,12 @@ class AssetExportForm(forms.Form):
         
         if user and user.company:
             # Filter categories and brands by user's company
-            self.fields['category'].queryset = AssetCategory.objects.filter(
-                is_active=True
-            ).order_by('name')
+            self.fields['category'].queryset = hardware_category_queryset().order_by('name')
             
-            self.fields['brand'].queryset = AssetBrand.objects.filter(
-                is_active=True
-            ).order_by('name')
+            self.fields['brand'].queryset = hardware_brand_queryset().order_by('name')
+        else:
+            self.fields['category'].queryset = hardware_category_queryset().order_by('name')
+            self.fields['brand'].queryset = hardware_brand_queryset().order_by('name')
     
     def get_filtered_queryset(self, base_queryset):
         """Apply filters to the queryset based on form data."""
@@ -1077,8 +1112,9 @@ class CategoryForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['parent'].queryset = hardware_category_queryset().order_by('name')
         self.fields['default_asset_model'].required = False
-        self.fields['default_asset_model'].queryset = AssetModel.objects.filter(is_active=True).select_related('brand', 'category').order_by('category__name', 'brand__name', 'name')
+        self.fields['default_asset_model'].queryset = hardware_model_queryset().select_related('brand', 'category').order_by('category__name', 'brand__name', 'name')
         self.fields['default_asset_model'].empty_label = _('No default model')
 
     def clean(self):
@@ -1134,8 +1170,8 @@ class ModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['category'].queryset = AssetCategory.objects.filter(is_active=True).order_by('name')
+        self.fields['category'].queryset = hardware_category_queryset().order_by('name')
         self.fields['category'].empty_label = _('Select category')
-        self.fields['brand'].queryset = AssetBrand.objects.filter(is_active=True).order_by('name')
+        self.fields['brand'].queryset = hardware_brand_queryset().order_by('name')
         self.fields['brand'].empty_label = _('Select brand')
         self.fields['model_number'].required = False

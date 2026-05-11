@@ -12,9 +12,8 @@ class DeliveryOrder(models.Model):
 
     class Status(models.TextChoices):
         PENDING = 'pending', _('Pending')
-        PREPARED = 'prepared', _('Prepared')
         DISPATCHED = 'dispatched', _('Dispatched')
-        COMPLETED = 'completed', _('Completed')
+        COMPLETED = 'completed', _('Delivered')
 
     quotation = models.ForeignKey(
         'quotations.Quotation',
@@ -92,7 +91,7 @@ class DeliveryOrder(models.Model):
 
 
 class DeliveryItem(models.Model):
-    """Item dispatched in a delivery order, linked to a received asset."""
+    """Item dispatched in a delivery order, linked to an asset or service line."""
 
     delivery_order = models.ForeignKey(
         DeliveryOrder,
@@ -104,7 +103,17 @@ class DeliveryItem(models.Model):
         'assets.Asset',
         on_delete=models.PROTECT,
         related_name='delivery_items',
+        null=True,
+        blank=True,
         verbose_name=_('Asset'),
+    )
+    quotation_item = models.ForeignKey(
+        'quotations.QuotationItem',
+        on_delete=models.SET_NULL,
+        related_name='delivery_items',
+        null=True,
+        blank=True,
+        verbose_name=_('Quotation Item'),
     )
 
     serial_number = models.CharField(max_length=255, blank=True, verbose_name=_('Serial Number'))
@@ -128,14 +137,31 @@ class DeliveryItem(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.delivery_order.delivery_number} - {self.asset.asset_number}"
+        if self.asset_id:
+            return f"{self.delivery_order.delivery_number} - {self.asset.asset_number}"
+        if self.quotation_item_id:
+            return f"{self.delivery_order.delivery_number} - {self.quotation_item.product_description[:50]}"
+        if self.product_description:
+            return f"{self.delivery_order.delivery_number} - {self.product_description[:50]}"
+        return self.delivery_order.delivery_number
 
     def clean(self):
         super().clean()
+        errors = {}
+
+        if not self.asset_id and not self.quotation_item_id:
+            errors['quotation_item'] = 'Select an asset or link a quotation item.'
+
+        if self.delivery_order_id and self.quotation_item_id:
+            if self.quotation_item.quotation_id != self.delivery_order.quotation_id:
+                errors['quotation_item'] = 'Quotation item must belong to the same quotation as the delivery order.'
+
+        if errors:
+            raise ValidationError(errors)
+
         if self.asset_id and self.delivery_order_id:
             active_statuses = [
                 DeliveryOrder.Status.PENDING,
-                DeliveryOrder.Status.PREPARED,
                 DeliveryOrder.Status.DISPATCHED,
             ]
             conflict_exists = DeliveryItem.objects.filter(
@@ -146,10 +172,22 @@ class DeliveryItem(models.Model):
                 raise ValidationError('Selected asset is already reserved by another active delivery order.')
 
     def save(self, *args, **kwargs):
+        if self.quotation_item_id:
+            if not self.brand_name:
+                self.brand_name = self.quotation_item.brand_name or ''
+            if not self.product_description:
+                self.product_description = self.quotation_item.product_description or ''
+            if not self.user_brand:
+                self.user_brand = self.quotation_item.user_brand
+            if not self.user_name:
+                self.user_name = self.quotation_item.user_name
+
         if self.asset_id:
             self.serial_number = self.asset.serial_number
-            self.brand_name = self.asset.brand.name if self.asset.brand else ''
-            self.product_description = self.asset.description or ''
+            if not self.brand_name:
+                self.brand_name = self.asset.brand.name if self.asset.brand else ''
+            if not self.product_description:
+                self.product_description = self.asset.description or ''
 
             if self.delivery_order_id and self.delivery_order.quotation_id and not self.user_brand and not self.user_name:
                 match = self.delivery_order.quotation.items.filter(

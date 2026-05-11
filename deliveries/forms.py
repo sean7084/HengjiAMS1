@@ -5,7 +5,7 @@ from django import forms
 from assets.models import Asset
 
 from .models import DeliveryOrder
-from .services import get_dispatch_asset_queryset
+from .services import get_dispatch_asset_queryset, split_quotation_items_for_delivery
 
 
 class DeliveryOrderForm(forms.ModelForm):
@@ -13,7 +13,7 @@ class DeliveryOrderForm(forms.ModelForm):
 
     selected_assets = forms.ModelMultipleChoiceField(
         queryset=Asset.objects.none(),
-        required=True,
+        required=False,
         widget=forms.CheckboxSelectMultiple,
         label='Assets to Dispatch',
     )
@@ -39,6 +39,22 @@ class DeliveryOrderForm(forms.ModelForm):
                 lambda obj: f"{obj.asset_number} - {obj.serial_number} - "
                 f"{obj.brand.name if obj.brand else '-'} - {obj.description or '-'}"
             )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.quotation is None:
+            return cleaned_data
+
+        hardware_items, service_items = split_quotation_items_for_delivery(self.quotation)
+        selected_assets = cleaned_data.get('selected_assets')
+
+        if hardware_items and not selected_assets:
+            self.add_error('selected_assets', 'Select assets for the hardware items in this quotation.')
+
+        if not hardware_items and not service_items:
+            raise forms.ValidationError('This quotation has no deliverable items.')
+
+        return cleaned_data
 
 
 class SignedCopyUploadForm(forms.ModelForm):

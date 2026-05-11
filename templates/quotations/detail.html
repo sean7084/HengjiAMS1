@@ -29,6 +29,10 @@
                 <a href="{% url 'deliveries:detail' current_delivery_order.pk %}" class="btn btn-success">
                     <i class="fas fa-truck"></i> {% trans "Open Delivery" %}
                 </a>
+                {% elif can_dispatch_directly %}
+                <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
+                    <i class="fas fa-truck"></i> {% trans "Create Delivery" %}
+                </a>
                 {% elif purchase_order %}
                     {% if purchase_order.status == 'complete' %}
                 <a href="{% url 'deliveries:create_from_quotation' quotation.pk %}" class="btn btn-success">
@@ -41,7 +45,7 @@
                     {% endif %}
                 {% elif quotation.status == 'confirmed' %}
                 <a href="{% url 'quotations:convert_to_purchase' quotation.pk %}" class="btn btn-success">
-                    <i class="fas fa-shopping-cart"></i> {% trans "Convert to Purchase" %}
+                    <i class="fas fa-arrow-right"></i> {% trans "Continue Fulfillment" %}
                 </a>
                 {% endif %}
                 {% if quotation.status != 'cancelled' and quotation.status != 'confirmed' %}

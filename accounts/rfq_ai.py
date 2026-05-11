@@ -240,10 +240,10 @@ def _catalog_searchable_values(brand_name, model_name, model_number, description
 
 def _product_price_searchable_values(product_price):
     return _catalog_searchable_values(
-        _normalized_text(product_price.brand.name).lower(),
-        _normalized_text(product_price.model.name).lower(),
-        _normalized_text(product_price.model.model_number).lower(),
-        _normalized_text(product_price.model.description).lower(),
+        _normalized_text(product_price.display_brand_name).lower(),
+        _normalized_text(product_price.display_name).lower(),
+        _normalized_text(product_price.display_model_number).lower(),
+        _normalized_text(product_price.display_description).lower(),
     )
 
 
@@ -285,12 +285,12 @@ def _collect_catalog_text_matches(catalog_items, normalized_lower, searchable_va
 def _serialize_product_price_candidate(product_price):
     return {
         'product_price_id': product_price.pk,
-        'brand': _normalized_text(product_price.brand.name),
-        'model': _normalized_text(product_price.model.name),
-        'model_number': _normalized_text(product_price.model.model_number),
-        'description': _normalized_text(product_price.model.description),
-        'unit': _normalized_text(product_price.unit),
-        'category': _normalized_text(product_price.model.category.name) if product_price.model.category_id else '',
+        'brand': _normalized_text(product_price.display_brand_name),
+        'model': _normalized_text(product_price.display_name),
+        'model_number': _normalized_text(product_price.display_model_number),
+        'description': _normalized_text(product_price.display_description),
+        'unit': _normalized_text(product_price.display_unit),
+        'category': _normalized_text(product_price.model.category.name) if product_price.model_id and product_price.model.category_id else '',
         'price_without_tax': str(product_price.price_without_tax),
     }
 
@@ -422,8 +422,8 @@ def _select_product_price_candidate_with_llm(request_text, extracted, candidates
 def _match_product_price_for_request(request_text, extracted):
     normalized = _normalized_text(request_text)
     normalized_lower = normalized.lower()
-    all_current_prices = list(ProductPrice.objects.filter(is_current=True).select_related('brand', 'model', 'model__category'))
-    all_current_price_model_ids = {product_price.model_id for product_price in all_current_prices}
+    all_current_prices = list(ProductPrice.objects.filter(is_current=True).select_related('brand', 'model', 'model__category', 'service_item'))
+    all_current_price_model_ids = {product_price.model_id for product_price in all_current_prices if product_price.model_id}
     current_prices = list(all_current_prices)
     active_models = list(AssetModel.objects.filter(is_active=True).select_related('brand', 'category'))
 
@@ -431,7 +431,7 @@ def _match_product_price_for_request(request_text, extracted):
         model_number_matches = [
             product_price
             for product_price in current_prices
-            if _normalized_text(product_price.model.model_number).lower() == token.lower()
+            if product_price.model_id and _normalized_text(product_price.model.model_number).lower() == token.lower()
         ]
         if len(model_number_matches) == 1:
             return model_number_matches[0], None
@@ -462,7 +462,7 @@ def _match_product_price_for_request(request_text, extracted):
         category_prices = [
             product_price
             for product_price in current_prices
-            if product_price.model.category_id == category.id
+            if product_price.model_id and product_price.model.category_id == category.id
         ]
         if category_prices:
             current_prices = category_prices
@@ -565,11 +565,12 @@ def _sync_quotation_items_from_rfq(quotation, extracted):
         item = QuotationItem.objects.create(
             quotation=quotation,
             product_price=product_price,
+            service_item=product_price.service_item if product_price.service_item_id else None,
             quantity=candidate['quantity'],
-            brand_name=product_price.brand.name,
-            product_description=product_price.model.description or product_price.model.name,
-            model_number=product_price.model.model_number or '',
-            unit=product_price.unit,
+            brand_name=product_price.display_brand_name,
+            product_description=product_price.display_description,
+            model_number=product_price.display_model_number,
+            unit=product_price.display_unit,
             unit_price=product_price.price_without_tax,
             tax_rate=product_price.tax_rate,
             user_brand=_normalized_text(extracted.get('brand')),
@@ -578,7 +579,7 @@ def _sync_quotation_items_from_rfq(quotation, extracted):
         matched_items.append({
             'requested': candidate['raw'],
             'product_price_id': product_price.pk,
-            'model': str(product_price.model),
+            'model': product_price.display_label,
             'quantity': item.quantity,
         })
 
