@@ -43,7 +43,7 @@ from .forms import (
     hardware_model_queryset,
 )
 from companies.models import Company, Division, Location, ImportRunChange
-from audit.models import AuditLog
+from audit.models import AuditLog, ChangeLog
 from utils.csv_import import read_csv_rows_with_fallback
 from utils.import_rollback import (
     snapshot_instance,
@@ -103,6 +103,109 @@ def _get_accessible_asset_log_queryset(user):
 
 def _get_accessible_hardware_assets(user):
     return user.get_accessible_assets().exclude(category__item_type=AssetCategory.ItemType.SERVICE)
+
+
+def _get_asset_audit_fields(asset):
+    return [field for field in asset._meta.concrete_fields if not field.primary_key]
+
+
+def _get_asset_audit_display_value(asset, field, raw_snapshot):
+    if asset is None:
+        return None
+
+    if field.is_relation:
+        related_obj = getattr(asset, field.name, None)
+        return str(related_obj) if related_obj is not None else None
+
+    display_method = getattr(asset, f'get_{field.name}_display', None)
+    if field.choices and callable(display_method):
+        return display_method()
+
+    return raw_snapshot.get(field.name)
+
+
+def _build_asset_audit_snapshot(asset):
+    raw_snapshot = snapshot_instance(asset)
+    snapshot = OrderedDict()
+
+    for field in _get_asset_audit_fields(asset):
+        display_value = _get_asset_audit_display_value(asset, field, raw_snapshot)
+        field_snapshot = OrderedDict([
+            ('label', str(field.verbose_name)),
+            ('value', display_value),
+        ])
+
+        raw_value = raw_snapshot.get(field.name)
+        if raw_value != display_value:
+            field_snapshot['raw'] = raw_value
+
+        snapshot[field.name] = field_snapshot
+
+    return snapshot
+
+
+def _build_asset_change_entries(*, before_asset=None, after_asset=None, field_names=None):
+    reference_asset = after_asset or before_asset
+    if reference_asset is None:
+        return []
+
+    selected_names = set(field_names) if field_names is not None else None
+    before_snapshot = snapshot_instance(before_asset) if before_asset is not None else {}
+    after_snapshot = snapshot_instance(after_asset) if after_asset is not None else {}
+    entries = []
+
+    for field in _get_asset_audit_fields(reference_asset):
+        if selected_names is not None and field.name not in selected_names:
+            continue
+
+        entries.append(OrderedDict([
+            ('field_name', field.name),
+            ('label', str(field.verbose_name)),
+            ('old_value', _get_asset_audit_display_value(before_asset, field, before_snapshot)),
+            ('new_value', _get_asset_audit_display_value(after_asset, field, after_snapshot)),
+            ('old_raw', before_snapshot.get(field.name)),
+            ('new_raw', after_snapshot.get(field.name)),
+            ('field_type', field.get_internal_type()),
+        ]))
+
+    return entries
+
+
+def _format_asset_change_value(value):
+    if value in (None, ''):
+        return '-'
+    return str(value)
+
+
+def _build_asset_change_summary(change_entries):
+    return ', '.join(
+        f"{entry['label']}: {_format_asset_change_value(entry['old_value'])} -> {_format_asset_change_value(entry['new_value'])}"
+        for entry in change_entries
+    )
+
+
+def _create_asset_audit_log(*, action, asset, user, request, description, metadata=None, change_entries=None):
+    audit_log = AuditLog.objects.create(
+        user=user,
+        company=asset.company,
+        action=action,
+        content_object=asset,
+        description=description,
+        metadata=metadata or {},
+        ip_address=request.META.get('REMOTE_ADDR'),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
+
+    for entry in change_entries or []:
+        ChangeLog.objects.create(
+            audit_log=audit_log,
+            field_name=entry['label'],
+            old_value='' if entry['old_value'] in (None, '') else str(entry['old_value']),
+            new_value='' if entry['new_value'] in (None, '') else str(entry['new_value']),
+            field_type=entry.get('field_type', ''),
+        )
+
+    return audit_log
 
 
 class AssetChangeLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -353,27 +456,39 @@ def asset_bulk_edit_view(request):
     updated_count = 0
     with transaction.atomic():
         for asset in target_assets:
-            changes = []
+            original_asset = Asset.objects.get(pk=asset.pk)
+            changed_field_names = []
             for field, new_value in update_data.items():
                 old_value = getattr(asset, field)
                 if old_value != new_value:
                     setattr(asset, field, new_value)
-                    changes.append(f'{field}: {old_value} -> {new_value}')
+                    changed_field_names.append(field)
 
-            if not changes:
+            if not changed_field_names:
                 continue
 
             asset.save()
             updated_count += 1
 
-            AuditLog.objects.create(
-                user=request.user,
-                company=asset.company,
+            change_entries = _build_asset_change_entries(
+                before_asset=original_asset,
+                after_asset=asset,
+                field_names=changed_field_names,
+            )
+
+            _create_asset_audit_log(
                 action=AuditLog.ActionType.UPDATE,
-                content_object=asset,
-                description=f'Bulk updated asset: {asset.asset_number}. Changes: {", ".join(changes)}',
-                ip_address=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT', '')
+                asset=asset,
+                user=request.user,
+                request=request,
+                description=f'Bulk updated asset: {asset.asset_number}. Changes: {_build_asset_change_summary(change_entries)}',
+                metadata={
+                    'before': _build_asset_audit_snapshot(original_asset),
+                    'after': _build_asset_audit_snapshot(asset),
+                    'changed_fields': change_entries,
+                    'operation': 'bulk_update',
+                },
+                change_entries=change_entries,
             )
 
     if updated_count:
@@ -587,14 +702,18 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
             asset.save()
             created_assets.append(asset)
 
-            AuditLog.objects.create(
-                user=self.request.user,
-                company=target_company,
+            change_entries = _build_asset_change_entries(after_asset=asset)
+            _create_asset_audit_log(
                 action=AuditLog.ActionType.CREATE,
-                content_object=asset,
+                asset=asset,
+                user=self.request.user,
+                request=self.request,
                 description=f'Created asset: {asset.asset_number}',
-                ip_address=self.request.META.get('REMOTE_ADDR'),
-                user_agent=self.request.META.get('HTTP_USER_AGENT', '')
+                metadata={
+                    'asset_snapshot': _build_asset_audit_snapshot(asset),
+                    'operation': 'create',
+                },
+                change_entries=change_entries,
             )
 
         return created_assets
@@ -624,14 +743,19 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
                 with transaction.atomic():
                     response = super().form_valid(form)
 
-                    AuditLog.objects.create(
-                        user=self.request.user,
-                        company=target_company,
+                    change_entries = _build_asset_change_entries(after_asset=self.object)
+
+                    _create_asset_audit_log(
                         action=AuditLog.ActionType.CREATE,
-                        content_object=self.object,
+                        asset=self.object,
+                        user=self.request.user,
+                        request=self.request,
                         description=f'Created asset: {self.object.asset_number}',
-                        ip_address=self.request.META.get('REMOTE_ADDR'),
-                        user_agent=self.request.META.get('HTTP_USER_AGENT', '')
+                        metadata={
+                            'asset_snapshot': _build_asset_audit_snapshot(self.object),
+                            'operation': 'create',
+                        },
+                        change_entries=change_entries,
                     )
 
                     messages.success(
@@ -690,25 +814,30 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
         with transaction.atomic():
             # Store original values for audit log
             original_asset = Asset.objects.get(pk=self.object.pk)
-            changes = []
-            
-            for field in form.changed_data:
-                old_value = getattr(original_asset, field)
-                new_value = form.cleaned_data[field]
-                changes.append(f'{field}: {old_value} → {new_value}')
+            changed_field_names = list(form.changed_data)
             
             response = super().form_valid(form)
+            change_entries = _build_asset_change_entries(
+                before_asset=original_asset,
+                after_asset=self.object,
+                field_names=changed_field_names,
+            )
             
             # Log the update
-            if changes:
-                AuditLog.objects.create(
-                    user=self.request.user,
-                    company=self.request.user.company,
+            if change_entries:
+                _create_asset_audit_log(
                     action=AuditLog.ActionType.UPDATE,
-                    content_object=self.object,
-                    description=f'Updated asset: {self.object.asset_number}. Changes: {", ".join(changes)}',
-                    ip_address=self.request.META.get('REMOTE_ADDR'),
-                    user_agent=self.request.META.get('HTTP_USER_AGENT', '')
+                    asset=self.object,
+                    user=self.request.user,
+                    request=self.request,
+                    description=f'Updated asset: {self.object.asset_number}. Changes: {_build_asset_change_summary(change_entries)}',
+                    metadata={
+                        'before': _build_asset_audit_snapshot(original_asset),
+                        'after': _build_asset_audit_snapshot(self.object),
+                        'changed_fields': change_entries,
+                        'operation': 'update',
+                    },
+                    change_entries=change_entries,
                 )
             
             messages.success(
@@ -757,17 +886,21 @@ class AssetDeleteView(LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         asset_number = self.object.asset_number
-        asset_company = self.object.company
+        asset_snapshot = _build_asset_audit_snapshot(self.object)
+        change_entries = _build_asset_change_entries(before_asset=self.object)
 
         with transaction.atomic():
-            AuditLog.objects.create(
-                user=self.request.user,
-                company=asset_company,
+            _create_asset_audit_log(
                 action=AuditLog.ActionType.DELETE,
-                content_object=self.object,
+                asset=self.object,
+                user=self.request.user,
+                request=self.request,
                 description=f'Deleted asset: {asset_number}',
-                ip_address=self.request.META.get('REMOTE_ADDR'),
-                user_agent=self.request.META.get('HTTP_USER_AGENT', '')
+                metadata={
+                    'asset_snapshot': asset_snapshot,
+                    'operation': 'delete',
+                },
+                change_entries=change_entries,
             )
 
             response = super().form_valid(form)
