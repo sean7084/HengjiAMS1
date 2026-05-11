@@ -1,0 +1,68 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Retire Asset" %} - {{ object.asset_number }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="{% trans 'breadcrumb' %}">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_list' %}">{% trans "Assets" %}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset_detail' object.pk %}">{{ object.asset_number }}</a></li>
+                    <li class="breadcrumb-item active">{% trans "Retire" %}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">{% trans "Retire Asset" %}</h1>
+            <p class="text-muted mb-0">{% trans "This action marks the asset as retired instead of permanently deleting it." %}</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-xl-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {% trans "Confirm Asset Retirement" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">
+                        {% trans "Are you sure you want to retire the asset" %}
+                        <strong>"{{ object.asset_number }}"</strong>?
+                    </p>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i>
+                        {% trans "Retired assets remain in the system for history and audit purposes, but they should no longer be treated as active inventory." %}
+                    </div>
+
+                    <div class="alert alert-light border">
+                        <strong>{% trans "Asset Details:" %}</strong><br>
+                        {% trans "Category:" %} {{ object.category.name|default:"-" }}<br>
+                        {% trans "Brand:" %} {{ object.brand.name|default:"-" }}<br>
+                        {% trans "Model:" %} {{ object.model.name|default:"-" }}<br>
+                        {% trans "Status:" %} {{ object.get_status_display|default:"-" }}<br>
+                        {% trans "Assigned To:" %} {{ object.assigned_to.get_display_name|default:"-" }}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'assets:asset_detail' object.pk %}" class="btn btn-secondary">
+                                {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-archive"></i>
+                                {% trans "Yes, Retire Asset" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
