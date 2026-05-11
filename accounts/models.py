@@ -227,8 +227,20 @@ class User(AbstractUser):
             return 'en-us'
         return cls.LANGUAGE_CODE_ALIASES.get(language_code.lower(), 'en-us')
 
+    @staticmethod
+    def normalize_employee_id(employee_id):
+        if employee_id is None:
+            return None
+        normalized_employee_id = str(employee_id).strip()
+        return normalized_employee_id or None
+
+    def clean(self):
+        super().clean()
+        self.employee_id = self.normalize_employee_id(self.employee_id)
+
     def save(self, *args, **kwargs):
         self.language_preference = self.normalize_language_code(self.language_preference)
+        self.employee_id = self.normalize_employee_id(self.employee_id)
         result = super().save(*args, **kwargs)
         pending_role_codes = getattr(self, '_pending_admin_role_codes', None)
         if pending_role_codes is not None:

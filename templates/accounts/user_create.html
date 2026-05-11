@@ -38,7 +38,7 @@
                             <!-- Username -->
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.username.id_for_label }}" class="form-label">
-                                    {{ form.username.label }} <span class="text-danger">*</span>
+                                    {{ form.username.label }}{% if form.username.field.required %} <span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ form.username }}
                                 {% if form.username.help_text %}
@@ -70,7 +70,7 @@
                             <!-- First Name -->
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.first_name.id_for_label }}" class="form-label">
-                                    {{ form.first_name.label }}
+                                    {{ form.first_name.label }}{% if form.first_name.field.required %} <span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ form.first_name }}
                                 {% if form.first_name.errors %}
@@ -81,7 +81,7 @@
                             <!-- Last Name -->
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.last_name.id_for_label }}" class="form-label">
-                                    {{ form.last_name.label }}
+                                    {{ form.last_name.label }}{% if form.last_name.field.required %} <span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ form.last_name }}
                                 {% if form.last_name.errors %}
@@ -94,7 +94,7 @@
                             <!-- Email -->
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.email.id_for_label }}" class="form-label">
-                                    {{ form.email.label }}
+                                    {{ form.email.label }}{% if form.email.field.required %} <span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ form.email }}
                                 {% if form.email.errors %}
@@ -106,7 +106,7 @@
                             {% if form.roles %}
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.roles.id_for_label }}" class="form-label">
-                                    {{ form.roles.label }} <span class="text-danger">*</span>
+                                    {{ form.roles.label }}{% if form.roles.field.required %} <span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ form.roles }}
                                 {% if form.roles.help_text %}
@@ -170,6 +170,32 @@
                                 {{ form.company }}
                                 {% if form.company.errors %}
                                 <div class="text-danger">{{ form.company.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            {% if form.language_preference %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.language_preference.id_for_label }}" class="form-label">
+                                    {{ form.language_preference.label }}{% if form.language_preference.field.required %} <span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.language_preference }}
+                                {% if form.language_preference.errors %}
+                                <div class="text-danger">{{ form.language_preference.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if form.timezone %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.timezone.id_for_label }}" class="form-label">
+                                    {{ form.timezone.label }}{% if form.timezone.field.required %} <span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.timezone }}
+                                {% if form.timezone.errors %}
+                                <div class="text-danger">{{ form.timezone.errors }}</div>
                                 {% endif %}
                             </div>
                             {% endif %}

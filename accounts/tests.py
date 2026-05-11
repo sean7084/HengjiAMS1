@@ -5,6 +5,18 @@ from .models import AdminRole, User
 
 
 class UserEditViewTests(TestCase):
+	def assertLabelMarkedRequired(self, response, field_id, label_text):
+		self.assertInHTML(
+			f'<label for="{field_id}" class="form-label">{label_text} <span class="text-danger">*</span></label>',
+			response.content.decode(response.charset),
+		)
+
+	def assertLabelNotMarkedRequired(self, response, field_id, label_text):
+		self.assertInHTML(
+			f'<label for="{field_id}" class="form-label">{label_text}</label>',
+			response.content.decode(response.charset),
+		)
+
 	@classmethod
 	def setUpTestData(cls):
 		cls.admin_user = User.objects.create_superuser(
@@ -37,6 +49,22 @@ class UserEditViewTests(TestCase):
 		)
 		cls.order_management_manager_user.roles.add(cls.order_management_manager_role)
 
+	def test_create_page_renders_required_fields_with_markers(self):
+		self.client.force_login(self.admin_user)
+
+		response = self.client.get(reverse('accounts:user_create'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'name="language_preference"', html=False)
+		self.assertContains(response, 'name="timezone"', html=False)
+		self.assertLabelMarkedRequired(response, 'id_username', 'Username')
+		self.assertLabelMarkedRequired(response, 'id_first_name', 'First Name')
+		self.assertLabelMarkedRequired(response, 'id_last_name', 'Last Name')
+		self.assertLabelMarkedRequired(response, 'id_email', 'Email Address')
+		self.assertLabelMarkedRequired(response, 'id_language_preference', 'Language Preference')
+		self.assertLabelMarkedRequired(response, 'id_timezone', 'Timezone')
+		self.assertLabelNotMarkedRequired(response, 'id_roles', 'Administrator Roles')
+
 	def test_edit_page_renders_required_settings_fields(self):
 		self.client.force_login(self.admin_user)
 
@@ -49,6 +77,58 @@ class UserEditViewTests(TestCase):
 		self.assertContains(response, 'name="must_change_password"', html=False)
 		self.assertNotContains(response, 'name="division"', html=False)
 		self.assertNotContains(response, 'name="managed_divisions"', html=False)
+		self.assertLabelMarkedRequired(response, 'id_username', 'Username')
+		self.assertLabelMarkedRequired(response, 'id_first_name', 'First Name')
+		self.assertLabelMarkedRequired(response, 'id_last_name', 'Last Name')
+		self.assertLabelMarkedRequired(response, 'id_email', 'Email Address')
+		self.assertLabelMarkedRequired(response, 'id_language_preference', 'Language Preference')
+		self.assertLabelMarkedRequired(response, 'id_timezone', 'Timezone')
+		self.assertLabelNotMarkedRequired(response, 'id_roles', 'Administrator Roles')
+
+	def test_create_user_allows_blank_employee_id_with_legacy_blank_record(self):
+		self.client.force_login(self.admin_user)
+
+		legacy_user = User.objects.create_user(
+			username='legacy_blank_employee',
+			email='legacy-blank@example.com',
+			password='LegacyPass123!',
+			first_name='Legacy',
+			last_name='Blank',
+			language_preference='en-us',
+			timezone='UTC',
+		)
+		User.objects.filter(pk=legacy_user.pk).update(employee_id='')
+
+		response = self.client.post(
+			reverse('accounts:user_create'),
+			{
+				'username': 'blank_employee_create',
+				'email': 'blank-employee-create@example.com',
+				'first_name': 'Blank',
+				'last_name': 'Create',
+				'employee_id': '',
+				'phone_number': '',
+				'department': '',
+				'job_title': '',
+				'company': '',
+				'manager': '',
+				'roles': [],
+				'managed_company': '',
+				'managed_divisions': [],
+				'managed_locations': [],
+				'language_preference': 'en-us',
+				'timezone': 'UTC',
+				'is_active': 'on',
+				'password1': 'BlankCreatePass123!',
+				'password2': 'BlankCreatePass123!',
+				'must_change_password': 'on',
+			},
+		)
+
+		self.assertRedirects(response, reverse('accounts:user_list'))
+
+		created_user = User.objects.get(username='blank_employee_create')
+		self.assertIsNone(created_user.employee_id)
 
 	def test_editing_self_keeps_session_and_password_when_blank(self):
 		self.client.force_login(self.admin_user)
