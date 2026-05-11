@@ -746,7 +746,7 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class AssetDeleteView(LoginRequiredMixin, DeleteView):
-    """Delete asset (soft delete)."""
+    """Delete asset."""
     model = Asset
     template_name = 'assets/asset_delete.html'
     success_url = reverse_lazy('assets:asset_list')
@@ -754,32 +754,30 @@ class AssetDeleteView(LoginRequiredMixin, DeleteView):
     def get_object(self):
         accessible_assets = _get_accessible_hardware_assets(self.request.user)
         return get_object_or_404(accessible_assets, pk=self.kwargs['pk'])
-    
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        
+
+    def form_valid(self, form):
+        asset_number = self.object.asset_number
+        asset_company = self.object.company
+
         with transaction.atomic():
-            # Soft delete - mark as retired instead of actual deletion
-            self.object.status = 'retired'
-            self.object.save()
-            
-            # Log the deletion
             AuditLog.objects.create(
-                user=request.user,
-                company=request.user.company,
+                user=self.request.user,
+                company=asset_company,
                 action=AuditLog.ActionType.DELETE,
                 content_object=self.object,
-                description=f'Deleted (retired) asset: {self.object.asset_number}',
-                ip_address=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT', '')
+                description=f'Deleted asset: {asset_number}',
+                ip_address=self.request.META.get('REMOTE_ADDR'),
+                user_agent=self.request.META.get('HTTP_USER_AGENT', '')
             )
-            
+
+            response = super().form_valid(form)
+
             messages.success(
-                request,
-                _('Asset "{}" has been retired successfully.').format(self.object.asset_number)
+                self.request,
+                _('Asset "{}" has been deleted successfully.').format(asset_number)
             )
-        
-        return redirect(self.success_url)
+
+        return response
 
 
 @login_required

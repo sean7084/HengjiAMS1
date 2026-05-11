@@ -658,7 +658,7 @@ class AssetBulkActionForm(forms.Form):
         ('update_status', _('Update Status')),
         ('assign_user', _('Assign to User')),
         ('export_csv', _('Export to CSV')),
-        ('delete', _('Mark as Retired')),
+        ('delete', _('Delete Assets')),
     ]
     
     action = forms.ChoiceField(
