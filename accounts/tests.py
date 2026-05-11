@@ -47,6 +47,8 @@ class UserEditViewTests(TestCase):
 		self.assertContains(response, 'name="timezone"', html=False)
 		self.assertContains(response, 'name="password1"', html=False)
 		self.assertContains(response, 'name="must_change_password"', html=False)
+		self.assertNotContains(response, 'name="division"', html=False)
+		self.assertNotContains(response, 'name="managed_divisions"', html=False)
 
 	def test_editing_self_keeps_session_and_password_when_blank(self):
 		self.client.force_login(self.admin_user)

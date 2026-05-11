@@ -531,6 +531,8 @@ class SuperuserUserForm(UserCreationForm):
             self.fields.pop('use_random_password', None)
             self.fields['password1'].help_text = _('Leave blank to keep the current password')
             self.fields['password2'].help_text = _('Leave blank to keep the current password')
+            self.fields.pop('division', None)
+            self.fields.pop('managed_divisions', None)
         else:
             self.fields['password1'].help_text = _('Leave blank to use random password')
             self.fields['password2'].help_text = _('Leave blank to use random password')
@@ -596,7 +598,8 @@ class SuperuserUserForm(UserCreationForm):
         user.department = self.cleaned_data.get('department', '')
         user.job_title = self.cleaned_data.get('job_title', '')
         user.company = self.cleaned_data.get('company')
-        user.division = self.cleaned_data.get('division')
+        if 'division' in self.cleaned_data:
+            user.division = self.cleaned_data.get('division')
         user.manager = self.cleaned_data.get('manager')
         user.managed_company = self.cleaned_data.get('managed_company')
         user.language_preference = self.cleaned_data.get('language_preference', 'en-us')
