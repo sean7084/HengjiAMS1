@@ -9,10 +9,17 @@
         <div class="col-lg-6 mx-auto">
             <div class="card">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="card-title mb-0">{% trans "Confirm Delete" %}</h5>
+                    <h5 class="card-title mb-0">{% if submits_for_approval %}{% trans "Confirm Delete Request" %}{% else %}{% trans "Confirm Delete" %}{% endif %}</h5>
                 </div>
                 <div class="card-body">
+                    {% if submits_for_approval %}
+                    <div class="alert alert-warning">
+                        {% trans "This delete request will be submitted for manager approval. The current live price will remain effective until the request is approved." %}
+                    </div>
+                    <p>{% trans "Are you sure you want to submit a delete request for this product price?" %}</p>
+                    {% else %}
                     <p>{% trans "Are you sure you want to delete this product price?" %}</p>
+                    {% endif %}
                     <table class="table">
                         <tr>
                             <th>{% trans "Brand" %}</th>
@@ -38,7 +45,7 @@
                                 {% trans "Cancel" %}
                             </a>
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash"></i> {% trans "Delete" %}
+                                <i class="fas fa-trash"></i> {% if submits_for_approval %}{% trans "Submit Delete Request" %}{% else %}{% trans "Delete" %}{% endif %}
                             </button>
                         </div>
                     </form>

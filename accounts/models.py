@@ -56,7 +56,8 @@ class User(AbstractUser):
         SUPERADMIN = 'superadmin', _('Superadmin')
         IT_ADMINISTRATOR = 'it_administrator', _('IT Administrator')
         VIEWER = 'viewer', _('Viewer')
-        ORDER_MANAGEMENT_PROCUREMENT_SPECIALIST = 'order_management_procurement_specialist', _('Order Management & Procurement Specialist')
+        ORDER_MANAGEMENT_SPECIALIST = 'order_management_specialist', _('Order Management Specialist')
+        ORDER_MANAGEMENT_MANAGER = 'order_management_manager', _('Order Management Manager')
 
     LANGUAGE_CHOICES = [
         ('en-us', _('English (US)')),
@@ -323,9 +324,17 @@ class User(AbstractUser):
         """Check if user is a viewer with location read-only access."""
         return self.has_admin_role(self.AdminRole.VIEWER)
 
+    def is_order_management_specialist(self):
+        """Check if user can work in day-to-day order-management flows."""
+        return self.has_admin_role(self.AdminRole.ORDER_MANAGEMENT_SPECIALIST)
+
+    def is_order_management_manager(self):
+        """Check if user can approve and directly apply order-management pricing changes."""
+        return self.has_admin_role(self.AdminRole.ORDER_MANAGEMENT_MANAGER)
+
     def is_order_management_procurement_specialist(self):
-        """Check if user can handle order-management and procurement workflows."""
-        return self.has_admin_role(self.AdminRole.ORDER_MANAGEMENT_PROCUREMENT_SPECIALIST)
+        """Compatibility alias for the legacy combined order-management role."""
+        return self.is_order_management_specialist() or self.is_order_management_manager()
     
     def get_accessible_companies(self):
         """Get companies this admin can access."""
@@ -466,7 +475,19 @@ class User(AbstractUser):
 
     def can_manage_orders(self):
         """Check if user can access order-management workflows."""
-        return self.is_superadmin() or self.is_order_management_procurement_specialist()
+        return (
+            self.is_superadmin()
+            or self.is_order_management_specialist()
+            or self.is_order_management_manager()
+        )
+
+    def can_approve_order_management_prices(self):
+        """Check if user can approve and directly apply price-list changes."""
+        return self.is_superadmin() or self.is_order_management_manager()
+
+    def can_import_product_prices(self):
+        """Check if user can import live product prices into the system."""
+        return self.can_approve_order_management_prices()
     
     def get_role_display_name(self):
         """Get the display name for the user's admin role."""
@@ -496,8 +517,10 @@ class User(AbstractUser):
                 scopes.append(_("Location: {location}").format(location=locations.first().name))
             elif locations.count() > 1:
                 scopes.append(_("{count} locations").format(count=locations.count()))
-        if self.is_order_management_procurement_specialist():
-            scopes.append(_("Order management and procurement workflows"))
+        if self.is_order_management_specialist():
+            scopes.append(_("Order management workflows"))
+        if self.is_order_management_manager():
+            scopes.append(_("Order management management and price approvals"))
         return ", ".join(scopes) if scopes else _("No admin access")
 
 

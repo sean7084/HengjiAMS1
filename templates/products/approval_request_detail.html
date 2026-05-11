@@ -1,0 +1,165 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Approval Request" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">{{ approval_request.get_request_type_display }} - {{ approval_request.catalog_label }}</h1>
+                <p class="text-muted mb-0">{% trans "Review the request payload before applying it to the live price list." %}</p>
+            </div>
+            <a href="{% url 'products:approval_request_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Approval Requests" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 18rem;">{% trans "Request Type" %}</th>
+                                    <td>{{ approval_request.get_request_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Catalog Type" %}</th>
+                                    <td>{{ approval_request.get_catalog_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Status" %}</th>
+                                    <td>
+                                        {% if approval_request.status == 'pending' %}
+                                        <span class="badge text-bg-warning">{{ approval_request.get_status_display }}</span>
+                                        {% elif approval_request.status == 'approved' %}
+                                        <span class="badge text-bg-success">{{ approval_request.get_status_display }}</span>
+                                        {% elif approval_request.status == 'rejected' %}
+                                        <span class="badge text-bg-danger">{{ approval_request.get_status_display }}</span>
+                                        {% else %}
+                                        <span class="badge text-bg-secondary">{{ approval_request.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Requested By" %}</th>
+                                    <td>{{ approval_request.requested_by.get_full_name_display|default:approval_request.requested_by.username }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Created At" %}</th>
+                                    <td>{{ approval_request.created_at|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Review Notes" %}</th>
+                                    <td>{{ approval_request.review_notes|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Reviewed By" %}</th>
+                                    <td>{% if approval_request.reviewed_by %}{{ approval_request.reviewed_by.get_full_name_display|default:approval_request.reviewed_by.username }}{% else %}-{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Reviewed At" %}</th>
+                                    <td>{% if approval_request.reviewed_at %}{{ approval_request.reviewed_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Current Live Snapshot" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if current_snapshot_sections %}
+                        {% for section in current_snapshot_sections %}
+                        <h6 class="mt-2">{{ section.title }}</h6>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm align-middle mb-0">
+                                <tbody>
+                                    {% for row in section.rows %}
+                                    <tr>
+                                        <th style="width: 40%;">{{ row.label }}</th>
+                                        <td>{{ row.value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans "No current snapshot was stored for this request." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{% trans "Proposed Snapshot" %}</h5>
+                </div>
+                <div class="card-body">
+                    {% if proposed_snapshot_sections %}
+                        {% for section in proposed_snapshot_sections %}
+                        <h6 class="mt-2">{{ section.title }}</h6>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm align-middle mb-0">
+                                <tbody>
+                                    {% for row in section.rows %}
+                                    <tr>
+                                        <th style="width: 40%;">{{ row.label }}</th>
+                                        <td>{{ row.value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted mb-0">{% trans "No proposed snapshot was stored for this request." %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if can_approve_order_management_prices and approval_request.status == 'pending' %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning-subtle">
+                    <h5 class="card-title mb-0">{% trans "Review Decision" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="review_notes" class="form-label">{% trans "Review Notes" %}</label>
+                            <textarea id="review_notes" name="review_notes" rows="4" class="form-control" placeholder="{% trans 'Optional notes for the requester' %}"></textarea>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-end flex-wrap">
+                            <button type="submit" name="action" value="reject" class="btn btn-outline-danger">
+                                <i class="fas fa-times"></i> {% trans "Reject" %}
+                            </button>
+                            <button type="submit" name="action" value="approve" class="btn btn-success">
+                                <i class="fas fa-check"></i> {% trans "Approve and Apply" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -32,7 +32,7 @@ HengJi AMS is an enterprise asset management system designed for organizations t
 ### Key Capabilities
 
 - Multi-company, multi-division asset management
-- Additive administrator roles (Superadmin, IT Administrator, Viewer, Order Management & Procurement Specialist)
+- Additive administrator roles (Superadmin, IT Administrator, Viewer, Order Management Specialist, Order Management Manager)
 - 2FA authentication enforcement
 - Asset lifecycle tracking (assignment, return, maintenance, disposal)
 - Order management workflow from quotation through dispatch and invoice processing

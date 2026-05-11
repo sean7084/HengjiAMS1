@@ -26,6 +26,12 @@
                     <form method="post">
                         {% csrf_token %}
 
+                        {% if submits_for_approval %}
+                        <div class="alert alert-warning">
+                            {% trans "Your changes will be submitted for Order Management Manager approval before they become effective in the live price list." %}
+                        </div>
+                        {% endif %}
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {{ form.non_field_errors }}
@@ -125,9 +131,9 @@
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 {% if object %}
-                                <i class="fas fa-save"></i> {% trans "Update" %}
+                                <i class="fas fa-save"></i> {% if submits_for_approval %}{% trans "Submit Update Request" %}{% else %}{% trans "Update" %}{% endif %}
                                 {% else %}
-                                <i class="fas fa-plus"></i> {% trans "Create" %}
+                                <i class="fas fa-plus"></i> {% if submits_for_approval %}{% trans "Submit Create Request" %}{% else %}{% trans "Create" %}{% endif %}
                                 {% endif %}
                             </button>
                         </div>
@@ -157,6 +163,12 @@
                     <p class="small text-muted">
                         {% trans "Set date range for price validity. Leave empty for indefinite." %}
                     </p>
+                    {% if submits_for_approval %}
+                    <hr>
+                    <p class="small text-muted mb-0">
+                        {% trans "Specialists can prepare price changes here, but they will not affect quotations or RFQs until a manager approves the request." %}
+                    </p>
+                    {% endif %}
                 </div>
             </div>
         </div>

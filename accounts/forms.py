@@ -26,7 +26,7 @@ def build_admin_roles_field(required=False):
         required=required,
         widget=forms.SelectMultiple(attrs={
             'class': 'form-control',
-            'size': '4',
+            'size': '5',
         }),
         label=_('Administrator Roles'),
         help_text=_('Select one or more administrator roles (hold Ctrl/Cmd for multiple).')

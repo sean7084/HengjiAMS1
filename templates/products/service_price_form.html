@@ -18,6 +18,12 @@
                     <form method="post">
                         {% csrf_token %}
 
+                        {% if submits_for_approval %}
+                        <div class="alert alert-warning">
+                            {% trans "Your service item changes will be submitted for Order Management Manager approval before they become effective in the live price list." %}
+                        </div>
+                        {% endif %}
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {{ form.non_field_errors }}
@@ -135,9 +141,9 @@
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 {% if product_price %}
-                                <i class="fas fa-save"></i> {% trans "Update Service Item" %}
+                                <i class="fas fa-save"></i> {% if submits_for_approval %}{% trans "Submit Service Update Request" %}{% else %}{% trans "Update Service Item" %}{% endif %}
                                 {% else %}
-                                <i class="fas fa-plus"></i> {% trans "Create Service Item" %}
+                                <i class="fas fa-plus"></i> {% if submits_for_approval %}{% trans "Submit Service Create Request" %}{% else %}{% trans "Create Service Item" %}{% endif %}
                                 {% endif %}
                             </button>
                         </div>
@@ -157,6 +163,9 @@
                         <li>{% trans "This form stores the service definition separately from hardware asset models." %}</li>
                         <li>{% trans "Service items still appear in the same price list and quotation selector as hardware items." %}</li>
                         <li>{% trans "Use Service Group to keep related offerings together without placing them in the Assets app." %}</li>
+                        {% if submits_for_approval %}
+                        <li>{% trans "Specialist submissions stay pending until an Order Management Manager approves them." %}</li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

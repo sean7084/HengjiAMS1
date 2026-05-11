@@ -2,6 +2,7 @@
 Models for HengJi AMS Products App.
 Product and service pricing information for the unified catalog.
 """
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Q
@@ -287,3 +288,172 @@ class ProductPrice(models.Model):
         if self.price_with_tax:
             return f"¥{self.price_with_tax:,.2f}"
         return f"¥{self.price_without_tax:,.2f}"
+
+
+class ProductPriceApprovalRequest(models.Model):
+    """Pending request for price-list create, update, and delete actions."""
+
+    class RequestType(models.TextChoices):
+        CREATE = 'create', _('Create')
+        UPDATE = 'update', _('Update')
+        DELETE = 'delete', _('Delete')
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', _('Pending Approval')
+        APPROVED = 'approved', _('Approved')
+        REJECTED = 'rejected', _('Rejected')
+        CANCELLED = 'cancelled', _('Cancelled')
+
+    class CatalogType(models.TextChoices):
+        HARDWARE = 'hardware', _('Hardware')
+        SERVICE = 'service', _('Service')
+
+    request_type = models.CharField(
+        max_length=20,
+        choices=RequestType.choices,
+        verbose_name=_('Request Type')
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        verbose_name=_('Status')
+    )
+    catalog_type = models.CharField(
+        max_length=20,
+        choices=CatalogType.choices,
+        verbose_name=_('Catalog Type')
+    )
+    target_price = models.ForeignKey(
+        ProductPrice,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approval_requests',
+        verbose_name=_('Target Product Price')
+    )
+    target_model = models.ForeignKey(
+        AssetModel,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='price_approval_requests',
+        verbose_name=_('Target Hardware Model')
+    )
+    target_service_item = models.ForeignKey(
+        ServiceItem,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='price_approval_requests',
+        verbose_name=_('Target Service Item')
+    )
+    requested_service_group = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Requested Service Group')
+    )
+    requested_service_name = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Requested Service Name')
+    )
+    requested_service_unit = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name=_('Requested Service Unit')
+    )
+    current_snapshot = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name=_('Current Snapshot')
+    )
+    proposed_snapshot = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name=_('Proposed Snapshot')
+    )
+    request_notes = models.TextField(
+        blank=True,
+        verbose_name=_('Request Notes')
+    )
+    review_notes = models.TextField(
+        blank=True,
+        verbose_name=_('Review Notes')
+    )
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='requested_product_price_approvals',
+        verbose_name=_('Requested By')
+    )
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_product_price_approvals',
+        verbose_name=_('Reviewed By')
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+    reviewed_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Reviewed At'))
+
+    class Meta:
+        verbose_name = _('Product Price Approval Request')
+        verbose_name_plural = _('Product Price Approval Requests')
+        ordering = ['status', '-created_at']
+        indexes = [
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['catalog_type', 'status']),
+            models.Index(fields=['request_type', 'status']),
+            models.Index(fields=['requested_by', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.get_request_type_display()} {self.get_catalog_type_display()} request"
+
+    @property
+    def is_pending(self):
+        return self.status == self.Status.PENDING
+
+    @property
+    def active_snapshot(self):
+        return self.proposed_snapshot or self.current_snapshot or {}
+
+    @property
+    def catalog_label(self):
+        snapshot = self.active_snapshot
+        display_data = snapshot.get('display') or {}
+        if display_data.get('label'):
+            return display_data['label']
+
+        price_data = snapshot.get('product_price') or {}
+        service_data = snapshot.get('service_item') or {}
+        if self.catalog_type == self.CatalogType.HARDWARE:
+            return price_data.get('model_label') or price_data.get('model_name') or _('Hardware Price')
+        return service_data.get('name') or self.requested_service_name or _('Service Price')
+
+    def clean(self):
+        super().clean()
+        errors = {}
+
+        if self.catalog_type == self.CatalogType.HARDWARE and not (self.target_model_id or self.target_price_id):
+            errors['target_model'] = _('Hardware approval requests must reference a model or an existing live price.')
+
+        if self.catalog_type == self.CatalogType.SERVICE and not (
+            self.target_service_item_id or self.target_price_id or self.requested_service_name
+        ):
+            errors['requested_service_name'] = _('Service approval requests must reference an existing service or include a requested service name.')
+
+        if self.request_type in {self.RequestType.UPDATE, self.RequestType.DELETE} and not self.target_price_id:
+            errors['target_price'] = _('Update and delete approval requests must reference an existing live price.')
+
+        if self.request_type in {self.RequestType.CREATE, self.RequestType.UPDATE} and not self.proposed_snapshot:
+            errors['proposed_snapshot'] = _('Create and update approval requests must include the proposed price data.')
+
+        if self.request_type == self.RequestType.DELETE and not self.current_snapshot:
+            errors['current_snapshot'] = _('Delete approval requests must capture the live price being removed.')
+
+        if errors:
+            raise ValidationError(errors)

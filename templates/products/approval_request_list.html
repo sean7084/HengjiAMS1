@@ -1,0 +1,143 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Price Approval Requests" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">{% trans "Price Approval Requests" %}</h1>
+                <p class="text-muted mb-0">
+                    {% if can_approve_order_management_prices %}
+                    {% trans "Review pending specialist requests and inspect historical approvals." %}
+                    {% else %}
+                    {% trans "Track the status of your submitted price change requests." %}
+                    {% endif %}
+                </p>
+            </div>
+            <a href="{% url 'products:price_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back to Price List" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">{% trans "Status" %}</label>
+                            <select name="status" class="form-select">
+                                <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>{% trans "Pending Approval" %}</option>
+                                <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>{% trans "Approved" %}</option>
+                                <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>{% trans "Rejected" %}</option>
+                                <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>{% trans "Cancelled" %}</option>
+                                <option value="all" {% if selected_status == 'all' %}selected{% endif %}>{% trans "All Statuses" %}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> {% trans "Filter" %}
+                            </button>
+                            <a href="{% url 'products:approval_request_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if approval_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Request" %}</th>
+                                    <th>{% trans "Catalog Type" %}</th>
+                                    <th>{% trans "Catalog Item" %}</th>
+                                    <th>{% trans "Requested By" %}</th>
+                                    <th>{% trans "Created At" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Actions" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for approval_request in approval_requests %}
+                                <tr>
+                                    <td>{{ approval_request.get_request_type_display }}</td>
+                                    <td>{{ approval_request.get_catalog_type_display }}</td>
+                                    <td>{{ approval_request.catalog_label }}</td>
+                                    <td>{{ approval_request.requested_by.get_full_name_display|default:approval_request.requested_by.username }}</td>
+                                    <td>{{ approval_request.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% if approval_request.status == 'pending' %}
+                                        <span class="badge text-bg-warning">{{ approval_request.get_status_display }}</span>
+                                        {% elif approval_request.status == 'approved' %}
+                                        <span class="badge text-bg-success">{{ approval_request.get_status_display }}</span>
+                                        {% elif approval_request.status == 'rejected' %}
+                                        <span class="badge text-bg-danger">{{ approval_request.get_status_display }}</span>
+                                        {% else %}
+                                        <span class="badge text-bg-secondary">{{ approval_request.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'products:approval_request_detail' approval_request.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> {% trans "View" %}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if page_obj.has_other_pages %}
+                    <nav aria-label="{% trans 'Approval request pagination' %}">
+                        <ul class="pagination justify-content-center mt-4">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+                                    {% trans "Previous" %}
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if selected_status %}&status={{ selected_status }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_status %}&status={{ selected_status }}{% endif %}">
+                                    {% trans "Next" %}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-check fa-4x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">{% trans "No approval requests found for the selected filter." %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

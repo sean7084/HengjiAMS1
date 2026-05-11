@@ -20,6 +20,12 @@
     .default-model-toggle {
         cursor: pointer;
     }
+    .price-status-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        align-items: flex-start;
+    }
 </style>
 {% endblock %}
 
@@ -30,9 +36,17 @@
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h1 class="h3">{% trans "Price List" %}</h1>
             <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a href="{% url 'products:approval_request_list' %}" class="btn btn-outline-warning">
+                    <i class="fas fa-clipboard-check"></i> {% trans "Approval Requests" %}
+                    {% if pending_approval_count %}
+                    <span class="badge text-bg-warning ms-1">{{ pending_approval_count }}</span>
+                    {% endif %}
+                </a>
+                {% if can_approve_order_management_prices %}
                 <a href="{% url 'products:price_import' %}" class="btn btn-outline-primary">
                     <i class="fas fa-file-import"></i> {% trans "Import" %}
                 </a>
+                {% endif %}
                 <a href="{% url 'products:service_price_add' %}" class="btn btn-outline-primary">
                     <i class="fas fa-screwdriver-wrench"></i> {% trans "Add Service Item" %}
                 </a>
@@ -195,11 +209,37 @@
                                     <td>{{ price.tax_rate }}%</td>
                                     <td class="price-with-tax">¥{{ price.price_with_tax|floatformat:2 }}</td>
                                     <td>
-                                        {% if price.is_current %}
-                                        <span class="badge bg-success">{% trans "Current" %}</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">{% trans "Inactive" %}</span>
-                                        {% endif %}
+                                        <div class="price-status-stack">
+                                            {% if price.is_current %}
+                                            <span class="badge bg-success">{% trans "Current" %}</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                                            {% endif %}
+                                            {% with approval_request=price.latest_visible_approval_request %}
+                                            {% if approval_request %}
+                                                {% if approval_request.status == 'pending' and approval_request.request_type == 'update' %}
+                                                <span class="badge text-bg-warning">{% trans "Update Request Pending" %}</span>
+                                                {% elif approval_request.status == 'pending' and approval_request.request_type == 'delete' %}
+                                                <span class="badge text-bg-warning">{% trans "Delete Request Pending" %}</span>
+                                                {% elif approval_request.status == 'approved' and approval_request.request_type == 'update' %}
+                                                <span class="badge text-bg-success">{% trans "Update Request Approved" %}</span>
+                                                {% elif approval_request.status == 'approved' and approval_request.request_type == 'delete' %}
+                                                <span class="badge text-bg-success">{% trans "Delete Request Approved" %}</span>
+                                                {% elif approval_request.status == 'rejected' and approval_request.request_type == 'update' %}
+                                                <span class="badge text-bg-danger">{% trans "Update Request Rejected" %}</span>
+                                                {% elif approval_request.status == 'rejected' and approval_request.request_type == 'delete' %}
+                                                <span class="badge text-bg-danger">{% trans "Delete Request Rejected" %}</span>
+                                                {% elif approval_request.status == 'cancelled' and approval_request.request_type == 'update' %}
+                                                <span class="badge text-bg-secondary">{% trans "Update Request Cancelled" %}</span>
+                                                {% elif approval_request.status == 'cancelled' and approval_request.request_type == 'delete' %}
+                                                <span class="badge text-bg-secondary">{% trans "Delete Request Cancelled" %}</span>
+                                                {% endif %}
+                                                <a href="{% url 'products:approval_request_detail' approval_request.pk %}" class="small text-decoration-none">
+                                                    {% trans "View request" %}
+                                                </a>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
                                     </td>
                                     <td>
                                         <a href="{% if price.is_service %}{% url 'products:service_price_edit' price.pk %}{% else %}{% url 'products:price_edit' price.pk %}{% endif %}" class="btn btn-sm btn-outline-primary">
@@ -251,6 +291,9 @@
                         <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
                         <p class="text-muted">{% trans "No products found." %}</p>
                         <div class="d-flex gap-2 justify-content-center flex-wrap">
+                            <a href="{% url 'products:approval_request_list' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-clipboard-check"></i> {% trans "Approval Requests" %}
+                            </a>
                             <a href="{% url 'products:service_price_add' %}" class="btn btn-outline-primary">
                                 <i class="fas fa-screwdriver-wrench"></i> {% trans "Add Service Item" %}
                             </a>

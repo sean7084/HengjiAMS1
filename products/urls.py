@@ -8,6 +8,8 @@ app_name = 'products'
 
 urlpatterns = [
     path('', views.ProductPriceListView.as_view(), name='price_list'),
+    path('approvals/', views.ProductPriceApprovalListView.as_view(), name='approval_request_list'),
+    path('approvals/<int:pk>/', views.ProductPriceApprovalDetailView.as_view(), name='approval_request_detail'),
     path('add/', views.ProductPriceCreateView.as_view(), name='price_add'),
     path('services/add/', views.ServicePriceCreateView.as_view(), name='service_price_add'),
     path('services/<int:pk>/edit/', views.ServicePriceUpdateView.as_view(), name='service_price_edit'),
