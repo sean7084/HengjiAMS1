@@ -192,12 +192,16 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['password2'].required = False
         
         # Add help text for random password
-        self.fields['password1'].help_text = _('Leave blank to use random password')
-        self.fields['password2'].help_text = _('Leave blank to use random password')
         self.fields['roles'].queryset = AdminRole.objects.filter(is_active=True).order_by('name')
 
         if self.instance.pk:
             self.fields['roles'].initial = self.instance.roles.all()
+            self.fields.pop('use_random_password', None)
+            self.fields['password1'].help_text = _('Leave blank to keep the current password')
+            self.fields['password2'].help_text = _('Leave blank to keep the current password')
+        else:
+            self.fields['password1'].help_text = _('Leave blank to use random password')
+            self.fields['password2'].help_text = _('Leave blank to use random password')
     
     def generate_random_password(self, length=12):
         """Generate a secure random password."""
@@ -245,7 +249,10 @@ class UserRegistrationForm(UserCreationForm):
         return username
     
     def save(self, commit=True):
-        user = super().save(commit=False)
+        if self.instance.pk:
+            user = forms.ModelForm.save(self, commit=False)
+        else:
+            user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
@@ -519,9 +526,15 @@ class SuperuserUserForm(UserCreationForm):
         self.fields['password2'].required = False
         
         # Add help text for random password
-        self.fields['password1'].help_text = _('Leave blank to use random password')
-        self.fields['password2'].help_text = _('Leave blank to use random password')
-    
+        if self.instance.pk:
+            self.fields['roles'].initial = self.instance.roles.all()
+            self.fields.pop('use_random_password', None)
+            self.fields['password1'].help_text = _('Leave blank to keep the current password')
+            self.fields['password2'].help_text = _('Leave blank to keep the current password')
+        else:
+            self.fields['password1'].help_text = _('Leave blank to use random password')
+            self.fields['password2'].help_text = _('Leave blank to use random password')
+
     def generate_random_password(self, length=12):
         """Generate a secure random password."""
         characters = string.ascii_letters + string.digits + "!@#$%^&*"
@@ -569,7 +582,10 @@ class SuperuserUserForm(UserCreationForm):
         return username
     
     def save(self, commit=True):
-        user = super().save(commit=False)
+        if self.instance.pk:
+            user = forms.ModelForm.save(self, commit=False)
+        else:
+            user = super().save(commit=False)
         
         # Save all the additional fields
         user.email = self.cleaned_data['email']

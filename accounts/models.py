@@ -500,7 +500,7 @@ class User(AbstractUser):
     def get_access_scope_display(self):
         """Get a description of the user's access scope."""
         if self.is_superadmin():
-            return _("All companies and data")
+            return str(_("All companies and data"))
 
         scopes = []
         if self.is_it_administrator():
@@ -521,7 +521,7 @@ class User(AbstractUser):
             scopes.append(_("Order management workflows"))
         if self.is_order_management_manager():
             scopes.append(_("Order management management and price approvals"))
-        return ", ".join(scopes) if scopes else _("No admin access")
+        return ", ".join(str(scope) for scope in scopes) if scopes else str(_("No admin access"))
 
 
 class UserMailboxSettings(models.Model):

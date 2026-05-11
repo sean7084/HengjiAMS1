@@ -684,8 +684,11 @@ class UserEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user.can_manage_users()
     
     def form_valid(self, form):
+        self.object = form.save()
+        if self.object.pk == self.request.user.pk and form.cleaned_data.get('password1'):
+            update_session_auth_hash(self.request, self.object)
         messages.success(self.request, _('User updated successfully.'))
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

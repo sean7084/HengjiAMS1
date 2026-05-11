@@ -227,6 +227,32 @@
                             {% endif %}
                         </div>
 
+                        <div class="row">
+                            {% if form.language_preference %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.language_preference.id_for_label }}" class="form-label">
+                                    {{ form.language_preference.label }}{% if form.language_preference.field.required %} <span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.language_preference }}
+                                {% if form.language_preference.errors %}
+                                <div class="text-danger">{{ form.language_preference.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if form.timezone %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.timezone.id_for_label }}" class="form-label">
+                                    {{ form.timezone.label }}{% if form.timezone.field.required %} <span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ form.timezone }}
+                                {% if form.timezone.errors %}
+                                <div class="text-danger">{{ form.timezone.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
                         <!-- Company and Division Management -->
                         {% if form.managed_company or form.managed_divisions or form.managed_locations %}
                         <hr class="my-4">
@@ -349,6 +375,62 @@
                                 {% endif %}
                                 {% if form.is_staff.errors %}
                                 <div class="text-danger">{{ form.is_staff.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.password1 or form.password2 or form.must_change_password %}
+                        <hr class="my-4">
+                        <h6 class="mb-3">{% trans "Password and Security" %}</h6>
+
+                        <div class="row">
+                            {% if form.password1 %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                    {{ form.password1.label }}
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.help_text %}
+                                <div class="form-text">{{ form.password1.help_text }}</div>
+                                {% endif %}
+                                {% if form.password1.errors %}
+                                <div class="text-danger">{{ form.password1.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if form.password2 %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                    {{ form.password2.label }}
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.help_text %}
+                                <div class="form-text">{{ form.password2.help_text }}</div>
+                                {% endif %}
+                                {% if form.password2.errors %}
+                                <div class="text-danger">{{ form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            {% if form.must_change_password %}
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.must_change_password }}
+                                    <label class="form-check-label" for="{{ form.must_change_password.id_for_label }}">
+                                        {{ form.must_change_password.label }}
+                                    </label>
+                                </div>
+                                {% if form.must_change_password.help_text %}
+                                <div class="form-text">{{ form.must_change_password.help_text }}</div>
+                                {% endif %}
+                                {% if form.must_change_password.errors %}
+                                <div class="text-danger">{{ form.must_change_password.errors }}</div>
                                 {% endif %}
                             </div>
                             {% endif %}
