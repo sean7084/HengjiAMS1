@@ -36,6 +36,7 @@ urlpatterns = [
     path('users/create/', views.UserCreateView.as_view(), name='user_create'),
     path('users/<uuid:pk>/', views.UserDetailView.as_view(), name='user_detail'),
     path('users/<uuid:pk>/edit/', views.UserEditView.as_view(), name='user_edit'),
+    path('users/<uuid:pk>/reset-password/', views.UserResetPasswordView.as_view(), name='user_reset_password'),
     path('users/<uuid:pk>/toggle-status/', views.UserToggleStatusView.as_view(), name='user_toggle_status'),
     
     # Session Management

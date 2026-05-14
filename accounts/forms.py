@@ -17,7 +17,12 @@ from django.contrib.auth import authenticate
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.utils import timezone
 
-from .models import AdminRole, User, UserMailboxSettings
+from .models import AdminRole, SystemSMTPSettings, User, UserMailboxSettings
+
+
+def generate_random_password(length=12):
+    characters = string.ascii_letters + string.digits + "!@#$%^&*"
+    return ''.join(secrets.choice(characters) for _ in range(length))
 
 
 def build_admin_roles_field(required=False):
@@ -165,107 +170,60 @@ class UserRegistrationForm(UserCreationForm):
             'password1', 'password2', 'roles', 'phone_number', 
             'language_preference', 'use_random_password', 'must_change_password'
         )
+
+    def is_edit_mode(self):
+        return self.instance is not None and not self.instance._state.adding
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields.pop('password1', None)
+        self.fields.pop('password2', None)
+        self.fields.pop('use_random_password', None)
+
         # Add CSS classes to default fields
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': _('Username')
         })
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': _('Password')
-        })
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': _('Confirm Password')
-        })
         
         # Update labels
         self.fields['username'].label = _('Username')
-        self.fields['password1'].label = _('Password')
-        self.fields['password2'].label = _('Confirm Password')
-        
-        # Make password fields not required when using random password
-        self.fields['password1'].required = False
-        self.fields['password2'].required = False
-        
-        # Add help text for random password
         self.fields['roles'].queryset = AdminRole.objects.filter(is_active=True).order_by('name')
 
-        if self.instance.pk:
+        if self.is_edit_mode():
             self.fields['roles'].initial = self.instance.roles.all()
-            self.fields.pop('use_random_password', None)
-            self.fields['password1'].help_text = _('Leave blank to keep the current password')
-            self.fields['password2'].help_text = _('Leave blank to keep the current password')
-        else:
-            self.fields['password1'].help_text = _('Leave blank to use random password')
-            self.fields['password2'].help_text = _('Leave blank to use random password')
-    
-    def generate_random_password(self, length=12):
-        """Generate a secure random password."""
-        # Include uppercase, lowercase, digits, and some safe special characters
-        characters = string.ascii_letters + string.digits + "!@#$%^&*"
-        return ''.join(secrets.choice(characters) for _ in range(length))
     
     def clean(self):
-        cleaned_data = super().clean()
-        use_random_password = cleaned_data.get('use_random_password')
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
-
-        if self.instance.pk:
-            if password1 or password2:
-                if password1 != password2:
-                    raise ValidationError(_('Passwords do not match.'))
-            return cleaned_data
-        
-        if not use_random_password:
-            # If not using random password, require manual password entry
-            if not password1:
-                raise ValidationError(_('Password is required when not using random password generation.'))
-            if not password2:
-                raise ValidationError(_('Password confirmation is required when not using random password generation.'))
-            if password1 != password2:
-                raise ValidationError(_('Passwords do not match.'))
-        else:
-            # Generate random password
-            random_password = self.generate_random_password()
-            cleaned_data['password1'] = random_password
-            cleaned_data['password2'] = random_password
-            # Store the generated password for later use
-            self.generated_password = random_password
-        
+        cleaned_data = forms.ModelForm.clean(self)
+        if not self.is_edit_mode():
+            self.generated_password = generate_random_password()
         return cleaned_data
 
     def clean_username(self):
         username = self.cleaned_data['username']
         queryset = User.objects.filter(username=username)
-        if self.instance.pk:
+        if self.is_edit_mode():
             queryset = queryset.exclude(pk=self.instance.pk)
         if queryset.exists():
             raise ValidationError(_('A user with that username already exists.'))
         return username
     
     def save(self, commit=True):
-        if self.instance.pk:
-            user = forms.ModelForm.save(self, commit=False)
-        else:
-            user = super().save(commit=False)
+        user = forms.ModelForm.save(self, commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.phone_number = self.cleaned_data['phone_number']
         user.language_preference = self.cleaned_data['language_preference']
         user.must_change_password = self.cleaned_data['must_change_password']
+        if not self.is_edit_mode():
+            generated_password = getattr(self, 'generated_password', generate_random_password())
+            self.generated_password = generated_password
+            user.set_password(generated_password)
         
         if commit:
             user.save()
             user.roles.set(self.cleaned_data['roles'])
-            if self.cleaned_data.get('password1'):
-                user.set_password(self.cleaned_data['password1'])
-                user.save(update_fields=['password'])
         else:
             user.set_admin_roles(role.code for role in self.cleaned_data['roles'])
         return user
@@ -483,9 +441,15 @@ class SuperuserUserForm(UserCreationForm):
             'language_preference', 'timezone', 'is_active', 'is_staff',
             'password1', 'password2', 'use_random_password', 'must_change_password'
         )
+
+    def is_edit_mode(self):
+        return self.instance is not None and not self.instance._state.adding
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields.pop('password1', None)
+        self.fields.pop('password2', None)
+        self.fields.pop('use_random_password', None)
         
         # Import here to avoid circular imports
         from companies.models import Company, Division, Location
@@ -499,7 +463,7 @@ class SuperuserUserForm(UserCreationForm):
         self.fields['managed_divisions'].queryset = Division.objects.filter(status='active')
         self.fields['managed_locations'].queryset = Location.objects.filter(status='active')
 
-        if self.instance.pk:
+        if self.is_edit_mode():
             self.fields['roles'].initial = self.instance.roles.all()
         
         # Add CSS classes to default fields
@@ -507,87 +471,32 @@ class SuperuserUserForm(UserCreationForm):
             'class': 'form-control',
             'placeholder': _('Username')
         })
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': _('Password')
-        })
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': _('Confirm Password')
-        })
         
         # Update labels
         self.fields['username'].label = _('Username')
-        self.fields['password1'].label = _('Password')
-        self.fields['password2'].label = _('Confirm Password')
-        
-        # Make password fields not required when using random password
-        self.fields['password1'].required = False
-        self.fields['password2'].required = False
-        
-        # Add help text for random password
-        if self.instance.pk:
+
+        if self.is_edit_mode():
             self.fields['roles'].initial = self.instance.roles.all()
-            self.fields.pop('use_random_password', None)
-            self.fields['password1'].help_text = _('Leave blank to keep the current password')
-            self.fields['password2'].help_text = _('Leave blank to keep the current password')
             self.fields.pop('division', None)
             self.fields.pop('managed_divisions', None)
-        else:
-            self.fields['password1'].help_text = _('Leave blank to use random password')
-            self.fields['password2'].help_text = _('Leave blank to use random password')
-
-    def generate_random_password(self, length=12):
-        """Generate a secure random password."""
-        characters = string.ascii_letters + string.digits + "!@#$%^&*"
-        return ''.join(secrets.choice(characters) for _ in range(length))
     
     def clean(self):
-        cleaned_data = super().clean()
-        use_random_password = cleaned_data.get('use_random_password')
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
-
-        if self.instance.pk:
-            if password1 or password2:
-                if not password1 or not password2:
-                    raise ValidationError(_('Provide both password fields to change the password.'))
-                if password1 != password2:
-                    raise ValidationError(_('Passwords do not match.'))
-            return cleaned_data
-        
-        if not use_random_password:
-            # If not using random password, require manual password entry
-            if not password1:
-                raise ValidationError(_('Password is required when not using random password generation.'))
-            if not password2:
-                raise ValidationError(_('Password confirmation is required when not using random password generation.'))
-            if password1 != password2:
-                raise ValidationError(_('Passwords do not match.'))
-        else:
-            # Generate random password
-            random_password = self.generate_random_password()
-            cleaned_data['password1'] = random_password
-            cleaned_data['password2'] = random_password
-            # Store the generated password for later use
-            self.generated_password = random_password
-        
+        cleaned_data = forms.ModelForm.clean(self)
+        if not self.is_edit_mode():
+            self.generated_password = generate_random_password()
         return cleaned_data
 
     def clean_username(self):
         username = self.cleaned_data['username']
         queryset = User.objects.filter(username=username)
-        if self.instance.pk:
+        if self.is_edit_mode():
             queryset = queryset.exclude(pk=self.instance.pk)
         if queryset.exists():
             raise ValidationError(_('A user with that username already exists.'))
         return username
     
     def save(self, commit=True):
-        if self.instance.pk:
-            user = forms.ModelForm.save(self, commit=False)
-        else:
-            user = super().save(commit=False)
+        user = forms.ModelForm.save(self, commit=False)
         
         # Save all the additional fields
         user.email = self.cleaned_data['email']
@@ -607,13 +516,14 @@ class SuperuserUserForm(UserCreationForm):
         user.is_active = self.cleaned_data.get('is_active', True)
         user.is_staff = self.cleaned_data.get('is_staff', False)
         user.must_change_password = self.cleaned_data.get('must_change_password', True)
+        if not self.is_edit_mode():
+            generated_password = getattr(self, 'generated_password', generate_random_password())
+            self.generated_password = generated_password
+            user.set_password(generated_password)
         
         if commit:
             user.save()
             user.roles.set(self.cleaned_data.get('roles', []))
-            if self.cleaned_data.get('password1'):
-                user.set_password(self.cleaned_data['password1'])
-                user.save(update_fields=['password'])
             # Save many-to-many fields
             if 'managed_divisions' in self.cleaned_data:
                 user.managed_divisions.set(self.cleaned_data['managed_divisions'])
@@ -675,15 +585,67 @@ class UserSettingsForm(forms.ModelForm):
     """
     class Meta:
         model = User
-        fields = ['language_preference']
+        fields = ['language_preference', 'timezone']
         widgets = {
             'language_preference': forms.Select(attrs={
                 'class': 'form-control'
             }),
+            'timezone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'UTC',
+            }),
         }
         labels = {
             'language_preference': _('Language Preference'),
+            'timezone': _('Timezone'),
         }
+
+
+class SystemSMTPSettingsForm(forms.ModelForm):
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'autocomplete': 'new-password',
+        }),
+        label=_('SMTP Password'),
+        help_text=_('Leave blank to keep the currently stored password.'),
+    )
+
+    class Meta:
+        model = SystemSMTPSettings
+        fields = [
+            'from_email', 'from_display_name', 'username', 'password',
+            'smtp_host', 'smtp_port', 'smtp_security', 'timeout', 'is_active',
+        ]
+        widgets = {
+            'from_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'from_display_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'smtp_host': forms.TextInput(attrs={'class': 'form-control'}),
+            'smtp_port': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'smtp_security': forms.Select(attrs={'class': 'form-select'}),
+            'timeout': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        if cleaned_data.get('is_active') and not password and not self.instance.encrypted_password:
+            self.add_error('password', _('SMTP password is required for an active SMTP configuration.'))
+        if cleaned_data.get('timeout', 0) < 1:
+            self.add_error('timeout', _('Connection timeout must be at least 1 second.'))
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        if password:
+            instance.set_password(password)
+        if commit:
+            instance.save()
+        return instance
 
 
 class UserMailboxSettingsForm(forms.ModelForm):

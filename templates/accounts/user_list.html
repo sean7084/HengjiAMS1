@@ -141,6 +141,26 @@
                                     </a>
                                     {% endif %}
                                     {% if perms.accounts.change_user and user != request.user %}
+                                    {% if user.email %}
+                                    <form method="post" action="{% url 'accounts:user_reset_password' user.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-outline-warning btn-sm"
+                                                title="{% trans 'Reset Password' %}"
+                                                onclick="return confirm('{% trans 'Generate a new temporary password and email it to this user?' %}');">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <button type="button"
+                                            class="btn btn-outline-warning btn-sm"
+                                            title="{% trans 'No email address available' %}"
+                                            disabled>
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% endif %}
+                                    {% if perms.accounts.change_user and user != request.user %}
                                     <form method="post" action="{% url 'accounts:user_toggle_status' user.pk %}" class="d-inline">
                                         {% csrf_token %}
                                         <button type="submit" 

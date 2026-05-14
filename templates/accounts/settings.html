@@ -17,7 +17,6 @@
                 </a>
             </div>
 
-            <!-- Settings Form -->
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
@@ -27,7 +26,7 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        
+
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {{ form.non_field_errors }}
@@ -67,54 +66,144 @@
                             </div>
                             {% endif %}
                         </div>
-
-                        <!-- Email Notifications -->
-                        {% if form.email_notifications %}
-                        <div class="mb-3">
-                            <h6>{% trans "Email Notifications" %}</h6>
-                            <div class="form-check">
-                                {{ form.email_notifications }}
-                                <label class="form-check-label" for="{{ form.email_notifications.id_for_label }}">
-                                    {{ form.email_notifications.label }}
-                                </label>
-                            </div>
-                            {% if form.email_notifications.help_text %}
-                            <div class="form-text">{{ form.email_notifications.help_text }}</div>
-                            {% endif %}
-                            {% if form.email_notifications.errors %}
-                            <div class="text-danger">{{ form.email_notifications.errors }}</div>
-                            {% endif %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> {% trans "Cancel" %}
+                            </a>
+                            <button type="submit" name="save_preferences" value="1" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Preferences" %}
+                            </button>
                         </div>
-                        {% endif %}
+                    </form>
+                </div>
+            </div>
 
-                        <hr class="my-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h6 class="mb-1">{% trans "Two-Factor Authentication" %}</h6>
-                                <p class="text-muted small mb-0">
-                                    {% if two_factor_enabled %}
-                                    {% trans "2FA is currently enabled for this account." %}
-                                    {% else %}
-                                    {% trans "2FA is currently disabled for this account." %}
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="d-flex gap-2">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shield-alt"></i> {% trans "Two-Factor Authentication" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <p class="text-muted small mb-0">
                                 {% if two_factor_enabled %}
-                                <a href="{% url 'accounts:backup_tokens' %}" class="btn btn-outline-primary btn-sm">{% trans "View Backup Tokens" %}</a>
-                                <a href="{% url 'accounts:disable_2fa' %}" class="btn btn-outline-danger btn-sm">{% trans "Disable 2FA" %}</a>
+                                {% trans "2FA is currently enabled for this account." %}
                                 {% else %}
-                                <a href="{% url 'accounts:setup_2fa' %}" class="btn btn-outline-primary btn-sm">{% trans "Enable 2FA" %}</a>
+                                {% trans "2FA is currently disabled for this account." %}
                                 {% endif %}
-                            </div>
+                            </p>
                         </div>
-                        {% if two_factor_enabled %}
-                        <div class="form-text mb-3">{% blocktrans count backup_token_count=backup_token_count %}You currently have {{ backup_token_count }} backup token saved.{% plural %}You currently have {{ backup_token_count }} backup tokens saved.{% endblocktrans %}</div>
+                        <div class="d-flex gap-2">
+                            {% if two_factor_enabled %}
+                            <a href="{% url 'accounts:backup_tokens' %}" class="btn btn-outline-primary btn-sm">{% trans "View Backup Tokens" %}</a>
+                            <a href="{% url 'accounts:disable_2fa' %}" class="btn btn-outline-danger btn-sm">{% trans "Disable 2FA" %}</a>
+                            {% else %}
+                            <a href="{% url 'accounts:setup_2fa' %}" class="btn btn-outline-primary btn-sm">{% trans "Enable 2FA" %}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if two_factor_enabled %}
+                    <div class="form-text">{% blocktrans count backup_token_count=backup_token_count %}You currently have {{ backup_token_count }} backup token saved.{% plural %}You currently have {{ backup_token_count }} backup tokens saved.{% endblocktrans %}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if can_manage_system_smtp and system_smtp_form %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-server"></i> {% trans "System SMTP Settings" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if system_smtp_form.non_field_errors %}
+                        <div class="alert alert-danger">{{ system_smtp_form.non_field_errors }}</div>
                         {% endif %}
 
-                        {% if can_manage_orders and mailbox_form %}
-                        <hr class="my-4">
-                        <h6 class="mb-3">{% trans "Order Management Mailbox" %}</h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-envelope"></i>
+                            {% trans "These settings are used for system-generated emails such as password delivery and other outbound notifications." %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ system_smtp_form.from_email.id_for_label }}" class="form-label">{{ system_smtp_form.from_email.label }}</label>
+                                {{ system_smtp_form.from_email }}
+                                <div class="text-danger">{{ system_smtp_form.from_email.errors }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ system_smtp_form.from_display_name.id_for_label }}" class="form-label">{{ system_smtp_form.from_display_name.label }}</label>
+                                {{ system_smtp_form.from_display_name }}
+                                <div class="text-danger">{{ system_smtp_form.from_display_name.errors }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ system_smtp_form.username.id_for_label }}" class="form-label">{{ system_smtp_form.username.label }}</label>
+                                {{ system_smtp_form.username }}
+                                <div class="text-danger">{{ system_smtp_form.username.errors }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ system_smtp_form.password.id_for_label }}" class="form-label">{{ system_smtp_form.password.label }}</label>
+                                {{ system_smtp_form.password }}
+                                {% if system_smtp_form.password.help_text %}<div class="form-text">{{ system_smtp_form.password.help_text }}</div>{% endif %}
+                                <div class="text-danger">{{ system_smtp_form.password.errors }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ system_smtp_form.smtp_host.id_for_label }}" class="form-label">{{ system_smtp_form.smtp_host.label }}</label>
+                                {{ system_smtp_form.smtp_host }}
+                                <div class="text-danger">{{ system_smtp_form.smtp_host.errors }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ system_smtp_form.smtp_port.id_for_label }}" class="form-label">{{ system_smtp_form.smtp_port.label }}</label>
+                                {{ system_smtp_form.smtp_port }}
+                                <div class="text-danger">{{ system_smtp_form.smtp_port.errors }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ system_smtp_form.smtp_security.id_for_label }}" class="form-label">{{ system_smtp_form.smtp_security.label }}</label>
+                                {{ system_smtp_form.smtp_security }}
+                                <div class="text-danger">{{ system_smtp_form.smtp_security.errors }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ system_smtp_form.timeout.id_for_label }}" class="form-label">{{ system_smtp_form.timeout.label }}</label>
+                                {{ system_smtp_form.timeout }}
+                                <div class="text-danger">{{ system_smtp_form.timeout.errors }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    {{ system_smtp_form.is_active }}
+                                    <label class="form-check-label" for="{{ system_smtp_form.is_active.id_for_label }}">{{ system_smtp_form.is_active.label }}</label>
+                                </div>
+                                <div class="text-danger">{{ system_smtp_form.is_active.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" name="save_system_smtp" value="1" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save SMTP Settings" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if can_manage_orders and mailbox_form %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-inbox"></i> {% trans "Order Management Mailbox" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if mailbox_form.non_field_errors %}
+                        <div class="alert alert-danger">{{ mailbox_form.non_field_errors }}</div>
+                        {% endif %}
+
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="{{ mailbox_form.email_address.id_for_label }}" class="form-label">{{ mailbox_form.email_address.label }}</label>
@@ -149,10 +238,12 @@
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.smtp_port.id_for_label }}" class="form-label">{{ mailbox_form.smtp_port.label }}</label>
                                 {{ mailbox_form.smtp_port }}
+                                <div class="text-danger">{{ mailbox_form.smtp_port.errors }}</div>
                             </div>
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.smtp_security.id_for_label }}" class="form-label">{{ mailbox_form.smtp_security.label }}</label>
                                 {{ mailbox_form.smtp_security }}
+                                <div class="text-danger">{{ mailbox_form.smtp_security.errors }}</div>
                             </div>
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.sync_lookback_months.id_for_label }}" class="form-label">{{ mailbox_form.sync_lookback_months.label }}</label>
@@ -167,10 +258,12 @@
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.imap_port.id_for_label }}" class="form-label">{{ mailbox_form.imap_port.label }}</label>
                                 {{ mailbox_form.imap_port }}
+                                <div class="text-danger">{{ mailbox_form.imap_port.errors }}</div>
                             </div>
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.imap_security.id_for_label }}" class="form-label">{{ mailbox_form.imap_security.label }}</label>
                                 {{ mailbox_form.imap_security }}
+                                <div class="text-danger">{{ mailbox_form.imap_security.errors }}</div>
                             </div>
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.imap_sent_folder.id_for_label }}" class="form-label">{{ mailbox_form.imap_sent_folder.label }}</label>
@@ -185,42 +278,38 @@
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.pop3_port.id_for_label }}" class="form-label">{{ mailbox_form.pop3_port.label }}</label>
                                 {{ mailbox_form.pop3_port }}
+                                <div class="text-danger">{{ mailbox_form.pop3_port.errors }}</div>
                             </div>
                             <div class="col-md-4">
                                 <label for="{{ mailbox_form.pop3_security.id_for_label }}" class="form-label">{{ mailbox_form.pop3_security.label }}</label>
                                 {{ mailbox_form.pop3_security }}
+                                <div class="text-danger">{{ mailbox_form.pop3_security.errors }}</div>
                             </div>
                             <div class="col-12">
                                 <div class="form-check mb-2">{{ mailbox_form.sync_outbox }} <label class="form-check-label" for="{{ mailbox_form.sync_outbox.id_for_label }}">{{ mailbox_form.sync_outbox.label }}</label></div>
                                 <div class="form-check mb-2">{{ mailbox_form.auto_sync_enabled }} <label class="form-check-label" for="{{ mailbox_form.auto_sync_enabled.id_for_label }}">{{ mailbox_form.auto_sync_enabled.label }}</label></div>
                                 <div class="form-check">{{ mailbox_form.is_active }} <label class="form-check-label" for="{{ mailbox_form.is_active.id_for_label }}">{{ mailbox_form.is_active.label }}</label></div>
                             </div>
-                            {% if mailbox_form.instance.pk %}
+                            {% if mailbox_form.instance.created_at %}
                             <div class="col-12">
                                 <div class="small text-muted">{{ mailbox_form.instance.last_connection_message|default:"" }}</div>
                                 <div class="small text-muted">{% trans "Last mailbox sync" %}: {{ mailbox_form.instance.last_mailbox_sync_at|date:"M d, Y H:i"|default:"-" }}</div>
                             </div>
                             {% endif %}
                         </div>
-                        {% endif %}
 
-                        <!-- Form Actions -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> {% trans "Cancel" %}
-                            </a>
-                            {% if can_manage_orders and mailbox_form %}
                             <button type="submit" name="test_mailbox" value="1" class="btn btn-outline-primary">
                                 <i class="fas fa-plug"></i> {% trans "Test Mailbox" %}
                             </button>
-                            {% endif %}
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> {% trans "Save Settings" %}
+                            <button type="submit" name="save_mailbox" value="1" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Mailbox" %}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>

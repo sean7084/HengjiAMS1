@@ -23,7 +23,9 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import activate
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q
 from django_otp.models import Device
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -35,12 +37,48 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
 
 from .models import AdminRole, ReceivedEmailMessage, User, UserMailboxSettings, UserSession
+from .models import SystemSMTPSettings
 from .mailbox_sync import maybe_auto_sync_mailbox, sync_mailbox_messages
 from .rfq_ai import process_rfq_message
 from .forms import (
     CustomLoginForm, UserRegistrationForm, SuperuserUserForm, UserProfileForm, 
-    UserSettingsForm, UserMailboxSettingsForm, TwoFactorSetupForm, TwoFactorVerifyForm
+    SystemSMTPSettingsForm, UserSettingsForm, UserMailboxSettingsForm, TwoFactorSetupForm, TwoFactorVerifyForm,
+    generate_random_password,
 )
+
+
+def _send_user_temporary_password_email(request, user, temporary_password, *, is_reset=False):
+    if not user.email:
+        raise ValueError(_('This user does not have an email address.'))
+
+    login_url = request.build_absolute_uri(reverse('accounts:login'))
+    subject = _('Your HengJi AMS temporary password')
+    intro = (
+        _('Your HengJi AMS password has been reset.')
+        if is_reset
+        else _('Your HengJi AMS account has been created.')
+    )
+    message = _(
+        'Hello {name},\n\n'
+        '{intro}\n\n'
+        'Username: {username}\n'
+        'Temporary password: {temporary_password}\n'
+        'Login URL: {login_url}\n\n'
+        'You will be required to change your password after signing in.\n'
+    ).format(
+        name=user.get_full_name() or user.username,
+        intro=intro,
+        username=user.username,
+        temporary_password=temporary_password,
+        login_url=login_url,
+    )
+    send_mail(
+        subject,
+        message,
+        '',
+        [user.email],
+        fail_silently=False,
+    )
 
 
 class OrderManagementAccessMixin(UserPassesTestMixin):
@@ -337,18 +375,37 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         return self.request.user
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['prefix'] = 'preferences'
+        return kwargs
+
     def get_mailbox_form(self):
         if not self.request.user.can_manage_orders():
             return None
         mailbox_instance = getattr(self.request.user, 'mailbox_settings', None)
         if self.request.method == 'POST':
-            return UserMailboxSettingsForm(self.request.POST, instance=mailbox_instance)
-        return UserMailboxSettingsForm(instance=mailbox_instance)
+            return UserMailboxSettingsForm(self.request.POST, instance=mailbox_instance, prefix='mailbox')
+        return UserMailboxSettingsForm(instance=mailbox_instance, prefix='mailbox')
+
+    def get_system_smtp_form(self):
+        if not self.request.user.is_superadmin():
+            return None
+        smtp_instance = SystemSMTPSettings.get_solo()
+        if self.request.method == 'POST':
+            return SystemSMTPSettingsForm(self.request.POST, instance=smtp_instance, prefix='system_smtp')
+        return SystemSMTPSettingsForm(instance=smtp_instance, prefix='system_smtp')
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         settings_form = self.get_form()
         mailbox_form = self.get_mailbox_form()
+        system_smtp_form = self.get_system_smtp_form()
+
+        if 'save_preferences' in request.POST:
+            if settings_form.is_valid():
+                return self.preferences_form_valid(settings_form)
+            return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form, system_smtp_form=system_smtp_form))
 
         if 'test_mailbox' in request.POST and mailbox_form is not None:
             if mailbox_form.is_valid():
@@ -365,36 +422,42 @@ class UserSettingsView(LoginRequiredMixin, UpdateView):
                 else:
                     mailbox_settings.save()
                     messages.success(request, _('Mailbox connection test succeeded.'))
-            return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form))
+            return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form, system_smtp_form=system_smtp_form))
 
-        if settings_form.is_valid() and (mailbox_form is None or mailbox_form.is_valid()):
-            return self.forms_valid(settings_form, mailbox_form)
-        return self.forms_invalid(settings_form, mailbox_form)
+        if 'save_mailbox' in request.POST and mailbox_form is not None:
+            if mailbox_form.is_valid():
+                mailbox_settings = mailbox_form.save(commit=False)
+                mailbox_settings.user = self.request.user
+                mailbox_settings.save()
+                messages.success(request, _('Mailbox settings updated successfully.'))
+                return redirect(self.success_url)
+            return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form, system_smtp_form=system_smtp_form))
 
-    def forms_valid(self, settings_form, mailbox_form):
-        response = self.form_valid(settings_form)
-        if mailbox_form is not None:
-            mailbox_settings = mailbox_form.save(commit=False)
-            mailbox_settings.user = self.request.user
-            mailbox_settings.save()
-        return response
+        if 'save_system_smtp' in request.POST and system_smtp_form is not None:
+            if system_smtp_form.is_valid():
+                system_smtp_form.save()
+                messages.success(request, _('System SMTP settings updated successfully.'))
+                return redirect(self.success_url)
+            return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form, system_smtp_form=system_smtp_form))
 
-    def forms_invalid(self, settings_form, mailbox_form):
-        return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form))
-    
-    def form_valid(self, form):
+        messages.error(request, _('Select a settings section to save.'))
+        return self.render_to_response(self.get_context_data(form=settings_form, mailbox_form=mailbox_form, system_smtp_form=system_smtp_form))
+
+    def preferences_form_valid(self, form):
         response = super().form_valid(form)
         # Activate the selected language
         language = User.normalize_language_code(form.cleaned_data['language_preference'])
         activate(language)
-        messages.success(self.request, _('Settings updated successfully.'))
+        messages.success(self.request, _('Preferences updated successfully.'))
         return response
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Settings')
         context.setdefault('mailbox_form', self.get_mailbox_form())
+        context.setdefault('system_smtp_form', self.get_system_smtp_form())
         context['can_manage_orders'] = self.request.user.can_manage_orders()
+        context['can_manage_system_smtp'] = self.request.user.is_superadmin()
         context['two_factor_enabled'] = self.request.user.two_factor_enabled
         context['backup_token_count'] = len(self.request.user.backup_tokens or [])
         return context
@@ -610,22 +673,24 @@ class UserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return self.request.user.can_manage_users()
     
     def form_valid(self, form):
-        user = form.save()
-        
-        # Check if random password was generated
-        if hasattr(form, 'generated_password'):
-            # Store the generated password in session to display it
-            self.request.session['generated_password'] = form.generated_password
-            self.request.session['new_user_username'] = user.username
-            self.request.session['new_user_email'] = user.email
-            messages.success(
-                self.request, 
-                _('User "{username}" created successfully with random password.').format(username=user.username)
-            )
-            return redirect('accounts:user_create_success')
-        else:
-            messages.success(self.request, _('User created successfully.'))
-            return redirect(self.success_url)
+        try:
+            with transaction.atomic():
+                user = form.save()
+                _send_user_temporary_password_email(
+                    self.request,
+                    user,
+                    form.generated_password,
+                    is_reset=False,
+                )
+        except Exception:
+            form.add_error(None, _('Unable to send the initial password email. The user was not created.'))
+            return self.form_invalid(form)
+
+        messages.success(
+            self.request,
+            _('User created successfully. A temporary password was emailed to {email}.').format(email=user.email),
+        )
+        return redirect(self.success_url)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -685,8 +750,6 @@ class UserEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     
     def form_valid(self, form):
         self.object = form.save()
-        if self.object.pk == self.request.user.pk and form.cleaned_data.get('password1'):
-            update_session_auth_hash(self.request, self.object)
         messages.success(self.request, _('User updated successfully.'))
         return HttpResponseRedirect(self.get_success_url())
     
@@ -722,6 +785,53 @@ class UserToggleStatusView(LoginRequiredMixin, UserPassesTestMixin, View):
     
     def get(self, request, *args, **kwargs):
         """Handle GET requests by redirecting to user list."""
+        return redirect('accounts:user_list')
+
+
+class UserResetPasswordView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Generate a temporary password for a user and deliver it by email."""
+
+    def test_func(self):
+        return self.request.user.can_manage_users()
+
+    def get_object(self):
+        return get_object_or_404(User, pk=self.kwargs['pk'])
+
+    def post(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        if user == request.user:
+            messages.error(request, _('Reset your own password from your profile settings instead.'))
+            return redirect('accounts:user_list')
+
+        if not user.email:
+            messages.error(request, _('Cannot reset password because this user does not have an email address.'))
+            return redirect('accounts:user_list')
+
+        temporary_password = generate_random_password()
+
+        try:
+            with transaction.atomic():
+                user.set_password(temporary_password)
+                user.must_change_password = True
+                user.save(update_fields=['password', 'must_change_password'])
+                _send_user_temporary_password_email(
+                    request,
+                    user,
+                    temporary_password,
+                    is_reset=True,
+                )
+        except Exception:
+            messages.error(request, _('Unable to send the password reset email. No password changes were saved.'))
+            return redirect('accounts:user_list')
+
+        messages.success(
+            request,
+            _('A temporary password was emailed to {email}.').format(email=user.email),
+        )
+        return redirect('accounts:user_list')
+
+    def get(self, request, *args, **kwargs):
         return redirect('accounts:user_list')
 
 

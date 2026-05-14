@@ -625,6 +625,71 @@ class UserMailboxSettings(models.Model):
         super().save(*args, **kwargs)
 
 
+class SystemSMTPSettings(models.Model):
+    """Singleton SMTP configuration used for system-generated outbound email."""
+
+    class ConnectionSecurity(models.TextChoices):
+        NONE = 'none', _('None')
+        SSL_TLS = 'ssl_tls', _('SSL/TLS')
+        STARTTLS = 'starttls', _('STARTTLS')
+
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    from_email = models.EmailField(verbose_name=_('From Email'))
+    from_display_name = models.CharField(max_length=150, blank=True, verbose_name=_('From Display Name'))
+    username = models.CharField(max_length=255, blank=True, verbose_name=_('SMTP Username'))
+    encrypted_password = models.TextField(blank=True, verbose_name=_('Encrypted Password'))
+    smtp_host = models.CharField(max_length=255, verbose_name=_('SMTP Host'))
+    smtp_port = models.PositiveIntegerField(default=587, verbose_name=_('SMTP Port'))
+    smtp_security = models.CharField(
+        max_length=10,
+        choices=ConnectionSecurity.choices,
+        default=ConnectionSecurity.STARTTLS,
+        verbose_name=_('SMTP Security'),
+    )
+    timeout = models.PositiveIntegerField(default=15, verbose_name=_('Connection Timeout'))
+    is_active = models.BooleanField(default=False, verbose_name=_('Active'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('System SMTP Settings')
+        verbose_name_plural = _('System SMTP Settings')
+
+    def __str__(self):
+        return self.from_email or str(_('System SMTP Settings'))
+
+    @classmethod
+    def get_solo(cls):
+        return cls.objects.filter(pk=1).first() or cls(pk=1)
+
+    @classmethod
+    def get_active(cls):
+        instance = cls.objects.filter(pk=1, is_active=True).first()
+        if instance and instance.smtp_host and instance.from_email:
+            return instance
+        return None
+
+    @property
+    def password(self):
+        if not self.encrypted_password:
+            return ''
+        try:
+            return _xor_secret_restore(self.encrypted_password)
+        except Exception:
+            return ''
+
+    def set_password(self, raw_password):
+        self.encrypted_password = _xor_secret(raw_password) if raw_password else ''
+
+    @property
+    def use_tls(self):
+        return self.smtp_security == self.ConnectionSecurity.STARTTLS
+
+    @property
+    def use_ssl(self):
+        return self.smtp_security == self.ConnectionSecurity.SSL_TLS
+
+
 class ReceivedEmailMessage(models.Model):
     """Locally cached mailbox messages for the order-management email module."""
 

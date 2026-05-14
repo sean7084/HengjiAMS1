@@ -239,7 +239,8 @@ ASSET_BARCODE_UPLOAD_PATH = 'assets/barcodes/'
 MAX_UPLOAD_SIZE = 5242880  # 5MB
 
 # Email settings (for notifications)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+EMAIL_BACKEND = 'accounts.email_backends.DatabaseSMTPEmailBackend'
+DEFAULT_FROM_EMAIL = ''
 
 # Logging configuration
 LOGGING = {
