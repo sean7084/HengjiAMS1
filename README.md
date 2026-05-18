@@ -185,6 +185,28 @@ Access the application at: http://127.0.0.1:8000/
 
 Repository-local `.env` values are loaded automatically by `manage.py`, `hengjiams/asgi.py`, and `hengjiams/wsgi.py`. Keep mailbox credentials, Minimax keys, and test-only overrides in that file and out of version control.
 
+### Windows WeasyPrint Runtime
+
+On Windows, WeasyPrint needs native GTK/Pango/GObject DLLs in addition to the Python packages from `requirements.txt`.
+
+If you installed the standalone MSYS2 runtime in the default location, the project now auto-detects these directories during startup:
+
+- `C:\msys64\ucrt64\bin`
+- `C:\msys64\mingw64\bin`
+- `C:\msys64\clang64\bin`
+
+If your GTK runtime lives elsewhere, set one of these values in the repo-local `.env` file:
+
+```env
+WEASYPRINT_DLL_DIRECTORIES=C:\path\to\gtk\bin
+```
+
+or:
+
+```env
+WEASYPRINT_DLL_DIR=C:\path\to\gtk\bin
+```
+
 ### Database Configuration
 
 **Development (SQLite):**

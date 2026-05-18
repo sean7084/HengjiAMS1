@@ -1,0 +1,22 @@
+# Core framework
+Django==5.2.8
+django-extensions==4.1
+django-otp==1.6.0
+djangorestframework==3.17.1
+
+# Data import/export and document generation
+openpyxl==3.1.5
+pandas==3.0.2
+polib==1.2.0
+python-barcode==0.15.1
+qrcode==8.2
+reportlab==4.4.1
+weasyprint==62.3
+xlsxwriter==3.2.9
+
+# Imaging and security helpers
+pillow==12.1.1
+pyotp==2.9.0
+
+# Optional database driver for PostgreSQL deployments
+# psycopg2==2.9.11
