@@ -17,6 +17,7 @@ from .models import ReceivedEmailMessage, UserMailboxSettings
 
 LOGGER = logging.getLogger(__name__)
 SYNC_INTERVAL_SECONDS = 300
+INITIAL_SYNC_DELAY_SECONDS = 5
 _SYNC_THREAD_STARTED = False
 _SYNC_LOCKS = {}
 _SYNC_LOCKS_GUARD = threading.Lock()
@@ -293,6 +294,8 @@ def start_mailbox_sync_thread():
         return
 
     def _run_loop():
+        # Avoid database access during Django app initialization.
+        time.sleep(INITIAL_SYNC_DELAY_SECONDS)
         while True:
             sync_all_active_mailboxes()
             time.sleep(SYNC_INTERVAL_SECONDS)
