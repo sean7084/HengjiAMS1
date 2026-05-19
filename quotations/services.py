@@ -12,10 +12,6 @@ from openpyxl import load_workbook
 from weasyprint import HTML
 
 
-def _normalize_quotation_text(value):
-    return ' '.join(str(value or '').split()).strip()
-
-
 def _find_label_cell(sheet, label):
     label = str(label).strip()
     for row in sheet.iter_rows():
@@ -83,7 +79,7 @@ def fill_quotation_template(quotation):
     _fill_by_label(sheet, '未税合计', quotation.total_without_tax)
     _fill_by_label(sheet, '税额合计', quotation.total_tax)
     _fill_by_label(sheet, '含税合计', quotation.total_with_tax)
-    _fill_by_label(sheet, '备注', quotation.notes)
+    _fill_by_label(sheet, '备注', quotation.get_effective_remarks())
 
     start_row, header_map = _find_item_header_map(sheet)
     if start_row and header_map:
@@ -162,74 +158,100 @@ def convert_xlsx_to_pdf(xlsx_path):
     return pdf_path if pdf_path.exists() else None
 
 
+def _build_pdf_display_row(item, index):
+    unit_price_with_tax = item.unit_price * (Decimal('1.00') + (item.tax_rate / Decimal('100.00')))
+    return {
+        'index': index,
+        'brand_name': item.brand_name,
+        'product_description': item.product_description,
+        'user_brand': item.user_brand,
+        'user_name': item.user_name,
+        'unit': item.unit,
+        'unit_price': item.unit_price,
+        'unit_price_with_tax': unit_price_with_tax,
+        'quantity': item.quantity,
+        'line_total_without_tax': item.line_total_without_tax,
+        'line_total_with_tax': item.line_total_with_tax,
+        'tax_amount': item.tax_amount,
+    }
+
+
+def _build_empty_pdf_display_row(index):
+    return {
+        'index': index,
+        'brand_name': '',
+        'product_description': '',
+        'user_brand': '',
+        'user_name': '',
+        'unit': '',
+        'unit_price': '',
+        'unit_price_with_tax': '',
+        'quantity': '',
+        'line_total_without_tax': '',
+        'line_total_with_tax': '',
+        'tax_amount': '',
+    }
+
+
+def _build_pdf_display_rows(items, minimum_rows=1):
+    rows = [_build_pdf_display_row(item, index) for index, item in enumerate(items, start=1)]
+    while len(rows) < minimum_rows:
+        rows.append(_build_empty_pdf_display_row(len(rows) + 1))
+    return rows
+
+
+def _build_pdf_section_totals(items):
+    total_without_tax = Decimal('0.00')
+    total_tax = Decimal('0.00')
+    total_with_tax = Decimal('0.00')
+
+    for item in items:
+        total_without_tax += item.line_total_without_tax
+        total_tax += item.tax_amount
+        total_with_tax += item.line_total_with_tax
+
+    vat_percent = Decimal('0.00')
+    if total_without_tax:
+        vat_percent = (total_tax / total_without_tax) * Decimal('100.00')
+
+    return {
+        'total_without_tax': total_without_tax,
+        'total_tax': total_tax,
+        'total_with_tax': total_with_tax,
+        'vat_percent': vat_percent,
+    }
+
+
+def split_quotation_items_for_pdf(ordered_items):
+    hardware_items = [item for item in ordered_items if not getattr(item, 'service_item_id', None)]
+    service_items = [item for item in ordered_items if getattr(item, 'service_item_id', None)]
+    return {
+        'hardware_items': hardware_items,
+        'service_items': service_items,
+        'hardware_display_rows': _build_pdf_display_rows(hardware_items),
+        'service_display_rows': _build_pdf_display_rows(service_items),
+        'hardware_totals': _build_pdf_section_totals(hardware_items),
+        'service_totals': _build_pdf_section_totals(service_items),
+    }
+
+
 def render_quotation_pdf_html(quotation):
     """Render quotation PDF bytes from Django HTML template (LibreOffice-free path)."""
     ordered_items = list(quotation.items.all().order_by('id'))
-    display_rows = []
-    for item in ordered_items:
-        unit_price_with_tax = item.unit_price * (Decimal('1.00') + (item.tax_rate / Decimal('100.00')))
-        display_rows.append({
-            'index': len(display_rows) + 1,
-            'brand_name': item.brand_name,
-            'product_description': item.product_description,
-            'user_brand': item.user_brand,
-            'user_name': item.user_name,
-            'unit': item.unit,
-            'unit_price': item.unit_price,
-            'unit_price_with_tax': unit_price_with_tax,
-            'quantity': item.quantity,
-            'line_total_without_tax': item.line_total_without_tax,
-            'line_total_with_tax': item.line_total_with_tax,
-        })
-
-    while len(display_rows) < 3:
-        display_rows.append({
-            'index': len(display_rows) + 1,
-            'brand_name': '',
-            'product_description': '',
-            'user_brand': '',
-            'user_name': '',
-            'unit': '',
-            'unit_price': '',
-            'unit_price_with_tax': '',
-            'quantity': '',
-            'line_total_without_tax': '',
-            'line_total_with_tax': '',
-        })
+    pdf_sections = split_quotation_items_for_pdf(ordered_items)
 
     vat_percent = Decimal('0.00')
     if quotation.total_without_tax:
         vat_percent = (quotation.total_tax / quotation.total_without_tax) * Decimal('100')
 
-    unique_remark_targets = []
-    seen_remark_targets = set()
-    for item in ordered_items:
-        remark_target = ' '.join(
-            part for part in [
-                _normalize_quotation_text(item.user_brand),
-                _normalize_quotation_text(item.user_name),
-            ]
-            if part
-        ).strip()
-        if not remark_target:
-            continue
-        key = remark_target.lower()
-        if key in seen_remark_targets:
-            continue
-        seen_remark_targets.add(key)
-        unique_remark_targets.append(remark_target)
-
-    remark_targets_text = ', '.join(unique_remark_targets) if unique_remark_targets else _normalize_quotation_text(quotation.customer.name)
-    default_remark_line = f'1. 此报价为 {remark_targets_text} 采购项目。'
-
     context = {
         'quotation': quotation,
         'items': ordered_items,
-        'display_rows': display_rows,
         'vat_percent': vat_percent,
-        'default_remark_line': default_remark_line,
+        'remarks_text': quotation.get_effective_remarks(ordered_items=ordered_items),
         'logo_path': (Path(settings.BASE_DIR) / 'static' / 'images' / 'quotation_template_logo.png').resolve().as_uri(),
         'prepared_by_company': '上海珩际信息科技有限公司',
     }
+    context.update(pdf_sections)
     html = render_to_string('quotations/pdf_excel_style.html', context)
     return HTML(string=html, base_url=str(settings.BASE_DIR)).write_pdf()

@@ -166,9 +166,20 @@
                         </div>
                         {% endif %}
 
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Remarks" %}</label>
+                            {{ form.remarks }}
+                            {% if form.remarks.errors %}
+                            <div class="text-danger small">{{ form.remarks.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
                         <div class="mb-0">
                             <label class="form-label">{% trans "Notes" %}</label>
                             {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger small">{{ form.notes.errors.0 }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -381,6 +392,7 @@
 {% block extra_js %}
 <script>
 (function () {
+    const isEditMode = {{ is_edit|yesno:"true,false" }};
     const companyUsersByCustomer = JSON.parse(document.getElementById('company-users-data').textContent || '{}');
     const companyCodes = JSON.parse(document.getElementById('company-codes-data').textContent || '[]');
     const authorizedAttentionContacts = JSON.parse(document.getElementById('authorized-attention-contacts-data').textContent || '[]');
@@ -393,6 +405,7 @@
     const attnComboboxList = document.getElementById('attn-combobox-list');
     const telInput = document.getElementById('id_tel');
     const attnEmailInput = document.getElementById('id_attn_email');
+    const remarksInput = document.getElementById('id_remarks');
     const productSelect = document.getElementById('product-select');
     const productTypeFilter = document.getElementById('product-type-filter');
     const productComboboxInput = document.getElementById('product-combobox');
@@ -404,6 +417,7 @@
     const addToQuotationButton = document.getElementById('add-to-quotation');
     let hasInitializedCustomerFields = false;
     let editingRow = null;
+    let lastGeneratedRemarks = remarksInput ? normalizeRemarkFieldValue(remarksInput.value) : '';
 
     const originalCustomerOptions = Array.from(customerSelect.options).map(function (option) {
         return {
@@ -936,6 +950,7 @@
             populateItemUserOptions('');
             populateUserBrandOptions('');
             hasInitializedCustomerFields = true;
+            refreshRemarksValue();
             return;
         }
 
@@ -967,6 +982,7 @@
             syncAttnFields(useExistingValues ? false : true);
         }
         hasInitializedCustomerFields = true;
+        refreshRemarksValue();
     }
 
     function parseCurrency(value) {
@@ -985,6 +1001,78 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    function normalizeRemarkText(value) {
+        return String(value || '').trim().replace(/\s+/g, ' ');
+    }
+
+    function normalizeRemarkFieldValue(value) {
+        return String(value || '').replace(/\r\n/g, '\n').trim();
+    }
+
+    function buildRemarkTarget(userBrand, userName) {
+        return [normalizeRemarkText(userBrand), normalizeRemarkText(userName)]
+            .filter(function (part) {
+                return !!part;
+            })
+            .join(' ')
+            .trim();
+    }
+
+    function getRemarkFallbackTarget() {
+        const selected = getSelectedCustomerOption();
+        if (selected && selected.value) {
+            return normalizeRemarkText(selected.text);
+        }
+        return '客户';
+    }
+
+    function getRemarkTargetsFromItems() {
+        const targets = [];
+        const seen = new Set();
+
+        document.querySelectorAll('#items-tbody tr.item-row').forEach(function (row) {
+            const payloadInput = row.querySelector('input[name="items"]');
+            if (!payloadInput) {
+                return;
+            }
+
+            const data = parseItemPayload(payloadInput.value);
+            const target = buildRemarkTarget(data.userBrand, data.userName);
+            if (!target) {
+                return;
+            }
+
+            const key = target.toLowerCase();
+            if (seen.has(key)) {
+                return;
+            }
+
+            seen.add(key);
+            targets.push(target);
+        });
+
+        return targets;
+    }
+
+    function buildGeneratedRemarks() {
+        const remarkTargets = getRemarkTargetsFromItems();
+        const targetText = remarkTargets.length ? remarkTargets.join(', ') : getRemarkFallbackTarget();
+        return `1. 此报价为 ${targetText} 采购项目。\n2. 全部产品保修遵循相关官方政策。`;
+    }
+
+    function refreshRemarksValue() {
+        if (!remarksInput || isEditMode) {
+            return;
+        }
+
+        const generatedRemarks = buildGeneratedRemarks();
+        const normalizedCurrent = normalizeRemarkFieldValue(remarksInput.value);
+        if (!normalizedCurrent || normalizedCurrent === lastGeneratedRemarks) {
+            remarksInput.value = generatedRemarks;
+        }
+        lastGeneratedRemarks = normalizeRemarkFieldValue(generatedRemarks);
     }
 
     function getProductOptionById(productId) {
@@ -1210,6 +1298,7 @@
         resetItemEditor();
 
         renderTotals();
+        refreshRemarksValue();
     });
 
     document.getElementById('items-tbody').addEventListener('click', function(e) {
@@ -1224,6 +1313,7 @@
             }
             row.remove();
             renderTotals();
+            refreshRemarksValue();
         }
     });
 
@@ -1232,6 +1322,7 @@
     refreshCustomerFields();
     updateProductFields();
     renderTotals();
+    refreshRemarksValue();
 })();
 </script>
 {% endblock %}

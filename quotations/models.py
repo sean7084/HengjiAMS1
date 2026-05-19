@@ -13,6 +13,24 @@ from companies.models import Company
 from products.models import ProductPrice, ServiceItem
 
 
+DEFAULT_QUOTATION_REMARK_POLICY_LINE = '2. 全部产品保修遵循相关官方政策。'
+DEFAULT_QUOTATION_REMARK_FALLBACK_TARGET = '客户'
+
+
+def normalize_quotation_remark_text(value):
+    return ' '.join(str(value or '').split()).strip()
+
+
+def build_quotation_remark_target(user_brand, user_name):
+    return ' '.join(
+        part for part in [
+            normalize_quotation_remark_text(user_brand),
+            normalize_quotation_remark_text(user_name),
+        ]
+        if part
+    ).strip()
+
+
 class Quotation(models.Model):
     """
     Quotation model for customer quotes.
@@ -105,7 +123,11 @@ class Quotation(models.Model):
         verbose_name=_('Total Tax')
     )
 
-    # Notes
+    # External remarks and internal notes
+    remarks = models.TextField(
+        blank=True,
+        verbose_name=_('Remarks')
+    )
     notes = models.TextField(
         blank=True,
         verbose_name=_('Notes')
@@ -189,6 +211,50 @@ class Quotation(models.Model):
     def is_expired(self):
         """Check if quotation is past validity date."""
         return datetime.date.today() > self.valid_until
+
+    def _get_customer_name_for_remarks(self):
+        customer_name = ''
+        if self.customer_id:
+            customer_name = getattr(self.customer, 'name', '')
+        else:
+            customer = self._state.fields_cache.get('customer')
+            if customer is not None:
+                customer_name = getattr(customer, 'name', '')
+        return normalize_quotation_remark_text(customer_name)
+
+    def build_default_remarks(self, ordered_items=None):
+        """Build the default external remarks text used on quotations."""
+        items = list(ordered_items) if ordered_items is not None else list(self.items.all().order_by('id'))
+        unique_remark_targets = []
+        seen_remark_targets = set()
+
+        for item in items:
+            remark_target = build_quotation_remark_target(
+                getattr(item, 'user_brand', ''),
+                getattr(item, 'user_name', ''),
+            )
+            if not remark_target:
+                continue
+
+            key = remark_target.lower()
+            if key in seen_remark_targets:
+                continue
+
+            seen_remark_targets.add(key)
+            unique_remark_targets.append(remark_target)
+
+        remark_targets_text = ', '.join(unique_remark_targets)
+        if not remark_targets_text:
+            remark_targets_text = self._get_customer_name_for_remarks() or DEFAULT_QUOTATION_REMARK_FALLBACK_TARGET
+
+        return f'1. 此报价为 {remark_targets_text} 采购项目。\n{DEFAULT_QUOTATION_REMARK_POLICY_LINE}'
+
+    def get_effective_remarks(self, ordered_items=None):
+        """Return saved external remarks or the default generated text."""
+        custom_remarks = str(self.remarks or '').strip()
+        if custom_remarks:
+            return custom_remarks
+        return self.build_default_remarks(ordered_items=ordered_items)
 
 
 class QuotationItem(models.Model):

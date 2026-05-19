@@ -689,6 +689,7 @@ def duplicate_quotation(request, pk):
             attn=original.attn,
             tel=original.tel,
             status=Quotation.QuotationStatus.DRAFT,
+            remarks=original.remarks,
             notes=original.notes,
         )
         new_quotation.save()

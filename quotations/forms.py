@@ -16,7 +16,7 @@ class QuotationForm(forms.ModelForm):
 
     class Meta:
         model = Quotation
-        fields = ['customer', 'quotation_date', 'valid_until', 'attn', 'tel', 'attn_email', 'status', 'notes']
+        fields = ['customer', 'quotation_date', 'valid_until', 'attn', 'tel', 'attn_email', 'status', 'remarks', 'notes']
         widgets = {
             'customer': forms.Select(attrs={'class': 'form-select'}),
             'quotation_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -25,6 +25,7 @@ class QuotationForm(forms.ModelForm):
             'tel': forms.TextInput(attrs={'class': 'form-control'}),
             'attn_email': forms.EmailInput(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
@@ -33,6 +34,7 @@ class QuotationForm(forms.ModelForm):
         self.fields['customer'].queryset = Company.objects.filter(status=Company.CompanyStatus.ACTIVE).order_by('name')
         # Set default validity to 30 days from today
         if not self.instance.pk:
+            self.initial.setdefault('remarks', self.instance.build_default_remarks(ordered_items=[]))
             self.fields['valid_until'].initial = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
 
     def clean(self):

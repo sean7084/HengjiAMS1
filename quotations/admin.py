@@ -43,6 +43,9 @@ class QuotationAdmin(admin.ModelAdmin):
             'fields': ('total_without_tax', 'total_tax', 'total_with_tax'),
             'classes': ('collapse',)
         }),
+        (_('Remarks'), {
+            'fields': ('remarks',)
+        }),
         (_('Notes'), {
             'fields': ('notes',)
         }),
