@@ -246,7 +246,7 @@
 
         <tr>
             <td colspan="7" class="logo-cell"><img class="logo" src="{{ logo_path }}" alt="Logo"></td>
-            <td colspan="4" class="logo-cell">
+            <td colspan="1" class="logo-cell">
                 <table class="date-block" aria-label="{% trans 'quotation dates' %}">
                     <tr>
                         <td class="date-label">Date:</td>
@@ -263,91 +263,82 @@
                 </table>
             </td>
         </tr>
-        
-        <tr><td colspan="11" style="height:8pt"></td></tr>
-        <tr><td colspan="11" class="top-rule"></td></tr>
-        <tr><td colspan="11" class="title">Quotation</td></tr>
-        <tr><td colspan="11" style="height:8pt"></td></tr>
+
+        <tr><td colspan="8" style="height:8pt"></td></tr>
+        <tr><td colspan="8" class="top-rule"></td></tr>
+        <tr><td colspan="8" class="title">Quotation</td></tr>
+        <tr><td colspan="8" style="height:8pt"></td></tr>
 
         <tr>
             <td class="label-left">To:</td>
-            <td colspan="5" class="value-left">{{ quotation.customer.name }}</td>
+            <td colspan="3" class="value-left">{{ quotation.customer.name }}</td>
             <td class="label-right">From:</td>
-            <td colspan="4" class="value-right">Leo Yao</td>
+            <td colspan="3" class="value-right">Leo Yao</td>
         </tr>
         <tr>
             <td class="label-left">Attn:</td>
-            <td colspan="5" class="value-left">{{ quotation.attn|default:"-" }}</td>
+            <td colspan="3" class="value-left">{{ quotation.attn|default:"-" }}</td>
             <td class="label-right">MP:</td>
-            <td colspan="4" class="value-right">13764570476</td>
+            <td colspan="3" class="value-right">13764570476</td>
         </tr>
         <tr>
             <td class="label-left">Tel:</td>
-            <td colspan="5" class="value-left">{{ quotation.tel|default:"-" }}</td>
+            <td colspan="3" class="value-left">{{ quotation.tel|default:"-" }}</td>
             <td class="label-right">E-Mail:</td>
-            <td colspan="4" class="value-right">Leo.Yao@hengji-info.com</td>
+            <td colspan="3" class="value-right">Leo.Yao@hengji-info.com</td>
         </tr>
 
         {% if hardware_items %}
         <tr>
-            <td colspan="11">
+            <td colspan="8">
                 <table class="grid" aria-label="{% trans 'hardware items grid' %}">
                     <colgroup>
                         <col style="width:4%">
+                        <col style="width:14%">
+                        <col style="width:12%">
+                        <col style="width:26%">
+                        <col style="width:8%">
                         <col style="width:10%">
-                        <col style="width:18%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:4%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:4%">
-                        <col style="width:10%">
-                        <col style="width:10%">
+                        <col style="width:6%">
+                        <col style="width:20%">
                     </colgroup>
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th class="wrap-col">品牌</th>
-                            <th class="wrap-col">描述</th>
-                            <th class="wrap-col">采购方品牌</th>
-                            <th class="wrap-col">采购方用户</th>
-                            <th>单位</th>
-                            <th>不含税单价</th>
-                            <th>含税单价</th>
-                            <th>数量</th>
-                            <th>不含税总价</th>
-                            <th>含税总价</th>
+                            <th class="wrap-col">Part No.</th>
+                            <th class="wrap-col">Brand</th>
+                            <th class="wrap-col">Description</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Amount (RMB)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for hardware_item in hardware_display_rows %}
                         <tr>
                             <td>{{ hardware_item.index }}</td>
+                            <td class="wrap-col">{% if hardware_item %}{{ hardware_item.model_number }}{% endif %}</td>
                             <td class="wrap-col">{% if hardware_item %}{{ hardware_item.brand_name }}{% endif %}</td>
                             <td class="text-left wrap-col">{% if hardware_item %}{{ hardware_item.product_description }}{% endif %}</td>
-                            <td class="wrap-col">{% if hardware_item %}{{ hardware_item.user_brand }}{% endif %}</td>
-                            <td class="wrap-col">{% if hardware_item %}{{ hardware_item.user_name }}{% endif %}</td>
                             <td>{% if hardware_item %}{{ hardware_item.unit }}{% endif %}</td>
                             <td>{% if hardware_item %}{{ hardware_item.unit_price|floatformat:2 }}{% endif %}</td>
-                            <td>{% if hardware_item %}{{ hardware_item.unit_price_with_tax|floatformat:2 }}{% endif %}</td>
                             <td>{% if hardware_item %}{{ hardware_item.quantity }}{% endif %}</td>
                             <td>{% if hardware_item %}{{ hardware_item.line_total_without_tax|floatformat:2 }}{% endif %}</td>
-                            <td>{% if hardware_item %}{{ hardware_item.line_total_with_tax|floatformat:2 }}{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="10" class="summary-label">设备总价 Hardware Total without VAT</td>
+                            <td colspan="7" class="summary-label">设备总价 Hardware Total without VAT</td>
                             <td class="summary-value">{{ hardware_totals.total_without_tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
-                            <td colspan="10" class="summary-label">设备税金 Hardware Total VAT{% if hardware_totals.total_without_tax %} ({{ hardware_totals.vat_percent|floatformat:2 }}%){% endif %}</td>
+                            <td colspan="7" class="summary-label">设备税金 Hardware Total VAT{% if hardware_totals.total_without_tax %} ({{ hardware_totals.vat_percent|floatformat:2 }}%){% endif %}</td>
                             <td class="summary-value">{{ hardware_totals.total_tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
-                            <td colspan="10" class="summary-label">设备含税总价 Hardware Total Including VAT</td>
+                            <td colspan="7" class="summary-label">设备含税总价 Hardware Total Including VAT</td>
                             <td class="summary-value">{{ hardware_totals.total_with_tax|floatformat:2 }}</td>
                         </tr>
                     </tfoot>
@@ -358,64 +349,55 @@
 
         {% if service_items %}
         <tr>
-            <td colspan="11">
+            <td colspan="8">
                 <table class="grid" aria-label="{% trans 'service items grid' %}">
                     <colgroup>
                         <col style="width:4%">
+                        <col style="width:14%">
+                        <col style="width:12%">
+                        <col style="width:26%">
+                        <col style="width:8%">
                         <col style="width:10%">
-                        <col style="width:18%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:4%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:4%">
-                        <col style="width:10%">
-                        <col style="width:10%">
+                        <col style="width:6%">
+                        <col style="width:20%">
                     </colgroup>
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th class="wrap-col">品牌</th>
-                            <th class="wrap-col">描述</th>
-                            <th class="wrap-col">采购方品牌</th>
-                            <th class="wrap-col">采购方用户</th>
-                            <th>单位</th>
-                            <th>不含税单价</th>
-                            <th>含税单价</th>
-                            <th>数量</th>
-                            <th>不含税总价</th>
-                            <th>含税总价</th>
+                            <th class="wrap-col">Part No.</th>
+                            <th class="wrap-col">Brand</th>
+                            <th class="wrap-col">Description</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Amount (RMB)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for service_item in service_display_rows %}
                         <tr>
                             <td>{{ service_item.index }}</td>
+                            <td class="wrap-col">{% if service_item %}{{ service_item.model_number }}{% endif %}</td>
                             <td class="wrap-col">{% if service_item %}{{ service_item.brand_name }}{% endif %}</td>
                             <td class="text-left wrap-col">{% if service_item %}{{ service_item.product_description }}{% endif %}</td>
-                            <td class="wrap-col">{% if service_item %}{{ service_item.user_brand }}{% endif %}</td>
-                            <td class="wrap-col">{% if service_item %}{{ service_item.user_name }}{% endif %}</td>
                             <td>{% if service_item %}{{ service_item.unit }}{% endif %}</td>
                             <td>{% if service_item %}{{ service_item.unit_price|floatformat:2 }}{% endif %}</td>
-                            <td>{% if service_item %}{{ service_item.unit_price_with_tax|floatformat:2 }}{% endif %}</td>
                             <td>{% if service_item %}{{ service_item.quantity }}{% endif %}</td>
                             <td>{% if service_item %}{{ service_item.line_total_without_tax|floatformat:2 }}{% endif %}</td>
-                            <td>{% if service_item %}{{ service_item.line_total_with_tax|floatformat:2 }}{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="10" class="summary-label">服务项目总价 Service Total without VAT</td>
+                            <td colspan="7" class="summary-label">服务项目总价 Service Total without VAT</td>
                             <td class="summary-value">{{ service_totals.total_without_tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
-                            <td colspan="10" class="summary-label">服务项目税金 Service Total VAT{% if service_totals.total_without_tax %} ({{ service_totals.vat_percent|floatformat:2 }}%){% endif %}</td>
+                            <td colspan="7" class="summary-label">服务项目税金 Service Total VAT{% if service_totals.total_without_tax %} ({{ service_totals.vat_percent|floatformat:2 }}%){% endif %}</td>
                             <td class="summary-value">{{ service_totals.total_tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
-                            <td colspan="10" class="summary-label">服务项目含税总价 Service Total Including VAT</td>
+                            <td colspan="7" class="summary-label">服务项目含税总价 Service Total Including VAT</td>
                             <td class="summary-value">{{ service_totals.total_with_tax|floatformat:2 }}</td>
                         </tr>
                     </tfoot>
@@ -426,32 +408,29 @@
 
         {% if hardware_items and service_items %}
         <tr>
-            <td colspan="11">
+            <td colspan="8">
                 <table class="grid" aria-label="{% trans 'quotation totals' %}">
                     <colgroup>
                         <col style="width:4%">
+                        <col style="width:14%">
+                        <col style="width:12%">
+                        <col style="width:26%">
+                        <col style="width:8%">
                         <col style="width:10%">
-                        <col style="width:18%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:4%">
-                        <col style="width:10%">
-                        <col style="width:10%">
-                        <col style="width:4%">
-                        <col style="width:10%">
-                        <col style="width:10%">
+                        <col style="width:6%">
+                        <col style="width:20%">
                     </colgroup>
                     <tbody>
                         <tr>
-                            <td colspan="10" class="summary-label">不含税总价 Total Price without VAT</td>
+                            <td colspan="7" class="summary-label">不含税总价 Total Price without VAT</td>
                             <td class="summary-value">{{ quotation.total_without_tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
-                            <td colspan="10" class="summary-label">税金 Total VAT</td>
+                            <td colspan="7" class="summary-label">税金 Total VAT</td>
                             <td class="summary-value">{{ quotation.total_tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
-                            <td colspan="10" class="summary-label">含税总价 Total Price Including VAT(%)</td>
+                            <td colspan="7" class="summary-label">含税总价 Total Price Including VAT(%)</td>
                             <td class="summary-value">{{ quotation.total_with_tax|floatformat:2 }}</td>
                         </tr>
                     </tbody>
@@ -462,46 +441,50 @@
 
         <tr>
             <td class="remark-title">Remark</td>
-            <td colspan="10" class="remark-body">
+            <td colspan="7" class="remark-body">
                 <div class="remark-body__content">{{ remarks_text }}</div>
             </td>
         </tr>
 
-        <tr><td colspan="11" style="height:20pt"></td></tr>
+        <tr><td colspan="8" style="height:20pt"></td></tr>
         <tr>
-            <td colspan="6"></td>
-            <td colspan="5" class="sign-label">Prepared By :</td>
-        </tr>
-        <tr>
-            <td colspan="3" class="sign-space-row"></td>
-            <td colspan="3"></td>
-            <td colspan="5" class="sign-space-row"></td>
-        </tr>
-        <tr>
-            <td colspan="3" class="sign-space-row"></td>
-            <td colspan="3"></td>
-            <td colspan="5" class="sign-space-row"></td>
-        </tr>
-        <tr>
-            <td colspan="3" class="sign-space-row"></td>
-            <td colspan="3"></td>
-            <td colspan="5" class="sign-value">{{ prepared_by_company }}</td>
-        </tr>
-        <tr>
-            <td colspan="6"></td>
-            <td colspan="3" class="line-cell"><div class="line-cell__rule"></div></td>
+            <td colspan="2" class="sign-label">Confirmed By :</td>
             <td colspan="2"></td>
-        </tr>
-        <tr><td colspan="11" class="sign-gap-tight"></td></tr>
-        <tr>
-            <td colspan="6"></td>
-            <td colspan="5" class="sign-label">Signature &amp; Co. Chop</td>
+            <td colspan="4" class="sign-label">Prepared By :</td>
         </tr>
         <tr>
-            <td colspan="6"></td>
-            <td colspan="5" class="sign-label">Date</td>
+            <td colspan="2" class="sign-space-row"></td>
+            <td colspan="2"></td>
+            <td colspan="4" class="sign-space-row"></td>
         </tr>
-        <tr><td colspan="11" class="bottom-spacer"></td></tr>
+        <tr>
+            <td colspan="2" class="sign-space-row"></td>
+            <td colspan="2"></td>
+            <td colspan="4" class="sign-space-row"></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="sign-space-row"></td>
+            <td colspan="2"></td>
+            <td colspan="4" class="sign-value">{{ prepared_by_company }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="line-cell"><div class="line-cell__rule"></div></td>
+            <td colspan="2"></td>
+            <td colspan="3" class="line-cell"><div class="line-cell__rule"></div></td>
+            <td colspan="1"></td>
+        </tr>
+        <tr><td colspan="8" class="sign-gap-tight"></td></tr>
+        <tr>
+            <td colspan="2" class="sign-label">Signature &amp; Co. Chop</td>
+            <td colspan="2"></td>
+            <td colspan="4" class="sign-label">Signature &amp; Co. Chop</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="sign-label">Date</td>
+            <td colspan="2"></td>
+            <td colspan="4" class="sign-label">Date</td>
+        </tr>
+        <tr><td colspan="8" class="bottom-spacer"></td></tr>
     </table>
 </body>
 </html>

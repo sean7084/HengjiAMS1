@@ -11,6 +11,11 @@ import datetime
 from accounts.models import ReceivedEmailMessage
 from companies.models import Company
 from products.models import ProductPrice, ServiceItem
+from quotations.template_registry import (
+    DEFAULT_QUOTATION_TEMPLATE,
+    get_quotation_template_choices,
+    get_quotation_template_definition,
+)
 
 
 DEFAULT_QUOTATION_REMARK_POLICY_LINE = '2. 全部产品保修遵循相关官方政策。'
@@ -124,6 +129,12 @@ class Quotation(models.Model):
     )
 
     # External remarks and internal notes
+    pdf_template = models.CharField(
+        max_length=20,
+        choices=get_quotation_template_choices(),
+        default=DEFAULT_QUOTATION_TEMPLATE,
+        verbose_name=_('PDF Template')
+    )
     remarks = models.TextField(
         blank=True,
         verbose_name=_('Remarks')
@@ -255,6 +266,9 @@ class Quotation(models.Model):
         if custom_remarks:
             return custom_remarks
         return self.build_default_remarks(ordered_items=ordered_items)
+
+    def get_template_definition(self):
+        return get_quotation_template_definition(self.pdf_template)
 
 
 class QuotationItem(models.Model):

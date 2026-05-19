@@ -9,6 +9,11 @@ from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 import re
 
+from quotations.template_registry import (
+    DEFAULT_QUOTATION_TEMPLATE,
+    get_quotation_template_choices,
+)
+
 
 class Company(models.Model):
     """
@@ -70,6 +75,14 @@ class Company(models.Model):
         related_name='primary_contact_for_companies',
         verbose_name=_('Primary Contact'),
         help_text=_('Primary business contact selected from company users')
+    )
+
+    default_quotation_template = models.CharField(
+        max_length=20,
+        choices=get_quotation_template_choices(),
+        default=DEFAULT_QUOTATION_TEMPLATE,
+        verbose_name=_('Default Quotation Template'),
+        help_text=_('Default PDF template used for new quotations for this company')
     )
     
     website = models.URLField(

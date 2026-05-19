@@ -8,6 +8,7 @@ app_name = 'quotations'
 
 urlpatterns = [
     path('', views.QuotationListView.as_view(), name='list'),
+    path('default-templates/', views.QuotationDefaultTemplateView.as_view(), name='default_templates'),
     path('create/', views.QuotationCreateView.as_view(), name='create'),
     path('<int:pk>/', views.QuotationDetailView.as_view(), name='detail'),
     path('<int:pk>/edit/', views.QuotationUpdateView.as_view(), name='edit'),

@@ -95,6 +95,7 @@
                                     <option
                                         value="{{ customer.pk }}"
                                         data-code="{{ customer.code }}"
+                                        data-default-template="{{ customer.default_quotation_template }}"
                                         data-contact="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.get_contact_name }}{% endif %}"
                                         data-phone="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.get_contact_phone }}{% endif %}"
                                         data-email="{% if customer.primary_contact_company_user %}{{ customer.primary_contact_company_user.get_contact_email }}{% endif %}"
@@ -154,8 +155,15 @@
                             </div>
                         </div>
 
-                        {% if is_edit %}
                         <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">{% trans "PDF Template" %}</label>
+                                {{ form.pdf_template }}
+                                {% if form.pdf_template.errors %}
+                                <div class="text-danger small">{{ form.pdf_template.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            {% if is_edit %}
                             <div class="col-md-4">
                                 <label class="form-label">{% trans "Status" %}</label>
                                 {{ form.status }}
@@ -163,8 +171,8 @@
                                 <div class="text-danger small">{{ form.status.errors.0 }}</div>
                                 {% endif %}
                             </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
 
                         <div class="mb-3">
                             <label class="form-label">{% trans "Remarks" %}</label>
@@ -195,7 +203,7 @@
                         <div class="table-responsive">
                             <table class="table table-sm" id="items-table">
                                 <thead>
-                                    <tr>
+                                    <tr id="items-header-row">
                                         <th>{% trans "Item" %}</th>
                                         <th class="text-center">{% trans "Qty" %}</th>
                                         <th>{% trans "Unit" %}</th>
@@ -317,7 +325,9 @@
                                     value="{{ product.pk }}"
                                     data-type="{{ product.catalog_type }}"
                                     data-label="{% if product.catalog_type == 'service' %}[{% trans 'Service' %}] {% else %}[{% trans 'Hardware' %}] {% endif %}{{ product.display_label }}"
+                                    data-brand-name="{{ product.display_brand_name }}"
                                     data-description="{{ product.display_description }}"
+                                    data-model-number="{{ product.display_model_number }}"
                                     data-price="{{ product.price_without_tax }}"
                                     data-tax="{{ product.tax_rate }}"
                                     data-unit="{{ product.display_unit }}"
@@ -328,20 +338,20 @@
                             </select>
                         </div>
                         <div class="row g-2 mb-2">
-                            <div class="col-6">
+                            <div class="col-6" id="item-qty-group">
                                 <label class="form-label small">{% trans "Quantity" %}</label>
                                 <input type="number" id="item-qty" class="form-control form-control-sm" value="1" min="1">
                             </div>
-                            <div class="col-6">
+                            <div class="col-6" id="item-tax-group">
                                 <label class="form-label small">{% trans "Tax %" %}</label>
                                 <input type="number" id="item-tax" class="form-control form-control-sm" value="13" min="0" step="0.01">
                             </div>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label small">{% trans "Unit Price" %}</label>
+                            <label class="form-label small" id="item-price-label">{% trans "Unit Price" %}</label>
                             <input type="number" id="item-price" class="form-control form-control-sm" min="0" step="0.01">
                         </div>
-                        <div class="mb-2">
+                        <div class="mb-2" id="item-user-brand-group">
                             <label class="form-label small">{% trans "User Brand" %}</label>
                             <div class="combo-box">
                                 <input
@@ -357,7 +367,7 @@
                                 <div id="user-brand-combobox-list" class="combo-box__menu" role="listbox"></div>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="item-user-name-group">
                             <label class="form-label small">{% trans "User" %}</label>
                             <div class="combo-box">
                                 <input
@@ -386,6 +396,7 @@
 {{ company_users_by_customer|json_script:"company-users-data" }}
 {{ company_codes|json_script:"company-codes-data" }}
 {{ authorized_attention_contacts|json_script:"authorized-attention-contacts-data" }}
+{{ quotation_template_definitions|json_script:"quotation-template-definitions-data" }}
 
 {% endblock %}
 
@@ -393,9 +404,12 @@
 <script>
 (function () {
     const isEditMode = {{ is_edit|yesno:"true,false" }};
+    const isBoundForm = {{ form.is_bound|yesno:"true,false" }};
     const companyUsersByCustomer = JSON.parse(document.getElementById('company-users-data').textContent || '{}');
     const companyCodes = JSON.parse(document.getElementById('company-codes-data').textContent || '[]');
     const authorizedAttentionContacts = JSON.parse(document.getElementById('authorized-attention-contacts-data').textContent || '[]');
+    const quotationTemplateDefinitions = JSON.parse(document.getElementById('quotation-template-definitions-data').textContent || '{}');
+    const defaultTemplateCode = '{{ default_quotation_template_code }}';
 
     const customerSelect = document.getElementById('id_customer');
     const customerComboboxInput = document.getElementById('customer-combobox');
@@ -405,11 +419,18 @@
     const attnComboboxList = document.getElementById('attn-combobox-list');
     const telInput = document.getElementById('id_tel');
     const attnEmailInput = document.getElementById('id_attn_email');
+    const templateSelect = document.getElementById('id_pdf_template');
     const remarksInput = document.getElementById('id_remarks');
     const productSelect = document.getElementById('product-select');
     const productTypeFilter = document.getElementById('product-type-filter');
     const productComboboxInput = document.getElementById('product-combobox');
     const productComboboxList = document.getElementById('product-combobox-list');
+    const itemsHeaderRow = document.getElementById('items-header-row');
+    const itemQtyGroup = document.getElementById('item-qty-group');
+    const itemTaxGroup = document.getElementById('item-tax-group');
+    const itemPriceLabel = document.getElementById('item-price-label');
+    const itemUserBrandGroup = document.getElementById('item-user-brand-group');
+    const itemUserNameGroup = document.getElementById('item-user-name-group');
     const itemUserNameInput = document.getElementById('item-user-name');
     const itemUserComboboxList = document.getElementById('item-user-combobox-list');
     const itemUserBrandInput = document.getElementById('item-user-brand');
@@ -418,6 +439,7 @@
     let hasInitializedCustomerFields = false;
     let editingRow = null;
     let lastGeneratedRemarks = remarksInput ? normalizeRemarkFieldValue(remarksInput.value) : '';
+    let templateManuallyChanged = isEditMode || isBoundForm;
 
     const originalCustomerOptions = Array.from(customerSelect.options).map(function (option) {
         return {
@@ -425,6 +447,7 @@
             text: option.text,
             selected: option.selected,
             dataCode: option.dataset.code || '',
+            dataDefaultTemplate: option.dataset.defaultTemplate || '',
             dataContact: option.dataset.contact || '',
             dataPhone: option.dataset.phone || '',
         };
@@ -436,7 +459,9 @@
             selected: option.selected,
             dataType: option.dataset.type || 'hardware',
             dataLabel: option.dataset.label || '',
+            dataBrandName: option.dataset.brandName || '',
             dataDescription: option.dataset.description || '',
+            dataModelNumber: option.dataset.modelNumber || '',
             dataPrice: option.dataset.price || '',
             dataTax: option.dataset.tax || '',
             dataUnit: option.dataset.unit || '',
@@ -469,6 +494,13 @@
 
     function getSelectedCustomerUsers() {
         return getSelectedCustomerData().product_users || [];
+    }
+
+    function getSelectedTemplateDefinition() {
+        if (!templateSelect) {
+            return quotationTemplateDefinitions[defaultTemplateCode] || null;
+        }
+        return quotationTemplateDefinitions[templateSelect.value] || quotationTemplateDefinitions[defaultTemplateCode] || null;
     }
 
     function createCombobox(config) {
@@ -950,6 +982,7 @@
             populateItemUserOptions('');
             populateUserBrandOptions('');
             hasInitializedCustomerFields = true;
+            syncTemplateSelectionWithCustomer();
             refreshRemarksValue();
             return;
         }
@@ -982,6 +1015,7 @@
             syncAttnFields(useExistingValues ? false : true);
         }
         hasInitializedCustomerFields = true;
+        syncTemplateSelectionWithCustomer();
         refreshRemarksValue();
     }
 
@@ -1106,6 +1140,41 @@
         ].join('|');
     }
 
+    function getHeaderClass(key) {
+        if (['quantity', 'index'].includes(key)) {
+            return 'text-center';
+        }
+        if (['unit_price', 'tax_rate', 'tax_amount', 'line_total', 'price', 'amount'].includes(key)) {
+            return 'text-end';
+        }
+        return '';
+    }
+
+    function renderItemsHeader() {
+        if (!itemsHeaderRow) {
+            return;
+        }
+        const templateDefinition = getSelectedTemplateDefinition();
+        if (!templateDefinition) {
+            return;
+        }
+
+        const headerHtml = templateDefinition.item_headers.map(function (header) {
+            const className = getHeaderClass(header.key);
+            return `<th${className ? ` class="${className}"` : ''}>${escapeHtml(header.label)}</th>`;
+        }).join('');
+        itemsHeaderRow.innerHTML = `${headerHtml}<th></th>`;
+    }
+
+    function renumberItemRows() {
+        document.querySelectorAll('#items-tbody tr.item-row').forEach(function (row, index) {
+            const indexCell = row.querySelector('[data-column-key="index"]');
+            if (indexCell) {
+                indexCell.textContent = index + 1;
+            }
+        });
+    }
+
     function resetItemEditor() {
         editingRow = null;
         addToQuotationButton.innerHTML = '<i class="fas fa-plus"></i> {% trans "Add to Quotation" %}';
@@ -1123,8 +1192,12 @@
     }
 
     function renderItemRow(row, marker, data) {
+        const templateDefinition = getSelectedTemplateDefinition();
         const option = getProductOptionById(data.productId);
         const productLabel = option ? (option.dataset.label || option.text || '') : '';
+        const brandName = option ? (option.dataset.brandName || '') : '';
+        const description = option ? (option.dataset.description || '') : '';
+        const modelNumber = option ? (option.dataset.modelNumber || '') : '';
         const unit = option ? (option.dataset.unit || 'PCS') : '';
         const quantity = parseQuantity(data.quantity);
         const unitPrice = parseCurrency(data.unitPrice);
@@ -1138,6 +1211,31 @@
         } else {
             delete row.dataset.itemId;
         }
+        let rowCells = '';
+        if (templateDefinition && templateDefinition.profile === 'v1') {
+            rowCells = `
+                <td class="text-center" data-column-key="index"></td>
+                <td>${escapeHtml(modelNumber || '-')}</td>
+                <td>${escapeHtml(brandName || '-')}</td>
+                <td>${escapeHtml(description || '-')}</td>
+                <td>${escapeHtml(unit || '-')}</td>
+                <td class="text-end">¥${unitPrice.toFixed(2)}</td>
+                <td class="text-center">${quantity}</td>
+                <td class="text-end">¥${lineEx.toFixed(2)}</td>
+            `;
+        } else {
+            rowCells = `
+                <td>${escapeHtml(productLabel)}</td>
+                <td class="text-center">${quantity}</td>
+                <td>${escapeHtml(unit)}</td>
+                <td class="text-end">¥${unitPrice.toFixed(2)}</td>
+                <td class="text-end">${taxRate.toFixed(2)}</td>
+                <td class="text-end">¥${lineTax.toFixed(2)}</td>
+                <td class="text-end">¥${lineInc.toFixed(2)}</td>
+                <td>${escapeHtml(data.userBrand || '-')}</td>
+                <td>${escapeHtml(data.userName || '-')}</td>
+            `;
+        }
         row.innerHTML = `
             <input type="hidden" name="items" value="${escapeHtml(buildItemPayload(marker, {
                 productId: data.productId,
@@ -1147,15 +1245,7 @@
                 unitPrice: unitPrice.toFixed(2),
                 taxRate: taxRate.toFixed(2),
             }))}">
-            <td>${escapeHtml(productLabel)}</td>
-            <td class="text-center">${quantity}</td>
-            <td>${escapeHtml(unit)}</td>
-            <td class="text-end">¥${unitPrice.toFixed(2)}</td>
-            <td class="text-end">${taxRate.toFixed(2)}</td>
-            <td class="text-end">¥${lineTax.toFixed(2)}</td>
-            <td class="text-end">¥${lineInc.toFixed(2)}</td>
-            <td>${escapeHtml(data.userBrand || '-')}</td>
-            <td>${escapeHtml(data.userName || '-')}</td>
+            ${rowCells}
             <td>
                 <button type="button" class="btn btn-sm btn-outline-secondary edit-item me-1">
                     <i class="fas fa-pen"></i>
@@ -1165,6 +1255,58 @@
                 </button>
             </td>
         `;
+    }
+
+    function renderAllItemRows() {
+        document.querySelectorAll('#items-tbody tr.item-row').forEach(function (row) {
+            const payloadInput = row.querySelector('input[name="items"]');
+            if (!payloadInput) {
+                return;
+            }
+            const data = parseItemPayload(payloadInput.value);
+            renderItemRow(row, data.marker, data);
+        });
+        renumberItemRows();
+    }
+
+    function applyTemplateProfile() {
+        const templateDefinition = getSelectedTemplateDefinition();
+        if (!templateDefinition) {
+            return;
+        }
+
+        renderItemsHeader();
+
+        if (itemTaxGroup && itemQtyGroup) {
+            itemTaxGroup.classList.toggle('d-none', !templateDefinition.show_tax_input);
+            itemQtyGroup.className = templateDefinition.show_tax_input ? 'col-6' : 'col-12';
+        }
+        if (itemPriceLabel) {
+            itemPriceLabel.textContent = templateDefinition.profile === 'v1'
+                ? '{% trans "Price" %}'
+                : '{% trans "Unit Price" %}';
+        }
+        if (itemUserBrandGroup) {
+            itemUserBrandGroup.classList.toggle('d-none', !templateDefinition.show_user_brand);
+        }
+        if (itemUserNameGroup) {
+            itemUserNameGroup.classList.toggle('d-none', !templateDefinition.show_user_name);
+        }
+
+        renderAllItemRows();
+    }
+
+    function syncTemplateSelectionWithCustomer() {
+        if (!templateSelect) {
+            return;
+        }
+        if (!isEditMode && !templateManuallyChanged) {
+            const selected = getSelectedCustomerOption();
+            templateSelect.value = selected && selected.value
+                ? (selected.dataset.defaultTemplate || defaultTemplateCode)
+                : defaultTemplateCode;
+        }
+        applyTemplateProfile();
     }
 
     function loadRowIntoEditor(row) {
@@ -1251,6 +1393,13 @@
         },
     });
 
+    if (templateSelect) {
+        templateSelect.addEventListener('change', function () {
+            templateManuallyChanged = true;
+            applyTemplateProfile();
+        });
+    }
+
     if (productTypeFilter) {
         productTypeFilter.addEventListener('change', function () {
             const option = productSelect.options[productSelect.selectedIndex];
@@ -1269,14 +1418,19 @@
             return;
         }
 
+        const templateDefinition = getSelectedTemplateDefinition();
+        const existingItemData = editingRow
+            ? parseItemPayload(editingRow.querySelector('input[name="items"]').value)
+            : null;
         const productId = option.value;
-        const productLabel = option.dataset.label || '';
-        const quantity = parseCurrency(document.getElementById('item-qty').value);
-        const unit = option.dataset.unit || 'PCS';
         const unitPrice = parseCurrency(document.getElementById('item-price').value);
         const taxRate = parseCurrency(document.getElementById('item-tax').value);
-        const userBrand = itemUserBrandInput.value || codeInput.value || '';
-        const userName = itemUserNameInput.value || '';
+        const userBrand = templateDefinition && !templateDefinition.show_user_brand
+            ? (existingItemData ? existingItemData.userBrand : (codeInput.value || ''))
+            : (itemUserBrandInput.value || codeInput.value || '');
+        const userName = templateDefinition && !templateDefinition.show_user_name
+            ? (existingItemData ? existingItemData.userName : '')
+            : (itemUserNameInput.value || '');
         const quantityValue = parseQuantity(document.getElementById('item-qty').value);
         const marker = editingRow ? parseItemPayload(editingRow.querySelector('input[name="items"]').value).marker : 'new';
 
@@ -1288,12 +1442,11 @@
             userName: userName,
             unitPrice: unitPrice.toFixed(2),
             taxRate: taxRate.toFixed(2),
-            unit: unit,
-            productLabel: productLabel,
         });
         if (!editingRow) {
             document.getElementById('items-tbody').appendChild(row);
         }
+        renumberItemRows();
 
         resetItemEditor();
 
@@ -1321,6 +1474,7 @@
     productCombobox.refresh();
     refreshCustomerFields();
     updateProductFields();
+    applyTemplateProfile();
     renderTotals();
     refreshRemarksValue();
 })();

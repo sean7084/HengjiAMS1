@@ -9,6 +9,7 @@ import datetime
 from companies.models import Company
 from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
+from .template_registry import DEFAULT_QUOTATION_TEMPLATE
 
 
 class QuotationForm(forms.ModelForm):
@@ -16,7 +17,7 @@ class QuotationForm(forms.ModelForm):
 
     class Meta:
         model = Quotation
-        fields = ['customer', 'quotation_date', 'valid_until', 'attn', 'tel', 'attn_email', 'status', 'remarks', 'notes']
+        fields = ['customer', 'quotation_date', 'valid_until', 'attn', 'tel', 'attn_email', 'pdf_template', 'status', 'remarks', 'notes']
         widgets = {
             'customer': forms.Select(attrs={'class': 'form-select'}),
             'quotation_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -24,6 +25,7 @@ class QuotationForm(forms.ModelForm):
             'attn': forms.TextInput(attrs={'class': 'form-control'}),
             'tel': forms.TextInput(attrs={'class': 'form-control'}),
             'attn_email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'pdf_template': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
@@ -34,6 +36,14 @@ class QuotationForm(forms.ModelForm):
         self.fields['customer'].queryset = Company.objects.filter(status=Company.CompanyStatus.ACTIVE).order_by('name')
         # Set default validity to 30 days from today
         if not self.instance.pk:
+            customer = None
+            if getattr(self.instance, 'customer_id', None):
+                customer = self.instance.customer
+            elif self.initial.get('customer'):
+                customer = Company.objects.filter(pk=self.initial['customer']).only('default_quotation_template').first()
+
+            default_template = customer.default_quotation_template if customer else DEFAULT_QUOTATION_TEMPLATE
+            self.initial.setdefault('pdf_template', default_template)
             self.initial.setdefault('remarks', self.instance.build_default_remarks(ordered_items=[]))
             self.fields['valid_until'].initial = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
 

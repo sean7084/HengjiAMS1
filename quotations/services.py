@@ -11,6 +11,8 @@ from django.template.loader import render_to_string
 from openpyxl import load_workbook
 from weasyprint import HTML
 
+from quotations.template_registry import get_quotation_template_definition
+
 
 def _find_label_cell(sheet, label):
     label = str(label).strip()
@@ -162,6 +164,7 @@ def _build_pdf_display_row(item, index):
     unit_price_with_tax = item.unit_price * (Decimal('1.00') + (item.tax_rate / Decimal('100.00')))
     return {
         'index': index,
+        'model_number': item.model_number,
         'brand_name': item.brand_name,
         'product_description': item.product_description,
         'user_brand': item.user_brand,
@@ -179,6 +182,7 @@ def _build_pdf_display_row(item, index):
 def _build_empty_pdf_display_row(index):
     return {
         'index': index,
+        'model_number': '',
         'brand_name': '',
         'product_description': '',
         'user_brand': '',
@@ -235,10 +239,15 @@ def split_quotation_items_for_pdf(ordered_items):
     }
 
 
-def render_quotation_pdf_html(quotation):
+def resolve_quotation_pdf_template(quotation, template_code=None):
+    return get_quotation_template_definition(template_code or quotation.pdf_template)
+
+
+def render_quotation_pdf_html(quotation, template_code=None):
     """Render quotation PDF bytes from Django HTML template (LibreOffice-free path)."""
     ordered_items = list(quotation.items.all().order_by('id'))
     pdf_sections = split_quotation_items_for_pdf(ordered_items)
+    template_definition = resolve_quotation_pdf_template(quotation, template_code=template_code)
 
     vat_percent = Decimal('0.00')
     if quotation.total_without_tax:
@@ -248,10 +257,11 @@ def render_quotation_pdf_html(quotation):
         'quotation': quotation,
         'items': ordered_items,
         'vat_percent': vat_percent,
+        'template_definition': template_definition,
         'remarks_text': quotation.get_effective_remarks(ordered_items=ordered_items),
         'logo_path': (Path(settings.BASE_DIR) / 'static' / 'images' / 'quotation_template_logo.png').resolve().as_uri(),
         'prepared_by_company': '上海珩际信息科技有限公司',
     }
     context.update(pdf_sections)
-    html = render_to_string('quotations/pdf_excel_style.html', context)
+    html = render_to_string(template_definition['template_path'], context)
     return HTML(string=html, base_url=str(settings.BASE_DIR)).write_pdf()

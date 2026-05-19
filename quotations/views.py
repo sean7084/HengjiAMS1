@@ -4,7 +4,7 @@ Views for Quotations app.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import transaction
@@ -26,6 +26,11 @@ from products.models import ProductPrice
 from .models import Quotation, QuotationItem, QuotationAttachment
 from .forms import QuotationForm, QuotationItemForm
 from .services import render_quotation_pdf_html
+from .template_registry import (
+    DEFAULT_QUOTATION_TEMPLATE,
+    get_quotation_template_choices,
+    get_serializable_template_definitions,
+)
 
 
 class OrderManagementAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -269,6 +274,37 @@ def _build_customer_user_context(customers):
     return company_users_by_customer, company_codes, global_authorized_attention_contacts
 
 
+def _get_active_quotation_customers():
+    return Company.objects.filter(status=Company.CompanyStatus.ACTIVE).order_by('name')
+
+
+def _get_quotation_editor_customers():
+    return _get_active_quotation_customers().select_related(
+        'primary_contact_company_user__user'
+    ).prefetch_related(
+        'company_users__user',
+        'locations__contact__user',
+    )
+
+
+def _get_template_selector_context():
+    return {
+        'quotation_template_definitions': get_serializable_template_definitions(),
+        'default_quotation_template_code': DEFAULT_QUOTATION_TEMPLATE,
+    }
+
+
+def _get_quotation_editor_products(quotation=None):
+    queryset = ProductPrice.objects.select_related('brand', 'model', 'service_item')
+    if quotation is None:
+        return queryset.filter(is_current=True).order_by('service_item__name', 'brand__name', 'model__name')
+
+    product_price_ids = quotation.items.values_list('product_price_id', flat=True)
+    return queryset.filter(
+        Q(is_current=True) | Q(pk__in=product_price_ids)
+    ).distinct().order_by('service_item__name', 'brand__name', 'model__name')
+
+
 def _apply_product_price_snapshot(item, product_price):
     item.service_item = product_price.service_item if product_price.service_item_id else None
     item.brand_name = product_price.display_brand_name
@@ -392,7 +428,7 @@ class QuotationListView(OrderManagementAccessMixin, ListView):
         context['selected_status'] = self.request.GET.get('status', '')
         context['selected_customer'] = self.request.GET.get('customer', '')
         context['search_query'] = self.request.GET.get('search', '')
-        context['customers'] = Company.objects.filter(status='active').order_by('name')
+        context['customers'] = _get_active_quotation_customers()
         for quotation in context['quotations']:
             quotation.current_delivery_order = _get_latest_delivery_order(quotation)
             quotation.can_dispatch_directly = (
@@ -401,6 +437,47 @@ class QuotationListView(OrderManagementAccessMixin, ListView):
                 and _can_dispatch_quotation_directly(quotation)
             )
         return context
+
+
+
+
+class QuotationDefaultTemplateView(OrderManagementAccessMixin, TemplateView):
+    template_name = 'quotations/default_templates.html'
+
+    def get_companies(self):
+        return _get_active_quotation_customers()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['companies'] = self.get_companies()
+        context['template_choices'] = get_quotation_template_choices()
+        context['template_definitions'] = get_serializable_template_definitions().values()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        valid_template_codes = {code for code, _ in get_quotation_template_choices()}
+        updated_count = 0
+
+        for company in self.get_companies():
+            field_name = f'company_{company.pk}'
+            selected_template = request.POST.get(field_name, company.default_quotation_template)
+            if selected_template not in valid_template_codes:
+                continue
+            if company.default_quotation_template == selected_template:
+                continue
+
+            company.default_quotation_template = selected_template
+            company.save(update_fields=['default_quotation_template', 'updated_at'])
+            updated_count += 1
+
+        if updated_count == 0:
+            messages.info(request, 'No default quotation templates were changed.')
+        elif updated_count == 1:
+            messages.success(request, 'Updated default quotation templates for 1 company.')
+        else:
+            messages.success(request, f'Updated default quotation templates for {updated_count} companies.')
+
+        return redirect('quotations:default_templates')
 
 
 class QuotationDetailView(OrderManagementAccessMixin, DetailView):
@@ -447,14 +524,15 @@ class QuotationCreateView(OrderManagementAccessMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user', 'locations__contact__user').order_by('name')
+        customers = _get_quotation_editor_customers()
         company_users_by_customer, company_codes, authorized_attention_contacts = _build_customer_user_context(customers)
         context['customers'] = customers
-        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model', 'service_item').order_by('service_item__name', 'brand__name', 'model__name')
+        context['products'] = _get_quotation_editor_products()
         context['company_users_by_customer'] = company_users_by_customer
         context['company_codes'] = company_codes
         context['authorized_attention_contacts'] = authorized_attention_contacts
         context['is_edit'] = False
+        context.update(_get_template_selector_context())
         return context
 
     def form_valid(self, form):
@@ -551,15 +629,16 @@ class QuotationUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        customers = Company.objects.filter(status='active').select_related('primary_contact_company_user__user').prefetch_related('company_users__user', 'locations__contact__user').order_by('name')
+        customers = _get_quotation_editor_customers()
         company_users_by_customer, company_codes, authorized_attention_contacts = _build_customer_user_context(customers)
         context['customers'] = customers
-        context['products'] = ProductPrice.objects.filter(is_current=True).select_related('brand', 'model', 'service_item').order_by('service_item__name', 'brand__name', 'model__name')
+        context['products'] = _get_quotation_editor_products(self.object)
         context['company_users_by_customer'] = company_users_by_customer
         context['company_codes'] = company_codes
         context['authorized_attention_contacts'] = authorized_attention_contacts
         context['items'] = self.object.items.all()
         context['is_edit'] = True
+        context.update(_get_template_selector_context())
         return context
 
     def form_valid(self, form):
@@ -688,6 +767,8 @@ def duplicate_quotation(request, pk):
             valid_until=datetime.date.today() + datetime.timedelta(days=30),
             attn=original.attn,
             tel=original.tel,
+            attn_email=original.attn_email,
+            pdf_template=original.pdf_template,
             status=Quotation.QuotationStatus.DRAFT,
             remarks=original.remarks,
             notes=original.notes,

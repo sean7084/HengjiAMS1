@@ -1,0 +1,88 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Default Quotation Templates" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1">{% trans "Default Quotation Templates" %}</h1>
+                <p class="text-muted mb-0">{% trans "Choose which PDF template should be preselected when creating quotations for each active company." %}</p>
+            </div>
+            <a href="{% url 'quotations:list' %}" class="btn btn-outline-secondary">
+                {% trans "Back to Quotations" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for template_definition in template_definitions %}
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <div class="fw-semibold">{{ template_definition.label }}</div>
+                                <div class="small text-muted">{{ template_definition.code }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Company" %}</th>
+                                        <th>{% trans "Code" %}</th>
+                                        <th>{% trans "Default PDF Template" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for company in companies %}
+                                    <tr>
+                                        <td>{{ company.name }}</td>
+                                        <td>{{ company.code|default:"-" }}</td>
+                                        <td>
+                                            <select name="company_{{ company.pk }}" class="form-select form-select-sm">
+                                                {% for value, label in template_choices %}
+                                                <option value="{{ value }}" {% if company.default_quotation_template == value %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">{% trans "No active companies found." %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                {% trans "Save Default Templates" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
