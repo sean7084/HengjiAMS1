@@ -18,9 +18,7 @@ A comprehensive SaaS IT asset management solution built with Django, supporting 
 - [Project Structure](#project-structure)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
-- [Project Progress](#project-progress)
-- [TODO](#todo)
-- [Order Management System](#order-management-system)
+- [Documentation](#documentation)
 - [Test Accounts](#test-accounts)
 
 ---
@@ -500,6 +498,8 @@ Hardware catalog entries continue to use `AssetBrand` and `AssetModel`. Service 
 | `invoice information template.xlsx` | Invoice info sheet | Bill To, PI Number, Invoice Date, Due Date, amounts, PO Number, SAP Cost Center, line items |
 | `quotations/pdf_excel_style.html` | Quotation PDF (active) | quote header, line items, totals, remark, signature blocks |
 | `deliveries/pdf_excel_style.html` | Delivery PDF (active) | 订货方, 收货人, 电话, delivery items, delivery info, signature blocks |
+
+---
 
 ---
 
