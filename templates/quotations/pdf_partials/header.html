@@ -1,0 +1,50 @@
+        <tr><td colspan="{{ sheet_colspan }}" style="height:20pt"></td></tr>
+        <tr>
+            <td colspan="{{ logo_colspan }}" class="logo-cell"><img class="logo" src="{{ logo_path }}" alt="Logo"></td>
+            <td colspan="{{ date_colspan }}" class="logo-cell header-date-cell">
+                <table class="date-block" aria-label="quotation dates">
+                    <tr>
+                        <td class="date-label">Date:</td>
+                        <td class="date-value">{{ quotation.created_at|date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="date-label">Quote Date:</td>
+                        <td class="date-value">{{ quotation.quotation_date|date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="date-label">Validate Date:</td>
+                        <td class="date-value">{{ quotation.valid_until|date:"Y-m-d" }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr><td colspan="{{ sheet_colspan }}" style="height:8pt"></td></tr>
+        <tr>
+            <td colspan="{{ sheet_colspan }}" class="top-rule-cell">
+                <img class="top-rule-image" src="{{ header_rule_path }}" alt="">
+            </td>
+        </tr>
+        <tr><td colspan="{{ sheet_colspan }}" style="height:8pt"></td></tr>
+        <tr><td colspan="{{ sheet_colspan }}" class="title">Quotation</td></tr>
+        <tr><td colspan="{{ sheet_colspan }}" style="height:8pt"></td></tr>
+
+        <tr>
+            <td class="label-left">To:</td>
+            <td colspan="{{ to_value_colspan }}" class="value-left">{{ quotation.customer.name }}</td>
+            <td class="label-right">From:</td>
+            <td colspan="{{ from_value_colspan }}" class="value-right">Leo Yao</td>
+        </tr>
+        <tr>
+            <td class="label-left">Attn:</td>
+            <td colspan="{{ to_value_colspan }}" class="value-left">{{ quotation.attn|default:"-" }}</td>
+            <td class="label-right">MP:</td>
+            <td colspan="{{ from_value_colspan }}" class="value-right">13764570476</td>
+        </tr>
+        <tr>
+            <td class="label-left">Tel:</td>
+            <td colspan="{{ to_value_colspan }}" class="value-left">{{ quotation.tel|default:"-" }}</td>
+            <td class="label-right">E-Mail:</td>
+            <td colspan="{{ from_value_colspan }}" class="value-right">Leo.Yao@hengji-info.com</td>
+        </tr>
+        <tr><td colspan="{{ sheet_colspan }}" style="height:8pt"></td></tr>

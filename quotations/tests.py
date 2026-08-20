@@ -135,3 +135,21 @@ class QuotationPdfSplitTests(TestCase):
             with self.subTest(template_code=template_code):
                 pdf_bytes = render_quotation_pdf_html(quotation, template_code=template_code)
                 self.assertTrue(pdf_bytes.startswith(b'%PDF'))
+
+    @patch('quotations.services.HTML')
+    def test_render_quotation_pdf_html_renders_customer_name_in_confirmed_by_section(self, html_class_mock):
+        company = Company.objects.create(name='Confirmed Target Co', code='CTC')
+        quotation = Quotation.objects.create(
+            customer=company,
+            valid_until='2026-01-01',
+        )
+
+        html_class_mock.return_value.write_pdf.return_value = b'pdf-bytes'
+
+        for template_code in ['v1', 'v2_full']:
+            with self.subTest(template_code=template_code):
+                render_quotation_pdf_html(quotation, template_code=template_code)
+                html_output = html_class_mock.call_args.kwargs['string']
+                self.assertIn('Confirmed By :', html_output)
+                self.assertIn(f'class="sign-value">{company.name}</td>', html_output)
+                self.assertIn('sample_contact_seal.png', html_output)

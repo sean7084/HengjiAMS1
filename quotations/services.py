@@ -260,6 +260,8 @@ def render_quotation_pdf_html(quotation, template_code=None):
         'template_definition': template_definition,
         'remarks_text': quotation.get_effective_remarks(ordered_items=ordered_items),
         'logo_path': (Path(settings.BASE_DIR) / 'static' / 'images' / 'quotation_template_logo.png').resolve().as_uri(),
+        'header_rule_path': (Path(settings.BASE_DIR) / 'static' / 'images' / 'quotation_header_rule.png').resolve().as_uri(),
+        'seal_path': (Path(settings.BASE_DIR) / 'static' / 'images' / 'sample_contact_seal.png').resolve().as_uri(),
         'prepared_by_company': '上海珩际信息科技有限公司',
     }
     context.update(pdf_sections)

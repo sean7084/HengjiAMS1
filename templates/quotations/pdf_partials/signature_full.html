@@ -1,0 +1,44 @@
+        <tr><td colspan="{{ signature_sheet_colspan }}" style="height:20pt"></td></tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="sign-label">Confirmed By :</td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_colspan }}" class="sign-label">Prepared By :</td>
+        </tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="sign-space-row"></td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_colspan }}" class="sign-space-row"></td>
+        </tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="sign-space-row"></td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_colspan }}" class="sign-space-row"></td>
+        </tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="sign-value">{{ quotation.customer.name }}</td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_colspan }}" class="sign-value sign-value--prepared">
+                <div class="sign-prepared-block">
+                    <img class="sign-prepared-block__seal" src="{{ seal_path }}" alt="">
+                    <span class="sign-prepared-block__company">{{ prepared_by_company }}</span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="line-cell"><div class="line-cell__rule"></div></td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_line_colspan }}" class="line-cell"><div class="line-cell__rule"></div></td>
+            <td colspan="{{ prepared_line_tail_colspan }}"></td>
+        </tr>
+        <tr><td colspan="{{ signature_sheet_colspan }}" class="sign-gap-tight"></td></tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="sign-label">Signature &amp; Co. Chop</td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_colspan }}" class="sign-label">Signature &amp; Co. Chop</td>
+        </tr>
+        <tr>
+            <td colspan="{{ confirmed_colspan }}" class="sign-label">Date</td>
+            <td colspan="{{ middle_gap_colspan }}"></td>
+            <td colspan="{{ prepared_colspan }}" class="sign-label">Date</td>
+        </tr>
+        <tr><td colspan="{{ signature_sheet_colspan }}" class="bottom-spacer"></td></tr>

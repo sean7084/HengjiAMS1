@@ -1,0 +1,57 @@
+{% if section_items %}
+        <tr>
+            <td colspan="11">
+                <table class="grid" aria-label="{{ table_label }}">
+                    <colgroup>
+{% include "quotations/pdf_partials/colgroup_v2.html" %}
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="wrap-col">品牌</th>
+                            <th class="wrap-col">描述</th>
+                            <th class="wrap-col">采购方品牌</th>
+                            <th class="wrap-col">采购方用户</th>
+                            <th>单位</th>
+                            <th>不含税单价</th>
+                            <th>含税单价</th>
+                            <th>数量</th>
+                            <th>不含税总价</th>
+                            <th>含税总价</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for section_row in rows %}
+                        <tr>
+                            <td>{{ section_row.index }}</td>
+                            <td class="wrap-col">{% if section_row %}{{ section_row.brand_name }}{% endif %}</td>
+                            <td class="text-left wrap-col">{% if section_row %}{{ section_row.product_description }}{% endif %}</td>
+                            <td class="wrap-col">{% if section_row %}{{ section_row.user_brand }}{% endif %}</td>
+                            <td class="wrap-col">{% if section_row %}{{ section_row.user_name }}{% endif %}</td>
+                            <td>{% if section_row %}{{ section_row.unit }}{% endif %}</td>
+                            <td>{% if section_row %}{{ section_row.unit_price|floatformat:2 }}{% endif %}</td>
+                            <td>{% if section_row %}{{ section_row.unit_price_with_tax|floatformat:2 }}{% endif %}</td>
+                            <td>{% if section_row %}{{ section_row.quantity }}{% endif %}</td>
+                            <td>{% if section_row %}{{ section_row.line_total_without_tax|floatformat:2 }}{% endif %}</td>
+                            <td>{% if section_row %}{{ section_row.line_total_with_tax|floatformat:2 }}{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="10" class="summary-label">{{ without_vat_label }}</td>
+                            <td class="summary-value">{{ totals.total_without_tax|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="10" class="summary-label">{{ vat_label }}{% if totals.total_without_tax %} ({{ totals.vat_percent|floatformat:2 }}%){% endif %}</td>
+                            <td class="summary-value">{{ totals.total_tax|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="10" class="summary-label">{{ including_vat_label }}</td>
+                            <td class="summary-value">{{ totals.total_with_tax|floatformat:2 }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </td>
+        </tr>
+{% endif %}

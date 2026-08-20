@@ -1,0 +1,27 @@
+        <tr>
+            <td colspan="{{ totals_sheet_colspan }}">
+                <table class="grid" aria-label="quotation totals">
+                    <colgroup>
+{% if totals_colgroup_variant == "v1" %}
+{% include "quotations/pdf_partials/colgroup_v1.html" %}
+{% else %}
+{% include "quotations/pdf_partials/colgroup_v2.html" %}
+{% endif %}
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td colspan="{{ totals_summary_label_colspan }}" class="summary-label">不含税总价 Total Price without VAT</td>
+                            <td class="summary-value">{{ quotation.total_without_tax|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="{{ totals_summary_label_colspan }}" class="summary-label">税金 Total VAT</td>
+                            <td class="summary-value">{{ quotation.total_tax|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="{{ totals_summary_label_colspan }}" class="summary-label">含税总价 Total Price Including VAT(%)</td>
+                            <td class="summary-value">{{ quotation.total_with_tax|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
