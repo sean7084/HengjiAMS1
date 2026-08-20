@@ -1,0 +1,116 @@
+# Code Ownership File
+
+This file tracks ownership and approval requirements for various parts of the codebase.
+
+```yaml
+version: 1
+
+owners:
+  accounts:
+    - "@sean-liu"          # Primary maintainer
+    - "@team-backend"      # Backend team general inbox
+    
+  assets:
+    - "@sean-liu"
+    - "@team-core"
+    
+  companies:
+    - "@sean-liu"
+    - "@team-data-modeling"
+    
+  products:
+    - "@sean-liu"          # Unified pricing system
+    - "@team-inventory"
+    
+  quotations:
+    - "@sean-liu"
+    - "@team-sales"
+    
+  deliveries:
+    - "@sean-liu"
+    - "@team-logistics"
+    
+  invoices:
+    - "@sean-liu"
+    - "@team-accounting"
+    
+  dashboard:
+    - "@sean-liu"
+    - "@team-front-end"
+    
+  api:
+    - "@sean-liu"
+    - "@team-integrations"
+    
+  documents:
+    - "@sean-docs-team"
+    
+  deployments:
+    - "@devops-team"
+    - "@sean-liu"
+
+required_reviewers:
+  critical_changes:
+    - "@sean-liu"          # Required for breaking changes
+    - "@qa-lead"           # Required for all bug fixes
+    
+  security_fixes:
+    - "@security-team"     # Mandatory for security patches
+    
+  migrations:
+    - "@dba-team"          # Requires database expert approval
+
+teams:
+  @team-backend:
+    - "backend-devs@hengji.com"
+  @team-core:
+    - "core-team@hengji.com"
+  @team-sales:
+    - "sales-tech@hengji.com"
+  @team-logistics:
+    - "logistics-support@hengji.com"
+  @accounting:
+    - "finance-systems@hengji.com"
+  @devops-team:
+    - "devops@hengji.com"
+  @qa-lead:
+    - "qa-lead@hengji.com"
+  @security-team:
+    - "security@hengji.com"
+  @dba-team:
+    - "dba-team@hengji.com"
+```
+
+## Review Requirements
+
+### Standard Flow
+1. Owner(s) review via GitHub pull requests
+2. Minimum 1 approval from owner team
+3. Additional approval needed if critical path affected
+
+### Fast Track
+- Documentation-only changes: 1 reviewer suffices
+- Trivial fixes (typos, formatting): Auto-approved after 12h if no objections
+
+### Escalation Path
+If primary owners unresponsive > 48h:
+1. Tag alternative reviewer from same domain
+2. Escalate to engineering manager if still blocked
+
+## Adding New Owners
+
+To add or remove code owners:
+1. Submit PR modifying this file
+2. Require approval from:
+   - Current owner(s) 
+   - Engineering manager
+   - Product lead (for user-facing components)
+
+## Best Practices
+
+- Use descriptive team emails over individual handles where possible
+- Update promptly when staff roles change
+- Keep contact methods current and monitored
+- Document escalation procedures in wiki
+
+*Last Updated: August 20, 2026*

@@ -1,0 +1,83 @@
+# License - HengJi Asset Management System (AMS)
+
+© 2025-2026 HengJi Technology. All Rights Reserved.
+
+**PROPRIETARY AND CONFIDENTIAL**
+
+This software and associated documentation files (the "Software") are proprietary and confidential properties of HengJi Technology and its licensors. Unauthorized use, reproduction, distribution, or disclosure is strictly prohibited and may result in civil and/or criminal penalties under applicable intellectual property laws.
+
+---
+
+## License Types
+
+Please contact HengJi Technology for licensing options:
+
+### 1. Commercial Enterprise License
+
+Full commercial rights for organizational deployment, customization, and redistribution.
+
+**Contact**: [sales@hengji.com](mailto:sales@hengji.com)
+
+### 2. Open Source Evaluation License
+
+Permitted uses for evaluation and learning purposes only (NOT FOR PRODUCTION):
+
+✅ **Allowed:**
+- Personal learning and experimentation
+- Code review and security auditing
+- Non-production development environments
+- Academic research and education
+
+❌ **Prohibited:**
+- Production use in commercial businesses
+- Distribution or resale
+- Modification for commercial products
+- Removal of copyright notices
+- Reverse engineering beyond interoperability requirements
+
+---
+
+## Third-Party Licenses
+
+This project uses the following open-source libraries with their respective licenses:
+
+### Python Packages (Django Ecosystem)
+
+- **Django 5.2.3** - BSD-3-Clause License
+- **django-otp** - BSD-3-Clause License
+- **openpyxl** - MIT License
+- **reportlab** - BSD License
+- **weasyprint** - BSD-3-Clause License
+- **bootstrap** (via CDN) - MIT License
+
+See [`requirements.txt`](../requirements.txt) for full list.
+
+All third-party licenses are compatible with the proprietary nature of this software.
+
+---
+
+## Trademarks
+
+"HengJi" and the HengJi logo are trademarks of HengJi Technology. Unauthorized use of these trademarks is strictly prohibited.
+
+---
+
+## Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+## Contact Information
+
+For licensing inquiries, technical support, or legal questions:
+
+📧 Email: [licensing@hengji.com](mailto:licensing@hengji.com)  
+📱 Phone: +86 [Phone Number]  
+🌐 Website: [https://hengji.com](https://hengji.com)
+
+---
+
+*Last Updated: August 20, 2026*
