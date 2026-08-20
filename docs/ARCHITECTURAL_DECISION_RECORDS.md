@@ -1,0 +1,521 @@
+# Architecture Decision Records (ADR) - HengJi AMS
+
+This directory contains architectural decision records for the HengJi Asset Management System.
+
+## Table of Contents
+
+| ID | Title | Status | Date |
+|----|-------|--------|------|
+| [0001](#adr-0001-service-catalog-separation) | Service Catalog Separation | Accepted | 2026-04-29 |
+| [0002](#adr-0002-mailbox-driven-rfq-automation) | Mailbox-Driven RFQ Automation | Accepted | 2026-04-29 |
+| [0003](#adr-0003-direct-dispatch-fulfillment) | Direct Dispatch Fulfillment | Accepted | 2026-04-29 |
+| [0004](#adr-0004-hardware-only-assets-boundary) | Hardware-Only Assets Boundary | Accepted | 2026-04-29 |
+| [0005](#adr-0005-product-price-history-lifecycle) | Product Price History & Lifecycle | Accepted | 2026-04-29 |
+| [0006](#adr-0006-import-rollack-system) | Import Rollback System | Accepted | 2026-04-21 |
+| [0007](#adr-0007-multi-role-administrator-access-control) | Multi-Role Administrator Access Control | Accepted | 2026-04-24 |
+| [0008](#adr-0008-html-pdf-generation-without-libreoffice) | HTML-to-PDF Generation Without LibreOffice | Accepted | 2026-04-17 |
+| [0009](#adr-0009-warehouse-slot-tracking) | Warehouse Slot Tracking | Accepted | 2026-04-20 |
+| [0010](#adr-0010-company-contact-vs-company-user) | Company Contact vs Company User Model | Accepted | 2026-04-21 |
+
+---
+
+## ADR-0001: Service Catalog Separation
+
+**Status**: Accepted  
+**Date**: 2026-04-29  
+**Authors**: Sean Liu
+
+### Context
+
+Previously, services were modeled using `AssetModel` alongside hardware products, creating confusion about what constitutes a physical asset vs. a service offering. This caused issues in:
+- Quotation creation (hardware/services mixed together)
+- Delivery workflows (services don't need asset tracking)
+- Purchase orders (services don't create inventory items)
+- Export reports (inconsistent categorization)
+
+### Decision
+
+Split the unified product catalog into two distinct entities:
+
+1. **Hardware Products**: Continue using `AssetBrand` → `AssetModel` hierarchy stored in `products.ProductPrice`
+   - These become `assets.Asset` records when purchased
+   - Require serial number tracking
+   - Need warehouse slot management
+
+2. **Service Offerings**: New standalone model `products.ServiceItem`
+   - Fields: `service_group`, `name`, `description`, `unit`, `is_active`
+   - Priced via `ProductPrice.service_item` (nullable FK)
+   - Never create asset records
+   - Flow directly through quotation → delivery without purchase
+
+**Schema Changes:**
+```python
+# New model
+class ServiceItem(models.Model):
+    service_group = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    unit = models.CharField(max_length=20, default='hours')
+    is_active = models.BooleanField(default=True)
+    
+# Updated ProductPrice constraints
+class ProductPrice(models.Model):
+    # Hardware path
+    brand = models.ForeignKey(AssetBrand, null=True)
+    model = models.ForeignKey(AssetModel, null=True)
+    # Service path  
+    service_item = models.ForeignKey(ServiceItem, null=True)
+    
+    # Enforce exactly one target
+    class Meta:
+        constraints = [
+            CheckConstraint(
+                check=(
+                    Q(brand__isnull=False, model__isnull=False, service_item__isnull=True) |
+                    Q(brand__isnull=True, model__isnull=True, service_item__isnull=False)
+                ),
+                name="must_target_model_or_service_item"
+            )
+        ]
+```
+
+### Consequences
+
+**Positive:**
+- Clear separation of concerns between assets and services
+- Simplified delivery workflow (no need to filter out services)
+- Accurate reporting (hardware-only exports work correctly)
+- Natural fit for service-only quotations (consulting, maintenance)
+
+**Negative:**
+- Requires data migration from legacy `AssetModel` service category records
+- Adds complexity to price selection logic (need to know type upfront)
+- Two different add flows (product vs service item)
+
+**Mitigations:**
+- Create backfill migration: migrate existing service `AssetModel` records → `ServiceItem`
+- Add unified catalog helper views that display both types with labels
+- Keep single `ProductPrice` table for admin simplicity
+
+### References
+- Related migrations: `products/migrations/0003_serviceitem...`, `deliveries/migrations/0002_deliveryitem_quotation_item_and_service_lines.py`
+- Quotation workflows updated to support `QuotationItem.service_item`
+
+---
+
+## ADR-0002: Mailbox-Driven RFQ Automation
+
+**Status**: Accepted  
+**Date**: 2026-04-29  
+**Authors**: Sean Liu
+
+### Context
+
+Customers send RFQs via email. Order management staff manually:
+1. Read email
+2. Classify products
+3. Search pricing
+4. Draft quotations
+5. Send reply
+
+This process is slow, error-prone, and doesn't scale.
+
+### Decision
+
+Implement automated RFQ classification and draft generation from mailbox messages:
+
+1. **Store Received Messages**: Extend `accounts.ReceivedEmailMessage` with RFQ analysis fields:
+   ```python
+   class ReceivedEmailMessage(models.Model):
+       rfq_classification = models.CharField(max_length=50, choices=RFQType.choices)
+       rfq_confidence = models.FloatField(null=True)
+       rfq_summary = models.TextField(blank=True)
+       extracted_rfq_data = models.JSONField(default=dict)
+       has_pending_rfq = models.BooleanField(default=False)  # Needs manual review
+   ```
+
+2. **Trigger Auto-Classification**: When mailbox sync completes, trigger async task:
+   - Parse email body (plaintext/HTML)
+   - Extract line items using NLP (Minimax API)
+   - Match against product catalog
+   - Create draft `Quotation` if confidence > threshold
+   - Flag for human review if low confidence or unauthorized sender
+
+3. **Authorize RFQ Senders**: Add `company_contacts.CompanyUser.is_authorized_rfq_sender` flag:
+   - Only auto-generate quotes from trusted contacts
+   - Allow manual override per customer
+
+4. **UI for RFQ Management**: Add inbox views with actions:
+   - Classify/reclassify message
+   - Reprocess after corrections
+   - Link/unlink from existing quotation
+   - Mark as handled
+
+### Consequences
+
+**Positive:**
+- Reduces quote turnaround time significantly
+- Consistent product matching rules
+- Audit trail of all incoming RFQs
+- Handles edge cases via human-in-the-loop
+
+**Negative:**
+- AI costs (Minimax API calls)
+- False positives require manual cleanup
+- Configuration complexity (API keys, thresholds)
+
+**Mitigations:**
+- Cache matched results to avoid duplicate API calls
+- Confidence scoring allows human priority judgment
+- Manual review queue prevents unwanted auto-quoting
+
+### References
+- Files: `accounts/rfq_ai.py`, `accounts/models.py` (ReceivedEmailMessage)
+- Migrations: `accounts/migrations/0015_receivedemailmessage_rfq_confidence_and_more.py`
+- Settings: `MINIMAX_RFQ_API_URL`, `MINIMAX_RFQ_MODEL`, `MINIMAX_TOKEN_PLAN_KEY`
+
+---
+
+## ADR-0003: Direct Dispatch Fulfillment
+
+**Status**: Accepted  
+**Date**: 2026-04-29  
+**Authors**: Sean Liu
+
+### Context
+
+Current flow always creates `PurchaseOrder` after confirming a quotation:
+1. Quotation confirmed → Create PO
+2. Receive goods into stock
+3. Create delivery from stock
+
+However, some quotations only contain items we already have in stock (no need to purchase). Other quotations might be 100% services (no physical goods at all). Forcing purchase orders in these cases wastes time.
+
+### Decision
+
+Allow confirmed quotations to skip purchase orders under specific conditions:
+
+1. **Direct Dispatch Eligibility Check**: When viewing confirmed quotation, evaluate:
+   - If all hardware items exist in internal warehouse stock quantities ≥ quoted quantities
+     → Show "Create Delivery" button instead of "Create Purchase Order"
+   - If any hardware items are missing from stock
+     → Show "Continue Fulfillment" (creates PO for missing items, then deliver)
+   - If quotation is 100% services (no hardware lines)
+     → Always show "Create Delivery" (services never create POs)
+
+2. **Updated Delivery Workflow**: Remove `Prepared` status from active workflow:
+   - Old states: `pending` → `prepared` → `dispatched` → `completed`
+   - New states: `pending` → `dispatched` → `delivered`
+   - Renamed `completed` to `Delivered` for clarity
+
+3. **Service-Aware Delivery Items**: Update `DeliveryItem` to support non-asset lines:
+   ```python
+   class DeliveryItem(models.Model):
+       delivery_order = models.ForeignKey(DeliveryOrder, ...)
+       asset = models.ForeignKey(Asset, null=True)  # Null for services
+       quotation_item = models.ForeignKey(QuotationItem, ...)  # Links to source
+       
+       # Preserve snapshot data
+       brand = models.CharField(...)
+       product_description = models.CharField(...)
+       service_item = models.ForeignKey(ServiceItem, null=True)
+   ```
+
+### Consequences
+
+**Positive:**
+- Eliminates unnecessary PO/delay for in-stock or service-only orders
+- Faster fulfillment cycle time
+- Cleaner operational logic (less mental overhead)
+- Matches real-world business scenarios
+
+**Negative:**
+- More complex quotation next-action buttons (need conditional rendering)
+- Stock availability must be checked dynamically on quotation list/detail
+- Need to handle partial fulfillment scenarios
+
+**Mitigations:**
+- Precompute stock summary dashboard column (cached)
+- Show warning if stock drops below required quantity during checkout
+- Explicit "Continue Fulfillment" button bridges old/new paths
+
+### References
+- Views: `quotations/views.py` (`direct_dispatch_eligible` logic)
+- Templates: `quotations/quotation_list.html`, `deliveries/create_from_quotation.html`
+- Deliveries migration: `deliveries/migrations/0002_deliveryitem_quotation_item_and_service_lines.py`
+
+---
+
+## ADR-0004: Hardware-Only Assets Boundary
+
+**Status**: Accepted  
+**Date**: 2026-04-29  
+**Authors**: Sean Liu
+
+### Context
+
+After introducing `ServiceItem` separate from hardware products, several pages accidentally included service records:
+- Asset list view (showed consulting services)
+- Brand/model management (mixed service brands)
+- Export operations (exported non-physical items)
+- Reports (skewed totals with services)
+
+Users expected "Assets" page to only show physical equipment.
+
+### Decision
+
+Enforce strict hardware-only boundaries across all asset-facing functionality:
+
+1. **Category-Level Type Flag**: Add `assets.AssetCategory.item_type`:
+   ```python
+   class AssetCategory(models.Model):
+       item_type = models.CharField(max_length=20, 
+                                    choices=[('hardware', 'Hardware'),
+                                            ('service', 'Service')])
+   ```
+   - All existing categories migrate to `'hardware'` by default
+   - Service categories created explicitly for `ServiceItem`
+
+2. **Centralized Helper Functions**: Create `apps.assets.helpers.get_hardware_only_*()` functions:
+   ```python
+   def get_hardware_only_categories():
+       return AssetCategory.objects.filter(item_type='hardware')
+   
+   def get_hardware_only_brands():
+       return AssetBrand.objects.filter(category__item_type='hardware')
+   
+   def get_accessible_assets(user):
+       # Base queryset + role filters, but exclude service-category assets
+       return Asset.objects.filter(category__item_type='hardware') \
+                          .filter(accessible_to(user))
+   ```
+
+3. **Apply Helpers Site-Wide**: Audit all asset-related views/templates:
+   - List/Detail/Edit/Delete → use `get_hardware_only_` helpers
+   - Brand/Model management pages → filter to hardware only
+   - Export flows → use accessible-assets scope filtered to hardware
+   - Statistics pages → same filtering
+   - Audit log links → point to hardware-only asset change logs
+
+4. **Keep Service Management Separate**: Move service catalog management into `Products` app:
+   - `products.views.manage_service_items`
+   - `templates/products/service_item_list.html`
+   - Distinct navigation entry: "Services" under "Catalog"
+
+### Consequences
+
+**Positive:**
+- Users see consistent, relevant data on each page
+- Prevents accidental service-item deletion (protected by location references)
+- Clean separation makes debugging easier
+- Export/report reliability improved
+
+**Negative:**
+- Requires careful auditing of all code paths
+- Need to prevent new asset-related code from including services
+- Migration of legacy service `AssetModel` records needed (handled in ADR-0001)
+
+**Mitigations:**
+- Centralize filtering logic so one function update propagates everywhere
+- Add tests verifying hardware-only behavior on critical views
+- Document boundary clearly in code comments
+
+### References
+- Files modified: 35+ files in iteration (see CHANGELOG v0.1.7)
+- Key templates: `assets/asset_list.html`, `assets/brand_list.html`, `exports/excel_export.html`
+
+---
+
+## ADR-0005: Product Price History & Lifecycle
+
+**Status**: Accepted  
+**Date**: 2026-04-24  
+**Authors**: Sean Liu
+
+### Context
+
+Historical pricing data was lost when prices were edited:
+- Unable to reconstruct past profit margins
+- Cannot explain why previous customer paid different rate
+- Reporting for prior periods inaccurate (uses current price)
+
+Old system had single `price_with_tax` field on `ProductPrice`.
+
+### Decision
+
+Implement versioned pricing with historical preservation:
+
+1. **Add Validity Window Fields**:
+   ```python
+   class ProductPrice(models.Model):
+       valid_from = models.DateTimeField(default=timezone.now)
+       valid_until = models.DateTimeField(null=True, blank=True)  # NULL = current
+       
+       @property
+       def is_current(self):
+           return self.valid_until is None
+   ```
+
+2. **On Price Update Strategy**:
+   - When editing price row R1, do NOT overwrite in place
+   - Create new row R2 with `valid_from = now()`, `valid_until = NULL`
+   - Set R1's `valid_until = yesterday_at_midnight` (or precise timestamp)
+   - R1 remains in DB with `is_current=False`
+
+3. **Preserve Derived Fields**: Include brand/model/unit snapshots:
+   - If user changes brand on edit, R2 still remembers what R1 pointed to
+   - Unit derived from selected model captured at time of creation
+   - JSON field `derived_snapshot` optional for full context
+
+4. **Unique Constraint on Current Rows**:
+   ```python
+   class Meta:
+       constraints = [
+           UniqueConstraint(
+               fields=['model', 'service_item'],
+               condition=Q(valid_until=None),
+               name='unique_current_price_per_catalog_item'
+           )
+       ]
+   ```
+
+### Consequences
+
+**Positive:**
+- Full audit trail of pricing changes
+- Accurate historical reporting
+- Ability to reconstruct past profitability
+- Transparent explanation of customer charges
+
+**Negative:**
+- Larger database (multiple rows per product over time)
+- More complex queries (need to join history for trends)
+- Potential performance degradation on large catalogs
+
+**Mitigations:**
+- Index `valid_from` and `valid_until` columns
+- Materialized view for "current price" cache
+- Archive old history after configurable period (e.g., 7 years)
+
+### References
+- Migration: `products/migrations/0002_productprice_history_and_current_constraint.py`
+- Views: `products/views.py` (`ProductPriceCreateView`, `ProductPriceUpdateView`)
+- Forms: `products/forms.py` (date validation helpers)
+
+---
+
+## ADR-0006: Import Rollback System
+
+**Status**: Accepted  
+**Date**: 2026-04-21  
+**Authors**: Sean Liu
+
+### Context
+
+CSV imports for companies/locations/assets/contacts sometimes fail mid-way:
+- Data format errors
+- Validation mismatches
+- Duplicate detection conflicts
+
+Before rollback: users had no way to undo imports except manual database restoration.
+
+### Decision
+
+Implement systematic import execution tracking and reverse-capability:
+
+1. **Track Import Runs**: New models:
+   ```python
+   class ImportRun(models.Model):
+       uploaded_file = models.FileField()
+       user = models.ForeignKey(User, ...)
+       module = models.CharField(choices=['companies', 'locations', 'contacts', 'assets'])
+       started_at = models.DateTimeField(auto_now_add=True)
+       processed_count = models.IntegerField(default=0)
+       created_count = models.IntegerField(default=0)
+       updated_count = models.IntegerField(default=0)
+       skipped_count = models.IntegerField(default=0)
+       error_count = models.IntegerField(default=0)
+       
+   class ImportRunChange(models.Model):
+       import_run = models.ForeignKey(ImportRun, ...)
+       record_id = models.UUIDField()  # Target object UUID
+       operation_type = models.CharField(choices=['created', 'updated'])
+       before_snapshot = models.JSONField(null=True)  # For updates
+       after_snapshot = models.JSONField()
+   ```
+
+2. **Per-Record Snapshots**: During import:
+   - On CREATE: store whole row as `after_snapshot`
+   - On UPDATE: capture `before_snapshot` (original values) + `after_snapshot`
+   - Serialize model objects to JSON before writing changes
+
+3. **Rollback Execution**: When user clicks "Rollback Latest Import":
+   - Fetch all `ImportRunChange` records ordered by id DESC
+   - Iterate backwards, reversing each change:
+     - Created → DELETE the record
+     - Updated → restore `before_snapshot` fields
+   - Log rollback result
+
+4. **Safe Defaults**: 
+   - Only allow rollback of last import (prevent cascading deletions)
+   - Show confirmation modal listing affected counts
+   - Disable rollback button if no eligible run exists
+
+### Consequences
+
+**Positive:**
+- One-click safety net for bad imports
+- Audit trail of every import's impact
+- Confidence to experiment with data updates
+- Reduced support burden
+
+**Negative:**
+- Increased storage (snapshots double-write)
+- Longer import processing time
+- Complex serialization logic (handle non-JSON fields like images)
+
+**Mitigations:**
+- Compress snapshots if size exceeds threshold
+- Don't track successful re-imports (already existed)
+- Limit retention to 30 days
+
+### References
+- Views: `companies/views.py` (`csv_upload`, `confirm_import`, `rollback_import`)
+- Utils: `utils/import_rollback.py`
+- URLs: `companies/urls.py` (rollback route added)
+
+---
+
+[Continue for remaining ADRs...]
+
+---
+
+## ADR Template
+
+When creating new ADRs, follow this template:
+
+```markdown
+## ADR-NNNN: Title
+
+**Status**: [Proposed | Accepted | Deprecated | Superseded]  
+**Date**: YYYY-MM-DD  
+**Authors**: [Your Name]
+
+### Context
+What problem are you trying to solve? What constraints exist?
+
+### Decision
+What did you decide? Include code snippets, diagrams, schemas.
+
+### Consequences
+- Positive outcomes
+- Negative outcomes / trade-offs
+- Mitigations
+
+### References
+Links to related files, migrations, discussions
+```
+
+---
+
+*Last Updated: April 29, 2026*
