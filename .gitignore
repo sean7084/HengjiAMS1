@@ -12,9 +12,6 @@ media/
 .mcp.json
 *.code-workspace
 
-# GitHub configuration (for local testing only - pushed to repo when ready)
-.github/
-
 # Python bytecode/cache
 __pycache__/
 *.py[cod]
