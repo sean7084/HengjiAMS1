@@ -1,116 +1,87 @@
-# Code Ownership File
+# CODEOWNERS file for HengjiAMS1
+# This file defines code ownership and automatically requests reviews
+# from the specified owners when pull requests modify matching files.
+#
+# Syntax: <pattern> <owner1> <owner2> ...
+# The owner can be a GitHub username (@username) or a team (@org/team-name).
+#
+# Note: Lines starting with '#' are comments.
+# The last matching pattern takes precedence.
 
-This file tracks ownership and approval requirements for various parts of the codebase.
+# Default owners for everything in the repository
+# These owners will be the default for all files unless overridden below
+* @sean7084
 
-```yaml
-version: 1
+# Accounts module - User management and authentication
+/accounts/ @sean7084
 
-owners:
-  accounts:
-    - "@sean-liu"          # Primary maintainer
-    - "@team-backend"      # Backend team general inbox
-    
-  assets:
-    - "@sean-liu"
-    - "@team-core"
-    
-  companies:
-    - "@sean-liu"
-    - "@team-data-modeling"
-    
-  products:
-    - "@sean-liu"          # Unified pricing system
-    - "@team-inventory"
-    
-  quotations:
-    - "@sean-liu"
-    - "@team-sales"
-    
-  deliveries:
-    - "@sean-liu"
-    - "@team-logistics"
-    
-  invoices:
-    - "@sean-liu"
-    - "@team-accounting"
-    
-  dashboard:
-    - "@sean-liu"
-    - "@team-front-end"
-    
-  api:
-    - "@sean-liu"
-    - "@team-integrations"
-    
-  documents:
-    - "@sean-docs-team"
-    
-  deployments:
-    - "@devops-team"
-    - "@sean-liu"
+# Assets module - Asset CRUD and assignments
+/assets/ @sean7084
 
-required_reviewers:
-  critical_changes:
-    - "@sean-liu"          # Required for breaking changes
-    - "@qa-lead"           # Required for all bug fixes
-    
-  security_fixes:
-    - "@security-team"     # Mandatory for security patches
-    
-  migrations:
-    - "@dba-team"          # Requires database expert approval
+# Companies module - Company and location structures
+/companies/ @sean7084
 
-teams:
-  @team-backend:
-    - "backend-devs@hengji.com"
-  @team-core:
-    - "core-team@hengji.com"
-  @team-sales:
-    - "sales-tech@hengji.com"
-  @team-logistics:
-    - "logistics-support@hengji.com"
-  @accounting:
-    - "finance-systems@hengji.com"
-  @devops-team:
-    - "devops@hengji.com"
-  @qa-lead:
-    - "qa-lead@hengji.com"
-  @security-team:
-    - "security@hengji.com"
-  @dba-team:
-    - "dba-team@hengji.com"
-```
+# Customers module - Customer management
+/customers/ @sean7084
 
-## Review Requirements
+# Dashboard module - Main landing page
+/dashboard/ @sean7084
 
-### Standard Flow
-1. Owner(s) review via GitHub pull requests
-2. Minimum 1 approval from owner team
-3. Additional approval needed if critical path affected
+# Deliveries module - Delivery orders
+/deliveries/ @sean7084
 
-### Fast Track
-- Documentation-only changes: 1 reviewer suffices
-- Trivial fixes (typos, formatting): Auto-approved after 12h if no objections
+# Invoices module - Invoice processing
+/invoices/ @sean7084
 
-### Escalation Path
-If primary owners unresponsive > 48h:
-1. Tag alternative reviewer from same domain
-2. Escalate to engineering manager if still blocked
+# Products module - Price list and service catalog
+/products/ @sean7084
 
-## Adding New Owners
+# Purchases module - Purchase orders
+/purchases/ @sean7084
 
-To add or remove code owners:
-1. Submit PR modifying this file
-2. Require approval from:
-   - Current owner(s) 
-   - Engineering manager
-   - Product lead (for user-facing components)
+# Quotations module - Quotation lifecycle
+/quotations/ @sean7084
 
-## Best Practices
+# Reports module - Analytics and charts
+/reports/ @sean7084
 
-- Use descriptive team emails over individual handles where possible
-- Update promptly when staff roles change
-- Keep contact methods current and monitored
-- Document escalation procedures in wiki
+# Users module - User accounts
+/users/ @sean7084
 
-*Last Updated: August 20, 2026*
+# Audit module - Audit logging
+/audit/ @sean7084
+
+# Mobile module - Mobile interface
+/mobile/ @sean7084
+
+# API module - REST API endpoints
+/api/ @sean7084
+
+# Utils module - Shared utilities
+/utils/ @sean7084
+
+# Core Django settings
+/hengjiams/ @sean7084
+
+# Database migrations - Require extra careful review
+**/migrations/ @sean7084
+
+# Security-sensitive files
+.env.example @sean7084
+requirements.txt @sean7084
+
+# Documentation
+/docs/ @sean7084
+*.md @sean7084
+
+# GitHub configuration
+/.github/ @sean7084
+
+# Scripts
+/scripts/ @sean7084
+
+# Templates
+/templates/ @sean7084
+
+# Static files
+/static/ @sean7084
