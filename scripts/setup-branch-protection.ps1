@@ -46,12 +46,17 @@ try {
     exit 1
 }
 
-# Configure branch protection
+# Configure branch protection (Option C: strict protection + admin bypass)
 # Note: dismissal_restrictions is only for organization repositories
 # For personal repositories, we omit this field
+#
+# Option C behavior:
+#   - enforce_admins = false allows the repository admin (owner) to bypass
+#     the review requirements, while enforcing them for any collaborators.
+#   - This is the personal-repo equivalent of "allow specified actors to bypass".
 $protectionConfig = @{
     required_status_checks = $null
-    enforce_admins = $true
+    enforce_admins = $false
     required_pull_request_reviews = @{
         dismiss_stale_reviews = $true
         require_code_owner_reviews = $true
@@ -75,21 +80,21 @@ try {
     
     Write-Host ""
     Write-Host "=== SUCCESS ===" -ForegroundColor Green
-    Write-Host "Branch protection configured for '$branch' branch!" -ForegroundColor Green
+    Write-Host "Branch protection configured for '$branch' branch! (Option C)" -ForegroundColor Green
     Write-Host ""
     Write-Host "Applied settings:" -ForegroundColor Cyan
     Write-Host "  ✓ Require pull request before merging" -ForegroundColor Green
     Write-Host "  ✓ Require 1 approving review" -ForegroundColor Green
     Write-Host "  ✓ Dismiss stale reviews automatically" -ForegroundColor Green
     Write-Host "  ✓ Require review from Code Owners" -ForegroundColor Green
-    Write-Host "  ✓ Enforce for administrators" -ForegroundColor Green
+    Write-Host "  ✓ Admin (owner) can bypass requirements" -ForegroundColor Green
     Write-Host "  ✓ Block force pushes" -ForegroundColor Green
     Write-Host "  ✓ Block branch deletion" -ForegroundColor Green
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Yellow
     Write-Host "  1. Test by creating a PR to main branch" -ForegroundColor Gray
     Write-Host "  2. Verify CODEOWNERS triggers automatic review requests" -ForegroundColor Gray
-    Write-Host "  3. Confirm PR cannot be merged without approval" -ForegroundColor Gray
+    Write-Host "  3. Confirm collaborators need approval but admin can bypass" -ForegroundColor Gray
     
 } catch {
     Write-Host ""
