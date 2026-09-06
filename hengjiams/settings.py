@@ -114,6 +114,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# WhiteNoise serves static files in production. It must sit directly after
+# SecurityMiddleware. Guarded by DEBUG so local development does not require
+# the package to be installed (dev uses runserver's own static handling).
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 ROOT_URLCONF = 'hengjiams.urls'
 
 TEMPLATES = [
@@ -230,9 +236,52 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Media files (user uploads)
+# Static files storage (Django 5.x STORAGES API).
+# Production: WhiteNoise's CompressedManifestStaticFilesStorage - hashed
+#   filenames for cache-busting plus pre-compressed .gz/.br. Nginx serves the
+#   collected files directly (fast path); WhiteNoise is the in-app fallback.
+# Development: plain StaticFilesStorage so `collectstatic`/manifest is not
+#   required locally and the whitenoise package need not be installed.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': (
+            'whitenoise.storage.CompressedManifestStaticFilesStorage'
+            if not DEBUG
+            else 'django.contrib.staticfiles.storage.StaticFilesStorage'
+        ),
+    },
+}
+
+# Media files (user uploads) - served by Nginx in production.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cache backend.
+# Production: Redis via django-redis when DJANGO_REDIS_CACHE_URL is set
+#   (e.g. redis://127.0.0.1:6379/1).
+# Development: local-memory cache - no Redis server or extra package required.
+_redis_cache_url = os.environ.get('DJANGO_REDIS_CACHE_URL', '').strip()
+if _redis_cache_url:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': _redis_cache_url,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            'KEY_PREFIX': 'hengjiams',
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'hengjiams-dev',
+        }
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

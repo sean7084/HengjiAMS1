@@ -6,16 +6,17 @@ This guide covers deploying HengJi AMS to production environments.
 
 ## Prerequisites
 
-- **Server**: Linux (Ubuntu 20.04+ recommended) or compatible cloud instance
+- **Server**: Ubuntu 24.04 LTS (recommended) or a compatible Linux instance
 - **Memory**: Minimum 4GB RAM (8GB recommended)
 - **CPU**: 2+ cores
 - **Storage**: 20GB+ SSD space
-- **Python**: 3.11+ (Django 5.2.8; see `requirements.txt`)
-- **Database**: SQLite is the built-in default. For PostgreSQL, install 14+ **and** add a driver (`psycopg2-binary`) — it is currently commented out in `requirements.txt`.
-- **Web Server**: Nginx
-- **WSGI Server**: Gunicorn — **not** in `requirements.txt`; install it explicitly (`pip install gunicorn`).
+- **Python**: 3.11+ (Ubuntu 24.04 ships 3.12; Django 5.2.8 — see `requirements.txt`)
+- **Database**: PostgreSQL 14+ (production). SQLite remains the zero-config default for local development.
+- **Cache**: Redis 6+ (production, via `django-redis`). Local development falls back to an in-memory cache.
+- **Web Server**: Nginx (serves `/static/` and `/media/` directly)
+- **WSGI Server**: Gunicorn
 
-> ⚠️ **Extra production dependencies.** `requirements.txt` ships runtime libs only. For a production stack you must additionally install `gunicorn`, a PostgreSQL driver (`psycopg2-binary`), and optionally `whitenoise` (static files) and `django-redis` (caching). These are referenced later in this guide but are **not** pinned in `requirements.txt`.
+> ✅ **Production dependencies are pinned in `requirements.txt`**: `gunicorn`, `psycopg2-binary`, `whitenoise`, `django-redis`, `redis`. `gunicorn` carries a `sys_platform != 'win32'` marker, so a single `pip install -r requirements.txt` works on both Windows (dev) and Ubuntu (prod) — Windows simply skips gunicorn.
 
 ---
 
@@ -41,8 +42,8 @@ sudo apt update && sudo apt upgrade -y
 
 # Install dependencies
 sudo apt install -y \
-    python3.11 python3.11-venv python3-pip \
-    postgresql-14 postgresql-contrib-14 \
+    python3.12 python3.12-venv python3-pip \
+    postgresql postgresql-contrib \
     nginx redis-server \
     git curl wget build-essential libpq-dev
 
@@ -73,7 +74,7 @@ sudo chown -R hengjiams:hengjiams /opt/hengji-ams
 cd /opt/hengji-ams
 
 # Install Python dependencies
-python3.11 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
@@ -100,6 +101,9 @@ DATABASE_PASSWORD=your_secure_password_here
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 
+# Cache (Redis) - production
+DJANGO_REDIS_CACHE_URL=redis://127.0.0.1:6379/1
+
 # Minimax RFQ integration (note the LOWERCASE key name)
 minimax_token_plan_key=${YOUR_MINIMAX_API_KEY}
 MINIMAX_RFQ_API_URL=https://api.minimaxi.com/anthropic/v1/messages
@@ -120,7 +124,7 @@ EOF
 
 Generate secret key:
 ```bash
-python3.11 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+python3.12 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
 ### Step 4b: Provision Document Templates (Required)
@@ -208,10 +212,13 @@ server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
     
-    # Static files
+    # Static files (from `manage.py collectstatic`). WhiteNoise gives hashed
+    # filenames, so they can be cached immutably for a year.
     location /static/ {
         alias /opt/hengji-ams/staticfiles/;
-        expires 30d;
+        access_log off;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
     }
     
     # Media files
@@ -397,7 +404,7 @@ sudo apt install -y \
     libgdk-pixbuf2.0 libffi-dev shared-mime-info
 
 # Verify installation
-python3.11 -c "import weasyprint; weasyprint.HTML(string='<div>Hello</div>').write_pdf('-')"
+python3.12 -c "import weasyprint; weasyprint.HTML(string='<div>Hello</div>').write_pdf('-')"
 ```
 
 ### Database Connection Pool Exhaustion
@@ -428,30 +435,21 @@ max_connections = 200
 
 ## Performance Optimization
 
-### Django Settings Adjustments
+### Django Settings Adjustments (already applied)
 
-> ⚠️ **Optional & not currently applied.** None of the settings below are present in `settings.py` today, and `django-redis` / `whitenoise` are **not** in `requirements.txt`. Install the packages and add the settings manually if you adopt them.
+Redis caching and WhiteNoise static handling are **already wired into `settings.py`** (env-driven) and pinned in `requirements.txt`:
+
+- **Cache** — `CACHES` uses `django_redis.cache.RedisCache` when `DJANGO_REDIS_CACHE_URL` is set; otherwise a local-memory cache (development).
+- **Static files** — in production (`DEBUG=False`), `STORAGES["staticfiles"]` uses `whitenoise.storage.CompressedManifestStaticFilesStorage` and the WhiteNoise middleware is enabled automatically. Run `collectstatic` on every deploy so the manifest and pre-compressed variants exist.
+
+Optional extra (off by default):
 
 ```python
-# Caching (Redis)
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
-
-# Compression middleware
-MIDDLEWARE += [
-    'django.middleware.gzip.GZipMiddleware',
-]
-
-# Static file serving optimization
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Response compression - only if you do NOT already gzip at Nginx.
+MIDDLEWARE += ['django.middleware.gzip.GZipMiddleware']
 ```
+
+> Prefer Nginx `gzip on;` (plus WhiteNoise's pre-compressed `.gz`/`.br`) over compressing inside the Django process.
 
 ### Query Optimization Tips
 

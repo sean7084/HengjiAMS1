@@ -19,5 +19,13 @@ xlsxwriter==3.2.9
 pillow==12.1.1
 pyotp==2.9.0
 
-# Optional database driver for PostgreSQL deployments
-# psycopg2==2.9.11
+# Production deployment (Ubuntu 24.04 LTS; Gunicorn behind Nginx)
+# gunicorn is Unix-only - the environment marker keeps Windows dev installs working.
+gunicorn==23.0.0 ; sys_platform != 'win32'
+# PostgreSQL driver (production database; SQLite remains the dev default)
+psycopg2-binary==2.9.12
+# Static files: WhiteNoise serves + compresses static assets (manifest cache-busting in prod)
+whitenoise==6.12.0
+# Caching: Redis via django-redis (enabled when DJANGO_REDIS_CACHE_URL is set)
+django-redis==5.4.0
+redis==8.1.0
