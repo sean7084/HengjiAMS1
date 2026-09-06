@@ -69,7 +69,7 @@ sequenceDiagram
 
 ### Automatic RFQ Classification
 
-**Trigger**: Every 5 minutes during `runserver` mode (auto-sync enabled in settings).
+**Trigger**: An in-process background thread syncs each active mailbox roughly every 5 minutes while the server runs. Auto-sync is **per mailbox** (`UserMailboxSettings.auto_sync_enabled`), not a global Django setting.
 
 **Flow**:
 1. IMAP/POP3 mailbox sync fetches new messages
@@ -150,52 +150,61 @@ Use inline comments field on message detail for internal notes that aren't sent 
 
 ## Invoice Processing Cycle
 
-### Weekly Batch Workflow
+### Weekly Batch Import
 
-**Timeline**: Every Monday, Friday batch imports run automatically
+Invoice records are created **only** by importing a weekly batch — there is no manual "create invoice" screen. Import is a **manual upload** (not a scheduled/automatic job).
+
+**Route:** Invoices → Import (`/invoices/import/`, name `invoices:batch_import`)
 
 **Steps**:
-1. Customer sends Excel invoice list to designated SharePoint folder
-2. WeeklyBatch admin downloads and uploads to `/invoices/invoice-info/upload-batch/`
-3. System parses XML/PDF/OFD attachments within zip archive
-4. Regex extraction pulls:
-   - Bill To company name
-   - Net amount, tax amount, gross amount
-   - Invoice date and number
-5. Matched against existing quotations by PO number reference
+1. Obtain the customer's weekly order list as an **Excel** workbook (`.xlsx`).
+2. Upload it via the import form. The system creates a `WeeklyOrderBatch` (status `Uploaded`, `batch_id` format `WB-YYYYMMDD-NNN`) and processes it immediately.
+3. The parser reads the **header row** and maps three **required** columns (aliases accepted):
+   - **Kering Group PO Number** (`po number`, `po no`, `po`, …)
+   - **Internal Order** (`io`, `internal order number`, …)
+   - **SAP Cost Center** (`cost center`, `sap cc`, …)
+4. For each data row it creates an `InvoiceInfo` with those three fields and `invoice_date = today`. The **invoice number is auto-generated** as `YYMMDD##` (e.g. `26090601`).
+5. Batch status becomes `Processed` with `total_rows` / `created_rows`. On any error the batch is marked `Failed` with `failure_reason` and `failed_row_number`.
 
-### Manual Invoice Info Creation
+**Validation — the whole import fails if:**
+- Any of the three required columns is missing from the header.
+- A row has an empty PO / Internal Order / SAP Cost Center.
+- A `(PO, Internal Order, SAP Cost Center)` tuple is duplicated in the file or already exists in the system (enforced by a unique constraint).
 
-When automated matching fails:
+> Amounts (`net`, `tax`, `gross`) and `bill_to` are **not** populated at import time — they are filled later by recalculation from a linked delivery order.
 
-1. Go to **Invoices → Invoice Info → Create**
-2. Select source **Quotation** and **Delivery Order**
-3. Fill manual fields:
-   - Invoice Number (format: `YYMMDD##`)
-   - Payment Due Date
-   - SAP Cost Center
-   - Internal Purchase Order Reference
-4. Save and optionally generate PDF document
+### Linking a Delivery & Recalculating Amounts
+
+Imported invoices start with zero amounts. To populate them:
+
+1. Open the invoice: **Invoices → Invoice Info → `<invoice>`** (`/invoices/invoice-info/<pk>/`).
+2. Edit it (`/invoices/invoice-info/<pk>/update/`) and link the source **Delivery Order** (the quotation is inherited from that delivery).
+3. Linking a delivery triggers **recalculation** on save; you can also run it explicitly via `/invoices/invoice-info/<pk>/recalculate/` (a delivery order must be linked first).
+
+`recalculate_invoice_from_delivery` rebuilds the line items from the delivery items, pulling `unit_price` and `tax_rate` from the matching quotation line, and sets `bill_to` from the quotation customer.
 
 ### Tax Calculation Logic
 
+Tax is **added on top of the net** (tax-exclusive), per `invoices/services.py`:
+
 ```python
-net_amount = sum(item.net_price for item in line_items)
-tax_rate = default_tax_rate_from_customer_profile # Usually 13%
-tax_amount = net_amount * tax_rate / (1 + tax_rate)
-gross_amount = net_amount + tax_amount
+line_net   = round(unit_price * quantity, 2)
+line_tax   = round(line_net * (tax_rate / 100), 2)   # tax_rate is a percent, e.g. 13.00
+line_gross = round(line_net + line_tax, 2)
 ```
 
-Adjust based on actual contract terms.
+The invoice-level `tax_rate` is stored as a percentage (default **13.00**); the effective rate is recomputed as `total_tax / total_net * 100`. Amounts are rounded half-up to 2 decimals.
+
+> ⚠️ This is **not** `net * rate / (1 + rate)` — that formula extracts tax from a tax-inclusive gross, which is not how this system computes invoice totals.
 
 ### Document Generation
 
-Supported formats:
-- Excel: Standard invoice information sheet (template-based)
-- PDF: Electronic invoice (OFD/PDF/A compliance)
-- ZIP bundle: Complete package with all files
+**Route:** `/invoices/invoice-info/<pk>/document/` (recalculates first if a delivery is linked).
 
-Export path: **Invoice Detail → Generate Document → Choose Format**
+- **Excel** — always produced by filling `template_files/invoice information template.xlsx`.
+- **PDF** — produced only if **LibreOffice (`soffice`)** is installed; otherwise the filled **Excel** file is returned instead.
+
+> There is no OFD/PDF-A compliance step and no ZIP bundle for a single invoice document. (Email dispatch attaches multiple related files — quotation, delivery, invoice — but not as a ZIP.)
 
 ---
 
@@ -207,14 +216,14 @@ After confirming a quotation:
 
 #### Option A: Direct Dispatch (Stock Ready)
 **Conditions**:
-- All hardware lines have stock ≥ quantity in quotation
-- No pending purchase orders required
+- Enough **discrete `available` assets** matching each hardware line's brand + model exist in the internal warehouse (`INTERNAL_WAREHOUSE_LOCATION_ID = 3`), excluding assets already reserved by another active (pending/dispatched) delivery.
+- Service-only lines are handled separately and do not require stock.
 
 **Action**:
-1. Click **"Create Delivery"** button on quotation detail page
-2. Review pre-filled delivery items
-3. Add shipping method selection (送货上门/快递运输/自取)
-4. Submit → Delivery created as **Pending**
+1. Click **"Create Delivery"** on the quotation (route `/deliveries/create/from-quotation/<pk>/`).
+2. Select the specific assets to dispatch (they must fully cover the hardware quantities).
+3. Set the delivery method (e.g., 送货上门 / 快递运输 / 自取) and receiver details.
+4. Submit → delivery is created as **Pending**.
 
 #### Option B: Continue Fulfillment (Partial Stock)
 **Conditions**:
@@ -229,26 +238,20 @@ After confirming a quotation:
 
 ### Delivery Status Transitions
 
-```
-pending ──→ dispatched ──→ delivered
-  ↑              ↓              ↓
-│           uploaded      signed_file
-│            PDF          required
-└─────── confirmation action
-```
+Stored status values (`DeliveryOrder.Status`): `pending → dispatched → completed`. The `completed` state is displayed as **"Delivered"**.
 
-**Transition actions**:
-- `pending → dispatched`: Requires click on "Dispatch Delivery" button
-- `dispatched → delivered`: Requires signature upload + form submission
+**Transition actions (routes in `deliveries/urls.py`):**
+- `pending → dispatched` — `/deliveries/<pk>/dispatch/`: only from `pending`; every linked asset must be `available`; on success those assets become `assigned`.
+- Upload signed copy — `/deliveries/<pk>/upload-signed/` (before completion).
+- `dispatched → completed` — `/deliveries/<pk>/complete/`: only from `dispatched` **and** only if a signed copy is present; on success linked assets become `in_use`.
 
 ### Signature Requirements
 
-**Before marking delivered**:
-- Upload signed copy (PDF preferred, JPG acceptable)
-- Add remarks about any discrepancies
-- Capture customer name from physical copy if different from template
+**Before completing a delivery**:
+- A signed copy must be uploaded (`signed_file`); completion is blocked without it.
+- Add remarks about any discrepancies.
 
-**Validation**: Signed file URL must not be empty to allow status change.
+**Validation**: `mark_completed` refuses to run when `signed_file` is empty ("Please upload signed copy before completing delivery.").
 
 ---
 
@@ -285,16 +288,22 @@ pending ──→ dispatched ──→ delivered
 ### Configuration Settings
 
 #### Environment Variables
-Located in `.env.local` (not tracked in Git):
-- Email SMTP credentials
-- Minimax AI API keys
-- Database connection strings
-- WeasyPrint runtime paths
+Loaded from a repo-local **`.env`** file (via `hengjiams/runtime_setup.py::load_local_env`, called by `manage.py`/`wsgi.py`/`asgi.py`). `.env` is not tracked in Git; see `.env.example`.
+
+Variables actually read by `settings.py`:
+- `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`
+- `DATABASE_ENGINE`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_HOST`, `DATABASE_PORT`
+- `minimax_token_plan_key` (lowercase), `MINIMAX_RFQ_API_URL`, `MINIMAX_RFQ_MODEL`, `MINIMAX_RFQ_TIMEOUT_SECONDS`, `MINIMAX_RFQ_MAX_TOKENS`
+- `TEST_OUTBOUND_EMAIL_OVERRIDE`
+- Windows-only WeasyPrint/fontconfig overrides (`WEASYPRINT_DLL_DIRECTORIES`, `MSYS2_ROOT`, `FONTCONFIG_*`, …)
+
+> Outbound **email SMTP is not an env setting** — it is configured per user in the database (`UserMailboxSettings`) with a Django email fallback.
+>
+> The GitHub automation scripts read a separate `.env.local` (for `GITHUB_CLASSIC_TOKEN`); that file is unrelated to the Django runtime `.env`.
 
 #### Language Preferences
-- Login page selector changes language for entire session
-- Profile settings also support switching
-- Supported: English (`en`), Simplified Chinese (`zh-hans`)
+- Login page selector changes language for the session; profile settings also support switching.
+- Supported languages (`settings.LANGUAGES`): **`en-us`** (English) and **`zh-cn`** (Simplified Chinese).
 
 ### Maintenance Tasks
 
@@ -311,7 +320,7 @@ Located in `.env.local` (not tracked in Git):
 #### Monthly Tasks
 - [ ] Database backup verification (restore test)
 - [ ] Log rotation cleanup
-- [ ] Security patch updates via `pip install --upgrade django==5.2.3`
+- [ ] Security patch updates per `requirements.txt` (currently Django 5.2.8)
 
 ---
 
@@ -323,7 +332,7 @@ Located in `.env.local` (not tracked in Git):
 
 **Troubleshooting Steps**:
 1. Check `accounts.ReceivedEmailMessage.has_pending_rfq=True` for flagged items
-2. Verify `MINIMAX_TOKEN_PLAN_KEY` environment variable set
+2. Verify the `minimax_token_plan_key` environment variable is set (lowercase, in `.env`)
 3. Review Minimax API logs for rate limits/errors
 4. Test manual reprocessing via message detail page
 
@@ -333,12 +342,12 @@ Located in `.env.local` (not tracked in Git):
 
 ### Delivery Status Stuck at Pending
 
-**Root cause**: Missing stock assignment before dispatch attempt
+**Root cause**: Not enough dispatchable assets, or the matching assets are already reserved.
 
 **Resolution**:
-1. Verify `assets.Asset.available_count >= quoted_quantity`
-2. Check internal warehouse filtering is active (A-R-Zone logic)
-3. Ensure no conflicting reservations from other deliveries
+1. Confirm there are enough discrete `available` assets matching each hardware line's **brand + model**.
+2. Confirm those assets are in the internal warehouse (`location_id = 3`, `INTERNAL_WAREHOUSE_LOCATION_ID`).
+3. Ensure the assets are not already reserved by another active (`pending`/`dispatched`) delivery — such assets are excluded from dispatch.
 
 ---
 
@@ -368,4 +377,4 @@ Located in `.env.local` (not tracked in Git):
 
 ---
 
-*Last Updated: August 20, 2026*
+*Last Updated: September 6, 2026*
