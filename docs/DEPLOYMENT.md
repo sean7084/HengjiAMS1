@@ -147,6 +147,8 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 ```
 
+> 📦 **Migrating existing data from SQLite?** If your development `db.sqlite3` holds real data that must move to PostgreSQL, follow [`DATABASE_MIGRATION.md`](DATABASE_MIGRATION.md): `dumpdata` → `migrate` → `loaddata` → sequence reset. `collectstatic` above is required for the WhiteNoise manifest storage.
+
 ### Step 6: Create Superuser
 
 ```bash

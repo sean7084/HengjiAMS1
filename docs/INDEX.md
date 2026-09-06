@@ -38,6 +38,7 @@ Complete list of project documentation for reference and navigation.
 | **DEPLOYMENT.md** | `docs/` | DevOps engineers deploying production |
 | **WORKFLOW_GUIDE.md** | `docs/` | Business users operating daily workflows |
 | **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
+| **DATABASE_MIGRATION.md** | `docs/` | Migrating data from SQLite to PostgreSQL |
 
 ### 🚀 Getting Started Resources
 
@@ -85,6 +86,7 @@ hengji-ams/
 │   ├── ARCHITECTURAL_DECISION_RECORDS.md     ← ADRs (0001-0010)
 │   ├── API_GUIDE.md             ← REST API reference
 │   ├── DEPLOYMENT.md            ← Production setup guide
+│   ├── DATABASE_MIGRATION.md    ← SQLite → PostgreSQL data migration
 │   ├── CONTRIBUTING.md          ← Contributing guidelines
 │   ├── GITHUB_SETTINGS.md       ← Branch protection, CODEOWNERS, labels
 │   └── WORKFLOW_GUIDE.md        ← Business operations manual
