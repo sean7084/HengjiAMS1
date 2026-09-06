@@ -2,7 +2,9 @@
 
 **Date**: August 20, 2026  
 **Author**: Sean Liu (Automated)  
-**Status**: ✅ Complete
+**Status**: ✅ Complete (counts corrected September 6, 2026)
+
+> ⚠️ **Correction (September 6, 2026):** A documentation alignment audit found several claims below were inaccurate — the impact-label count, the file line counts in Appendix A, and the API "completeness" self-certification. The inline figures have been corrected and the affected guides rewritten. See `reports/DOCUMENTATION_ALIGNMENT_AUDIT_20260906.md`.
 
 ---
 
@@ -114,7 +116,7 @@ To Do → In Progress → Code Review → Testing → Ready for Deploy → Deplo
 - 4 priority levels (P0-Critical through P3-Low)
 - 7 category types (bug, enhancement, docs, good first issue, etc.)
 - 9 component tags (assets, quotations, deliveries, invoices, etc.)
-- 8 impact classifications (breaking change, deprecation, migration-required)
+- 3 impact classifications (breaking change, deprecation, migration-required)
 
 ---
 
@@ -126,7 +128,7 @@ To Do → In Progress → Code Review → Testing → Ready for Deploy → Deplo
 |--------|--------|-------|-------------|
 | **Completeness** | 3 files total | 14 structured docs | 4x coverage |
 | **Architecture Decisions** | None | 10 documented ADRs | Full transparency |
-| **API Reference** | Referenced only | 796-line detailed spec | Developer-ready |
+| **API Reference** | Referenced only | 307-line code-accurate spec | Corrected Sept 6 |
 | **Contribution Guidelines** | Scattered in README | Dedicated 462-line guide | Clear onboarding |
 | **Workflow Procedures** | Mixed throughout | Centralized operations manual | 90% faster lookup |
 | **Issue Templates** | None | 5 standardized forms | Consistent reporting |
@@ -151,7 +153,7 @@ To Do → In Progress → Code Review → Testing → Ready for Deploy → Deplo
 
 1. **Push to Repository**
    ```bash
-   git add docs/.github/LICENCE CODEOWNERS
+   git add docs/ .github/ LICENSE CODEOWNERS
    git commit -m "docs: establish comprehensive documentation structure"
    git push origin main
    ```
@@ -208,7 +210,7 @@ To Do → In Progress → Code Review → Testing → Ready for Deploy → Deplo
 **Status**: ✅ Pass
 
 ### Criterion 2: API consumers understand available endpoints
-**Evidence**: API_GUIDE.md covers all critical paths  
+**Evidence**: API_GUIDE.md documents the real `/api/v1/` DRF endpoints (corrected Sept 6, 2026 — the original described non-existent endpoints and a JWT auth model the code never implemented; see `reports/DOCUMENTATION_ALIGNMENT_AUDIT_20260906.md`)  
 **Status**: ✅ Pass
 
 ### Criterion 3: Operations staff know how to process orders
@@ -237,20 +239,22 @@ For questions about this documentation setup:
 
 ## Appendix A: File Size Breakdown
 
-| File | Lines | Word Count | Category |
-|------|-------|------------|----------|
-| ARCHITECTURAL_DECISION_RECORDS.md | 521 | ~18,000 | Architecture |
-| API_GUIDE.md | 796 | ~27,000 | Technical |
-| DEPLOYMENT.md | 478 | ~16,500 | Operations |
-| WORKFLOW_GUIDE.md | 371 | ~13,000 | Business |
-| CONTRIBUTING.md | 462 | ~15,500 | Process |
-| INDEX.md | 217 | ~7,500 | Navigation |
-| ISSUE_TEMPLATES | ~180 | ~6,000 | Tracking |
-| PROJECT_WORKFLOW.md | 403 | ~14,000 | Governance |
-| CODEOWNERS | 116 | ~3,500 | Configuration |
-| LABELS.md | 88 | ~3,000 | Organization |
-| LICENSE | 83 | ~2,500 | Legal |
-| **TOTAL** | **3,515+** | **~126,500** | **Complete Set** |
+| File | Lines* | Category |
+|------|-------|----------|
+| ARCHITECTURAL_DECISION_RECORDS.md | 521 | Architecture |
+| API_GUIDE.md | 307 | Technical |
+| DEPLOYMENT.md | 494 | Operations |
+| WORKFLOW_GUIDE.md | 380 | Business |
+| CONTRIBUTING.md | 462 | Process |
+| INDEX.md | 221 | Navigation |
+| ISSUE_TEMPLATES (6 files) | ~180 | Tracking |
+| PROJECT_WORKFLOW.md | 206 | Governance |
+| CODEOWNERS | 87 | Configuration |
+| LABELS.md | 134 | Organization |
+| LICENSE | 83 | Legal |
+| **TOTAL** | **~3,075** | **Complete Set** |
+
+\* Line counts refreshed September 6, 2026 after the alignment audit rewrote API_GUIDE.md and revised DEPLOYMENT.md, WORKFLOW_GUIDE.md, CODEOWNERS, LABELS.md, PROJECT_WORKFLOW.md, and INDEX.md. The original word-count estimates were removed as stale.
 
 ---
 
@@ -273,4 +277,4 @@ For questions about this documentation setup:
 
 *Document generated on August 20, 2026*  
 *Reviewed by: Sean Liu*  
-*Last updated: August 20, 2026*
+*Last updated: September 6, 2026 (counts corrected during the documentation alignment audit)*
