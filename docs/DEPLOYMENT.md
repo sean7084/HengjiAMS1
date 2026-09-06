@@ -10,10 +10,12 @@ This guide covers deploying HengJi AMS to production environments.
 - **Memory**: Minimum 4GB RAM (8GB recommended)
 - **CPU**: 2+ cores
 - **Storage**: 20GB+ SSD space
-- **Python**: 3.11+
-- **PostgreSQL**: 14+
+- **Python**: 3.11+ (Django 5.2.8; see `requirements.txt`)
+- **Database**: SQLite is the built-in default. For PostgreSQL, install 14+ **and** add a driver (`psycopg2-binary`) — it is currently commented out in `requirements.txt`.
 - **Web Server**: Nginx
-- **Reverse Proxy**: Gunicorn
+- **WSGI Server**: Gunicorn — **not** in `requirements.txt`; install it explicitly (`pip install gunicorn`).
+
+> ⚠️ **Extra production dependencies.** `requirements.txt` ships runtime libs only. For a production stack you must additionally install `gunicorn`, a PostgreSQL driver (`psycopg2-binary`), and optionally `whitenoise` (static files) and `django-redis` (caching). These are referenced later in this guide but are **not** pinned in `requirements.txt`.
 
 ---
 
@@ -21,13 +23,11 @@ This guide covers deploying HengJi AMS to production environments.
 
 ### Option 1: Manual Installation
 
-Best for custom deployments, learning, or small-scale deployments.
+Best for custom deployments, learning, or small-scale deployments. **This is the only currently supported path.**
 
-### Option 2: Docker Containerization (Recommended)
+### Option 2: Docker Containerization (Not Yet Available)
 
-Ideal for consistency, CI/CD integration, and easier scaling.
-
-See [`docker/README.md`](../docker/README.md) for container-specific instructions.
+> ⚠️ **No Docker assets exist in this repository yet.** There is no `docker/` directory, `docker-compose.yml`, or `scripts/generate-secrets.sh`. The section below is a **future plan**, not a working procedure. Use Option 1 until containerization is added.
 
 ---
 
@@ -81,36 +81,59 @@ pip install -r requirements.txt
 
 ### Step 4: Configure Environment Variables
 
-Create `.env` file:
+The app loads a repo-local **`.env`** file automatically (`hengjiams/runtime_setup.py::load_local_env`, called by `manage.py`, `wsgi.py`, and `asgi.py`). Create it with the variables that `settings.py` **actually reads**:
 
 ```bash
 cat > /opt/hengji-ams/.env << EOF
 DJANGO_SETTINGS_MODULE=hengjiams.settings
-SECRET_KEY=${RANDOM_SECRET_KEY_GENERATED_HERE}
-DEBUG=False
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+
+# Django core (REQUIRED in production)
+DJANGO_SECRET_KEY=${RANDOM_SECRET_KEY_GENERATED_HERE}
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+
+# Database (defaults to SQLite if omitted; set these for PostgreSQL)
+DATABASE_ENGINE=django.db.backends.postgresql
 DATABASE_NAME=hengjiams_db
 DATABASE_USER=hengjiams_django
 DATABASE_PASSWORD=your_secure_password_here
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-MINIMAX_TOKEN_PLAN_KEY=${YOUR_MINIMAX_API_KEY}
-MINIMAX_RFQ_API_URL=https://api.minimax.io/v1/messages
+
+# Minimax RFQ integration (note the LOWERCASE key name)
+minimax_token_plan_key=${YOUR_MINIMAX_API_KEY}
+MINIMAX_RFQ_API_URL=https://api.minimaxi.com/anthropic/v1/messages
 MINIMAX_RFQ_MODEL=MiniMax-M2.7-highspeed
 MINIMAX_RFQ_TIMEOUT_SECONDS=30
-WEASYPRINT_DLL_DIRECTORIES=/usr/lib/pango/1.0
+MINIMAX_RFQ_MAX_TOKENS=800
+
+# Safety override for non-production email testing (leave empty in prod)
+TEST_OUTBOUND_EMAIL_OVERRIDE=
 EOF
 ```
+
+> ✅ **Safety guard:** if `DJANGO_DEBUG=False` while `DJANGO_SECRET_KEY` is unset (still the insecure dev fallback), Django raises `ImproperlyConfigured` at startup. This prevents shipping an insecure key.
+>
+> 📧 **Email:** outbound email is **not** configured via env vars. It is sent through each user's mailbox settings (`accounts.models.UserMailboxSettings`, stored in the database) with a Django email fallback. There is no `EMAIL_HOST`/`EMAIL_PORT`/etc. in `settings.py`.
+>
+> 🪟 **WeasyPrint:** `WEASYPRINT_DLL_DIRECTORIES` / `MSYS2_ROOT` are **Windows-only** runtime overrides. On Linux, install the native Pango/GTK libraries instead (see Troubleshooting).
 
 Generate secret key:
 ```bash
 python3.11 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
+
+### Step 4b: Provision Document Templates (Required)
+
+The `template_files/` directory is **excluded from Git** (`.gitignore`), but document generation **fails without it** — `quotations/services.py`, `deliveries/services.py`, and `invoices/services.py` raise `FileNotFoundError` when these templates are missing:
+
+| Expected file | Used by |
+|---------------|---------|
+| `template_files/quotation_template.xlsx` | Quotation Excel/PDF generation |
+| `template_files/签收单 template.xlsx` | Delivery (sign-off sheet) generation |
+| `template_files/invoice information template.xlsx` | Invoice information sheet |
+
+Copy these templates from a secure internal source into `/opt/hengji-ams/template_files/` before first run. They are **not** distributed with the repository.
 
 ### Step 5: Run Migrations
 
@@ -251,47 +274,38 @@ Auto-renewal test:
 sudo certbot renew --dry-run
 ```
 
-### Step 10: Background Mail Sync Scheduler
+### Step 10: Mailbox Sync (In-Process Thread)
 
-Add to crontab (`crontab -e`):
+Mailbox synchronization runs as an **in-process background thread**, started automatically with the app — there is **no `run_mailbox_sync` management command** and no cron job is required.
 
-```cron
-# Mailbox sync every 5 minutes during business hours
-*/5 8-18 * * 1-5 cd /opt/hengji-ams && source .venv/bin/activate && python manage.py run_mailbox_sync --single-run >> /var/log/hengjiams/mail-sync.log 2>&1
-```
+- Implementation: `accounts/mailbox_sync.py` (`start_mailbox_sync_thread`, `maybe_auto_sync_mailbox`).
+- Cadence: every `SYNC_INTERVAL_SECONDS` (≈5 minutes) while the server process runs.
+- Scope: only mailboxes with `is_active = true` **and** `auto_sync_enabled = true` (`accounts.models.UserMailboxSettings`).
 
-Or use Redis/Celery for more robust background task handling.
+> ⚠️ **Gunicorn note:** the auto-sync thread is designed for the single-process `runserver` workflow. Under multi-worker Gunicorn, each worker may start its own thread. For production, drive sync from a **single** dedicated process (e.g., a `cron`/systemd timer invoking a custom management command you add, or a one-worker service) to avoid duplicate syncing.
 
 ---
 
-## Option 2: Docker Deployment
+## Option 2: Docker Deployment (PLANNED — NOT IMPLEMENTED)
 
-### Prerequisites
+> ⚠️ **These files do not exist in the repository yet.** The commands below are illustrative of the intended future setup and will fail if run today. Track this as a backlog item; use **Option 1** for real deployments.
+
+### Intended prerequisites
 
 - Docker Engine 20.10+
 - Docker Compose 2.0+
 
-### Quick Start
+### Intended quick start (future)
 
 ```bash
+# Requires a docker/ directory + compose file that do not exist yet
 cd /path/to/hengji-ams/docker
-
-# Build images
 docker-compose build
-
-# Generate secrets
-./scripts/generate-secrets.sh
-
-# Start containers
 docker-compose up -d
-
-# Run migrations
 docker-compose exec hengjiams python manage.py migrate
 docker-compose exec hengjiams python manage.py collectstatic --noinput
 docker-compose exec hengjiams python manage.py createsuperuser
 ```
-
-See `docker/README.md` for detailed configuration.
 
 ---
 
@@ -416,6 +430,8 @@ max_connections = 200
 
 ### Django Settings Adjustments
 
+> ⚠️ **Optional & not currently applied.** None of the settings below are present in `settings.py` today, and `django-redis` / `whitenoise` are **not** in `requirements.txt`. Install the packages and add the settings manually if you adopt them.
+
 ```python
 # Caching (Redis)
 CACHES = {
@@ -475,4 +491,4 @@ See CHANGELOG.md for migration notes per version.
 
 ---
 
-*Last Updated: August 20, 2026*
+*Last Updated: September 6, 2026*

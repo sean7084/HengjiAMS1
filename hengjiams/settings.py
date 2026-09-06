@@ -23,13 +23,43 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+
+def _env_bool(name, default):
+    """Parse a boolean environment variable (accepts 1/true/yes/on)."""
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-f(g_zcqk%xwx=g3#lnyp=@$c+r%cj=aw8xpr(*=4wc=iwq+!i4'
+# Production MUST set DJANGO_SECRET_KEY (environment or repo-local .env).
+# The fallback below is an insecure development-only key.
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-f(g_zcqk%xwx=g3#lnyp=@$c+r%cj=aw8xpr(*=4wc=iwq+!i4',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Defaults to True for local development; production MUST set DJANGO_DEBUG=False.
+DEBUG = _env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = ['*']  # Allow all hosts for development
+# Comma-separated host list; defaults to '*' for development convenience.
+# Production MUST set DJANGO_ALLOWED_HOSTS to the real domain(s).
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+    if host.strip()
+]
+
+# Fail fast rather than ship an insecure production configuration:
+# when DEBUG is off, the development fallback secret key is not acceptable.
+if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        'DJANGO_SECRET_KEY must be set to a strong, non-insecure value when '
+        'DJANGO_DEBUG is False.'
+    )
 
 MINIMAX_TOKEN_PLAN_KEY = os.environ.get('minimax_token_plan_key', '')
 MINIMAX_RFQ_API_URL = os.environ.get('MINIMAX_RFQ_API_URL', 'https://api.minimaxi.com/anthropic/v1/messages')
@@ -109,29 +139,26 @@ WSGI_APPLICATION = 'hengjiams.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# SQLite for development (will switch to PostgreSQL later)
+#
+# Defaults to SQLite for local development. For PostgreSQL (production), set
+# these in the environment or repo-local .env:
+#   DATABASE_ENGINE=django.db.backends.postgresql
+#   DATABASE_NAME=hengjiams_db
+#   DATABASE_USER=hengjiams_django
+#   DATABASE_PASSWORD=<secret>
+#   DATABASE_HOST=127.0.0.1
+#   DATABASE_PORT=5432
+# SQLite ignores USER/PASSWORD/HOST/PORT, so the empty defaults are safe.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DATABASE_NAME', str(BASE_DIR / 'db.sqlite3')),
+        'USER': os.environ.get('DATABASE_USER', ''),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+        'HOST': os.environ.get('DATABASE_HOST', ''),
+        'PORT': os.environ.get('DATABASE_PORT', ''),
     }
 }
-
-# PostgreSQL configuration for production (commented out for now)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hengjiams_db',
-#         'USER': 'hengjiams_django',
-#         'PASSWORD': 'hengjiams_djangopass',
-#         'HOST': '127.0.0.1',
-#         'PORT': '5433',
-#         'OPTIONS': {
-#             'charset': 'utf8',
-#         },
-#     }
-# }
 
 
 # Password validation
