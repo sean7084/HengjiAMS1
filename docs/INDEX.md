@@ -37,6 +37,7 @@ Complete list of project documentation for reference and navigation.
 | **API_GUIDE.md** | `docs/` | Developers integrating via API |
 | **DEPLOYMENT.md** | `docs/` | DevOps engineers deploying production |
 | **WORKFLOW_GUIDE.md** | `docs/` | Business users operating daily workflows |
+| **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
 
 ### 🚀 Getting Started Resources
 
@@ -68,6 +69,8 @@ Located in `.github/ISSUE_TEMPLATE/`:
 | **PULL_REQUEST_TEMPLATE.md** | PR creation guidance and checklist |
 | **PROJECT_WORKFLOW.md** | GitHub Projects board configuration guide |
 
+> 📘 **Consolidated overview:** [`docs/GITHUB_SETTINGS.md`](GITHUB_SETTINGS.md) documents the live state of all the above (branch protection, CODEOWNERS, 37 labels, project automation) plus the reasoning behind each decision.
+
 ---
 
 ## Documentation Structure Diagram
@@ -83,6 +86,7 @@ hengji-ams/
 │   ├── API_GUIDE.md             ← REST API reference
 │   ├── DEPLOYMENT.md            ← Production setup guide
 │   ├── CONTRIBUTING.md          ← Contributing guidelines
+│   ├── GITHUB_SETTINGS.md       ← Branch protection, CODEOWNERS, labels
 │   └── WORKFLOW_GUIDE.md        ← Business operations manual
 │
 └── .github/                       ← GitHub-specific configs
@@ -213,5 +217,5 @@ Questions about any document or suggestions for improvement?
 
 ---
 
-*Last Updated: August 20, 2026*  
+*Last Updated: September 6, 2026*  
 *Author: Sean Liu and contributors*

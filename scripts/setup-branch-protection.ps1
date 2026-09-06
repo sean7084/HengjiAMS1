@@ -1,6 +1,27 @@
 # Branch Protection Setup for HengjiAMS1
-# This script configures branch protection rules for the main branch
-# Requires a GitHub token with 'repo' and 'admin:repo' scopes
+# ============================================================================
+# Configures branch protection rules for the `main` branch using the
+# GitHub REST API. This is the CANONICAL branch-protection script; the older
+# `setup-github-branch-protection.ps1` is superseded.
+#
+# Strategy: Option C - strict protection WITH admin bypass.
+#   The repository owner can merge their own PRs (solo development), while
+#   any future collaborator is forced through the review process.
+#
+# Prerequisites:
+#   - GITHUB_CLASSIC_TOKEN present in .env.local
+#   - Token scopes: 'repo' (required); 'admin:repo_hook' and 'project' help
+#
+# Personal-repository constraints (why this script looks the way it does):
+#   - 'restrictions' / 'dismissal_restrictions' with users or teams are
+#     REJECTED (HTTP 422): "Only organization repositories can have users
+#     and team restrictions". They are omitted / set to null here.
+#   - The GitHub UI's "Allow specified actors to bypass" option is
+#     organization-only. For a personal repo, enforce_admins = $false is the
+#     equivalent and is what enables the owner bypass.
+#
+# Full settings rationale: docs/GITHUB_SETTINGS.md
+# ============================================================================
 
 $repoOwner = "sean7084"
 $repoName = "HengjiAMS1"
@@ -47,13 +68,21 @@ try {
 }
 
 # Configure branch protection (Option C: strict protection + admin bypass)
-# Note: dismissal_restrictions is only for organization repositories
-# For personal repositories, we omit this field
 #
-# Option C behavior:
-#   - enforce_admins = false allows the repository admin (owner) to bypass
-#     the review requirements, while enforcing them for any collaborators.
-#   - This is the personal-repo equivalent of "allow specified actors to bypass".
+# enforce_admins = $false  -> the repository owner (admin) may bypass the
+#   review requirements and merge their own PRs. Collaborators cannot.
+#   This is the personal-repo equivalent of "allow specified actors to bypass".
+#
+# required_pull_request_reviews:
+#   required_approving_review_count = 1  -> one approval needed (non-admins)
+#   require_code_owner_reviews = $true   -> CODEOWNERS must approve
+#   dismiss_stale_reviews = $true        -> approvals reset on new commits
+#
+# restrictions / required_status_checks = $null:
+#   restrictions is org-only (see header). required_status_checks is left null
+#   because no CI status checks exist yet; add them here once CI is introduced.
+#
+# See docs/GITHUB_SETTINGS.md for the complete decision record.
 $protectionConfig = @{
     required_status_checks = $null
     enforce_admins = $false
