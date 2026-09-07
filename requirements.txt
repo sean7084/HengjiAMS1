@@ -18,6 +18,7 @@ xlsxwriter==3.2.9
 # Imaging and security helpers
 pillow==12.1.1
 pyotp==2.9.0
+cryptography==50.0.1  # Fernet field encryption for stored mailbox/SMTP credentials
 
 # Production deployment (Ubuntu 24.04 LTS; Gunicorn behind Nginx)
 # gunicorn is Unix-only - the environment marker keeps Windows dev installs working.

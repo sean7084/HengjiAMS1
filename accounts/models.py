@@ -3,14 +3,14 @@ Models for HengJi Asset Management System - Accounts App.
 This module defines the custom user model and related authentication models.
 """
 
-import base64
-import hashlib
 import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from .crypto import decrypt_secret, encrypt_secret
 
 
 class AdminRole(models.Model):
@@ -30,20 +30,6 @@ class AdminRole(models.Model):
 
     def __str__(self):
         return self.name
-
-
-def _xor_secret(value):
-    key = hashlib.sha256(settings.SECRET_KEY.encode('utf-8')).digest()
-    raw = value.encode('utf-8')
-    protected = bytes(raw[index] ^ key[index % len(key)] for index in range(len(raw)))
-    return base64.urlsafe_b64encode(protected).decode('ascii')
-
-
-def _xor_secret_restore(value):
-    key = hashlib.sha256(settings.SECRET_KEY.encode('utf-8')).digest()
-    raw = base64.urlsafe_b64decode(value.encode('ascii'))
-    restored = bytes(raw[index] ^ key[index % len(key)] for index in range(len(raw)))
-    return restored.decode('utf-8')
 
 
 class User(AbstractUser):
@@ -609,15 +595,10 @@ class UserMailboxSettings(models.Model):
 
     @property
     def password(self):
-        if not self.encrypted_password:
-            return ''
-        try:
-            return _xor_secret_restore(self.encrypted_password)
-        except Exception:
-            return ''
+        return decrypt_secret(self.encrypted_password)
 
     def set_password(self, raw_password):
-        self.encrypted_password = _xor_secret(raw_password) if raw_password else ''
+        self.encrypted_password = encrypt_secret(raw_password)
 
     def save(self, *args, **kwargs):
         if self.email_address and not self.display_name:
@@ -671,15 +652,10 @@ class SystemSMTPSettings(models.Model):
 
     @property
     def password(self):
-        if not self.encrypted_password:
-            return ''
-        try:
-            return _xor_secret_restore(self.encrypted_password)
-        except Exception:
-            return ''
+        return decrypt_secret(self.encrypted_password)
 
     def set_password(self, raw_password):
-        self.encrypted_password = _xor_secret(raw_password) if raw_password else ''
+        self.encrypted_password = encrypt_secret(raw_password)
 
     @property
     def use_tls(self):
