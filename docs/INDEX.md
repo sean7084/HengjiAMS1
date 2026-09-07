@@ -36,6 +36,7 @@ Complete list of project documentation for reference and navigation.
 |----------|----------|----------|
 | **API_GUIDE.md** | `docs/` | Developers integrating via API |
 | **DEPLOYMENT.md** | `docs/` | DevOps engineers deploying production |
+| **RELEASE_PROCEDURE.md** | `docs/` | Cutting, deploying, verifying, and rolling back a release |
 | **WORKFLOW_GUIDE.md** | `docs/` | Business users operating daily workflows |
 | **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
 | **DATABASE_MIGRATION.md** | `docs/` | Migrating data from SQLite to PostgreSQL |
@@ -88,6 +89,7 @@ hengji-ams/
 │   ├── ARCHITECTURAL_DECISION_RECORDS.md     ← ADRs (0001-0010)
 │   ├── API_GUIDE.md             ← REST API reference
 │   ├── DEPLOYMENT.md            ← Production setup guide
+│   ├── RELEASE_PROCEDURE.md     ← Versioning, tagging, deploy & rollback
 │   ├── DATABASE_MIGRATION.md    ← SQLite → PostgreSQL data migration
 │   ├── BACKUP_RESTORE.md        ← Backup & restore runbook
 │   ├── CONTRIBUTING.md          ← Contributing guidelines
@@ -182,7 +184,7 @@ The following documents are planned but not yet created:
 - [ ] `docs/DATABASE_SCHEMA.md` - ER diagrams and table relationships
 - [ ] `docs/TESTING.md` - Test writing guidelines and coverage requirements
 - [x] `docs/SECURITY.md` - Security policy & architecture (disclosure, RBAC, 2FA, encryption) — created Sept 7, 2026
-- [ ] `docs/RELEASE_PROCEDURE.md` - Step-by-step release process
+- [x] `docs/RELEASE_PROCEDURE.md` - Step-by-step release process (versioning, tagging, deploy, rollback) — created Sept 7, 2026
 - [ ] Video tutorials for key workflows (YouTube playlist)
 
 ### Priority Matrix

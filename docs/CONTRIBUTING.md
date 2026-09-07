@@ -406,6 +406,7 @@ When making changes, ensure corresponding docs are updated:
 | Configuration | `.env.example`, deployment docs |
 | UI changes | User guides, screenshot updates |
 | Bug fixes | CHANGELOG.md, release notes |
+| Cutting a release | CHANGELOG.md + README.md version tables, git tag — see [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) |
 
 ### Documentation Structure
 
@@ -414,11 +415,14 @@ docs/
 ├── ARCHITECTURAL_DECISION_RECORDS.md  # ADRs (MANDATORY for architectural changes)
 ├── API_GUIDE.md                        # REST API documentation
 ├── DEPLOYMENT.md                       # Production deployment guide
-├── DATABASE_SCHEMA.md                  # Data model documentation
+├── RELEASE_PROCEDURE.md                # Versioning, tagging, deploy & rollback
+├── BACKUP_RESTORE.md                   # Backup and restore runbook
+├── DATABASE_SCHEMA.md                  # Data model documentation (planned, issue #18)
 ├── WORKFLOW_GUIDE.md                   # Operational procedures
 ├── CONTRIBUTING.md                     # This file
-├── RELEASE_NOTES.md                    # Detailed release changelogs
-└── tbd/                               # Future topics
+└── INDEX.md                            # Documentation navigation
+
+../CHANGELOG.md                         # Release history (repo root, not under docs/)
 ```
 
 ### Writing Good Docs

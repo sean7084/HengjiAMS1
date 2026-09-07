@@ -472,21 +472,34 @@ MIDDLEWARE += ['django.middleware.gzip.GZipMiddleware']
 
 ## Updates and Upgrades
 
-### Applying Hotfixes
+> 📘 **The authoritative procedure is [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md).** It covers versioning, tagging, the pre-deploy backup requirement, the full deploy sequence, post-release verification, and the three rollback tiers. The summary below is a quick reference only.
+
+### Applying a Release or Hotfix
 
 ```bash
-git pull origin main
+# 0. BACK UP FIRST - the only reliable rollback path (see BACKUP_RESTORE.md §2)
+/opt/scripts/hengjiams-backup.sh
+
+cd /opt/hengji-ams
+git fetch --tags origin
+git checkout v0.1.8                      # deploy the released TAG, not main
+
 source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manage.py collectstatic --noinput
+pip install -r requirements.txt          # deps before migrate: migrations may import new packages
+python manage.py migrate --noinput
+python manage.py collectstatic --noinput --clear   # before restart: WhiteNoise manifest storage
 sudo systemctl restart hengjiams
 ```
 
+> 🚫 **Never run `makemigrations` on the server.** Migrations are source code — they must be generated on a workstation, committed, reviewed, and released. Generating them in production creates untracked schema drift that no tag can reproduce and that silently breaks rollback. Verify instead that the release contains no uncommitted model changes:
+>
+> ```bash
+> python manage.py makemigrations --check --dry-run   # must report "No changes detected"
+> ```
+
 ### Major Version Upgrade
 
-See CHANGELOG.md for migration notes per version.
+See `CHANGELOG.md` for per-version migration notes, and [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) §9 for which data migrations are reversible. Any release touching `products`, `quotations`, `deliveries`, or mailbox credentials is a **backup-restore-only** rollback (§9.2).
 
 ---
 
@@ -498,4 +511,4 @@ See CHANGELOG.md for migration notes per version.
 
 ---
 
-*Last Updated: September 6, 2026*
+*Last Updated: September 7, 2026*
