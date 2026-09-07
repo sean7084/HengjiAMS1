@@ -60,7 +60,7 @@ echo "Backup complete: $STAMP"
 
 > `.pgpass` (mode `600`) avoids embedding the DB password: `127.0.0.1:5432:hengjiams_db:hengjiams_django:<password>`.
 
-**Back up before every deploy/migration** as a point-in-time safety net (see [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) when created).
+**Back up before every deploy/migration** as a point-in-time safety net (see [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) §6.1). This backup is the only reliable rollback path for releases containing non-reversible data migrations — see [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) §9.2.
 
 ---
 
@@ -230,7 +230,7 @@ Order matters:
 - [`DEPLOYMENT.md`](DEPLOYMENT.md) — server provisioning, Nginx/Gunicorn, basic backup script
 - [`DATABASE_MIGRATION.md`](DATABASE_MIGRATION.md) — SQLite → PostgreSQL data migration
 - [`SECURITY.md`](SECURITY.md) — secrets management & credential encryption
-- [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) — release + rollback (planned, issue #15)
+- [`RELEASE_PROCEDURE.md`](RELEASE_PROCEDURE.md) — versioning, tagging, deploy sequence, and rollback tiers (§8 Tier 3 restores from this runbook)
 
 ---
 
