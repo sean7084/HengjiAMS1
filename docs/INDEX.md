@@ -39,6 +39,7 @@ Complete list of project documentation for reference and navigation.
 | **WORKFLOW_GUIDE.md** | `docs/` | Business users operating daily workflows |
 | **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
 | **DATABASE_MIGRATION.md** | `docs/` | Migrating data from SQLite to PostgreSQL |
+| **SECURITY.md** | `docs/` | Security policy, RBAC, 2FA, encryption |
 
 ### 🚀 Getting Started Resources
 
@@ -89,6 +90,7 @@ hengji-ams/
 │   ├── DATABASE_MIGRATION.md    ← SQLite → PostgreSQL data migration
 │   ├── CONTRIBUTING.md          ← Contributing guidelines
 │   ├── GITHUB_SETTINGS.md       ← Branch protection, CODEOWNERS, labels
+│   ├── SECURITY.md              ← Security policy & architecture
 │   └── WORKFLOW_GUIDE.md        ← Business operations manual
 │
 └── .github/                       ← GitHub-specific configs
@@ -177,7 +179,7 @@ The following documents are planned but not yet created:
 
 - [ ] `docs/DATABASE_SCHEMA.md` - ER diagrams and table relationships
 - [ ] `docs/TESTING.md` - Test writing guidelines and coverage requirements
-- [ ] `docs/SECURITY_POLICY.md` - Security best practices and vulnerability disclosure policy
+- [x] `docs/SECURITY.md` - Security policy & architecture (disclosure, RBAC, 2FA, encryption) — created Sept 7, 2026
 - [ ] `docs/RELEASE_PROCEDURE.md` - Step-by-step release process
 - [ ] Video tutorials for key workflows (YouTube playlist)
 
