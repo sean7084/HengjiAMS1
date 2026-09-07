@@ -92,6 +92,8 @@ DJANGO_SETTINGS_MODULE=hengjiams.settings
 DJANGO_SECRET_KEY=${RANDOM_SECRET_KEY_GENERATED_HERE}
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+# Encrypts stored mailbox/SMTP credentials at rest (Fernet). REQUIRED when DEBUG=False.
+DJANGO_FIELD_ENCRYPTION_KEY=${FERNET_KEY_GENERATED_HERE}
 
 # Database (defaults to SQLite if omitted; set these for PostgreSQL)
 DATABASE_ENGINE=django.db.backends.postgresql
@@ -116,7 +118,7 @@ TEST_OUTBOUND_EMAIL_OVERRIDE=
 EOF
 ```
 
-> ✅ **Safety guard:** if `DJANGO_DEBUG=False` while `DJANGO_SECRET_KEY` is unset (still the insecure dev fallback), Django raises `ImproperlyConfigured` at startup. This prevents shipping an insecure key.
+> ✅ **Safety guard:** if `DJANGO_DEBUG=False` while `DJANGO_SECRET_KEY` is unset (still the insecure dev fallback), Django raises `ImproperlyConfigured` at startup. This prevents shipping an insecure key. The same applies to `DJANGO_FIELD_ENCRYPTION_KEY`, which encrypts stored mailbox/SMTP credentials (see `accounts/crypto.py`).
 >
 > 📧 **Email:** outbound email is **not** configured via env vars. It is sent through each user's mailbox settings (`accounts.models.UserMailboxSettings`, stored in the database) with a Django email fallback. There is no `EMAIL_HOST`/`EMAIL_PORT`/etc. in `settings.py`.
 >
@@ -125,6 +127,11 @@ EOF
 Generate secret key:
 ```bash
 python3.12 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Generate field encryption key (Fernet, for stored mailbox/SMTP credentials):
+```bash
+python3.12 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
 ### Step 4b: Provision Document Templates (Required)

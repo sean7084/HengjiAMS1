@@ -61,6 +61,23 @@ if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
         'DJANGO_DEBUG is False.'
     )
 
+# Field-level encryption key for credentials stored in the database
+# (mailbox / SMTP passwords). Used by accounts/crypto.py (Fernet).
+# Production MUST set DJANGO_FIELD_ENCRYPTION_KEY to a Fernet key. Generate one:
+#   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+# Development may omit it; a key is then derived from SECRET_KEY.
+FIELD_ENCRYPTION_KEY = os.environ.get('DJANGO_FIELD_ENCRYPTION_KEY', '').strip()
+
+# Fail fast if production would silently fall back to a SECRET_KEY-derived key:
+# stored credentials must use a dedicated, explicitly-managed encryption key.
+if not DEBUG and not FIELD_ENCRYPTION_KEY:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        'DJANGO_FIELD_ENCRYPTION_KEY must be set when DJANGO_DEBUG is False. '
+        'Generate one with: python -c "from cryptography.fernet import Fernet; '
+        'print(Fernet.generate_key().decode())"'
+    )
+
 MINIMAX_TOKEN_PLAN_KEY = os.environ.get('minimax_token_plan_key', '')
 MINIMAX_RFQ_API_URL = os.environ.get('MINIMAX_RFQ_API_URL', 'https://api.minimaxi.com/anthropic/v1/messages')
 MINIMAX_RFQ_MODEL = os.environ.get('MINIMAX_RFQ_MODEL', 'MiniMax-M2.7-highspeed')
