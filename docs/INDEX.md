@@ -40,6 +40,7 @@ Complete list of project documentation for reference and navigation.
 | **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
 | **DATABASE_MIGRATION.md** | `docs/` | Migrating data from SQLite to PostgreSQL |
 | **SECURITY.md** | `docs/` | Security policy, RBAC, 2FA, encryption |
+| **BACKUP_RESTORE.md** | `docs/` | Backup & disaster-recovery runbook |
 
 ### 🚀 Getting Started Resources
 
@@ -88,6 +89,7 @@ hengji-ams/
 │   ├── API_GUIDE.md             ← REST API reference
 │   ├── DEPLOYMENT.md            ← Production setup guide
 │   ├── DATABASE_MIGRATION.md    ← SQLite → PostgreSQL data migration
+│   ├── BACKUP_RESTORE.md        ← Backup & restore runbook
 │   ├── CONTRIBUTING.md          ← Contributing guidelines
 │   ├── GITHUB_SETTINGS.md       ← Branch protection, CODEOWNERS, labels
 │   ├── SECURITY.md              ← Security policy & architecture
