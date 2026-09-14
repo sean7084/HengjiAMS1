@@ -1,0 +1,48 @@
+<view class="container">
+  <view class="card">
+    <view class="title">{{isNew ? '新增设备' : (device.category + ' · ' + (device.brand_model || ''))}}</view>
+    <view class="muted" style="margin-top:6rpx;">SN: {{device.sn || '—'}} · Asset ID: {{device.asset_id_text || '—'}}</view>
+  </view>
+
+  <view class="card" wx:if="{{isNew}}">
+    <view class="field"><text class="field-label">类别 Category</text>
+      <input class="input" data-field="category" value="{{device.category}}" bindinput="onIdentity" placeholder="Desktop / Monitor / Printer …" /></view>
+    <view class="field"><text class="field-label">型号 Brand-Model</text>
+      <input class="input" data-field="brand_model" value="{{device.brand_model}}" bindinput="onIdentity" /></view>
+    <view class="field"><text class="field-label">SN</text>
+      <input class="input" data-field="sn" value="{{device.sn}}" bindinput="onIdentity" /></view>
+    <view class="field"><text class="field-label">Asset ID</text>
+      <input class="input" data-field="asset_id_text" value="{{device.asset_id_text}}" bindinput="onIdentity" /></view>
+    <view class="field"><text class="field-label">Usage</text>
+      <input class="input" data-field="usage" value="{{device.usage}}" bindinput="onIdentity" placeholder="xstore / label / public …" /></view>
+  </view>
+
+  <view class="card">
+    <text class="field-label">状态 Status</text>
+    <view class="row">
+      <view class="tag {{status === 'in_store' ? 'tag-ok' : ''}}" data-status="in_store" bindtap="onStatus">在店 In Store</view>
+      <view class="tag {{status === 'not_in_store' ? 'tag-warn' : ''}}" data-status="not_in_store" bindtap="onStatus">缺失 Not In Store</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <block wx:for="{{captureFields}}" wx:key="*this" wx:for-item="f">
+      <view class="field" wx:if="{{fieldLabels[f]}}">
+        <text class="field-label">{{fieldLabels[f]}}</text>
+        <input class="input" data-field="{{f}}" value="{{fields[f]}}" bindinput="onField" />
+      </view>
+      <view class="field" wx:if="{{f === 'overall_photo'}}">
+        <text class="field-label">设备全貌照片</text>
+        <view class="btn" data-part="overall_photo" bindtap="choosePhoto">{{overallPhoto ? '重拍' : '拍照 / 选择'}}</view>
+        <image wx:if="{{overallPhoto}}" src="{{overallPhoto}}" mode="aspectFill" style="width:200rpx;height:200rpx;margin-top:12rpx;border-radius:10rpx;" />
+      </view>
+      <view class="field" wx:if="{{f === 'serial_photo'}}">
+        <text class="field-label">序列号照片</text>
+        <view class="btn" data-part="serial_photo" bindtap="choosePhoto">{{serialPhoto ? '重拍' : '拍照 / 选择'}}</view>
+        <image wx:if="{{serialPhoto}}" src="{{serialPhoto}}" mode="aspectFill" style="width:200rpx;height:200rpx;margin-top:12rpx;border-radius:10rpx;" />
+      </view>
+    </block>
+  </view>
+
+  <view class="btn" bindtap="onSave">保存（待同步）</view>
+</view>

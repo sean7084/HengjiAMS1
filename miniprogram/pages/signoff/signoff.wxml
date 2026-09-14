@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="card">
+    <view class="title">签字确认 Signoff</view>
+    <view class="muted" style="margin-top:6rpx;">提交后巡检将标记为已提交（不可再修改）。</view>
+  </view>
+
+  <view class="card">
+    <view class="row">
+      <text class="field-label">店铺签字</text>
+      <text class="muted" bindtap="clearStore">清除</text>
+    </view>
+    <canvas class="pad" canvas-id="storePad" disable-scroll="true"
+            bindtouchstart="storeStart" bindtouchmove="storeMove"></canvas>
+  </view>
+
+  <view class="card">
+    <view class="row">
+      <text class="field-label">工程师签字</text>
+      <text class="muted" bindtap="clearEng">清除</text>
+    </view>
+    <canvas class="pad" canvas-id="engineerPad" disable-scroll="true"
+            bindtouchstart="engStart" bindtouchmove="engMove"></canvas>
+  </view>
+
+  <view class="btn" bindtap="save">提交签字（待同步）</view>
+</view>

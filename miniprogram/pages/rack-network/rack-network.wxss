@@ -1,0 +1,30 @@
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+}
+
+.thumb-wrap {
+  position: relative;
+  margin: 0 12rpx 12rpx 0;
+}
+
+.thumb {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 10rpx;
+}
+
+.thumb-del {
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  width: 40rpx;
+  height: 40rpx;
+  line-height: 36rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #b60205;
+  color: #fff;
+  font-size: 28rpx;
+}

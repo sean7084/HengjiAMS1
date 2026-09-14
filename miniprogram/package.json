@@ -1,0 +1,13 @@
+{
+  "name": "kering-inspection-miniprogram",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WeChat mini program for the Kering store device inspection (HengjiAMS backend)",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "eslint": "^9.9.0"
+  }
+}

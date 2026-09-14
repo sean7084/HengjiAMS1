@@ -1,0 +1,59 @@
+<view class="container">
+  <view class="card" wx:if="{{inspection}}">
+    <view class="row">
+      <view class="title">{{inspection.store_label}}</view>
+      <view class="tag">{{inspection.status_display}}</view>
+    </view>
+    <view class="muted" style="margin-top:8rpx;">
+      {{inspection.inspection_date}} · 进度 {{inspection.completion_percentage}}%
+      ({{inspection.device_collected}}/{{inspection.device_total}})
+    </view>
+    <view wx:if="{{offline}}" class="tag tag-warn" style="margin-top:12rpx;">离线模式</view>
+    <view class="btn" bindtap="downloadOffline">下载离线数据</view>
+  </view>
+
+  <view class="card" wx:if="{{inspection}}">
+    <view class="title" style="font-size:30rpx;">健康检查概要</view>
+    <view class="muted" style="margin-top:8rpx;">
+      错误修正 {{inspection.error_setting_fixed_count}} · 发现问题 {{inspection.store_issue_found_count}} · 待跟进 {{inspection.issue_to_follow_count}}
+    </view>
+    <view class="muted" style="margin-top:4rpx;">
+      WiFi覆盖 {{inspection.wifi_coverage || '—'}} · IT支持评价 {{inspection.it_support_rating || '—'}}
+    </view>
+  </view>
+
+  <view class="row" style="margin:8rpx 0 16rpx;">
+    <view class="btn" style="flex:1;margin-top:0;" bindtap="scan">扫码查找设备</view>
+    <view class="btn" style="flex:1;margin-top:0;margin-left:16rpx;" bindtap="addDevice">新增设备</view>
+  </view>
+
+  <input class="input" style="margin-bottom:16rpx;" placeholder="搜索 SN / Asset ID / 型号 / Usage"
+         value="{{search}}" bindinput="onSearch" />
+
+  <view wx:for="{{visibleDevices}}" wx:key="client_device_uid" class="card"
+        data-uid="{{item.client_device_uid}}" bindtap="openDevice">
+    <view class="row">
+      <view style="font-weight:600;">{{item.category}} · {{item.brand_model}}</view>
+      <view class="tag {{item.collected_at ? 'tag-ok' : ''}}">
+        {{item.collected_at ? '已检查' : (item.photo_required ? '需拍照' : '待检查')}}
+      </view>
+    </view>
+    <view class="muted" style="margin-top:6rpx;">SN: {{item.sn || '—'}} · Asset ID: {{item.asset_id_text || '—'}}</view>
+    <view class="muted">Usage: {{item.usage || '—'}}</view>
+  </view>
+
+  <view wx:if="{{!visibleDevices.length}}" class="muted">无匹配设备（请先下载离线数据或扫码新增）。</view>
+
+  <view class="card">
+    <view class="title" style="font-size:30rpx;margin-bottom:12rpx;">巡检流程</view>
+    <view class="nav-grid">
+      <view class="nav-item" data-page="rack-network" bindtap="goPage">机柜/网络</view>
+      <view class="nav-item" data-page="issues" bindtap="goPage">问题列表</view>
+      <view class="nav-item" data-page="confirmation" bindtap="goPage">数量确认</view>
+      <view class="nav-item" data-page="signoff" bindtap="goPage">签字确认</view>
+      <view class="nav-item" data-page="report" bindtap="goPage">生成报告</view>
+    </view>
+  </view>
+
+  <view class="btn" bindtap="goSync">前往同步</view>
+</view>

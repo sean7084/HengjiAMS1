@@ -1,0 +1,31 @@
+<view class="container">
+  <view class="card">
+    <view class="row">
+      <view class="title">同步队列</view>
+      <view class="tag">{{items.length}} 项</view>
+    </view>
+    <view class="btn {{syncing ? 'btn-disabled' : ''}}" bindtap="doSync">
+      {{syncing ? '同步中…' : '立即同步'}}
+    </view>
+    <view wx:if="{{progress}}" class="muted" style="margin-top:12rpx;">
+      进度：{{progress.synced}}/{{progress.total}}
+    </view>
+    <view wx:if="{{result}}" class="muted" style="margin-top:6rpx;">
+      成功 {{result.synced}} · 失败 {{result.failed}} · 剩余 {{result.remaining}}
+    </view>
+  </view>
+
+  <view wx:for="{{items}}" wx:key="uid" class="card">
+    <view class="row">
+      <view style="font-weight:600;">{{item.type}}</view>
+      <view class="tag {{item.status === 'failed' ? 'tag-warn' : (item.status === 'done' ? 'tag-ok' : '')}}">
+        {{item.status}}
+      </view>
+    </view>
+    <view class="muted">巡检: {{item.inspectionId}}</view>
+    <view class="muted" wx:if="{{item.client_device_uid}}">设备: {{item.client_device_uid}}</view>
+    <view class="muted" wx:if="{{item.lastError}}">错误: {{item.lastError}}</view>
+  </view>
+
+  <view wx:if="{{!items.length}}" class="muted">队列为空，所有改动已同步。</view>
+</view>

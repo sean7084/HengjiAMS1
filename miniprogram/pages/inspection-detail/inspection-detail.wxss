@@ -1,0 +1,16 @@
+/* Inspection detail: nav grid for the workflow pages. */
+.nav-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  width: 30%;
+  margin: 1.5%;
+  padding: 24rpx 0;
+  text-align: center;
+  background: #eef1e6;
+  color: #4f6228;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+}
