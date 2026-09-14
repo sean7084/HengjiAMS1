@@ -16,6 +16,7 @@ This directory contains architectural decision records for the HengJi Asset Mana
 | [0008](#adr-0008-html-pdf-generation-without-libreoffice) | HTML-to-PDF Generation Without LibreOffice | Accepted | 2026-04-17 |
 | [0009](#adr-0009-warehouse-slot-tracking) | Warehouse Slot Tracking | Accepted | 2026-04-20 |
 | [0010](#adr-0010-company-contact-vs-company-user) | Company Contact vs Company User Model | Accepted | 2026-04-21 |
+| [0011](#adr-0011-wechat-mini-program-for-kering-store-device-inspection) | WeChat Mini Program for Kering Store Device Inspection | Accepted | 2026-09-13 |
 
 ---
 
@@ -483,6 +484,67 @@ Implement systematic import execution tracking and reverse-capability:
 - Views: `companies/views.py` (`csv_upload`, `confirm_import`, `rollback_import`)
 - Utils: `utils/import_rollback.py`
 - URLs: `companies/urls.py` (rollback route added)
+
+---
+
+## ADR-0011: WeChat Mini Program for Kering Store Device Inspection
+
+**Status**: Accepted  
+**Date**: 2026-09-13  
+**Authors**: Sean Liu
+
+### Context
+
+The Kering EUS store health-check is performed onsite and currently collected via a
+Feishu questionnaire plus photo archives, then transformed into a per-store Excel
+report by two standalone Python tools in the separate `EUS_Device_Inspec` repo
+(`kering_inspection_folder_and_report_creation.py`, `FeishuDeviceInspecAutomation.py`).
+We want a WeChat mini program to replace the Feishu collection step. Key constraints:
+HengjiAMS1 is a solo-maintained Django monolith; the inspection data contract is rich
+(per-device IP/CPU/memory/HDD/OS/C-drive/asset-tag, multiple named photos, rack/network
+photos, device counts, issue list, signatures); stores often have weak connectivity.
+
+### Decision
+
+1. **Monorepo.** The mini program lives in this repo under `miniprogram/`. A solo
+   maintainer benefits from atomic backend+client changes and one PR/CI surface;
+   the client is a first-party consumer of this backend only.
+2. **Backend in HengjiAMS1.** A new `inspections` Django app models the workflow and
+   the EUS report/photo logic is ported into `inspections/services/`. This reuses
+   HengjiAMS auth, roles, companies/locations/assets, and admin.
+3. **Kering-specific v1.** The checklist, cover-page labels, device categories, and
+   photo-naming rules are hardcoded in `inspections/constants.py`; generalization is
+   deferred. This matches the legacy scripts and ships fastest.
+4. **Dedicated `inspections` domain, not `audit`.** The existing `AssetAudit` /
+   `AssetAuditRecord` models do not carry the device readings, rack/network photos,
+   counts, or signature fields the Kering report needs, so a separate domain keeps
+   `assets.Asset` clean (Kering-only attributes live on `InspectionDevice`).
+5. **Auth: WeChat `jscode2session` + SimpleJWT bound to staff accounts.** First launch
+   binds an existing `User` (username/password + `wx.login` code) via
+   `accounts.WechatIdentity`; later launches use seamless `wx.login`. The AppSecret is
+   server-side only and `session_key` is never persisted.
+6. **Offline-first with idempotent sync.** The client caches an inspection and queues
+   mutations; writes carry `client_device_uid` / `client_photo_uid` and the server
+   upserts on unique constraints, so re-syncing never duplicates rows.
+
+### Consequences
+
+- Positive: one system, one CI, atomic changes; reuses proven roles/scoping; the field
+  workflow works without connectivity; report deliverable format is preserved.
+- Trade-offs: porting the nuanced EUS Excel/photo logic risks parity regressions —
+  mitigated by centralizing rules in `inspections/services/transforms.py` +
+  `photo_naming.py` and a report parity test against the golden `22149 Gucci SZOL`
+  output. Cover-page count mapping and the monitor-size table remain heuristics to tune.
+- The `inspections` app is Kering-shaped; generalizing to other clients is future work.
+
+### References
+
+- Spec: `docs/MINIPROGRAM_SPEC.md`; client: `miniprogram/README.md`
+- Models: `inspections/models.py`; constants: `inspections/constants.py`
+- Services: `inspections/services/{transforms,photo_naming,report_generator}.py`
+- API: `api/inspection_views.py`, `api/inspection_serializers.py`, `api/views_auth.py`
+- Import: `inspections/management/commands/import_kering_master.py`
+- Settings: `hengjiams/settings.py` (SimpleJWT + WeChat config), `.env.example`
 
 ---
 
