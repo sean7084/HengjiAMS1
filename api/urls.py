@@ -11,6 +11,7 @@ from .views import (
     AssetViewSet, AssetAssignmentViewSet, AssetMaintenanceViewSet
 )
 from .views_auth import WeChatBindView, WeChatLoginView
+from .inspection_views import StoreInspectionViewSet
 
 # Create router and register viewsets
 router = DefaultRouter()
@@ -24,6 +25,7 @@ router.register(r'models', AssetModelViewSet, basename='model')
 router.register(r'assets', AssetViewSet, basename='asset')
 router.register(r'assignments', AssetAssignmentViewSet, basename='assignment')
 router.register(r'maintenance', AssetMaintenanceViewSet, basename='maintenance')
+router.register(r'inspections', StoreInspectionViewSet, basename='inspection')
 
 urlpatterns = [
     # WeChat mini-program authentication (JWT access/refresh)
