@@ -3,6 +3,8 @@ Django==5.2.8
 django-extensions==4.1
 django-otp==1.6.0
 djangorestframework==3.17.1
+djangorestframework-simplejwt==5.5.1  # JWT access/refresh tokens for the WeChat mini program
+requests==2.34.2  # HTTP client for WeChat mini-program jscode2session login
 
 # Data import/export and document generation
 openpyxl==3.1.5

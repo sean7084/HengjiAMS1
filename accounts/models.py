@@ -44,6 +44,7 @@ class User(AbstractUser):
         VIEWER = 'viewer', _('Viewer')
         ORDER_MANAGEMENT_SPECIALIST = 'order_management_specialist', _('Order Management Specialist')
         ORDER_MANAGEMENT_MANAGER = 'order_management_manager', _('Order Management Manager')
+        INSPECTION_ENGINEER = 'inspection_engineer', _('Inspection Engineer')
 
     LANGUAGE_CHOICES = [
         ('en-us', _('English (US)')),
@@ -333,6 +334,10 @@ class User(AbstractUser):
     def is_order_management_procurement_specialist(self):
         """Compatibility alias for the legacy combined order-management role."""
         return self.is_order_management_specialist() or self.is_order_management_manager()
+
+    def is_inspection_engineer(self):
+        """Check if user can run onsite store device inspections (mini program)."""
+        return self.has_admin_role(self.AdminRole.INSPECTION_ENGINEER)
     
     def get_accessible_companies(self):
         """Get companies this admin can access."""
@@ -486,6 +491,30 @@ class User(AbstractUser):
     def can_import_product_prices(self):
         """Check if user can import live product prices into the system."""
         return self.can_approve_order_management_prices()
+
+    def can_run_inspection(self, inspection=None):
+        """Check if user can collect/submit a store device inspection.
+
+        Superadmins and IT administrators may always act; inspection engineers may
+        act on inspections assigned to them (or any when none is given).
+        """
+        if self.is_superadmin() or self.is_it_administrator():
+            return True
+        if not self.is_inspection_engineer():
+            return False
+        if inspection is not None:
+            return inspection.engineer_id == self.id
+        return True
+
+    def get_assigned_inspections(self):
+        """Return store inspections this user is responsible for onsite."""
+        from inspections.models import StoreInspection
+
+        if self.is_superadmin() or self.is_it_administrator():
+            return StoreInspection.objects.all()
+        if self.is_inspection_engineer():
+            return StoreInspection.objects.filter(engineer=self)
+        return StoreInspection.objects.none()
     
     def get_role_display_name(self):
         """Get the display name for the user's admin role."""
@@ -861,3 +890,44 @@ class LoginAttempt(models.Model):
     def __str__(self):
         status = "Success" if self.success else "Failed"
         return f"{self.username} - {status} - {self.timestamp}"
+
+
+class WeChatIdentity(models.Model):
+    """Links a WeChat mini-program openid to a staff User.
+
+    The mini program authenticates by binding an existing User on first launch
+    (username/password + wx.login code) and then uses seamless wx.login afterwards.
+    The sensitive WeChat session_key is intentionally NOT persisted; if encrypted
+    user data is ever required it should be stored via accounts.crypto (Fernet).
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='wechat_identities',
+        verbose_name=_('User'),
+    )
+    appid = models.CharField(
+        max_length=64,
+        verbose_name=_('WeChat AppID'),
+        help_text=_('Mini-program AppID this openid belongs to.'),
+    )
+    openid = models.CharField(max_length=128, verbose_name=_('OpenID'))
+    unionid = models.CharField(max_length=128, blank=True, verbose_name=_('UnionID'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('WeChat Identity')
+        verbose_name_plural = _('WeChat Identities')
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['appid', 'openid'], name='uniq_wechat_appid_openid'),
+        ]
+        indexes = [
+            models.Index(fields=['user', 'appid']),
+        ]
+
+    def __str__(self):
+        return f'{self.user} @ {self.appid}:{self.openid}'
