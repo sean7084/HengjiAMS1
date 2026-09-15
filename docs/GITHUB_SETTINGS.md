@@ -36,7 +36,7 @@ This document is the single source of truth for all GitHub repository configurat
 | Require review from Code Owners | ✅ Enabled | CODEOWNERS enforced for collaborators |
 | Dismiss stale reviews | ✅ Enabled | Approvals reset when new commits are pushed |
 | Enforce for admins (`enforce_admins`) | ❌ **Disabled** | **Owner can bypass** review requirements |
-| Required status checks | ⬜ Not configured | No CI checks required yet |
+| Required status checks | ✅ **`Django checks + tests`** | Backend CI must pass before merge; `strict = true` requires the branch to be up to date with `main` |
 | Allow force pushes | ❌ Blocked | History rewriting prevented |
 | Allow deletions | ❌ Blocked | `main` cannot be deleted |
 
@@ -57,7 +57,10 @@ This is the personal-repository equivalent of the organization-only **"Allow spe
 
 ```json
 {
-  "required_status_checks": null,
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["Django checks + tests"]
+  },
   "enforce_admins": false,
   "required_pull_request_reviews": {
     "dismiss_stale_reviews": true,
@@ -67,6 +70,20 @@ This is the personal-repository equivalent of the organization-only **"Allow spe
   "restrictions": null
 }
 ```
+
+### Why only one required check?
+
+`Django checks + tests` is the job name in `.github/workflows/backend-ci.yml`. That workflow has
+**no path filter** — deliberately. A required status check that never runs on a given PR leaves
+the PR permanently blocked, so a path-filtered required workflow (e.g. one ignoring `docs/**` or
+`miniprogram/**`) would make docs-only PRs unmergeable. Backend CI therefore runs on every PR.
+
+`Lint mini program` (`.github/workflows/miniprogram-ci.yml`) *is* path-filtered to
+`miniprogram/**`, which is correct for a non-required check — it stays green/absent on unrelated
+PRs without blocking them. It is intentionally **not** in `contexts`.
+
+Because `enforce_admins = false`, the owner can still bypass a failing or missing check; the
+requirement mainly protects future collaborators and makes CI status visible on every PR.
 
 > ⚠️ `dismissal_restrictions` and `restrictions` with users/teams are **rejected** on personal repositories with error: *"Only organization repositories can have users and team restrictions"*. These fields must be omitted or set to `null`.
 
