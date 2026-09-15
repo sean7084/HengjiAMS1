@@ -19,6 +19,7 @@ Complete list of project documentation for reference and navigation.
 
 | Document | Location | Purpose |
 |----------|----------|---------|
+| **ARCHITECTURE.md** | `docs/` | System context, bounded contexts, end-to-end data flows |
 | **ADR-0001** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | Service catalog separation decision |
 | **ADR-0002** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | Mailbox-driven RFQ automation |
 | **ADR-0003** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | Direct dispatch fulfillment workflow |
@@ -41,8 +42,11 @@ Complete list of project documentation for reference and navigation.
 | **DEPLOYMENT_MINIPROGRAM.md** | `docs/` | Deploying the WeChat mini program (console, legal domains, CI, release) |
 | **RELEASE_PROCEDURE.md** | `docs/` | Cutting, deploying, verifying, and rolling back a release |
 | **WORKFLOW_GUIDE.md** | `docs/` | Business users operating daily workflows |
+| **WEB_ROUTES.md** | `docs/` | Every HTML route → view → purpose → required capability |
 | **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
 | **DATABASE_MIGRATION.md** | `docs/` | Migrating data from SQLite to PostgreSQL |
+| **DATABASE_SCHEMA.md** | `docs/` | ER diagrams, table/field reference, unique business keys |
+| **TESTING.md** | `docs/` | Running tests, conventions, coverage baseline + ratchet plan |
 | **SECURITY.md** | `docs/` | Security policy, RBAC, 2FA, encryption |
 | **BACKUP_RESTORE.md** | `docs/` | Backup & disaster-recovery runbook |
 
@@ -90,12 +94,16 @@ hengji-ams/
 │
 ├── docs/                          ← Detailed specifications
 │   ├── ARCHITECTURAL_DECISION_RECORDS.md     ← ADRs (0001-0011)
+│   ├── ARCHITECTURE.md          ← System context + data flows
 │   ├── API_GUIDE.md             ← REST API reference
+│   ├── WEB_ROUTES.md            ← HTML route/view/permission reference
+│   ├── TESTING.md               ← Test strategy, conventions, coverage
 │   ├── DEPLOYMENT.md            ← Production setup guide
 │   ├── DEPLOYMENT_MINIPROGRAM.md ← WeChat mini program deployment runbook
 │   ├── MINIPROGRAM_SPEC.md      ← WeChat mini program spec
 │   ├── RELEASE_PROCEDURE.md     ← Versioning, tagging, deploy & rollback
 │   ├── DATABASE_MIGRATION.md    ← SQLite → PostgreSQL data migration
+│   ├── DATABASE_SCHEMA.md       ← ER diagrams + table reference
 │   ├── BACKUP_RESTORE.md        ← Backup & restore runbook
 │   ├── CONTRIBUTING.md          ← Contributing guidelines
 │   ├── GITHUB_SETTINGS.md       ← Branch protection, CODEOWNERS, labels
@@ -182,25 +190,41 @@ All documentation should:
 
 ## Missing Documentation Gap Analysis
 
-### Known Gaps (Future Work Items)
+> **Maintainer reality:** this is a **solo-maintainer** project. Earlier revisions of this
+> section assigned work to roles that do not exist here (DBA team, QA lead, Security officer,
+> Engineering manager, Marketing team). Tracking is by GitHub issue instead. The authoritative
+> analysis is
+> [`reports/DOCUMENTATION_GAP_ANALYSIS_20260906.md`](../reports/DOCUMENTATION_GAP_ANALYSIS_20260906.md).
 
-The following documents are planned but not yet created:
+### Delivered
 
-- [ ] `docs/DATABASE_SCHEMA.md` - ER diagrams and table relationships
-- [ ] `docs/TESTING.md` - Test writing guidelines and coverage requirements
-- [x] `docs/SECURITY.md` - Security policy & architecture (disclosure, RBAC, 2FA, encryption) — created Sept 7, 2026
-- [x] `docs/RELEASE_PROCEDURE.md` - Step-by-step release process (versioning, tagging, deploy, rollback) — created Sept 7, 2026
-- [ ] Video tutorials for key workflows (YouTube playlist)
+| Document | Delivered | Issue |
+|---|---|---|
+| `docs/SECURITY.md` — policy, RBAC, 2FA, encryption | Sept 7, 2026 | — |
+| `docs/RELEASE_PROCEDURE.md` — versioning, tagging, deploy, rollback | Sept 7, 2026 | — |
+| `docs/BACKUP_RESTORE.md` — backup & disaster recovery | Sept 13, 2026 | #14 |
+| `docs/MINIPROGRAM_SPEC.md` — WeChat mini program contract | Sept 13, 2026 | #54 |
+| `docs/DEPLOYMENT_MINIPROGRAM.md` — mini program deployment runbook | Sept 14, 2026 | #54 |
+| `docs/ARCHITECTURE.md` — system context, bounded contexts, data flows | Sept 15, 2026 | #23 |
+| `docs/DATABASE_SCHEMA.md` — ER diagrams, table reference, unique keys | Sept 15, 2026 | #18 |
+| `docs/WEB_ROUTES.md` — HTML route → view → purpose → capability | Sept 15, 2026 | #19 |
+| `docs/TESTING.md` — strategy, conventions, coverage baseline + ratchet | Sept 15, 2026 | #16 |
 
-### Priority Matrix
+### Remaining gaps
 
-| Gap | Priority | Estimated Effort | Owner |
-|-----|----------|------------------|-------|
-| DATABASE_SCHEMA.md | High | 4 hours | DBA team |
-| TESTING.md | High | 6 hours | QA lead |
-| SECURITY_POLICY.md | Medium | 3 hours | Security officer |
-| RELEASE_PROCEDURE.md | Medium | 2 hours | Engineering manager |
-| Video tutorials | Low | 20 hours | Marketing team |
+| Gap | Priority | Est. effort | Issue |
+|---|---|---|---|
+| **Write the missing tests** — `assets` (23.9%), `deliveries` (21.5%), `utils/import_rollback`, `invoices` first; overall coverage is 43.7% | High | 20+ hours | #16 (strategy done — test-writing is a separate epic) |
+| ADRs 0012–0018 for undocumented architectural decisions | High | 4 hours | #20 |
+| `docs/OPERATIONS_RUNBOOK.md` — troubleshooting, incident response, monitoring | Medium | 4 hours | #22 |
+| Production mailbox-sync strategy (avoid multi-worker duplicate sync) | Medium | 3 hours | #24 |
+| Lint/format tooling (ruff/black) and enforcement | Medium | 3 hours | #21 |
+| Coverage step in CI + PostgreSQL/Redis service containers | Medium | 2 hours | #17 |
+| WeChat MP registration, HTTPS/ICP domain, legal-domain whitelist | Medium | external | #53 |
+| Video tutorials for key workflows | Low | 20 hours | untracked |
+
+> Effort estimates are indicative for one maintainer working in focused blocks; they are not
+> commitments. Priority reflects risk × size, per the gap analysis above.
 
 ---
 
@@ -230,5 +254,5 @@ Questions about any document or suggestions for improvement?
 
 ---
 
-*Last Updated: September 6, 2026*  
+*Last Updated: September 15, 2026*  
 *Author: Sean Liu and contributors*
