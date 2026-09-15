@@ -1,0 +1,81 @@
+name: Mini Program CI
+
+# Path-filtered: runs only when the WeChat mini program changes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'miniprogram/**'
+  pull_request:
+    paths:
+      - 'miniprogram/**'
+
+jobs:
+  lint:
+    name: Lint mini program
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: miniprogram
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Lint (when a package.json/eslint config is present)
+        run: |
+          if [ -f package.json ]; then
+            npm ci || npm install
+            npm run lint --if-present
+          else
+            echo "No miniprogram/package.json yet; add eslint + a lint script to enable JS linting."
+          fi
+
+  # Optional preview build: runs only after `lint` passes, only on push, and only
+  # when the WECHAT_CI_PRIVATE_KEY + WECHAT_MINI_APPID repo secrets are set
+  # (WeChat MP console -> 开发管理 -> 开发设置 -> 小程序代码上传密钥). Until those
+  # secrets exist this job is a safe no-op (plan issue 26 / GitHub issue #56).
+  preview:
+    name: Preview build (miniprogram-ci)
+    runs-on: ubuntu-latest
+    needs: lint
+    if: github.event_name == 'push'
+    env:
+      WECHAT_APPID: ${{ secrets.WECHAT_MINI_APPID }}
+      WECHAT_CI_KEY: ${{ secrets.WECHAT_CI_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Skip notice (secrets not configured)
+        if: env.WECHAT_CI_KEY == '' || env.WECHAT_APPID == ''
+        run: echo "Set WECHAT_CI_PRIVATE_KEY and WECHAT_MINI_APPID secrets to enable preview builds; skipping."
+
+      - name: Generate preview QR (miniprogram-ci)
+        if: env.WECHAT_CI_KEY != '' && env.WECHAT_APPID != ''
+        working-directory: miniprogram
+        run: |
+          printf '%s' "$WECHAT_CI_KEY" > ci_private.key
+          npx --yes miniprogram-ci preview \
+            --pp ./ \
+            --pkp ./ci_private.key \
+            --appid "$WECHAT_APPID" \
+            --uv "1.0.0-${GITHUB_SHA::7}" \
+            --ud "CI preview ${GITHUB_REF_NAME}@${GITHUB_SHA::7}" \
+            -r 1 \
+            --qrcode-format image \
+            --qrcode-output-dest ./preview-qr.jpg
+          rm -f ci_private.key
+
+      - name: Upload preview QR artifact
+        if: env.WECHAT_CI_KEY != '' && env.WECHAT_APPID != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: miniprogram-preview-qr
+          path: miniprogram/preview-qr.jpg
+          if-no-files-found: warn

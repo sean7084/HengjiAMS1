@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="row" style="margin-bottom:16rpx;">
+    <view class="title">我的巡检任务</view>
+    <view class="tag {{pendingCount ? 'tag-warn' : ''}}" bindtap="goSync">
+      同步{{pendingCount ? ' (' + pendingCount + ')' : ''}}
+    </view>
+  </view>
+
+  <view wx:if="{{offline}}" class="tag tag-warn" style="margin-bottom:16rpx;">离线模式：显示已缓存的任务</view>
+
+  <view wx:if="{{loading && !inspections.length}}" class="muted">加载中…</view>
+
+  <view wx:for="{{inspections}}" wx:key="id" class="card" data-id="{{item.id}}" bindtap="openDetail">
+    <view class="row">
+      <view class="title" style="font-size:30rpx;">{{item.store_label}}</view>
+      <view class="tag {{item.status === 'submitted' ? 'tag-ok' : ''}}">{{item.status_display}}</view>
+    </view>
+    <view class="muted" style="margin-top:8rpx;">
+      {{item.inspection_date}} · 工程师 {{item.engineer_name || '—'}}
+    </view>
+    <view class="muted" style="margin-top:4rpx;">
+      进度 {{item.completion_percentage}}% ({{item.device_collected}}/{{item.device_total}})
+    </view>
+  </view>
+
+  <view wx:if="{{!loading && !inspections.length}}" class="muted">暂无巡检任务</view>
+</view>

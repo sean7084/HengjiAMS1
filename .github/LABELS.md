@@ -44,7 +44,7 @@ This document defines the labeling strategy for the HengjiAMS1 repository to str
 
 ---
 
-### Component Labels (9)
+### Component Labels (13)
 
 | Label Name | Color | Description |
 |------------|-------|-------------|
@@ -57,6 +57,10 @@ This document defines the labeling strategy for the HengjiAMS1 repository to str
 | `component: products` | #5791EF | Price list, service catalog |
 | `component: dashboard` | #FFFFFF | Main landing page |
 | `component: reports` | #79CB23 | Analytics & charts |
+| `component: api` | #0E8A16 | REST API surface (`/api/v1`) |
+| `component: inspections` | #5319E7 | Kering store device-inspection domain |
+| `component: miniprogram` | #07A162 | WeChat mini program client |
+| `component: import` | #D4C5F9 | Data import pipelines |
 
 ---
 

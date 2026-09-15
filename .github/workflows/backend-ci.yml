@@ -1,0 +1,47 @@
+name: Backend CI
+
+# Path-filtered: runs for backend changes only (ignores the mini program and docs).
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'miniprogram/**'
+      - 'docs/**'
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - 'miniprogram/**'
+      - 'docs/**'
+      - '**.md'
+
+jobs:
+  django:
+    name: Django checks + tests
+    runs-on: ubuntu-latest
+    env:
+      # Keep DEBUG on so the production fail-fast guards (secret key, field
+      # encryption key, WeChat creds) do not block CI.
+      DJANGO_DEBUG: 'True'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install WeasyPrint system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Django system checks
+        run: python manage.py check
+
+      - name: Run tests
+        run: python manage.py test

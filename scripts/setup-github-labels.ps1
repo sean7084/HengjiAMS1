@@ -39,6 +39,10 @@ $labels = @(
     @{name="component: products"; color="#5791EF"; description="Price list, service catalog"}
     @{name="component: dashboard"; color="#FFFFFF"; description="Main landing page"}
     @{name="component: reports"; color="#79CB23"; description="Analytics & charts"}
+    @{name="component: api"; color="#0E8A16"; description="REST API surface (/api/v1)"}
+    @{name="component: inspections"; color="#5319E7"; description="Kering store device-inspection domain"}
+    @{name="component: miniprogram"; color="#07A162"; description="WeChat mini program client"}
+    @{name="component: import"; color="#D4C5F9"; description="Data import pipelines"}
     
     @{name="breaking change"; color="#B60205"; description="Incompatible API/model changes"}
     @{name="deprecation"; color="#D8744E"; description="Deprecated feature scheduled for removal"}

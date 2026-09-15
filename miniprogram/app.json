@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/inspections/inspections",
+    "pages/inspection-detail/inspection-detail",
+    "pages/device-verify/device-verify",
+    "pages/rack-network/rack-network",
+    "pages/issues/issues",
+    "pages/confirmation/confirmation",
+    "pages/signoff/signoff",
+    "pages/report/report",
+    "pages/sync/sync"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#4F6228",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "Kering 店铺巡检",
+    "backgroundColor": "#F2F2F2",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -367,6 +367,12 @@ EMAIL_BACKEND = 'accounts.email_backends.DatabaseSMTPEmailBackend'
 DEFAULT_FROM_EMAIL = ''
 
 # Logging configuration
+# The log directory is gitignored, so bootstrap it here: logging.FileHandler
+# does not create parent directories, and django.setup() would otherwise fail
+# on any fresh checkout (CI, a new clone, or a first production deploy).
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -374,7 +380,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'hengjiams.log',
+            'filename': LOG_DIR / 'hengjiams.log',
         },
         'console': {
             'level': 'DEBUG',

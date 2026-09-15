@@ -18,3 +18,10 @@ __pycache__/
 *.env
 .venv
 *.env.local
+
+# Node (mini program tooling)
+node_modules/
+
+# WeChat mini program CI: never commit the code-upload key or generated QR
+miniprogram/ci_private.key
+miniprogram/preview-qr.jpg

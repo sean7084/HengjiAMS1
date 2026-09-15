@@ -29,13 +29,16 @@ Complete list of project documentation for reference and navigation.
 | **ADR-0008** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | HTML-to-PDF generation without LibreOffice |
 | **ADR-0009** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | Warehouse slot tracking implementation |
 | **ADR-0010** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | Company contact vs company user model refactoring |
+| **ADR-0011** | `docs/ARCHITECTURAL_DECISION_RECORDS.md` | WeChat mini program for Kering store device inspection |
 
 ### 🔧 Operational Guides
 
 | Document | Location | Audience |
 |----------|----------|----------|
 | **API_GUIDE.md** | `docs/` | Developers integrating via API |
+| **MINIPROGRAM_SPEC.md** | `docs/` | WeChat mini program (Kering store inspection) spec |
 | **DEPLOYMENT.md** | `docs/` | DevOps engineers deploying production |
+| **DEPLOYMENT_MINIPROGRAM.md** | `docs/` | Deploying the WeChat mini program (console, legal domains, CI, release) |
 | **RELEASE_PROCEDURE.md** | `docs/` | Cutting, deploying, verifying, and rolling back a release |
 | **WORKFLOW_GUIDE.md** | `docs/` | Business users operating daily workflows |
 | **GITHUB_SETTINGS.md** | `docs/` | Maintainers managing repo configuration |
@@ -86,9 +89,11 @@ hengji-ams/
 ├── LICENSE                        ← Legal terms
 │
 ├── docs/                          ← Detailed specifications
-│   ├── ARCHITECTURAL_DECISION_RECORDS.md     ← ADRs (0001-0010)
+│   ├── ARCHITECTURAL_DECISION_RECORDS.md     ← ADRs (0001-0011)
 │   ├── API_GUIDE.md             ← REST API reference
 │   ├── DEPLOYMENT.md            ← Production setup guide
+│   ├── DEPLOYMENT_MINIPROGRAM.md ← WeChat mini program deployment runbook
+│   ├── MINIPROGRAM_SPEC.md      ← WeChat mini program spec
 │   ├── RELEASE_PROCEDURE.md     ← Versioning, tagging, deploy & rollback
 │   ├── DATABASE_MIGRATION.md    ← SQLite → PostgreSQL data migration
 │   ├── BACKUP_RESTORE.md        ← Backup & restore runbook

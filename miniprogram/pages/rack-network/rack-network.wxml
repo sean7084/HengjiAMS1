@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="card">
+    <view class="title">机柜与网络照片</view>
+    <view class="muted" style="margin-top:6rpx;">拍照 / 选择后点击底部“保存”加入同步队列。</view>
+  </view>
+
+  <view wx:for="{{kinds}}" wx:key="kind" class="card">
+    <view class="row">
+      <view style="font-weight:600;">{{item.label}}</view>
+      <view class="tag" data-kind="{{item.kind}}" bindtap="choose">拍照 / 选择</view>
+    </view>
+    <view class="thumbs" wx:if="{{shots[item.kind].length}}">
+      <view wx:for="{{shots[item.kind]}}" wx:for-item="shot" wx:for-index="si" wx:key="uid" class="thumb-wrap">
+        <image src="{{shot.path}}" mode="aspectFill" class="thumb" />
+        <view class="thumb-del" data-kind="{{item.kind}}" data-index="{{si}}" catchtap="removeShot">×</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="btn" bindtap="save">保存（待同步）</view>
+</view>

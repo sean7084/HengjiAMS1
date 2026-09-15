@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="card">
+    <view class="title">问题列表 Issue List</view>
+    <view class="field" style="margin-top:16rpx;">
+      <text class="field-label">问题描述</text>
+      <textarea class="input" value="{{description}}" bindinput="onDesc" style="height:120rpx;" placeholder="描述发现的问题" />
+    </view>
+    <text class="field-label">状态</text>
+    <view class="row">
+      <view wx:for="{{statuses}}" wx:key="value" class="tag {{status === item.value ? 'tag-ok' : ''}}"
+            data-value="{{item.value}}" bindtap="onStatus">{{item.label}}</view>
+    </view>
+    <view class="btn" bindtap="addIssue">添加问题（待同步）</view>
+  </view>
+
+  <view wx:for="{{issues}}" wx:key="index" class="card">
+    <view class="row">
+      <view style="font-weight:600;">#{{item.seq}}</view>
+      <view class="tag {{item.status === 'fixed' ? 'tag-ok' : 'tag-warn'}}">
+        {{item.status === 'fixed' ? '已修正' : '待跟进'}}{{item.pending ? ' · 待同步' : ''}}
+      </view>
+    </view>
+    <view class="muted" style="margin-top:8rpx;">{{item.description}}</view>
+  </view>
+
+  <view wx:if="{{!issues.length}}" class="muted">暂无问题记录。</view>
+</view>
