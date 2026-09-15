@@ -1,0 +1,70 @@
+# Test and coverage tooling configuration.
+#
+# The canonical runner remains Django's own (`python manage.py test`) - the whole
+# existing suite is written as `django.test.TestCase` classes and CI uses it.
+# pytest-django is configured here so the same tests can also be run through
+# pytest for faster selection (`-k`, `--lf`) and coverage reporting.
+# See docs/TESTING.md.
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "hengjiams.settings"
+# Django projects name their modules `tests.py`, which pytest does not match by default.
+python_files = ["tests.py", "test_*.py", "tests_*.py"]
+# `-p hengjiams.pytest_bootstrap` must stay first: it performs the WeasyPrint /
+# fontconfig / .env bootstrap before pytest-django calls django.setup().
+addopts = "-p hengjiams.pytest_bootstrap -ra --strict-markers"
+norecursedirs = [
+    ".git",
+    ".venv",
+    "logs",
+    "media",
+    "miniprogram",
+    "migrations",
+    "node_modules",
+    "static",
+    "template_files",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "slow: long-running tests (deselect with '-m \"not slow\"')",
+    "real_data: requires the real Kering dataset on disk (env-gated, skipped by default)",
+]
+
+[tool.coverage.run]
+source = ["."]
+branch = true
+omit = [
+    "*/migrations/*",
+    "*/node_modules/*",
+    ".venv/*",
+    "logs/*",
+    "media/*",
+    "scripts/*",
+    "manage.py",
+    "conftest.py",
+    "compile_translations.py",
+    "debug_roles.py",
+    "tmp_*",
+    "hengjiams/asgi.py",
+    "hengjiams/wsgi.py",
+    "*/apps.py",
+]
+
+[tool.coverage.report]
+precision = 1
+# Ratchet floor. Measured 43.7% on 2026-09-15 (SQLite) with 79 tests. Set to 40
+# rather than 43 so the floor survives small backend-dependent variance between
+# SQLite (dev) and PostgreSQL (CI); raise it as coverage improves, never lower it.
+# See docs/TESTING.md for the ratchet plan.
+fail_under = 40
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
