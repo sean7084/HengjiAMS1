@@ -3,12 +3,14 @@ URL configuration for HengJi AMS REST API.
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
     UserViewSet, CompanyViewSet, DivisionViewSet, LocationViewSet,
     AssetCategoryViewSet, AssetBrandViewSet, AssetModelViewSet,
     AssetViewSet, AssetAssignmentViewSet, AssetMaintenanceViewSet
 )
+from .views_auth import WeChatBindView, WeChatLoginView
 
 # Create router and register viewsets
 router = DefaultRouter()
@@ -24,5 +26,10 @@ router.register(r'assignments', AssetAssignmentViewSet, basename='assignment')
 router.register(r'maintenance', AssetMaintenanceViewSet, basename='maintenance')
 
 urlpatterns = [
+    # WeChat mini-program authentication (JWT access/refresh)
+    path('auth/wechat/bind/', WeChatBindView.as_view(), name='wechat-bind'),
+    path('auth/wechat/login/', WeChatLoginView.as_view(), name='wechat-login'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+
     path('', include(router.urls)),
 ]

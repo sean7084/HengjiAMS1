@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -78,6 +79,22 @@ if not DEBUG and not FIELD_ENCRYPTION_KEY:
         'print(Fernet.generate_key().decode())"'
     )
 
+# WeChat mini-program + JWT configuration (Kering store-inspection client).
+# The mini program authenticates with SimpleJWT bearer tokens after a WeChat
+# jscode2session login. AppSecret is server-side only and MUST be set in production.
+WECHAT_MINI_APPID = os.environ.get('WECHAT_MINI_APPID', '').strip()
+WECHAT_MINI_APPSECRET = os.environ.get('WECHAT_MINI_APPSECRET', '').strip()
+JWT_SIGNING_KEY = os.environ.get('JWT_SIGNING_KEY', '').strip() or SECRET_KEY
+
+# Fail fast if production would run the mini-program backend without WeChat creds:
+# jscode2session cannot work and openid binding would silently fail.
+if not DEBUG and (not WECHAT_MINI_APPID or not WECHAT_MINI_APPSECRET):
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        'WECHAT_MINI_APPID and WECHAT_MINI_APPSECRET must be set when '
+        'DJANGO_DEBUG is False.'
+    )
+
 MINIMAX_TOKEN_PLAN_KEY = os.environ.get('minimax_token_plan_key', '')
 MINIMAX_RFQ_API_URL = os.environ.get('MINIMAX_RFQ_API_URL', 'https://api.minimaxi.com/anthropic/v1/messages')
 MINIMAX_RFQ_MODEL = os.environ.get('MINIMAX_RFQ_MODEL', 'MiniMax-M2.7-highspeed')
@@ -101,11 +118,13 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_totp',  # TOTP (Time-based OTP) support
     'django_otp.plugins.otp_static',  # Static OTP tokens for backup
     'rest_framework',  # REST API framework
+    'rest_framework_simplejwt',  # JWT auth for the WeChat mini program
     # Local apps
     'accounts',  # Custom user management with roles and 2FA
     'assets',  # Asset management core functionality
     'companies',  # Company and division management
     'audit',  # Asset audit and tracking system
+    'inspections',  # Kering store device-inspection (WeChat mini program backend)
     'reports',  # Reporting and analytics
     'dashboard',  # Main dashboard and overview
     'users',  # User management
@@ -206,6 +225,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Django REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -217,6 +237,17 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+}
+
+# SimpleJWT (mini-program bearer tokens). Access tokens are short-lived; refresh
+# tokens let the offline-first client re-auth without re-prompting credentials.
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=int(os.environ.get('JWT_ACCESS_HOURS', '2'))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.environ.get('JWT_REFRESH_DAYS', '14'))),
+    'SIGNING_KEY': JWT_SIGNING_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': False,
+    'UPDATE_LAST_LOGIN': True,
 }
 
 
