@@ -36,7 +36,7 @@ This document is the single source of truth for all GitHub repository configurat
 | Require review from Code Owners | ✅ Enabled | CODEOWNERS enforced for collaborators |
 | Dismiss stale reviews | ✅ Enabled | Approvals reset when new commits are pushed |
 | Enforce for admins (`enforce_admins`) | ❌ **Disabled** | **Owner can bypass** review requirements |
-| Required status checks | ✅ **`Django checks + tests`** | Backend CI must pass before merge; `strict = true` requires the branch to be up to date with `main` |
+| Required status checks | ✅ **`Django checks + tests`**, **`Python lint (ruff)`** | Backend CI and the ruff correctness gate must pass; `strict = true` requires the branch to be up to date with `main` |
 | Allow force pushes | ❌ Blocked | History rewriting prevented |
 | Allow deletions | ❌ Blocked | `main` cannot be deleted |
 
@@ -59,7 +59,7 @@ This is the personal-repository equivalent of the organization-only **"Allow spe
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["Django checks + tests"]
+    "contexts": ["Django checks + tests", "Python lint (ruff)"]
   },
   "enforce_admins": false,
   "required_pull_request_reviews": {
@@ -71,12 +71,21 @@ This is the personal-repository equivalent of the organization-only **"Allow spe
 }
 ```
 
-### Why only one required check?
+### Which checks are required, and why
 
-`Django checks + tests` is the job name in `.github/workflows/backend-ci.yml`. That workflow has
-**no path filter** — deliberately. A required status check that never runs on a given PR leaves
-the PR permanently blocked, so a path-filtered required workflow (e.g. one ignoring `docs/**` or
-`miniprogram/**`) would make docs-only PRs unmergeable. Backend CI therefore runs on every PR.
+Both required contexts are jobs in `.github/workflows/backend-ci.yml`:
+
+- **`Django checks + tests`** — `manage.py check`, `makemigrations --check`, then the suite under
+  coverage (which enforces `fail_under`) against PostgreSQL 16 and Redis 7 service containers.
+- **`Python lint (ruff)`** — the correctness-only ruff gate configured under `[tool.ruff]` in
+  `pyproject.toml`. It runs as a separate job with no database or Django install, so it reports
+  in seconds. Adopting it immediately found three real defects in untested code (issues #68,
+  #69, #70), which is the argument for gating on correctness rules rather than style.
+
+That workflow has **no path filter** — deliberately. A required status check that never runs on a
+given PR leaves the PR permanently blocked, so a path-filtered required workflow (one ignoring
+`docs/**` or `miniprogram/**`) would make docs-only PRs unmergeable. Backend CI therefore runs on
+every PR.
 
 `Lint mini program` (`.github/workflows/miniprogram-ci.yml`) *is* path-filtered to
 `miniprogram/**`, which is correct for a non-required check — it stays green/absent on unrelated

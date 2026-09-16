@@ -82,11 +82,11 @@ try {
 #   restrictions is org-only (see header).
 #
 # required_status_checks:
-#   'Django checks + tests' is the job name in .github/workflows/backend-ci.yml.
-#   That workflow deliberately has NO path filter, because a required check that
-#   never runs (e.g. on a docs-only PR) blocks the PR forever. The
-#   'Lint mini program' check IS path-filtered to miniprogram/** and is therefore
-#   intentionally NOT required here.
+#   Both contexts are jobs in .github/workflows/backend-ci.yml, which deliberately
+#   has NO path filter: a required check that never runs on a given PR (e.g. a
+#   docs-only PR under a paths-ignore filter) blocks that PR forever.
+#   The 'Lint mini program' check IS path-filtered to miniprogram/** and is
+#   therefore intentionally NOT required here.
 #   strict = $true -> a PR must be up to date with main before merging, so the
 #   commit that was tested is the commit that lands.
 #
@@ -94,7 +94,7 @@ try {
 $protectionConfig = @{
     required_status_checks = @{
         strict = $true
-        contexts = @("Django checks + tests")
+        contexts = @("Django checks + tests", "Python lint (ruff)")
     }
     enforce_admins = $false
     required_pull_request_reviews = @{
@@ -127,7 +127,7 @@ try {
     Write-Host "  ✓ Require 1 approving review" -ForegroundColor Green
     Write-Host "  ✓ Dismiss stale reviews automatically" -ForegroundColor Green
     Write-Host "  ✓ Require review from Code Owners" -ForegroundColor Green
-    Write-Host "  ✓ Require status check 'Django checks + tests' (branches must be up to date)" -ForegroundColor Green
+    Write-Host "  ✓ Require status checks 'Django checks + tests' and 'Python lint (ruff)'" -ForegroundColor Green
     Write-Host "  ✓ Admin (owner) can bypass requirements" -ForegroundColor Green
     Write-Host "  ✓ Block force pushes" -ForegroundColor Green
     Write-Host "  ✓ Block branch deletion" -ForegroundColor Green

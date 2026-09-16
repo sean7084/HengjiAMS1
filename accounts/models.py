@@ -426,12 +426,6 @@ class User(AbstractUser):
         return (self.is_superadmin() or
                 self.has_perm('companies.add_company'))
     
-    def can_view_audit(self):
-        """Check if user can view audit logs."""
-        return (self.is_superadmin() or 
-                self.is_it_administrator() or
-                self.has_perm('audit.view_auditlog'))
-    
     def can_create_audit(self):
         """Check if user can create asset audits."""
         return (self.is_superadmin() or 

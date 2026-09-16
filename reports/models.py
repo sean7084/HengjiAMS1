@@ -4,6 +4,7 @@ This module defines models for generating, storing, and managing
 various types of reports and analytics for the asset management system.
 """
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
@@ -380,8 +381,7 @@ class GeneratedReport(models.Model):
         """Check if this report has expired."""
         if not self.expires_at:
             return False
-        from datetime import datetime
-        return datetime.now() > self.expires_at
+        return timezone.now() > self.expires_at
 
     def can_be_accessed_by(self, user):
         """Check if a user can access this report."""
@@ -585,11 +585,11 @@ class ReportSchedule(models.Model):
 
     def calculate_next_run(self):
         """Calculate the next run time based on frequency."""
-        from datetime import datetime, timedelta
+        from datetime import timedelta
         import calendar
         
         if not self.last_run:
-            base_time = datetime.now()
+            base_time = timezone.now()
         else:
             base_time = self.last_run
             
@@ -620,13 +620,13 @@ class ReportSchedule(models.Model):
         if not self.is_active or self.status != self.ScheduleStatus.ACTIVE:
             return False
             
-        if self.end_date and self.end_date < datetime.now().date():
+        if self.end_date and self.end_date < timezone.localdate():
             return False
             
         if not self.next_run:
             return False
             
-        return datetime.now() >= self.next_run
+        return timezone.now() >= self.next_run
 
     def record_failure(self, error_message):
         """Record a failed generation attempt."""
@@ -642,7 +642,7 @@ class ReportSchedule(models.Model):
         """Record a successful generation."""
         self.consecutive_failures = 0
         self.last_error = ''
-        self.last_run = datetime.now()
+        self.last_run = timezone.now()
         self.calculate_next_run()
         self.save(update_fields=['consecutive_failures', 'last_error', 'last_run'])
 
@@ -745,15 +745,13 @@ class ReportShare(models.Model):
         """Check if this share has expired."""
         if not self.expires_at:
             return False
-        from datetime import datetime
-        return datetime.now() > self.expires_at
+        return timezone.now() > self.expires_at
 
     def record_access(self):
         """Record an access to this shared report."""
-        from datetime import datetime
         
         if not self.accessed_at:
-            self.accessed_at = datetime.now()
+            self.accessed_at = timezone.now()
         
         self.access_count += 1
         self.save(update_fields=['accessed_at', 'access_count'])

@@ -222,6 +222,15 @@ Steps:
 encryption key, WeChat credentials) do not block CI, and the `DATABASE_*` /
 `DJANGO_REDIS_CACHE_URL` env vars point at the service containers.
 
+The same workflow has a second, parallel job — **`Python lint (ruff)`** — running `ruff check .`
+with the correctness-only rule set defined under `[tool.ruff]` in `pyproject.toml`. Both jobs are
+required status checks on `main`. Run it locally with:
+
+```bash
+python -m ruff check .          # must pass before pushing
+python -m ruff check --fix .    # apply the safe autofixes
+```
+
 `.github/workflows/miniprogram-ci.yml` runs eslint over `miniprogram/**`. It *is* path-filtered
 and therefore deliberately **not** a required check.
 

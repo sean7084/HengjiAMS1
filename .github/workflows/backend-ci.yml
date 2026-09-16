@@ -86,3 +86,27 @@ jobs:
         run: |
           python -m coverage run manage.py test
           python -m coverage report
+
+  # Separate job so it runs in parallel and reports its own check name. It needs
+  # no database, services or Django install - ruff is static analysis only.
+  lint:
+    name: Python lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Keep this version in sync with requirements-dev.txt.
+      - name: Install ruff
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.16.7
+
+      # Correctness-only gate - the rule set is defined under [tool.ruff] in
+      # pyproject.toml and the reasoning is documented there. Adopting it found
+      # three real defects in untested code: issues #68, #69 and #70.
+      - name: Ruff
+        run: python -m ruff check .
