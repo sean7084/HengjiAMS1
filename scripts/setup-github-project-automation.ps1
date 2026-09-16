@@ -3,7 +3,11 @@
 
 $repoOwner = "sean7084"
 $repoName = "HengjiAMS1"
-$token = (Get-Content '.env.local' | Select-String '^GITHUB_CLASSIC_TOKEN=').ToString().Split('=')[1]
+# Read GITHUB_CLASSIC_TOKEN from .env (the documented local secrets file),
+# falling back to the legacy .env.local if that is what exists.
+$envFile = @('.env', '.env.local') | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $envFile) { throw "No .env (or .env.local) found in the repository root" }
+$token = (Get-Content $envFile | Select-String '^GITHUB_CLASSIC_TOKEN=').ToString().Split('=')[1]
 $headers = @{
     "Authorization" = "Bearer $token"
     "Accept" = "application/vnd.github.v3+json"

@@ -14,7 +14,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.5.5",
-  "appid": "REPLACE_WITH_YOUR_MINIPROGRAM_APPID",
+  "appid": "wx6aafa4e05e26c068",
   "projectname": "kering-inspection",
   "miniprogramRoot": "./",
   "condition": {}
