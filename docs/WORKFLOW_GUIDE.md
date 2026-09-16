@@ -299,7 +299,7 @@ Variables actually read by `settings.py`:
 
 > Outbound **email SMTP is not an env setting** — it is configured per user in the database (`UserMailboxSettings`) with a Django email fallback.
 >
-> The GitHub automation scripts read a separate `.env.local` (for `GITHUB_CLASSIC_TOKEN`); that file is unrelated to the Django runtime `.env`.
+> The GitHub automation scripts read `GITHUB_CLASSIC_TOKEN` from the same gitignored `.env` that Django loads (falling back to a legacy `.env.local` if `.env` is absent). Keep that token out of any production `.env`.
 
 #### Language Preferences
 - Login page selector changes language for the session; profile settings also support switching.

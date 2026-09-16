@@ -9,7 +9,7 @@
 #   any future collaborator is forced through the review process.
 #
 # Prerequisites:
-#   - GITHUB_CLASSIC_TOKEN present in .env.local
+#   - GITHUB_CLASSIC_TOKEN present in .env
 #   - Token scopes: 'repo' (required); 'admin:repo_hook' and 'project' help
 #
 # Personal-repository constraints (why this script looks the way it does):
@@ -27,13 +27,18 @@ $repoOwner = "sean7084"
 $repoName = "HengjiAMS1"
 $branch = "main"
 
-# Read token from .env.local
-$content = Get-Content '.env.local' -Raw
+# Read token from .env (falling back to the legacy .env.local)
+$envFile = @('.env', '.env.local') | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $envFile) {
+    Write-Host "ERROR: no .env (or .env.local) found in the repository root" -ForegroundColor Red
+    exit 1
+}
+$content = Get-Content $envFile -Raw
 if ($content -match 'GITHUB_CLASSIC_TOKEN=(\S+)') {
     $token = $Matches[1].Trim()
 } else {
-    Write-Host "ERROR: GITHUB_CLASSIC_TOKEN not found in .env.local" -ForegroundColor Red
-    Write-Host "Please add your GitHub token to .env.local" -ForegroundColor Yellow
+    Write-Host "ERROR: GITHUB_CLASSIC_TOKEN not found in $envFile" -ForegroundColor Red
+    Write-Host "Please add your GitHub token to .env" -ForegroundColor Yellow
     exit 1
 }
 
@@ -62,7 +67,7 @@ try {
     Write-Host "2. Generate a new token with these scopes:" -ForegroundColor Cyan
     Write-Host "   - repo (full control of private repositories)" -ForegroundColor Gray
     Write-Host "   - admin:repo (if available)" -ForegroundColor Gray
-    Write-Host "3. Update GITHUB_CLASSIC_TOKEN in .env.local" -ForegroundColor Cyan
+    Write-Host "3. Update GITHUB_CLASSIC_TOKEN in .env" -ForegroundColor Cyan
     Write-Host "4. Re-run this script" -ForegroundColor Cyan
     exit 1
 }
