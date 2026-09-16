@@ -25,3 +25,9 @@ node_modules/
 # WeChat mini program CI: never commit the code-upload key or generated QR
 miniprogram/ci_private.key
 miniprogram/preview-qr.jpg
+
+# Python test and coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/

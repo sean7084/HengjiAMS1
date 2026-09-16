@@ -1,0 +1,23 @@
+# Development and test tooling - NOT installed in production.
+#
+# Production deployments install requirements.txt only (see docs/DEPLOYMENT.md).
+# Local setup:
+#
+#     pip install -r requirements-dev.txt
+#
+# The canonical test runner remains Django's own (`python manage.py test`), which
+# is what CI uses. pytest is configured as an equivalent second runner for
+# selective runs and coverage reporting - see docs/TESTING.md for why the
+# `-p hengjiams.pytest_bootstrap` plugin is required.
+
+-r requirements.txt
+
+# Test runner + Django integration
+pytest==9.1.1
+pytest-django==4.14.0
+
+# Coverage measurement (configuration lives in pyproject.toml)
+coverage==7.16.1
+
+# Model factories for fixtures (brings in Faker)
+factory-boy==3.3.3

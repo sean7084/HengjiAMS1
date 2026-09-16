@@ -78,13 +78,24 @@ try {
 #   require_code_owner_reviews = $true   -> CODEOWNERS must approve
 #   dismiss_stale_reviews = $true        -> approvals reset on new commits
 #
-# restrictions / required_status_checks = $null:
-#   restrictions is org-only (see header). required_status_checks is left null
-#   because no CI status checks exist yet; add them here once CI is introduced.
+# restrictions = $null:
+#   restrictions is org-only (see header).
+#
+# required_status_checks:
+#   'Django checks + tests' is the job name in .github/workflows/backend-ci.yml.
+#   That workflow deliberately has NO path filter, because a required check that
+#   never runs (e.g. on a docs-only PR) blocks the PR forever. The
+#   'Lint mini program' check IS path-filtered to miniprogram/** and is therefore
+#   intentionally NOT required here.
+#   strict = $true -> a PR must be up to date with main before merging, so the
+#   commit that was tested is the commit that lands.
 #
 # See docs/GITHUB_SETTINGS.md for the complete decision record.
 $protectionConfig = @{
-    required_status_checks = $null
+    required_status_checks = @{
+        strict = $true
+        contexts = @("Django checks + tests")
+    }
     enforce_admins = $false
     required_pull_request_reviews = @{
         dismiss_stale_reviews = $true
@@ -116,6 +127,7 @@ try {
     Write-Host "  ✓ Require 1 approving review" -ForegroundColor Green
     Write-Host "  ✓ Dismiss stale reviews automatically" -ForegroundColor Green
     Write-Host "  ✓ Require review from Code Owners" -ForegroundColor Green
+    Write-Host "  ✓ Require status check 'Django checks + tests' (branches must be up to date)" -ForegroundColor Green
     Write-Host "  ✓ Admin (owner) can bypass requirements" -ForegroundColor Green
     Write-Host "  ✓ Block force pushes" -ForegroundColor Green
     Write-Host "  ✓ Block branch deletion" -ForegroundColor Green
