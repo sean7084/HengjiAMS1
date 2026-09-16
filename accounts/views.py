@@ -916,8 +916,11 @@ def setup_2fa_simple(request):
                 )
 
                 # Generate 10 backup tokens
+                # NB: the loop variable must not be `_`, which is the gettext
+                # alias used elsewhere in this function - assigning to `_`
+                # would make it function-local and break those earlier calls.
                 tokens = []
-                for _ in range(10):
+                for _attempt in range(10):
                     token = StaticToken.random_token()
                     StaticToken.objects.create(device=static_device, token=token)
                     tokens.append(token)

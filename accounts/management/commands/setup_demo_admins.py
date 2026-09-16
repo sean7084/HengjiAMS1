@@ -18,7 +18,7 @@ class Command(BaseCommand):
         try:
             admin_user = User.objects.get(username='admin')
             admin_user.set_admin_roles([User.AdminRole.SUPERADMIN])
-            self.stdout.write(self.style.SUCCESS(f'Updated admin user to Superadmin'))
+            self.stdout.write(self.style.SUCCESS('Updated admin user to Superadmin'))
         except User.DoesNotExist:
             self.stdout.write(self.style.WARNING('Admin user not found'))
         
@@ -181,6 +181,6 @@ class Command(BaseCommand):
         
         self.stdout.write(self.style.SUCCESS('\nDemo admin users created successfully!'))
         self.stdout.write('Users created:')
-        self.stdout.write(f'  - admin (superadmin): full access')
-        self.stdout.write(f'  - itadmin1 (IT Administrator): access to IT and HR divisions')
-        self.stdout.write(f'  - viewer1 (viewer): read-only access to Chicago Warehouse')
+        self.stdout.write('  - admin (superadmin): full access')
+        self.stdout.write('  - itadmin1 (IT Administrator): access to IT and HR divisions')
+        self.stdout.write('  - viewer1 (viewer): read-only access to Chicago Warehouse')
