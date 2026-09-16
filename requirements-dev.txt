@@ -19,5 +19,9 @@ pytest-django==4.14.0
 # Coverage measurement (configuration lives in pyproject.toml)
 coverage==7.16.1
 
+# Linter - correctness-first gate configured under [tool.ruff] in pyproject.toml.
+# ruff format is black-compatible, so black is deliberately NOT also a dependency.
+ruff==0.16.7
+
 # Model factories for fixtures (brings in Faker)
 factory-boy==3.3.3

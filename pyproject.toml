@@ -68,3 +68,42 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+# ---------------------------------------------------------------------------
+# Linting (ruff)
+#
+# Correctness-first gate. Every family below catches code that actually breaks
+# at runtime, not style preferences:
+#   E9   syntax errors
+#   F63  invalid comparison / assert mistakes
+#   F7   statement-level logic errors (break outside loop, etc.)
+#   F82  undefined names (F821) and use-before-assignment (F823)
+#   F811 redefinition of an unused name (duplicate method definitions)
+#   F541 f-string without placeholders
+#
+# Adopting exactly this set immediately found three real defects in untested
+# code: a NameError in reports/models.py (datetime never imported), an
+# UnboundLocalError in accounts/views.py (gettext `_` shadowed by a loop
+# variable) and a duplicated User.can_view_audit in accounts/models.py.
+# See issues #68, #69, #70.
+#
+# Deliberately NOT enabled yet - each needs a reviewed pass of its own (#21):
+#   F401  89 unused imports; some may be intentional re-exports
+#   F841  unused locals; the two in reports/views.py look like a forgotten
+#         queryset scope, which needs human judgement rather than deletion
+#   I     107 unsorted imports - cosmetic churn, no defect value
+# `ruff format` would rewrite 218 of 296 files. That is a separate, deliberate
+# one-shot commit because of the git-blame cost, and is not enforced here.
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py312"
+extend-exclude = [
+    "logs",
+    "media",
+    "migrations",
+    "miniprogram",
+    "template_files",
+]
+
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82", "F811", "F541"]
