@@ -1,0 +1,102 @@
+// Simplified-Chinese display maps for the field client (WXS: callable in WXML).
+// Canonical English values stay unchanged on the server / in the report contract;
+// we translate only for on-screen display. Unknown values fall back to the raw text.
+var CATEGORY_ZH = {
+  desktop: '台式机',
+  laptop: '笔记本',
+  monitor: '显示器',
+  printer: '打印机',
+  scanner: '扫码枪',
+  ios_device: '苹果设备',
+  ar_device: 'AR 设备',
+  other: '其他'
+};
+
+// Usage values, keyed by the case-folded abbreviation. Combined codes such as
+// "SK/AD/KPI" are translated part-by-part (see usageZh). Confirmed with the
+// business: SK/AD = 库管/小蜜, SD/DM = 店铺主管/部门主管,
+// KPI = KPI展示电脑/显示屏, AR/S2S/PI = 盘点设备.
+// SM / VM / TM are ONE unified tagging group (see SMVMTM below), so they are
+// deliberately NOT listed here as separate abbreviations.
+var USAGE_ZH = {
+  public: '公共',
+  xstore: '收银',
+  tax: '税控',
+  label: '标签',
+  aio: '一体机',
+  a4: 'A4',
+  personal: '个人',
+  wh: '仓库',
+  'stock keeper': '库管',
+  sk: '库管',
+  ad: '小蜜',
+  sd: '店铺主管',
+  dm: '部门主管',
+  kpi: 'KPI展示电脑/显示屏'
+};
+
+// SM / VM / TM always travel together as the single unified tag "SM/VM/TM"
+// (店经理/陈列经理/团队经理). Any combination of these tokens maps to it.
+var SMVMTM = { sm: 1, vm: 1, tm: 1 };
+var SMVMTM_ZH = '店经理/陈列经理/团队经理';
+
+// Whole-string overrides for multi-part codes that name a single concept
+// (i.e. not decomposable part-by-part).
+var USAGE_PHRASE_ZH = {
+  'ar/s2s/pi': '盘点设备'
+};
+
+// WXS has no regex-literal syntax (/.../); build patterns with getRegExp().
+function trim(v) {
+  var s = '' + v;
+  s = s.replace(getRegExp('^\\s+', 'g'), '');
+  s = s.replace(getRegExp('\\s+$', 'g'), '');
+  return s;
+}
+
+function norm(v) {
+  if (v === null || v === undefined) return '';
+  return trim(v).toLowerCase();
+}
+
+function categoryZh(v) {
+  var key = norm(v);
+  if (!key) return '';
+  return CATEGORY_ZH[key] || v;
+}
+
+function isSmVmTm(key) {
+  if (!key) return false;
+  var parts = key.split('/');
+  for (var i = 0; i < parts.length; i++) {
+    var p = trim(parts[i]);
+    if (!p || !SMVMTM[p]) return false;
+  }
+  return true;
+}
+
+function usageZh(v) {
+  if (v === null || v === undefined) return '';
+  var raw = trim(v);
+  if (!raw) return '';
+  var key = raw.toLowerCase();
+  if (USAGE_PHRASE_ZH[key]) return USAGE_PHRASE_ZH[key];
+  if (isSmVmTm(key)) return SMVMTM_ZH;
+  if (USAGE_ZH[key]) return USAGE_ZH[key];
+  // Combined code (e.g. "SK/AD/KPI"): translate each part, keep unknown as-is.
+  if (raw.indexOf('/') > -1) {
+    var parts = raw.split('/');
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var pk = trim(parts[i]).toLowerCase();
+      out.push(USAGE_ZH[pk] || parts[i]);
+    }
+    return out.join('/');
+  }
+  return raw;
+}
+
+module.exports = {
+  categoryZh: categoryZh,
+  usageZh: usageZh
+};

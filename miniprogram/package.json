@@ -4,10 +4,13 @@
   "private": true,
   "description": "WeChat mini program for the Kering store device inspection (HengjiAMS backend)",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "preview": "node scripts/ci.js preview",
+    "upload": "node scripts/ci.js upload"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
-    "eslint": "^9.9.0"
+    "eslint": "^9.9.0",
+    "miniprogram-ci": "^2.1.31"
   }
 }

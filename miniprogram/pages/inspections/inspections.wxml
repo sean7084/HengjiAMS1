@@ -6,6 +6,11 @@
     </view>
   </view>
 
+  <view class="card" wx:if="{{meName}}" style="margin-bottom:16rpx;">
+    <view class="muted">现场工程师：{{meName}}</view>
+    <view class="muted" style="margin-top:4rpx;">服务城市：{{meCities || '未设置（如需修改请联系管理员）'}}</view>
+  </view>
+
   <view wx:if="{{offline}}" class="tag tag-warn" style="margin-bottom:16rpx;">离线模式：显示已缓存的任务</view>
 
   <view wx:if="{{loading && !inspections.length}}" class="muted">加载中…</view>

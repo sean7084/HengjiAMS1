@@ -4,22 +4,44 @@
     <view class="muted" style="margin-top:8rpx;">首次使用请绑定员工账号</view>
   </view>
 
-  <view class="card" wx:if="{{needBind}}">
+  <!-- Step 1: input Chinese name -->
+  <view class="card" wx:if="{{stage === 'name'}}">
     <view class="field">
-      <text class="field-label">用户名</text>
-      <input class="input" data-field="username" value="{{username}}" bindinput="onInput" placeholder="员工用户名" />
-    </view>
-    <view class="field">
-      <text class="field-label">密码</text>
-      <input class="input" password data-field="password" value="{{password}}" bindinput="onInput" placeholder="密码" />
+      <text class="field-label">中文名</text>
+      <input class="input" data-field="chineseName" value="{{chineseName}}" bindinput="onInput" placeholder="请输入您的中文名" />
     </view>
     <view wx:if="{{error}}" class="tag tag-warn" style="margin-bottom:12rpx;">{{error}}</view>
-    <view class="btn {{loading ? 'btn-disabled' : ''}}" bindtap="onBind">
-      {{loading ? '绑定中…' : '绑定并登录'}}
+    <view class="btn {{loading ? 'btn-disabled' : ''}}" bindtap="onLookup">
+      {{loading ? '查询中…' : '下一步'}}
     </view>
   </view>
 
-  <view class="card" wx:else>
+  <!-- Step 1b: multiple matches -> pick the right English name -->
+  <view class="card" wx:if="{{stage === 'pick'}}">
+    <view class="field-label">找到多个同名，请选择您的英文名：</view>
+    <view wx:for="{{matches}}" wx:key="username" class="btn" style="margin-top:12rpx;"
+          data-index="{{index}}" bindtap="onPickMatch">{{item.english_name}}</view>
+    <view class="muted" style="margin-top:16rpx;" bindtap="onBackToName">返回修改中文名</view>
+  </view>
+
+  <!-- Step 2: confirm English name + password -->
+  <view class="card" wx:if="{{stage === 'confirm'}}">
+    <view class="field">
+      <text class="field-label">请确认您的英文名</text>
+      <view class="input" style="background:#f5f5f5;color:#333;">{{englishName}}</view>
+    </view>
+    <view class="field">
+      <text class="field-label">密码</text>
+      <input class="input" password data-field="password" value="{{password}}" bindinput="onInput" placeholder="请输入密码" />
+    </view>
+    <view wx:if="{{error}}" class="tag tag-warn" style="margin-bottom:12rpx;">{{error}}</view>
+    <view class="btn {{loading ? 'btn-disabled' : ''}}" bindtap="onBind">
+      {{loading ? '绑定中…' : '确认并登录'}}
+    </view>
+    <view class="muted" style="margin-top:16rpx;text-align:center;" bindtap="onBackToName">不是本人？返回重选</view>
+  </view>
+
+  <view class="card" wx:if="{{stage === 'loading'}}">
     <view class="muted">正在登录…</view>
   </view>
 </view>

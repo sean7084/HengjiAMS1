@@ -40,6 +40,16 @@ async function seamlessLogin() {
   return null;
 }
 
+// Resolve a Chinese name to matching engineer(s) for the login confirmation step.
+// Returns {found, matches:[{username, english_name, chinese_name}]}.
+async function lookupByName(chineseName) {
+  return request.request('/auth/wechat/lookup/', {
+    method: 'POST',
+    data: { chinese_name: chineseName },
+    auth: false,
+  });
+}
+
 // First launch: authenticate with staff username/password + wx.login code, bind
 // the openid, and store the issued tokens.
 async function bind(username, password) {
@@ -60,4 +70,4 @@ async function ensureSession() {
   return seamlessLogin();
 }
 
-module.exports = { getUser, setUser, clearSession, seamlessLogin, bind, ensureSession };
+module.exports = { getUser, setUser, clearSession, seamlessLogin, lookupByName, bind, ensureSession };

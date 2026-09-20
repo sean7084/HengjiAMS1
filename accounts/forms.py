@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django.utils import timezone
 
-from .models import AdminRole, SystemSMTPSettings, User, UserMailboxSettings
+from .models import AdminRole, ServiceCity, SystemSMTPSettings, User, UserMailboxSettings
 
 
 def generate_random_password(length=12):
@@ -104,6 +104,25 @@ class UserRegistrationForm(UserCreationForm):
         }),
         label=_('Last Name')
     )
+    chinese_name = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': _('Chinese Name (optional)'),
+        }),
+        label=_('Chinese Name')
+    )
+    service_cities = forms.ModelMultipleChoiceField(
+        queryset=ServiceCity.objects.none(),
+        required=False,
+        widget=forms.SelectMultiple(attrs={
+            'class': 'form-control',
+            'size': '5',
+        }),
+        label=_('Service Cities'),
+        help_text=_('Cities/regions this field engineer covers (hold Ctrl/Cmd for multiple)')
+    )
     roles = build_admin_roles_field(required=True)
     password1 = forms.CharField(
         required=False,
@@ -168,7 +187,7 @@ class UserRegistrationForm(UserCreationForm):
         fields = (
             'username', 'email', 'first_name', 'last_name', 
             'password1', 'password2', 'roles', 'phone_number', 
-            'language_preference', 'use_random_password', 'must_change_password'
+            'language_preference', 'use_random_password', 'must_change_password', 'chinese_name', 'service_cities'
         )
 
     def is_edit_mode(self):
@@ -189,6 +208,7 @@ class UserRegistrationForm(UserCreationForm):
         # Update labels
         self.fields['username'].label = _('Username')
         self.fields['roles'].queryset = AdminRole.objects.filter(is_active=True).order_by('name')
+        self.fields['service_cities'].queryset = ServiceCity.objects.filter(is_active=True)
 
         if self.is_edit_mode():
             self.fields['roles'].initial = self.instance.roles.all()
@@ -213,6 +233,7 @@ class UserRegistrationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        user.chinese_name = self.cleaned_data.get('chinese_name', '')
         user.phone_number = self.cleaned_data['phone_number']
         user.language_preference = self.cleaned_data['language_preference']
         user.must_change_password = self.cleaned_data['must_change_password']
@@ -224,6 +245,7 @@ class UserRegistrationForm(UserCreationForm):
         if commit:
             user.save()
             user.roles.set(self.cleaned_data['roles'])
+            user.service_cities.set(self.cleaned_data.get('service_cities', []))
         else:
             user.set_admin_roles(role.code for role in self.cleaned_data['roles'])
         return user
@@ -258,6 +280,16 @@ class SuperuserUserForm(UserCreationForm):
             'placeholder': _('Last Name'),
         }),
         label=_('Last Name')
+    )
+    chinese_name = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': _('Chinese Name (optional)'),
+        }),
+        label=_('Chinese Name'),
+        help_text=_('Simplified-Chinese name; the mini program login looks engineers up by this.')
     )
     employee_id = forms.CharField(
         max_length=50,
@@ -374,6 +406,16 @@ class SuperuserUserForm(UserCreationForm):
         label=_('Managed Locations'),
         help_text=_('Locations this viewer has read-only access to (hold Ctrl/Cmd for multiple)')
     )
+    service_cities = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
+        required=False,
+        widget=forms.SelectMultiple(attrs={
+            'class': 'form-control',
+            'size': '5',
+        }),
+        label=_('Service Cities'),
+        help_text=_('Cities/regions this field engineer covers (hold Ctrl/Cmd for multiple)')
+    )
     
     # Additional settings
     language_preference = forms.ChoiceField(
@@ -435,9 +477,9 @@ class SuperuserUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = (
-            'username', 'email', 'first_name', 'last_name', 'employee_id',
+            'username', 'email', 'first_name', 'last_name', 'chinese_name', 'employee_id',
             'phone_number', 'department', 'job_title', 'company', 'division', 'manager',
-            'roles', 'managed_company', 'managed_divisions', 'managed_locations',
+            'roles', 'managed_company', 'managed_divisions', 'managed_locations', 'service_cities',
             'language_preference', 'timezone', 'is_active', 'is_staff',
             'password1', 'password2', 'use_random_password', 'must_change_password'
         )
@@ -462,6 +504,7 @@ class SuperuserUserForm(UserCreationForm):
         self.fields['managed_company'].queryset = Company.objects.filter(status='active')
         self.fields['managed_divisions'].queryset = Division.objects.filter(status='active')
         self.fields['managed_locations'].queryset = Location.objects.filter(status='active')
+        self.fields['service_cities'].queryset = ServiceCity.objects.filter(is_active=True)
 
         if self.is_edit_mode():
             self.fields['roles'].initial = self.instance.roles.all()
@@ -502,6 +545,7 @@ class SuperuserUserForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        user.chinese_name = self.cleaned_data.get('chinese_name', '')
         user.employee_id = self.cleaned_data.get('employee_id')
         user.phone_number = self.cleaned_data.get('phone_number', '')
         user.department = self.cleaned_data.get('department', '')
@@ -529,6 +573,8 @@ class SuperuserUserForm(UserCreationForm):
                 user.managed_divisions.set(self.cleaned_data['managed_divisions'])
             if 'managed_locations' in self.cleaned_data:
                 user.managed_locations.set(self.cleaned_data['managed_locations'])
+            if 'service_cities' in self.cleaned_data:
+                user.service_cities.set(self.cleaned_data['service_cities'])
         else:
             user.set_admin_roles(role.code for role in self.cleaned_data.get('roles', []))
         
@@ -543,7 +589,7 @@ class UserProfileForm(forms.ModelForm):
         model = User
         fields = [
             'first_name', 'last_name', 'email', 'phone_number', 
-            'profile_image'
+            'profile_image', 'chinese_name'
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={
@@ -553,6 +599,10 @@ class UserProfileForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': _('Last Name')
+            }),
+            'chinese_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Chinese Name')
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
@@ -569,6 +619,7 @@ class UserProfileForm(forms.ModelForm):
         labels = {
             'first_name': _('First Name'),
             'last_name': _('Last Name'),
+            'chinese_name': _('Chinese Name'),
             'email': _('Email Address'),
             'phone_number': _('Phone Number'),
             'profile_image': _('Profile Image'),

@@ -1,3 +1,4 @@
+<wxs module="i18n" src="../../utils/i18n.wxs" />
 <view class="container">
   <view class="card" wx:if="{{inspection}}">
     <view class="row">
@@ -27,22 +28,26 @@
     <view class="btn" style="flex:1;margin-top:0;margin-left:16rpx;" bindtap="addDevice">新增设备</view>
   </view>
 
-  <input class="input" style="margin-bottom:16rpx;" placeholder="搜索 SN / Asset ID / 型号 / Usage"
-         value="{{search}}" bindinput="onSearch" />
-
-  <view wx:for="{{visibleDevices}}" wx:key="client_device_uid" class="card"
-        data-uid="{{item.client_device_uid}}" bindtap="openDevice">
-    <view class="row">
-      <view style="font-weight:600;">{{item.category}} · {{item.brand_model}}</view>
-      <view class="tag {{item.collected_at ? 'tag-ok' : ''}}">
-        {{item.collected_at ? '已检查' : (item.photo_required ? '需拍照' : '待检查')}}
-      </view>
+  <!-- Blind-count (盲盘) progress: recorded / expected. The master asset list is
+       intentionally NOT shown; the engineer adds assets one at a time. -->
+  <view class="card" wx:if="{{inspection}}">
+    <view class="row" style="justify-content:space-between;align-items:center;">
+      <text class="field-label">盲盘进度（已记录 / 应盘）</text>
+      <text style="font-weight:600;font-size:32rpx;">{{recordedCount}} / {{expectedTotal}}</text>
     </view>
-    <view class="muted" style="margin-top:6rpx;">SN: {{item.sn || '—'}} · Asset ID: {{item.asset_id_text || '—'}}</view>
-    <view class="muted">Usage: {{item.usage || '—'}}</view>
   </view>
 
-  <view wx:if="{{!visibleDevices.length}}" class="muted">无匹配设备（请先下载离线数据或扫码新增）。</view>
+  <view class="muted" style="margin:8rpx 0 16rpx;">我已记录的设备（点击可修改）：</view>
+  <view wx:for="{{recorded}}" wx:key="client_device_uid" class="card"
+        data-uid="{{item.client_device_uid}}" bindtap="openDevice">
+    <view class="row">
+      <view style="font-weight:600;">{{i18n.categoryZh(item.category)}} · {{item.brand_model}}</view>
+      <view class="tag tag-ok">已记录</view>
+    </view>
+    <view class="muted" style="margin-top:6rpx;">序列号: {{item.sn || '—'}} · 资产编号: {{item.asset_id_text || '—'}}</view>
+    <view class="muted">用途: {{item.usage ? i18n.usageZh(item.usage) : '—'}}</view>
+  </view>
+  <view wx:if="{{!recorded.length}}" class="muted">尚未记录设备，请扫码或手动新增。</view>
 
   <view class="card">
     <view class="title" style="font-size:30rpx;margin-bottom:12rpx;">巡检流程</view>
