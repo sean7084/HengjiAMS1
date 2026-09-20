@@ -3,7 +3,7 @@ const request = require('../../utils/request');
 const db = require('../../utils/db');
 
 Page({
-  data: { id: '', inspection: null, devices: [], visibleDevices: [], search: '', loading: false, offline: false },
+  data: { id: '', inspection: null, devices: [], recorded: [], recordedCount: 0, expectedTotal: 0, loading: false, offline: false },
 
   onLoad(query) {
     this.setData({ id: query.id });
@@ -26,26 +26,18 @@ Page({
       }
     } finally {
       this.setData({ loading: false });
-      this.applyFilter();
+      this.computeCounts();
     }
   },
 
-  onSearch(e) {
-    this.setData({ search: e.detail.value });
-    this.applyFilter();
-  },
-
-  applyFilter() {
-    const term = (this.data.search || '').trim().toLowerCase();
+  // Blind count (盲盘): the master/expected asset list is hidden. Show only the
+  // recorded/expected progress plus the engineer's own recorded entries so they
+  // can review/correct them without seeing what is still outstanding.
+  computeCounts() {
     const all = this.data.devices || [];
-    const visibleDevices = !term
-      ? all
-      : all.filter((d) =>
-          [d.sn, d.asset_id_text, d.category, d.brand_model, d.usage].some((v) =>
-            (v || '').toLowerCase().includes(term)
-          )
-        );
-    this.setData({ visibleDevices });
+    const recorded = all.filter((d) => d.collected_at);
+    const expectedTotal = all.filter((d) => !d.is_new_device).length;
+    this.setData({ recorded, recordedCount: recorded.length, expectedTotal });
   },
 
   // Cache checklist + this inspection so the engineer can work without signal.
@@ -56,6 +48,7 @@ Page({
       const detail = await request.request(`/inspections/${this.data.id}/`);
       db.setInspection(this.data.id, detail);
       this.setData({ inspection: detail, devices: detail.devices || [] });
+      this.computeCounts();
       wx.showToast({ title: '已缓存，可离线巡检', icon: 'success' });
     } catch (err) {
       wx.showToast({ title: '下载失败（离线）', icon: 'none' });

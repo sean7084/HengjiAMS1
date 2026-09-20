@@ -1,20 +1,28 @@
+<wxs module="i18n" src="../../utils/i18n.wxs" />
 <view class="container">
   <view class="card">
-    <view class="title">{{isNew ? '新增设备' : (device.category + ' · ' + (device.brand_model || ''))}}</view>
-    <view class="muted" style="margin-top:6rpx;">SN: {{device.sn || '—'}} · Asset ID: {{device.asset_id_text || '—'}}</view>
+    <view class="title">{{isNew ? '新增设备' : (i18n.categoryZh(device.category) + ' · ' + (device.brand_model || ''))}}</view>
+    <view class="muted" style="margin-top:6rpx;">序列号: {{device.sn || '—'}} · 资产编号: {{device.asset_id_text || '—'}}</view>
   </view>
 
+  <!-- Identity (new device): SN / Asset ID accept 1D barcode scans -->
   <view class="card" wx:if="{{isNew}}">
-    <view class="field"><text class="field-label">类别 Category</text>
+    <view class="field"><text class="field-label">类别</text>
       <input class="input" data-field="category" value="{{device.category}}" bindinput="onIdentity" placeholder="Desktop / Monitor / Printer …" /></view>
-    <view class="field"><text class="field-label">型号 Brand-Model</text>
+    <view class="field"><text class="field-label">型号</text>
       <input class="input" data-field="brand_model" value="{{device.brand_model}}" bindinput="onIdentity" /></view>
-    <view class="field"><text class="field-label">SN</text>
-      <input class="input" data-field="sn" value="{{device.sn}}" bindinput="onIdentity" /></view>
-    <view class="field"><text class="field-label">Asset ID</text>
-      <input class="input" data-field="asset_id_text" value="{{device.asset_id_text}}" bindinput="onIdentity" /></view>
-    <view class="field"><text class="field-label">Usage</text>
-      <input class="input" data-field="usage" value="{{device.usage}}" bindinput="onIdentity" placeholder="xstore / label / public …" /></view>
+    <view class="field"><text class="field-label">序列号 (SN)</text>
+      <view class="row">
+        <input class="input" style="flex:1;" data-field="sn" value="{{device.sn}}" bindinput="onIdentity" placeholder="输入或扫码" />
+        <view class="btn" style="margin-left:12rpx;margin-top:0;" data-field="sn" bindtap="scanField">扫码</view>
+      </view></view>
+    <view class="field"><text class="field-label">资产编号 (Asset ID)</text>
+      <view class="row">
+        <input class="input" style="flex:1;" data-field="asset_id_text" value="{{device.asset_id_text}}" bindinput="onIdentity" placeholder="输入或扫码" />
+        <view class="btn" style="margin-left:12rpx;margin-top:0;" data-field="asset_id_text" bindtap="scanField">扫码</view>
+      </view></view>
+    <view class="field"><text class="field-label">用途 (Usage)</text>
+      <input class="input" data-field="usage" value="{{device.usage}}" bindinput="onIdentity" placeholder="收银 / 标签 / 公共 …" /></view>
   </view>
 
   <view class="card">
@@ -27,19 +35,48 @@
 
   <view class="card">
     <block wx:for="{{captureFields}}" wx:key="*this" wx:for-item="f">
-      <view class="field" wx:if="{{fieldLabels[f]}}">
-        <text class="field-label">{{fieldLabels[f]}}</text>
-        <input class="input" data-field="{{f}}" value="{{fields[f]}}" bindinput="onField" />
+      <!-- Dropdown picker (PC readings), with an "其他" free-text escape -->
+      <view class="field" wx:if="{{pickerRanges[f]}}">
+        <text class="field-label">{{fieldLabels[f]}}{{requiredFlags[f] ? ' *' : ''}}</text>
+        <picker mode="selector" range="{{pickerRanges[f]}}" value="{{pickerIndex[f]}}" data-field="{{f}}" bindchange="onPickerChange">
+          <view class="input" style="display:flex;justify-content:space-between;align-items:center;">
+            <text>{{fields[f] || '请选择'}}</text>
+            <text class="muted">▾</text>
+          </view>
+        </picker>
+        <input wx:if="{{otherMode[f]}}" class="input" style="margin-top:8rpx;" data-field="{{f}}" value="{{fields[f]}}" bindinput="onField" placeholder="请输入其他规格" />
       </view>
-      <view class="field" wx:if="{{f === 'overall_photo'}}">
+
+      <!-- Company-phone switch (iOS devices) -->
+      <view class="field" wx:elif="{{f === 'is_company_phone'}}">
+        <view class="row" style="justify-content:space-between;align-items:center;">
+          <text class="field-label">{{fieldLabels[f]}}</text>
+          <switch checked="{{fields.is_company_phone}}" bindchange="onCompanyPhone" color="#07c160" />
+        </view>
+      </view>
+
+      <!-- Company-phone user email (required when the switch is on) -->
+      <view class="field" wx:elif="{{f === 'user_email' && fields.is_company_phone}}">
+        <text class="field-label">{{fieldLabels[f]}} *</text>
+        <input class="input" data-field="user_email" value="{{fields.user_email}}" bindinput="onField" placeholder="使用者邮箱（email 格式）" />
+      </view>
+
+      <!-- Photos -->
+      <view class="field" wx:elif="{{f === 'overall_photo'}}">
         <text class="field-label">设备全貌照片</text>
         <view class="btn" data-part="overall_photo" bindtap="choosePhoto">{{overallPhoto ? '重拍' : '拍照 / 选择'}}</view>
         <image wx:if="{{overallPhoto}}" src="{{overallPhoto}}" mode="aspectFill" style="width:200rpx;height:200rpx;margin-top:12rpx;border-radius:10rpx;" />
       </view>
-      <view class="field" wx:if="{{f === 'serial_photo'}}">
+      <view class="field" wx:elif="{{f === 'serial_photo'}}">
         <text class="field-label">序列号照片</text>
         <view class="btn" data-part="serial_photo" bindtap="choosePhoto">{{serialPhoto ? '重拍' : '拍照 / 选择'}}</view>
         <image wx:if="{{serialPhoto}}" src="{{serialPhoto}}" mode="aspectFill" style="width:200rpx;height:200rpx;margin-top:12rpx;border-radius:10rpx;" />
+      </view>
+
+      <!-- Plain-text reading -->
+      <view class="field" wx:elif="{{fieldLabels[f]}}">
+        <text class="field-label">{{fieldLabels[f]}}{{requiredFlags[f] ? ' *' : ''}}</text>
+        <input class="input" data-field="{{f}}" value="{{fields[f]}}" bindinput="onField" />
       </view>
     </block>
   </view>

@@ -163,7 +163,7 @@ CATEGORY_CAPTURE_FIELDS = {
     'Monitor': ['intact_asset_tag', 'comment', 'overall_photo', 'serial_photo'],
     'Printer': ['intact_asset_tag', 'comment', 'overall_photo', 'serial_photo'],
     'Scanner': ['intact_asset_tag', 'comment', 'overall_photo', 'serial_photo'],
-    'IOS_Device': ['ios_version', 'intact_asset_tag', 'comment', 'overall_photo', 'serial_photo'],
+    'IOS_Device': ['ios_version', 'is_company_phone', 'user_email', 'intact_asset_tag', 'comment', 'overall_photo', 'serial_photo'],
     'AR_Device': ['intact_asset_tag', 'comment', 'overall_photo', 'serial_photo'],
     'Other': ['intact_asset_tag', 'comment', 'overall_photo'],
 }
@@ -174,6 +174,42 @@ def capture_fields_for_category(category):
     """Return the capture-field list for a (normalized) device category."""
     normalized = normalize_device_category(category) or ''
     return CATEGORY_CAPTURE_FIELDS.get(normalized, DEFAULT_CAPTURE_FIELDS)
+
+
+# ---------------------------------------------------------------------------
+# Structured picker options + required readings (blind-count field capture)
+# ---------------------------------------------------------------------------
+# Dropdown option lists for PC readings so audits stay consistent; the client
+# also offers an "Other" free-text escape hatch for out-of-list hardware.
+CPU_OPTIONS = ['Intel Ultra 5', 'Intel i5', 'AMD 6650U', 'AMD 5650U', 'AMD 4650U', 'AMD 3500U']
+MEMORY_OPTIONS = ['32 GB', '16 GB', '8 GB', '4 GB']
+HDD_OPTIONS = ['512 GB', '256 GB', '128 GB', '1T']
+WINDOWS_OPTIONS = [
+    'Windows 11 专业版', 'Windows 10 专业版', 'Windows 7 专业版', 'Windows 7 家庭版',
+]
+
+# Fields rendered as dropdowns on the device form.
+FIELD_OPTIONS = {
+    'cpu': CPU_OPTIONS,
+    'memory': MEMORY_OPTIONS,
+    'hdd': HDD_OPTIONS,
+    'windows_version': WINDOWS_OPTIONS,
+}
+
+# Readings that must be filled before a device can be saved, per category.
+# (Company-phone user_email is required conditionally when is_company_phone.)
+CATEGORY_REQUIRED_FIELDS = {
+    'Desktop': ['ip_address', 'cpu', 'memory', 'hdd', 'windows_version', 'drive_c_free_space'],
+    'Laptop': ['ip_address', 'cpu', 'memory', 'hdd', 'windows_version', 'drive_c_free_space'],
+    'IOS_Device': ['ios_version'],
+}
+DEFAULT_REQUIRED_FIELDS = []
+
+
+def required_fields_for_category(category):
+    """Return the must-fill reading list for a (normalized) device category."""
+    normalized = normalize_device_category(category) or ''
+    return CATEGORY_REQUIRED_FIELDS.get(normalized, DEFAULT_REQUIRED_FIELDS)
 
 
 # ---------------------------------------------------------------------------
