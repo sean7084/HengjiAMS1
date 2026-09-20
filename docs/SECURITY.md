@@ -114,7 +114,7 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 - **Fail-fast guards** (`settings.py`) refuse to start when `DEBUG=False` and:
   - `DJANGO_SECRET_KEY` is unset (still the insecure dev fallback), or
   - `DJANGO_FIELD_ENCRYPTION_KEY` is unset.
-- Never commit secrets. The GitHub automation token lives in a separate `.env.local` and is unrelated to the Django runtime `.env`.
+- Never commit secrets. Local secrets live in a gitignored `.env` at the repository root, which holds both the Django runtime settings and the GitHub automation token (`GITHUB_CLASSIC_TOKEN`). The automation scripts fall back to a legacy `.env.local` if `.env` is absent. Note that `load_local_env()` exports every key in `.env` into the process environment, so in production that file must contain only what the app needs — never add the GitHub token to a production `.env`.
 
 ---
 

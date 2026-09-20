@@ -1,7 +1,7 @@
 # Create the GitHub issue backlog for the Kering Store Inspection Mini Program.
 #
 # Follows the repo convention (see setup-github-labels.ps1): reads a classic token
-# from .env.local (GITHUB_CLASSIC_TOKEN) and POSTs issues via the GitHub REST API.
+# from .env (GITHUB_CLASSIC_TOKEN) and POSTs issues via the GitHub REST API.
 # An Epic is created first; each child issue references it.
 #
 # Most items are already implemented in this branch - their bodies are prefixed
@@ -14,8 +14,9 @@ param([switch]$WhatIf)
 
 $repoOwner = "sean7084"
 $repoName  = "HengjiAMS1"
-$tokenLine = (Get-Content '.env.local' | Select-String '^GITHUB_CLASSIC_TOKEN=')
-if (-not $tokenLine -and -not $WhatIf) { throw "GITHUB_CLASSIC_TOKEN not found in .env.local" }
+$envFile = @('.env', '.env.local') | Where-Object { Test-Path $_ } | Select-Object -First 1
+$tokenLine = if ($envFile) { (Get-Content $envFile | Select-String '^GITHUB_CLASSIC_TOKEN=') } else { $null }
+if (-not $tokenLine -and -not $WhatIf) { throw "GITHUB_CLASSIC_TOKEN not found in .env (or .env.local)" }
 $token = if ($tokenLine) { $tokenLine.ToString().Split('=')[1] } else { '' }
 $headers = @{ "Authorization" = "Bearer $token"; "Accept" = "application/vnd.github.v3+json" }
 $baseUrl = "https://api.github.com/repos/$repoOwner/$repoName"
