@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import WeChatIdentity
+from accounts.models import User, WeChatIdentity
 from accounts.wechat import WeChatAuthError, code2session
 
 from .serializers import UserSerializer
@@ -26,6 +26,35 @@ def _tokens_for(user):
     """Mint a SimpleJWT access/refresh pair for a user."""
     refresh = RefreshToken.for_user(user)
     return {'access': str(refresh.access_token), 'refresh': str(refresh)}
+
+
+class WeChatLookupView(APIView):
+    """Resolve a Chinese name to matching engineer(s) for login confirmation.
+
+    Unauthenticated. The mini program bind screen calls this after the engineer
+    types their Chinese name, then shows the English name to confirm before the
+    password step. Returns all active matches so the client can disambiguate when
+    two engineers share a Chinese name.
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        chinese_name = (request.data.get('chinese_name') or '').strip()
+        if not chinese_name:
+            return Response({'error': 'chinese_name is required.'}, status=400)
+
+        users = User.objects.filter(is_active=True, chinese_name=chinese_name)
+        matches = [
+            {
+                'username': u.username,
+                'english_name': u.get_full_name() or u.username,
+                'chinese_name': u.chinese_name,
+            }
+            for u in users
+        ]
+        return Response({'found': bool(matches), 'matches': matches}, status=200)
 
 
 class WeChatBindView(APIView):

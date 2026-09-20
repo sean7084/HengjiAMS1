@@ -16,18 +16,24 @@ class UserSerializer(serializers.ModelSerializer):
 
     admin_role = serializers.CharField(read_only=True)
     admin_roles = serializers.SerializerMethodField()
+    english_name = serializers.CharField(source='get_full_name', read_only=True)
+    service_city_names = serializers.SerializerMethodField()
 
     def get_admin_roles(self, obj):
         return obj.get_admin_role_codes()
 
+    def get_service_city_names(self, obj):
+        return [c.name_zh or c.name_en for c in obj.service_cities.all()]
+
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'first_name', 'last_name',
-            'admin_role', 'admin_roles', 'phone_number', 'department', 'job_title',
-            'two_factor_enabled', 'language_preference', 'profile_image'
+            'id', 'username', 'email', 'first_name', 'last_name', 'chinese_name',
+            'english_name', 'admin_role', 'admin_roles', 'phone_number', 'department',
+            'job_title', 'two_factor_enabled', 'language_preference', 'profile_image',
+            'service_cities', 'service_city_names',
         ]
-        read_only_fields = ['id', 'two_factor_enabled']
+        read_only_fields = ['id', 'two_factor_enabled', 'service_cities']
 
 
 class CompanySerializer(serializers.ModelSerializer):

@@ -32,6 +32,31 @@ class AdminRole(models.Model):
         return self.name
 
 
+class ServiceCity(models.Model):
+    """A city/region a field engineer covers (multi-select on the engineer account).
+
+    Managed by admins; the mini program records which cities an engineer serves
+    (e.g. Beijing, Tianjin). Kept separate from companies.Location, which models
+    individual stores rather than service areas.
+    """
+
+    name_en = models.CharField(max_length=80, unique=True, verbose_name=_('City (English)'))
+    name_zh = models.CharField(max_length=80, blank=True, verbose_name=_('City (Chinese)'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Active'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('Service City')
+        verbose_name_plural = _('Service Cities')
+        ordering = ['name_en']
+
+    def __str__(self):
+        if self.name_zh and self.name_zh != self.name_en:
+            return f'{self.name_zh} ({self.name_en})'
+        return self.name_zh or self.name_en
+
+
 class User(AbstractUser):
     """
     Custom user model for HengJi AMS with additional fields.
@@ -79,6 +104,13 @@ class User(AbstractUser):
     )
     
     # Additional user fields
+    chinese_name = models.CharField(
+        max_length=100,
+        blank=True,
+        db_index=True,
+        verbose_name=_('Chinese Name'),
+        help_text=_('Simplified-Chinese name; the mini program login looks engineers up by this.'),
+    )
     employee_id = models.CharField(
         max_length=50,
         unique=True,
@@ -193,6 +225,15 @@ class User(AbstractUser):
         related_name='viewers',
         verbose_name=_('Managed Locations'),
         help_text=_('Locations this viewer has read-only access to')
+    )
+
+    # For field engineers: cities/regions they cover (mini program account).
+    service_cities = models.ManyToManyField(
+        'accounts.ServiceCity',
+        blank=True,
+        related_name='engineers',
+        verbose_name=_('Service Cities'),
+        help_text=_('Cities/regions this field engineer covers (select multiple).')
     )
     
     # Metadata

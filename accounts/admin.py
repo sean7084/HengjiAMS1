@@ -5,7 +5,7 @@ Configures Django admin interface for User and UserSession models.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import AdminRole, User, UserSession
+from .models import AdminRole, ServiceCity, User, UserSession
 
 
 @admin.register(AdminRole)
@@ -16,17 +16,25 @@ class AdminRoleAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 
+@admin.register(ServiceCity)
+class ServiceCityAdmin(admin.ModelAdmin):
+    list_display = ('name_en', 'name_zh', 'is_active', 'updated_at')
+    list_filter = ('is_active',)
+    search_fields = ('name_en', 'name_zh')
+    ordering = ('name_en',)
+
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     """
     Custom admin interface for the User model.
     Extends Django's built-in UserAdmin to support additional fields and admin roles.
     """
-    list_display = ('username', 'email', 'first_name', 'last_name', 'admin_roles_display', 'two_factor_enabled', 'is_active', 'date_joined')
-    list_filter = ('roles', 'two_factor_enabled', 'is_active', 'is_staff', 'is_superuser', 'date_joined', 'language_preference')
-    search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'employee_id')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'chinese_name', 'admin_roles_display', 'two_factor_enabled', 'is_active', 'date_joined')
+    list_filter = ('roles', 'service_cities', 'two_factor_enabled', 'is_active', 'is_staff', 'is_superuser', 'date_joined', 'language_preference')
+    search_fields = ('username', 'first_name', 'last_name', 'chinese_name', 'email', 'phone_number', 'employee_id')
     ordering = ('username',)
-    filter_horizontal = ('roles', 'groups', 'user_permissions', 'managed_divisions', 'managed_locations')
+    filter_horizontal = ('roles', 'groups', 'user_permissions', 'managed_divisions', 'managed_locations', 'service_cities')
     
     # Define fieldsets for the admin form
     fieldsets = (
@@ -34,11 +42,16 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'password')
         }),
         (_('Personal info'), {
-            'fields': ('first_name', 'last_name', 'email', 'phone_number', 'profile_image', 'employee_id')
+            'fields': ('first_name', 'last_name', 'chinese_name', 'email', 'phone_number', 'profile_image', 'employee_id')
         }),
         (_('Administrator Role System'), {
             'fields': ('roles', 'managed_company', 'managed_divisions', 'managed_locations'),
             'description': _('Configure administrator access levels and scope')
+        }),
+        (_('Field Engineer (Mini Program)'), {
+            'fields': ('service_cities',),
+            'classes': ('collapse',),
+            'description': _('Cities/regions this field engineer covers; used by the WeChat mini program.')
         }),
         (_('Company Association'), {
             'fields': ('company', 'division'),
@@ -67,7 +80,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'roles'),
+            'fields': ('username', 'email', 'password1', 'password2', 'roles', 'chinese_name', 'service_cities'),
         }),
     )
     
@@ -77,7 +90,7 @@ class UserAdmin(BaseUserAdmin):
         """Optimize queryset with related objects."""
         return super().get_queryset(request).select_related(
             'company', 'division', 'managed_company', 'manager'
-        ).prefetch_related('roles', 'managed_divisions', 'managed_locations')
+        ).prefetch_related('roles', 'managed_divisions', 'managed_locations', 'service_cities')
 
     def admin_roles_display(self, obj):
         return obj.get_admin_roles_display()
