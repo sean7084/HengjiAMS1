@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('companies', '0014_company_default_quotation_template'),
-        ('inspections', '0001_initial'),
+        ('inspections', '0002_inspectiondevice_is_company_phone_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
