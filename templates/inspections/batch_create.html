@@ -1,0 +1,105 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "New Inspection Batch" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .flow-card {
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 2rem;
+        height: 100%;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        background: #fff;
+    }
+    .flow-card:hover {
+        border-color: var(--secondary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        color: inherit;
+        text-decoration: none;
+    }
+    .flow-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-plus-circle text-primary me-2"></i>
+                {% trans "Create Inspection Batch" %}
+            </h1>
+            <p class="text-muted mb-0">{% trans "Choose how to populate the batch." %}</p>
+        </div>
+        <a href="{% url 'inspections:batch_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> {% trans "Back to Batches" %}
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <a href="{% url 'inspections:batch_create_by_brand' %}" class="flow-card">
+                <div class="flow-icon" style="background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h4 class="h5">{% trans "By Brand" %}</h4>
+                <p class="text-muted mb-2">
+                    {% trans "Pick a brand and a date range. The system creates one inspection per active store under that brand, spreading dates evenly across the range." %}
+                </p>
+                <ul class="small text-muted mb-0 ps-3">
+                    <li>{% trans "Fast bulk-create without a spreadsheet" %}</li>
+                    <li>{% trans "Round-robin scheduling across stores" %}</li>
+                    <li>{% trans "Assign a primary engineer for the batch" %}</li>
+                </ul>
+                <div class="mt-3">
+                    <span class="btn btn-primary btn-sm">
+                        <i class="fas fa-arrow-right"></i> {% trans "Continue" %}
+                    </span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6">
+            <a href="{% url 'inspections:batch_import' %}" class="flow-card">
+                <div class="flow-icon" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: #fff;">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h4 class="h5">{% trans "Schedule Upload" %}</h4>
+                <p class="text-muted mb-2">
+                    {% trans "Upload a schedule.xlsx (and optionally a master asset list) to create inspections from the Kering master dataset." %}
+                </p>
+                <ul class="small text-muted mb-0 ps-3">
+                    <li>{% trans "Columns: Brand, Store Name, JDA code, inspection_date" %}</li>
+                    <li>{% trans "Optional asset list populates expected devices" %}</li>
+                    <li>{% trans "Tracked as an ImportRun (rollback supported)" %}</li>
+                </ul>
+                <div class="mt-3">
+                    <span class="btn btn-success btn-sm">
+                        <i class="fas fa-arrow-right"></i> {% trans "Continue" %}
+                    </span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info mt-4">
+        <i class="fas fa-info-circle me-2"></i>
+        {% trans "Both flows produce the same underlying StoreInspection records. The batch is just a grouping handle for the calendar dashboard and the cross-store asset-list export." %}
+    </div>
+</div>
+{% endblock %}

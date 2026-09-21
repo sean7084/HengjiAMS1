@@ -426,34 +426,6 @@ class User(AbstractUser):
         return (self.is_superadmin() or
                 self.has_perm('companies.add_company'))
     
-    def can_create_audit(self):
-        """Check if user can create asset audits."""
-        return (self.is_superadmin() or 
-                self.is_it_administrator() or
-                self.has_perm('audit.add_assetaudit'))
-    
-    def can_edit_audit(self, audit=None):
-        """Check if user can edit a specific audit."""
-        if self.is_superadmin():
-            return True
-        if self.is_it_administrator():
-            if audit and hasattr(audit, 'company'):
-                # Check if user has access to the audit's company
-                return audit.company in self.get_accessible_companies()
-            return True
-        return self.has_perm('audit.change_assetaudit')
-    
-    def can_view_audit(self, audit=None):
-        """Check if user can view a specific audit or audit logs."""
-        if self.is_superadmin():
-            return True
-        if self.is_it_administrator():
-            if audit and hasattr(audit, 'company'):
-                # Check if user has access to the audit's company
-                return audit.company in self.get_accessible_companies()
-            return True
-        return self.has_perm('audit.view_assetaudit') or self.has_perm('audit.view_auditlog')
-    
     def can_view_reports(self):
         """Check if user can view reports."""
         return (self.is_superadmin() or 
@@ -499,6 +471,14 @@ class User(AbstractUser):
         if inspection is not None:
             return inspection.engineer_id == self.id
         return True
+
+    def can_view_inspections(self):
+        """Web-UI read access to the inspections module (batches, calendar, exports)."""
+        return self.is_superadmin() or self.is_it_administrator() or self.is_inspection_engineer()
+
+    def can_manage_inspections(self):
+        """Web-UI write access: create batches, import schedules, configure exports."""
+        return self.is_superadmin() or self.is_it_administrator()
 
     def get_assigned_inspections(self):
         """Return store inspections this user is responsible for onsite."""
@@ -779,12 +759,6 @@ class ReceivedEmailMessage(models.Model):
         return (self.role == 'admin' or 
                 self.is_superuser or
                 self.has_perm('companies.add_company'))
-    
-    def can_view_audit_legacy(self):
-        """Legacy method for audit view permissions."""
-        return (self.role in ['admin', 'manager'] or 
-                self.is_superuser or
-                self.has_perm('audit.view_auditlog'))
     
     def can_view_reports_legacy(self):
         """Legacy method for reports view permissions."""

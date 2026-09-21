@@ -1,0 +1,191 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-zone {
+        border: 2px dashed #ced4da;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.2s;
+        background: #f8f9fa;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+        border-color: var(--secondary-color);
+        background: #eef4fb;
+    }
+    .upload-zone input[type="file"] {
+        cursor: pointer;
+    }
+    .schema-table {
+        font-size: 0.85rem;
+    }
+    .schema-table code {
+        background: #f1f3f5;
+        padding: 1px 5px;
+        border-radius: 3px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-file-upload text-success me-2"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted mb-0">{% trans "Upload a Kering schedule workbook to create a batch of store inspections." %}</p>
+        </div>
+        <a href="{{ back_url }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> {% trans "Back" %}
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label">{{ form.company.label }}</label>
+                                {{ form.company }}
+                                {% if form.company.errors %}<div class="text-danger small">{{ form.company.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.engineer.id_for_label }}" class="form-label">{{ form.engineer.label }}</label>
+                                {{ form.engineer }}
+                                <div class="form-text">{% trans "Optional default onsite engineer." %}</div>
+                                {% if form.engineer.errors %}<div class="text-danger small">{{ form.engineer.errors|striptags }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="form-label">{{ form.schedule_file.label }} <span class="text-danger">*</span></label>
+                            <div class="upload-zone" id="scheduleZone">
+                                {{ form.schedule_file }}
+                                <div class="form-text mt-2">{{ form.schedule_file.help_text }}</div>
+                            </div>
+                            {% if form.schedule_file.errors %}<div class="text-danger small mt-1">{{ form.schedule_file.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">{{ form.assets_file.label }}</label>
+                            <div class="upload-zone" id="assetsZone">
+                                {{ form.assets_file }}
+                                <div class="form-text mt-2">{{ form.assets_file.help_text }}</div>
+                            </div>
+                            {% if form.assets_file.errors %}<div class="text-danger small mt-1">{{ form.assets_file.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ back_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-upload"></i> {% trans "Import & Create Batch" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-table me-2"></i>{% trans "Expected Schedule Columns" %}</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm schema-table mb-0">
+                        <thead>
+                            <tr><th>{% trans "Column" %}</th><th>{% trans "Required" %}</th><th>{% trans "Notes" %}</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Brand</code></td><td>{% trans "Yes" %}</td><td>{% trans "Mapped to Division" %}</td></tr>
+                            <tr><td><code>Store Name</code></td><td>{% trans "Yes" %}</td><td>{% trans "Mapped to Location.name" %}</td></tr>
+                            <tr><td><code>JDA code</code></td><td>{% trans "Yes" %}</td><td>{% trans "Mapped to Location.code" %}</td></tr>
+                            <tr><td><code>inspection_date</code></td><td>{% trans "Yes" %}</td><td>{% trans "Any parseable date" %}</td></tr>
+                            <tr><td><code>Address</code></td><td>{% trans "No" %}</td><td>{% trans "Ignored by importer" %}</td></tr>
+                            <tr><td><code>City</code></td><td>{% trans "No" %}</td><td>{% trans "Ignored by importer" %}</td></tr>
+                            <tr><td><code>device_count</code></td><td>{% trans "No" %}</td><td>{% trans "Informational only" %}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>{% trans "Asset List Columns (optional)" %}</h5>
+                </div>
+                <div class="card-body small text-muted">
+                    <p class="mb-2">{% trans "If you upload a master asset list, it should have these columns:" %}</p>
+                    <p class="mb-0">
+                        <code>STORE</code>, <code>JDA</code>, <code>Asset ID</code>, <code>Category</code>,
+                        <code>Brand-Model</code>, <code>SN</code>, <code>Warranty-start</code>, <code>Usage</code>,
+                        <code>Status</code>, <code>照片需求</code>, <code>大纲</code>, <code>注释</code>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3 mb-0 small">
+                <i class="fas fa-lightbulb me-2"></i>
+                {% trans "Schedule-only imports create empty inspections; engineers add devices onsite via the mini program. Uploading both files pre-populates the expected device list." %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Drag-and-drop affordance for the upload zones.
+['scheduleZone', 'assetsZone'].forEach(function(id) {
+    const zone = document.getElementById(id);
+    if (!zone) return;
+    const input = zone.querySelector('input[type="file"]');
+    if (!input) return;
+    ['dragenter', 'dragover'].forEach(function(ev) {
+        zone.addEventListener(ev, function(e) {
+            e.preventDefault(); e.stopPropagation();
+            zone.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function(ev) {
+        zone.addEventListener(ev, function(e) {
+            e.preventDefault(); e.stopPropagation();
+            zone.classList.remove('dragover');
+        });
+    });
+    zone.addEventListener('drop', function(e) {
+        if (e.dataTransfer.files && e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+        }
+    });
+});
+</script>
+{% endblock %}

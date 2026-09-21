@@ -312,7 +312,7 @@
                                 <li><a class="dropdown-item" href="{% url 'assets:asset_import' %}">
                                     <i class="fas fa-upload"></i> {% trans "Import Assets" %}
                                 </a></li>
-                                {% if user.can_view_audit %}
+                                {% if user.can_view_assets %}
                                 <li><a class="dropdown-item" href="{% url 'assets:asset_log_list' %}">
                                     <i class="fas fa-history"></i> {% trans "Asset Change Logs" %}
                                 </a></li>
@@ -356,26 +356,30 @@
                         </li>
                         {% endif %}
                         
-                        <!-- Audit Management -->
-                        {% if user.can_view_audit %}
+                        <!-- Store Inspections (mini-program workflow) -->
+                        {% if user.can_view_inspections %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-clipboard-check"></i> {% trans "Audit" %}
+                                <i class="fas fa-clipboard-list"></i> {% trans "Inspections" %}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_dashboard' %}">
-                                    <i class="fas fa-chart-line"></i> {% trans "Audit Dashboard" %}
+                                <li><a class="dropdown-item" href="{% url 'inspections:dashboard' %}">
+                                    <i class="fas fa-calendar-alt"></i> {% trans "Dashboard" %}
                                 </a></li>
-                                {% if user.can_create_audit %}
-                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_new' %}">
-                                    <i class="fas fa-plus"></i> {% trans "New Audit" %}
+                                <li><a class="dropdown-item" href="{% url 'inspections:batch_list' %}">
+                                    <i class="fas fa-layer-group"></i> {% trans "Batches" %}
+                                </a></li>
+                                {% if user.can_manage_inspections %}
+                                <li><a class="dropdown-item" href="{% url 'inspections:batch_create' %}">
+                                    <i class="fas fa-plus"></i> {% trans "New Batch" %}
                                 </a></li>
                                 {% endif %}
-                                <li><a class="dropdown-item" href="{% url 'audit:assetaudit_history' %}">
-                                    <i class="fas fa-clock-rotate-left"></i> {% trans "Audit History" %}
+                                <li><a class="dropdown-item" href="{% url 'inspections:inspection_list' %}">
+                                    <i class="fas fa-list"></i> {% trans "All Inspections" %}
                                 </a></li>
-                                <li><a class="dropdown-item" href="{% url 'audit:system_event_list' %}">
-                                    <i class="fas fa-exclamation-triangle"></i> {% trans "System Events" %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'inspections:asset_list_export' %}">
+                                    <i class="fas fa-file-excel"></i> {% trans "Export Asset List" %}
                                 </a></li>
                             </ul>
                         </li>

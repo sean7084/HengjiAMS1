@@ -11,7 +11,6 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views.decorators.http import require_POST
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, Count, Sum
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -27,7 +26,7 @@ import io
 from decimal import Decimal, InvalidOperation
 from collections import OrderedDict
 
-from .models import Asset, AssetCategory, AssetBrand, AssetModel, AssetAssignment, AssetMaintenance
+from .models import Asset, AssetActivityLog, AssetCategory, AssetBrand, AssetFieldChange, AssetModel, AssetAssignment, AssetMaintenance
 from .forms import (
     AssetAssignmentForm,
     AssetBulkEditForm,
@@ -43,7 +42,6 @@ from .forms import (
     hardware_model_queryset,
 )
 from companies.models import Company, Division, Location, ImportRunChange
-from audit.models import AuditLog, ChangeLog
 from utils.csv_import import read_csv_rows_with_fallback
 from utils.import_rollback import (
     snapshot_instance,
@@ -89,11 +87,7 @@ def _perform_assets_rollback(request):
 
 
 def _get_accessible_asset_log_queryset(user):
-    asset_content_type = ContentType.objects.get_for_model(Asset)
-    queryset = AuditLog.objects.select_related('user', 'content_type', 'company').prefetch_related('change_logs').filter(
-        Q(content_type=asset_content_type) |
-        Q(action__in=[AuditLog.ActionType.EXPORT, AuditLog.ActionType.IMPORT], description__icontains='asset')
-    )
+    queryset = AssetActivityLog.objects.select_related('user', 'company', 'asset').prefetch_related('field_changes')
 
     if hasattr(user, 'is_superadmin') and user.is_superadmin():
         return queryset
@@ -184,12 +178,12 @@ def _build_asset_change_summary(change_entries):
     )
 
 
-def _create_asset_audit_log(*, action, asset, user, request, description, metadata=None, change_entries=None):
-    audit_log = AuditLog.objects.create(
+def _create_asset_audit_log(*, operation, asset, user, request, description, metadata=None, change_entries=None):
+    activity_log = AssetActivityLog.objects.create(
         user=user,
         company=asset.company,
-        action=action,
-        content_object=asset,
+        operation=operation,
+        asset=asset,
         description=description,
         metadata=metadata or {},
         ip_address=request.META.get('REMOTE_ADDR'),
@@ -197,42 +191,42 @@ def _create_asset_audit_log(*, action, asset, user, request, description, metada
     )
 
     for entry in change_entries or []:
-        ChangeLog.objects.create(
-            audit_log=audit_log,
+        AssetFieldChange.objects.create(
+            activity_log=activity_log,
             field_name=entry['label'],
             old_value='' if entry['old_value'] in (None, '') else str(entry['old_value']),
             new_value='' if entry['new_value'] in (None, '') else str(entry['new_value']),
             field_type=entry.get('field_type', ''),
         )
 
-    return audit_log
+    return activity_log
 
 
 class AssetChangeLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    """List asset-related audit log entries."""
+    """List asset-related activity log entries."""
 
-    model = AuditLog
-    template_name = 'audit/auditlog_list.html'
-    context_object_name = 'audit_logs'
+    model = AssetActivityLog
+    template_name = 'assets/assetlog_list.html'
+    context_object_name = 'activity_logs'
     paginate_by = 20
 
     def test_func(self):
-        return self.request.user.can_view_audit()
+        return self.request.user.can_view_assets()
 
     def get_queryset(self):
         queryset = _get_accessible_asset_log_queryset(self.request.user)
         search = (self.request.GET.get('search') or '').strip()
         if search:
             queryset = queryset.filter(
-                Q(action__icontains=search) |
+                Q(operation__icontains=search) |
                 Q(description__icontains=search) |
-                Q(object_id__icontains=search) |
+                Q(asset__asset_number__icontains=search) |
                 Q(company__name__icontains=search) |
                 Q(user__username__icontains=search) |
                 Q(user__first_name__icontains=search) |
                 Q(user__last_name__icontains=search)
             )
-        return queryset.order_by('-timestamp')
+        return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -243,28 +237,28 @@ class AssetChangeLogListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 class AssetChangeLogDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    """Show one asset audit-log entry in detail."""
+    """Show one asset activity-log entry in detail."""
 
-    model = AuditLog
-    template_name = 'audit/auditlog_detail.html'
-    context_object_name = 'audit_log'
+    model = AssetActivityLog
+    template_name = 'assets/assetlog_detail.html'
+    context_object_name = 'activity_log'
 
     def test_func(self):
-        return self.request.user.can_view_audit()
+        return self.request.user.can_view_assets()
 
     def get_queryset(self):
         return _get_accessible_asset_log_queryset(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        audit_log = self.object
+        activity_log = self.object
         context['title'] = _('Asset Change Log Details')
         context['back_url'] = reverse('assets:asset_log_list')
-        context['metadata_json'] = json.dumps(audit_log.metadata or {}, indent=2, ensure_ascii=False, default=str)
+        context['metadata_json'] = json.dumps(activity_log.metadata or {}, indent=2, ensure_ascii=False, default=str)
 
-        related_asset = None
-        if audit_log.content_type and audit_log.content_type.model == 'asset' and audit_log.object_id:
-            related_asset = _get_accessible_hardware_assets(self.request.user).filter(pk=audit_log.object_id).first()
+        related_asset = activity_log.asset
+        if related_asset is not None:
+            related_asset = _get_accessible_hardware_assets(self.request.user).filter(pk=related_asset.pk).first()
 
         context['related_asset'] = related_asset
         context['related_asset_url'] = reverse('assets:asset_detail', kwargs={'pk': related_asset.pk}) if related_asset else None
@@ -477,7 +471,7 @@ def asset_bulk_edit_view(request):
             )
 
             _create_asset_audit_log(
-                action=AuditLog.ActionType.UPDATE,
+                operation=AssetActivityLog.Operation.UPDATE,
                 asset=asset,
                 user=request.user,
                 request=request,
@@ -524,11 +518,10 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             asset=asset
         ).order_by('-scheduled_date')
         
-        # Get audit logs for this asset
-        context['audit_logs'] = AuditLog.objects.filter(
-            object_id=str(asset.pk),
-            content_type__model='asset'
-        ).select_related('user').order_by('-timestamp')[:10]
+        # Get activity logs for this asset
+        context['audit_logs'] = AssetActivityLog.objects.filter(
+            asset=asset
+        ).select_related('user').order_by('-created_at')[:10]
         
         return context
 
@@ -704,7 +697,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
 
             change_entries = _build_asset_change_entries(after_asset=asset)
             _create_asset_audit_log(
-                action=AuditLog.ActionType.CREATE,
+                operation=AssetActivityLog.Operation.CREATE,
                 asset=asset,
                 user=self.request.user,
                 request=self.request,
@@ -746,7 +739,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
                     change_entries = _build_asset_change_entries(after_asset=self.object)
 
                     _create_asset_audit_log(
-                        action=AuditLog.ActionType.CREATE,
+                        operation=AssetActivityLog.Operation.CREATE,
                         asset=self.object,
                         user=self.request.user,
                         request=self.request,
@@ -826,7 +819,7 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
             # Log the update
             if change_entries:
                 _create_asset_audit_log(
-                    action=AuditLog.ActionType.UPDATE,
+                    operation=AssetActivityLog.Operation.UPDATE,
                     asset=self.object,
                     user=self.request.user,
                     request=self.request,
@@ -891,7 +884,7 @@ class AssetDeleteView(LoginRequiredMixin, DeleteView):
 
         with transaction.atomic():
             _create_asset_audit_log(
-                action=AuditLog.ActionType.DELETE,
+                operation=AssetActivityLog.Operation.DELETE,
                 asset=self.object,
                 user=self.request.user,
                 request=self.request,
@@ -945,11 +938,11 @@ def asset_assign_view(request, pk):
                 asset.save()
                 
                 # Log the assignment
-                AuditLog.objects.create(
+                AssetActivityLog.objects.create(
                     user=request.user,
                     company=request.user.company,
-                    action=AuditLog.ActionType.ASSIGN,
-                    content_object=asset,
+                    operation=AssetActivityLog.Operation.ASSIGN,
+                    asset=asset,
                     description=f'Assigned asset {asset.asset_number} to {assignment.assigned_to.get_display_name()}',
                     ip_address=request.META.get('REMOTE_ADDR'),
                     user_agent=request.META.get('HTTP_USER_AGENT', '')
@@ -999,11 +992,11 @@ def asset_return_view(request, pk):
             asset.save()
             
             # Log the return
-            AuditLog.objects.create(
+            AssetActivityLog.objects.create(
                 user=request.user,
                 company=request.user.company,
-                action=AuditLog.ActionType.RETURN,
-                content_object=asset,
+                operation=AssetActivityLog.Operation.RETURN,
+                asset=asset,
                 description=f'Returned asset {asset.asset_number} from {current_assignment.assigned_to.get_display_name()}',
                 ip_address=request.META.get('REMOTE_ADDR'),
                 user_agent=request.META.get('HTTP_USER_AGENT', '')
@@ -1097,10 +1090,10 @@ def generate_csv_export(request, queryset, include_fields):
         writer.writerow(row)
     
     # Log the export
-    AuditLog.objects.create(
+    AssetActivityLog.objects.create(
         user=request.user,
         company=request.user.company,
-        action=AuditLog.ActionType.EXPORT,
+        operation=AssetActivityLog.Operation.EXPORT,
         description=f'Exported {queryset.count()} assets to CSV with filters',
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
@@ -1178,10 +1171,10 @@ def generate_excel_export(request, queryset, include_fields):
     wb.save(response)
     
     # Log the export
-    AuditLog.objects.create(
+    AssetActivityLog.objects.create(
         user=request.user,
         company=request.user.company,
-        action=AuditLog.ActionType.EXPORT,
+        operation=AssetActivityLog.Operation.EXPORT,
         description=f'Exported {queryset.count()} assets to Excel with filters',
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
@@ -1274,10 +1267,10 @@ def generate_pdf_export(request, queryset, include_fields):
     response['Content-Disposition'] = f'attachment; filename="assets_export_{datetime.date.today()}.pdf"'
     
     # Log the export
-    AuditLog.objects.create(
+    AssetActivityLog.objects.create(
         user=request.user,
         company=request.user.company,
-        action=AuditLog.ActionType.EXPORT,
+        operation=AssetActivityLog.Operation.EXPORT,
         description=f'Exported {queryset.count()} assets to PDF with filters',
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
@@ -1320,10 +1313,10 @@ def asset_export_csv(request):
         ])
     
     # Log the export
-    AuditLog.objects.create(
+    AssetActivityLog.objects.create(
         user=request.user,
         company=request.user.company,
-        action=AuditLog.ActionType.EXPORT,
+        operation=AssetActivityLog.Operation.EXPORT,
         description=f'Exported {assets.count()} assets to CSV',
         ip_address=request.META.get('REMOTE_ADDR'),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
@@ -1581,10 +1574,10 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
                                 )
                             
                             # Log the import action
-                            AuditLog.objects.create(
+                            AssetActivityLog.objects.create(
                                 company=company,
-                                content_object=asset,
-                                action=AuditLog.ActionType.IMPORT,
+                                asset=asset,
+                                operation=AssetActivityLog.Operation.IMPORT,
                                 user=user,
                                 description=f'Imported asset {asset.asset_number} from row {row_num}',
                                 metadata={'imported': True, 'row_number': row_num},
@@ -1621,10 +1614,10 @@ def process_asset_import(file, company, asset_number_mode, asset_number_prefix,
         result['success'] = imported_count > 0 or validate_only
 
         if not validate_only and imported_count > 0:
-            AuditLog.objects.create(
+            AssetActivityLog.objects.create(
                 user=user,
                 company=company,
-                action=AuditLog.ActionType.IMPORT,
+                operation=AssetActivityLog.Operation.IMPORT,
                 description=f'Imported {imported_count} assets from {file.name}',
                 metadata={
                     'imported_count': imported_count,

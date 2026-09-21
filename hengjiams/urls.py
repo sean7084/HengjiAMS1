@@ -48,7 +48,7 @@ urlpatterns += i18n_patterns(
     # Main application URLs
     path('assets/', include('assets.urls')),
     path('companies/', include('companies.urls')),
-    path('audit/', include('audit.urls')),
+    path('inspections/', include('inspections.urls')),
     path('reports/', include('reports.urls')),
     path('users/', include('users.urls')),
 

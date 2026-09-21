@@ -1,0 +1,185 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Inspection Dashboard" %} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fc {
+        background: #fff;
+        border-radius: var(--border-radius);
+        padding: 0.5rem;
+    }
+    .fc .fc-button-primary {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+    .fc .fc-button-primary:not(:disabled):active,
+    .fc .fc-button-primary:not(:disabled).fc-button-active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .fc-event {
+        cursor: pointer;
+        font-size: 0.78rem;
+    }
+    .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 4px;
+    }
+    .summary-tile {
+        border-left: 4px solid;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .summary-tile .count {
+        font-size: 1.6rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .summary-tile .label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                {% trans "Inspection Dashboard" %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% if batch %}
+                    {% blocktrans with name=batch.name %}Monthly arrangement for batch "{{ name }}".{% endblocktrans %}
+                {% else %}
+                    {% trans "Monthly arrangement of store inspections." %}
+                {% endif %}
+            </p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <form method="get" class="d-flex gap-2">
+                <select name="batch" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 220px;">
+                    <option value="">{% trans "All batches" %}</option>
+                    {% for b in batches %}
+                    <option value="{{ b.id }}" {% if batch and b.id == batch.id %}selected{% endif %}>
+                        {{ b.name }} ({{ b.start_date|date:"M j" }} - {{ b.end_date|date:"M j, Y" }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% if can_manage %}
+            <a href="{% url 'inspections:batch_create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> {% trans "New Batch" %}
+            </a>
+            {% endif %}
+            <a href="{% url 'inspections:inspection_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-list"></i> {% trans "List View" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3 col-lg">
+            <div class="summary-tile" style="border-color: #2c3e50;">
+                <div class="count">{{ total_count }}</div>
+                <div class="label">{% trans "Total" %}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-lg">
+            <div class="summary-tile" style="border-color: #6c757d;">
+                <div class="count">{{ planned_count }}</div>
+                <div class="label">{% trans "Planned" %}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-lg">
+            <div class="summary-tile" style="border-color: #0dcaf0;">
+                <div class="count">{{ in_progress_count }}</div>
+                <div class="label">{% trans "In Progress" %}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-lg">
+            <div class="summary-tile" style="border-color: #198754;">
+                <div class="count">{{ completed_count }}</div>
+                <div class="label">{% trans "Completed" %}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-lg">
+            <div class="summary-tile" style="border-color: #6610f2;">
+                <div class="count">{{ submitted_count }}</div>
+                <div class="label">{% trans "Submitted" %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card mb-3">
+        <div class="card-body py-2 d-flex flex-wrap gap-3 align-items-center small">
+            <span class="fw-semibold">{% trans "Legend:" %}</span>
+            <span><span class="status-dot" style="background:#6c757d;"></span>{% trans "Planned" %}</span>
+            <span><span class="status-dot" style="background:#0dcaf0;"></span>{% trans "In Progress" %}</span>
+            <span><span class="status-dot" style="background:#198754;"></span>{% trans "Completed" %}</span>
+            <span><span class="status-dot" style="background:#6610f2;"></span>{% trans "Submitted" %}</span>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="card">
+        <div class="card-body">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const events = {{ events_json|safe }};
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listMonth'
+        },
+        events: events,
+        height: 'auto',
+        dayMaxEvents: 4,
+        eventDisplay: 'block',
+        eventClick: function(info) {
+            if (info.event.url) {
+                info.jsEvent.preventDefault();
+                window.location.href = info.event.url;
+            }
+        },
+        eventDidMount: function(info) {
+            const props = info.event.extendedProps || {};
+            const parts = [];
+            if (props.brand) parts.push(props.brand);
+            if (props.engineer) parts.push(props.engineer);
+            if (props.status) parts.push(props.status);
+            if (parts.length) {
+                info.el.setAttribute('title', parts.join(' | '));
+            }
+        },
+        locale: document.documentElement.lang || 'en',
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

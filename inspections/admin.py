@@ -3,11 +3,41 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 from .models import (
+    InspectionBatch,
     InspectionDevice,
     InspectionIssue,
     InspectionPhoto,
+    InspectionSignoffLog,
     StoreInspection,
 )
+
+
+@admin.register(InspectionBatch)
+class InspectionBatchAdmin(admin.ModelAdmin):
+    list_display = (
+        'name', 'company', 'division', 'start_date', 'end_date',
+        'engineer', 'source', 'inspection_count', 'created_at',
+    )
+    list_filter = ('source', 'company', 'division', 'start_date')
+    search_fields = ('name', 'description', 'division__name')
+    date_hierarchy = 'start_date'
+    readonly_fields = ('created_at', 'updated_at', 'import_run')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'company', 'division', 'engineer', 'source', 'description'),
+        }),
+        (_('Schedule'), {
+            'fields': ('start_date', 'end_date'),
+        }),
+        (_('Provenance'), {
+            'fields': ('import_run', 'created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    @admin.display(description=_('Inspections'), ordering='inspections')
+    def inspection_count(self, obj):
+        return obj.inspections.count()
 
 
 class InspectionDeviceInline(admin.TabularInline):
@@ -37,17 +67,18 @@ class InspectionPhotoInline(admin.TabularInline):
 class StoreInspectionAdmin(admin.ModelAdmin):
     list_display = (
         'store_label', 'jda_code', 'inspection_date', 'engineer', 'status',
-        'get_completion_percentage',
+        'batch', 'get_completion_percentage',
     )
-    list_filter = ('status', 'inspection_date', 'company', 'division')
-    search_fields = ('store_label', 'jda_code', 'store_name', 'brand_name')
+    list_filter = ('status', 'inspection_date', 'company', 'division', 'batch')
+    search_fields = ('store_label', 'jda_code', 'store_name', 'brand_name', 'batch__name')
     date_hierarchy = 'inspection_date'
     readonly_fields = ('created_at', 'updated_at', 'report_generated_at', 'signed_at')
+    autocomplete_fields = ('batch',)
     inlines = [InspectionDeviceInline, InspectionIssueInline]
     fieldsets = (
         (None, {
             'fields': (
-                'company', 'division', 'location',
+                'batch', 'company', 'division', 'location',
                 'jda_code', 'brand_name', 'store_name', 'store_label',
                 'inspection_date', 'engineer', 'status',
             ),
@@ -102,3 +133,19 @@ class InspectionIssueAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     search_fields = ('description',)
     raw_id_fields = ('store_inspection', 'photo')
+
+
+@admin.register(InspectionSignoffLog)
+class InspectionSignoffLogAdmin(admin.ModelAdmin):
+    """Read-only admin for inspection signoff events."""
+    list_display = ('created_at', 'store_inspection', 'user', 'operation')
+    list_filter = ('operation', 'created_at')
+    search_fields = ('description', 'store_inspection__store_label')
+    readonly_fields = ('id', 'store_inspection', 'user', 'operation', 'description',
+                       'metadata', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

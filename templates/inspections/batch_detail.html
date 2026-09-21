@@ -1,0 +1,198 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ batch.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'inspections:batch_list' %}">{% trans "Batches" %}</a></li>
+                    <li class="breadcrumb-item active">{{ batch.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-layer-group text-primary me-2"></i>
+                {{ batch.name }}
+            </h1>
+            <div class="text-muted small">
+                <span class="badge bg-light text-dark border me-2">{{ batch.get_source_display }}</span>
+                {% if batch.division %}<span class="me-2"><i class="fas fa-tag me-1"></i>{{ batch.division.name }}</span>{% endif %}
+                <span class="me-2"><i class="fas fa-calendar me-1"></i>{{ batch.start_date|date:"M j, Y" }} - {{ batch.end_date|date:"M j, Y" }}</span>
+                {% if batch.engineer %}<span class="me-2"><i class="fas fa-user-cog me-1"></i>{{ batch.engineer.get_full_name }}</span>{% endif %}
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'inspections:dashboard' %}?batch={{ batch.id }}" class="btn btn-outline-primary">
+                <i class="fas fa-calendar-alt"></i> {% trans "View on Calendar" %}
+            </a>
+            <a href="{{ export_url }}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> {% trans "Export Asset List" %}
+            </a>
+            {% if can_manage %}
+            <a href="{% url 'inspections:batch_update' batch.id %}" class="btn btn-outline-secondary">
+                <i class="fas fa-edit"></i> {% trans "Edit" %}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if batch.description %}
+    <div class="alert alert-light border">
+        <strong>{% trans "Description:" %}</strong> {{ batch.description|linebreaksbr }}
+    </div>
+    {% endif %}
+
+    <!-- Summary tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ inspection_count }}</div>
+                    <div class="small text-muted text-uppercase">{% trans "Inspections" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ completion_pct }}%</div>
+                    <div class="small text-muted text-uppercase">{% trans "Devices Collected" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ batch.start_date|date:"N j" }}</div>
+                    <div class="small text-muted text-uppercase">{% trans "Starts" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ batch.end_date|date:"N j" }}</div>
+                    <div class="small text-muted text-uppercase">{% trans "Ends" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspections table -->
+    <div class="card">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>{% trans "Store Inspections" %}</h5>
+            <span class="text-muted small">{{ inspection_count }} {% trans "total" %}</span>
+        </div>
+        <div class="card-body p-0">
+            {% if rows %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Store" %}</th>
+                            <th>{% trans "JDA" %}</th>
+                            <th>{% trans "Brand" %}</th>
+                            <th>{% trans "Engineer" %}</th>
+                            <th>{% trans "Status" %}</th>
+                            <th style="width: 180px;">{% trans "Progress" %}</th>
+                            <th class="text-end">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        {% with inspection=row.inspection %}
+                        <tr>
+                            <td class="text-nowrap">{{ inspection.inspection_date|date:"Y-m-d (D)" }}</td>
+                            <td>
+                                <a href="{% url 'inspections:inspection_detail' inspection.id %}" class="text-decoration-none fw-semibold">
+                                    {{ inspection.store_label|default:inspection.store_name|default:"-" }}
+                                </a>
+                            </td>
+                            <td><code>{{ inspection.jda_code|default:"-" }}</code></td>
+                            <td>{{ inspection.brand_name|default:inspection.division.name|default:"-" }}</td>
+                            <td>{{ inspection.engineer.get_full_name|default:"-" }}</td>
+                            <td>
+                                {% with status=inspection.status %}
+                                <span class="badge bg-{% if status == 'planned' %}secondary{% elif status == 'in_progress' %}info{% elif status == 'completed' %}success{% elif status == 'submitted' %}primary{% else %}light text-dark border{% endif %}">
+                                    {{ inspection.get_status_display }}
+                                </span>
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: {{ row.pct }}%;" aria-valuenow="{{ row.pct }}"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <span class="small text-muted text-nowrap">{{ row.collected }}/{{ row.total }}</span>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'inspections:inspection_detail' inspection.id %}"
+                                       class="btn btn-outline-primary" title="{% trans 'View' %}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if inspection.report_file %}
+                                    <a href="{{ inspection.report_file.url }}" class="btn btn-outline-success"
+                                       title="{% trans 'Download report' %}" download>
+                                        <i class="fas fa-file-excel"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if inspection.photo_zip %}
+                                    <a href="{{ inspection.photo_zip.url }}" class="btn btn-outline-secondary"
+                                       title="{% trans 'Download photos' %}" download>
+                                        <i class="fas fa-images"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-store-slash fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">{% trans "No inspections in this batch" %}</h5>
+                <p class="text-muted mb-0">{% trans "Inspections will appear here once they are scheduled or imported." %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if batch.import_run %}
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>{% trans "Import Run" %}</h5>
+        </div>
+        <div class="card-body small">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">{% trans "Run" %}</dt>
+                <dd class="col-sm-9"><code>{{ batch.import_run }}</code></dd>
+                <dt class="col-sm-3">{% trans "Status" %}</dt>
+                <dd class="col-sm-9">{{ batch.import_run.get_status_display }}</dd>
+                <dt class="col-sm-3">{% trans "Rows" %}</dt>
+                <dd class="col-sm-9">
+                    {% trans "Created" %}: {{ batch.import_run.created_count }} |
+                    {% trans "Updated" %}: {{ batch.import_run.updated_count }} |
+                    {% trans "Skipped" %}: {{ batch.import_run.skipped_count }} |
+                    {% trans "Errors" %}: {{ batch.import_run.error_count }}
+                </dd>
+                <dt class="col-sm-3">{% trans "Created at" %}</dt>
+                <dd class="col-sm-9">{{ batch.import_run.created_at|date:"Y-m-d H:i" }}</dd>
+            </dl>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

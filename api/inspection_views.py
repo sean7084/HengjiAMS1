@@ -24,7 +24,6 @@ from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 
-from audit.models import AuditLog
 from inspections.constants import (
     CATEGORY_CAPTURE_FIELDS,
     CONFIRMATION_COUNT_LABELS,
@@ -35,6 +34,7 @@ from inspections.models import (
     InspectionDevice,
     InspectionIssue,
     InspectionPhoto,
+    InspectionSignoffLog,
     StoreInspection,
 )
 
@@ -324,12 +324,11 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
         inspection.signed_at = timezone.now()
         inspection.save()
 
-        AuditLog.objects.create(
+        InspectionSignoffLog.objects.create(
             user=user,
-            action=AuditLog.ActionType.AUDIT,
-            content_object=inspection,
+            store_inspection=inspection,
+            operation='signoff',
             description=f'Submitted store inspection signoff for {inspection}',
-            company=inspection.company,
             metadata={'inspection_id': str(inspection.id), 'operation': 'signoff'},
         )
         return Response(StoreInspectionSerializer(inspection).data, status=status.HTTP_200_OK)

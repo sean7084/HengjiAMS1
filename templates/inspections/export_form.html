@@ -1,0 +1,141 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-file-excel text-success me-2"></i>
+                {{ title }}
+            </h1>
+            <p class="text-muted mb-0">
+                {% trans "Download a cross-store asset list in the GUCCI_资产表 format (17 columns)." %}
+            </p>
+        </div>
+        <a href="{% url 'inspections:inspection_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> {% trans "Back to Inspections" %}
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.batch.id_for_label }}" class="form-label">{{ form.batch.label }}</label>
+                            {{ form.batch }}
+                            <div class="form-text">{% trans "Export every inspection in the selected batch." %}</div>
+                            {% if form.batch.errors %}<div class="text-danger small">{{ form.batch.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.division.id_for_label }}" class="form-label">{{ form.division.label }}</label>
+                            {{ form.division }}
+                            {% if form.division.errors %}<div class="text-danger small">{{ form.division.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.date_from.id_for_label }}" class="form-label">{{ form.date_from.label }}</label>
+                                {{ form.date_from }}
+                                {% if form.date_from.errors %}<div class="text-danger small">{{ form.date_from.errors|striptags }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.date_to.id_for_label }}" class="form-label">{{ form.date_to.label }}</label>
+                                {{ form.date_to }}
+                                {% if form.date_to.errors %}<div class="text-danger small">{{ form.date_to.errors|striptags }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.week.id_for_label }}" class="form-label">{{ form.week.label }}</label>
+                            {{ form.week }}
+                            <div class="form-text">{{ form.week.help_text }}</div>
+                            {% if form.week.errors %}<div class="text-danger small">{{ form.week.errors|striptags }}</div>{% endif %}
+                        </div>
+
+                        <div class="alert alert-info small mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% trans "Select at least one filter. Filters combine with AND. The ISO week filter overrides the date range when both are set." %}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'inspections:inspection_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-download"></i> {% trans "Download XLSX" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-table me-2"></i>{% trans "Export Columns" %}</h5>
+                </div>
+                <div class="card-body small">
+                    <p class="text-muted mb-2">
+                        {% trans "The exported workbook contains a single sheet named" %} <code>asset_list</code>
+                        {% trans "with these 17 columns:" %}
+                    </p>
+                    <ol class="mb-0 ps-3">
+                        <li><code>STORE</code></li>
+                        <li><code>JDA</code></li>
+                        <li><code>Asset ID</code></li>
+                        <li><code>Category</code></li>
+                        <li><code>Brand-Model</code></li>
+                        <li><code>SN</code></li>
+                        <li><code>Warranty-start</code></li>
+                        <li><code>Usage</code></li>
+                        <li><code>Status</code></li>
+                        <li><code>Comment</code></li>
+                        <li><code>IP Address</code></li>
+                        <li><code>CPU</code></li>
+                        <li><code>Memory</code></li>
+                        <li><code>HDD</code></li>
+                        <li><code>Windows&amp;IOS Version</code></li>
+                        <li><code>Drive C Free Space</code></li>
+                        <li><code>Intact Asset Tag</code></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-tag me-2"></i>{% trans "Filename" %}</h5>
+                </div>
+                <div class="card-body small text-muted">
+                    <ul class="mb-0 ps-3">
+                        <li>{% trans "Single brand + single ISO week:" %} <code>&lt;BRAND&gt;_资产表_&lt;YEAR&gt; W&lt;WEEK&gt;.xlsx</code></li>
+                        <li>{% trans "Batch export spanning multiple weeks:" %} <code>&lt;BatchName&gt;.xlsx</code></li>
+                        <li>{% trans "Fallback:" %} <code>asset_list_&lt;YYYYMMDD&gt;.xlsx</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3 mb-0 small">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>{% trans "Status column:" %}</strong>
+                {% trans "Devices the engineer never touched are reported as" %} <code>Not In Store</code>
+                {% trans "(missing). Newly-found devices are reported as" %} <code>In Store</code>.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
