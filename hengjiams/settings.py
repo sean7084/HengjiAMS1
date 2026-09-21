@@ -123,7 +123,6 @@ INSTALLED_APPS = [
     'accounts',  # Custom user management with roles and 2FA
     'assets',  # Asset management core functionality
     'companies',  # Company and division management
-    'audit',  # Asset audit and tracking system
     'inspections',  # Kering store device-inspection (WeChat mini program backend)
     'reports',  # Reporting and analytics
     'dashboard',  # Main dashboard and overview

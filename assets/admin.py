@@ -3,7 +3,7 @@ Admin configuration for Assets app.
 Simple admin interface for asset management models.
 """
 from django.contrib import admin
-from .models import AssetCategory, AssetBrand, AssetModel, Asset, AssetAssignment, AssetMaintenance
+from .models import AssetCategory, AssetBrand, AssetModel, Asset, AssetAssignment, AssetMaintenance, AssetActivityLog, AssetFieldChange
 
 
 @admin.register(AssetCategory)
@@ -58,3 +58,27 @@ class AssetMaintenanceAdmin(admin.ModelAdmin):
     list_filter = ('maintenance_type', 'status', 'scheduled_date')
     search_fields = ('asset__asset_number', 'description')
     readonly_fields = ('id', 'created_at', 'updated_at')
+
+
+class AssetFieldChangeInline(admin.TabularInline):
+    model = AssetFieldChange
+    extra = 0
+    readonly_fields = ('field_name', 'old_value', 'new_value', 'field_type')
+    can_delete = False
+
+
+@admin.register(AssetActivityLog)
+class AssetActivityLogAdmin(admin.ModelAdmin):
+    """Read-only admin for the asset activity trail."""
+    list_display = ('created_at', 'operation', 'asset', 'user', 'company')
+    list_filter = ('operation', 'created_at')
+    search_fields = ('description', 'asset__asset_number', 'user__username')
+    readonly_fields = ('id', 'asset', 'user', 'company', 'operation', 'description',
+                       'metadata', 'ip_address', 'user_agent', 'created_at')
+    inlines = [AssetFieldChangeInline]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

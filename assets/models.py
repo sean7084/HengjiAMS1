@@ -967,3 +967,104 @@ class AssetMaintenance(models.Model):
     
     def __str__(self):
         return f"{self.asset} - {self.title}"
+
+
+class AssetActivityLog(models.Model):
+    """
+    Append-only activity trail for asset lifecycle operations.
+
+    Replaces the former generic ``audit.AuditLog`` for asset-scoped events
+    (create / update / delete / assign / return / export / import). Bulk
+    export/import events have ``asset`` left null because they are not tied to a
+    single asset row.
+    """
+
+    class Operation(models.TextChoices):
+        CREATE = 'create', _('Create')
+        UPDATE = 'update', _('Update')
+        DELETE = 'delete', _('Delete')
+        ASSIGN = 'assign', _('Assign Asset')
+        RETURN = 'return', _('Return Asset')
+        EXPORT = 'export', _('Data Export')
+        IMPORT = 'import', _('Data Import')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    asset = models.ForeignKey(
+        'assets.Asset',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='activity_logs',
+        verbose_name=_('Asset'),
+        help_text=_('Null for bulk export/import events.'),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asset_activity_logs',
+        verbose_name=_('User'),
+    )
+    company = models.ForeignKey(
+        'companies.Company',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asset_activity_logs',
+        verbose_name=_('Company'),
+    )
+    operation = models.CharField(
+        max_length=20,
+        choices=Operation.choices,
+        verbose_name=_('Operation'),
+    )
+    description = models.TextField(verbose_name=_('Description'))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name=_('IP Address'))
+    user_agent = models.TextField(blank=True, verbose_name=_('User Agent'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+
+    class Meta:
+        verbose_name = _('Asset Activity Log')
+        verbose_name_plural = _('Asset Activity Logs')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['asset', '-created_at']),
+            models.Index(fields=['operation', '-created_at']),
+            models.Index(fields=['company', '-created_at']),
+            models.Index(fields=['user', '-created_at']),
+        ]
+
+    def __str__(self):
+        target = self.asset.asset_number if self.asset else _('bulk')
+        return f"{self.get_operation_display()} - {target} - {self.created_at:%Y-%m-%d %H:%M}"
+
+
+class AssetFieldChange(models.Model):
+    """
+    Field-level old -> new diff attached to an AssetActivityLog.
+
+    Replaces the former ``audit.ChangeLog`` so asset change detail lives with the
+    asset domain.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    activity_log = models.ForeignKey(
+        AssetActivityLog,
+        on_delete=models.CASCADE,
+        related_name='field_changes',
+        verbose_name=_('Activity Log'),
+    )
+    field_name = models.CharField(max_length=100, verbose_name=_('Field Name'))
+    old_value = models.TextField(blank=True, verbose_name=_('Old Value'))
+    new_value = models.TextField(blank=True, verbose_name=_('New Value'))
+    field_type = models.CharField(max_length=50, blank=True, verbose_name=_('Field Type'))
+
+    class Meta:
+        verbose_name = _('Asset Field Change')
+        verbose_name_plural = _('Asset Field Changes')
+        ordering = ['field_name']
+
+    def __str__(self):
+        return f"{self.field_name}: {self.old_value} -> {self.new_value}"

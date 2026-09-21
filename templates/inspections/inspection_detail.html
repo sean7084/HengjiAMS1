@@ -1,0 +1,277 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ inspection.store_label|default:inspection }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb + header -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small mb-2">
+            <li class="breadcrumb-item"><a href="{% url 'inspections:inspection_list' %}">{% trans "Inspections" %}</a></li>
+            {% if inspection.batch %}
+            <li class="breadcrumb-item"><a href="{% url 'inspections:batch_detail' inspection.batch.id %}">{{ inspection.batch.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ inspection.store_label|default:inspection }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-store text-primary me-2"></i>
+                {{ inspection.store_label|default:inspection.store_name|default:inspection }}
+            </h1>
+            <div class="text-muted small d-flex flex-wrap gap-3">
+                <span><i class="fas fa-hashtag me-1"></i>{{ inspection.jda_code|default:"-" }}</span>
+                <span><i class="fas fa-tag me-1"></i>{{ inspection.brand_name|default:inspection.division.name|default:"-" }}</span>
+                <span><i class="fas fa-calendar me-1"></i>{{ inspection.inspection_date|date:"Y-m-d (D)" }}</span>
+                <span><i class="fas fa-user-cog me-1"></i>{{ inspection.engineer.get_full_name|default:"-" }}</span>
+                {% with status=inspection.status %}
+                <span class="badge bg-{% if status == 'planned' %}secondary{% elif status == 'in_progress' %}info{% elif status == 'completed' %}success{% elif status == 'submitted' %}primary{% else %}light text-dark border{% endif %}">
+                    {{ inspection.get_status_display }}
+                </span>
+                {% endwith %}
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            {% if inspection.report_file %}
+            <a href="{{ inspection.report_file.url }}" class="btn btn-success" download>
+                <i class="fas fa-file-excel"></i> {% trans "Report" %}
+            </a>
+            {% endif %}
+            {% if inspection.photo_zip %}
+            <a href="{{ inspection.photo_zip.url }}" class="btn btn-outline-secondary" download>
+                <i class="fas fa-images"></i> {% trans "Photos" %}
+            </a>
+            {% endif %}
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> {% trans "Back" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress + summary tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ completion_pct }}%</div>
+                    <div class="small text-muted text-uppercase">{% trans "Collected" %}</div>
+                    <div class="small text-muted">{{ device_collected }} / {{ device_total }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ inspection.error_setting_fixed_count }}</div>
+                    <div class="small text-muted text-uppercase">{% trans "Errors Fixed" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ inspection.store_issue_found_count }}</div>
+                    <div class="small text-muted text-uppercase">{% trans "Issues Found" %}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h2 mb-0">{{ inspection.issue_to_follow_count }}</div>
+                    <div class="small text-muted text-uppercase">{% trans "To Follow Up" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Cover page + confirmation -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-id-card me-2"></i>{% trans "Cover Page" %}</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row small mb-0">
+                        <dt class="col-6">{% trans "Arriving" %}</dt>
+                        <dd class="col-6">{{ inspection.arriving_time|default:"-" }}</dd>
+                        <dt class="col-6">{% trans "Leaving" %}</dt>
+                        <dd class="col-6">{{ inspection.leaving_time|default:"-" }}</dd>
+                        <dt class="col-6">{% trans "WiFi Coverage" %}</dt>
+                        <dd class="col-6">{{ inspection.get_wifi_coverage_display|default:"-" }}</dd>
+                        <dt class="col-6">{% trans "WiFi Covers Store" %}</dt>
+                        <dd class="col-6">
+                            {% if inspection.wifi_covers_store is None %}-
+                            {% elif inspection.wifi_covers_store %}{% trans "Yes" %}
+                            {% else %}{% trans "No" %}{% endif %}
+                        </dd>
+                        <dt class="col-6">{% trans "IT Support Rating" %}</dt>
+                        <dd class="col-6">{{ inspection.get_it_support_rating_display|default:"-" }}</dd>
+                        {% if inspection.it_support_comment %}
+                        <dt class="col-6">{% trans "IT Comment" %}</dt>
+                        <dd class="col-6">{{ inspection.it_support_comment|truncatechars:80 }}</dd>
+                        {% endif %}
+                        {% if inspection.signed_at %}
+                        <dt class="col-6">{% trans "Signed At" %}</dt>
+                        <dd class="col-6">{{ inspection.signed_at|date:"Y-m-d H:i" }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            {% if inspection.device_counts %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-check-double me-2"></i>{% trans "Confirmation Counts" %}</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                            {% for label, value in inspection.device_counts.items %}
+                            <tr>
+                                <td class="small">{{ label }}</td>
+                                <td class="small text-end fw-semibold">{{ value }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if store_photos %}
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-network-wired me-2"></i>{% trans "Store Photos" %}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        {% for photo in store_photos %}
+                        <div class="col-4">
+                            <a href="{{ photo.image.url }}" target="_blank">
+                                <img src="{{ photo.image.url }}" alt="{{ photo.get_kind_display }}"
+                                     class="img-fluid rounded border" style="height: 80px; width: 100%; object-fit: cover;">
+                            </a>
+                            <div class="small text-muted text-center mt-1">{{ photo.get_kind_display }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Devices + issues -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fas fa-laptop me-2"></i>{% trans "Devices" %}</h5>
+                    <span class="text-muted small">{{ device_total }} {% trans "total" %}</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if devices %}
+                    <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                        <table class="table table-sm table-hover mb-0 align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>#</th>
+                                    <th>{% trans "Category" %}</th>
+                                    <th>{% trans "Brand-Model" %}</th>
+                                    <th>{% trans "SN" %}</th>
+                                    <th>{% trans "Asset ID" %}</th>
+                                    <th>{% trans "Usage" %}</th>
+                                    <th>{% trans "Status" %}</th>
+                                    <th>{% trans "Tag" %}</th>
+                                    <th>{% trans "Collected" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for device in devices %}
+                                <tr>
+                                    <td class="text-muted small">{{ forloop.counter }}</td>
+                                    <td class="small">{{ device.category|default:"-" }}</td>
+                                    <td class="small">{{ device.brand_model|default:"-" }}</td>
+                                    <td class="small"><code>{{ device.sn|default:"-" }}</code></td>
+                                    <td class="small"><code>{{ device.asset_id_text|default:"-" }}</code></td>
+                                    <td class="small">{{ device.usage|default:"-" }}</td>
+                                    <td>
+                                        {% if device.is_new_device %}
+                                        <span class="badge bg-warning text-dark">{% trans "NEW" %}</span>
+                                        {% else %}
+                                        <span class="badge bg-{% if device.status == 'in_store' %}success{% elif device.status == 'not_in_store' %}danger{% else %}secondary{% endif %}">
+                                            {{ device.get_status_display }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="small">
+                                        {% if device.intact_asset_tag == 'Y' %}
+                                        <span class="text-success"><i class="fas fa-check"></i></span>
+                                        {% elif device.intact_asset_tag == 'N' %}
+                                        <span class="text-danger"><i class="fas fa-times"></i></span>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="small text-muted">
+                                        {% if device.collected_at %}{{ device.collected_at|date:"m-d H:i" }}{% else %}-{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-laptop fa-2x mb-2"></i>
+                        <div>{% trans "No devices recorded yet." %}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if issues %}
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{% trans "Issues" %}</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>{% trans "Description" %}</th>
+                                <th style="width: 140px;">{% trans "Status" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for issue in issues %}
+                            <tr>
+                                <td class="text-muted small">{{ issue.seq }}</td>
+                                <td class="small">{{ issue.description }}</td>
+                                <td>
+                                    <span class="badge bg-{% if issue.status == 'fixed' %}success{% else %}warning text-dark{% endif %}">
+                                        {{ issue.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if inspection.notes %}
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-sticky-note me-2"></i>{% trans "Notes" %}</h5>
+                </div>
+                <div class="card-body small">{{ inspection.notes|linebreaksbr }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

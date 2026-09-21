@@ -45,6 +45,95 @@ def inspection_photo_zip_upload_path(instance, filename):
     return f'{_inspection_media_folder(instance)}/{filename}'
 
 
+class InspectionBatch(models.Model):
+    """A named grouping of store inspections (one planning/import cycle).
+
+    A batch is created either by selecting a brand + date range (auto-spread
+    across stores) or by uploading a schedule.xlsx (Kering master import). It
+    gives the web UI a stable handle for "export the asset list for this batch"
+    and "show this batch on the calendar".
+    """
+
+    class Source(models.TextChoices):
+        MANUAL = 'manual', _('Manual')
+        BRAND = 'brand', _('By Brand')
+        UPLOAD = 'upload', _('Schedule Upload')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200, verbose_name=_('Batch Name'))
+    company = models.ForeignKey(
+        'companies.Company',
+        on_delete=models.CASCADE,
+        related_name='inspection_batches',
+        verbose_name=_('Company'),
+    )
+    division = models.ForeignKey(
+        'companies.Division',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inspection_batches',
+        verbose_name=_('Brand / Division'),
+    )
+    engineer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inspection_batches',
+        verbose_name=_('Primary Engineer'),
+    )
+    start_date = models.DateField(verbose_name=_('Start Date'))
+    end_date = models.DateField(verbose_name=_('End Date'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
+    source = models.CharField(
+        max_length=20,
+        choices=Source.choices,
+        default=Source.MANUAL,
+        verbose_name=_('Source'),
+    )
+    import_run = models.ForeignKey(
+        'companies.ImportRun',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inspection_batches',
+        verbose_name=_('Import Run'),
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_inspection_batches',
+        verbose_name=_('Created By'),
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('Inspection Batch')
+        verbose_name_plural = _('Inspection Batches')
+        ordering = ['-start_date', '-created_at']
+        indexes = [
+            models.Index(fields=['company', '-start_date']),
+            models.Index(fields=['division', '-start_date']),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def get_completion_percentage(self):
+        """Roll up device collection progress across the batch."""
+        total = InspectionDevice.objects.filter(store_inspection__batch=self).count()
+        if total == 0:
+            return 0
+        done = InspectionDevice.objects.filter(
+            store_inspection__batch=self, collected_at__isnull=False
+        ).count()
+        return round((done / total) * 100, 1)
+
+
 class StoreInspection(models.Model):
     """One onsite store health-check for a given store and inspection date."""
 
@@ -65,6 +154,16 @@ class StoreInspection(models.Model):
         UNSATISFIED = 'unsatisfied', _('Unsatisfied')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Batch grouping (web-UI planning cycle; nullable so existing rows stay valid)
+    batch = models.ForeignKey(
+        InspectionBatch,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inspections',
+        verbose_name=_('Batch'),
+    )
 
     # Organization context (Kering -> brand division -> store location)
     company = models.ForeignKey(
@@ -193,6 +292,7 @@ class StoreInspection(models.Model):
             models.Index(fields=['engineer', 'status']),
             models.Index(fields=['location', 'inspection_date']),
             models.Index(fields=['jda_code']),
+            models.Index(fields=['batch', 'inspection_date']),
         ]
 
     def __str__(self):
@@ -441,3 +541,46 @@ class InspectionIssue(models.Model):
 
     def __str__(self):
         return f'#{self.seq} {self.description[:40]}'
+
+
+class InspectionSignoffLog(models.Model):
+    """Append-only trail of inspection signoff / submission events.
+
+    Replaces the former generic ``audit.AuditLog`` write that the mini-program
+    signoff endpoint used, keeping inspection events inside the inspections domain.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    store_inspection = models.ForeignKey(
+        StoreInspection,
+        on_delete=models.CASCADE,
+        related_name='signoff_logs',
+        verbose_name=_('Store Inspection'),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inspection_signoff_logs',
+        verbose_name=_('User'),
+    )
+    operation = models.CharField(
+        max_length=20,
+        default='signoff',
+        verbose_name=_('Operation'),
+    )
+    description = models.TextField(verbose_name=_('Description'))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_('Metadata'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+
+    class Meta:
+        verbose_name = _('Inspection Signoff Log')
+        verbose_name_plural = _('Inspection Signoff Logs')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['store_inspection', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f'{self.operation} - {self.store_inspection} - {self.created_at:%Y-%m-%d %H:%M}'

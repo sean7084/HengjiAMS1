@@ -25,23 +25,23 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="text-muted small">{% trans "Timestamp" %}</div>
-                            <div>{{ audit_log.timestamp|date:"M d, Y H:i:s" }}</div>
+                            <div>{{ activity_log.created_at|date:"M d, Y H:i:s" }}</div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">{% trans "Action" %}</div>
-                            <div>{{ audit_log.get_action_display|default:audit_log.action }}</div>
+                            <div class="text-muted small">{% trans "Operation" %}</div>
+                            <div>{{ activity_log.get_operation_display|default:activity_log.operation }}</div>
                         </div>
                         <div class="col-md-6">
                             <div class="text-muted small">{% trans "User" %}</div>
-                            <div>{% if audit_log.user %}{{ audit_log.user.get_full_name|default:audit_log.user.username }}{% else %}{% trans "System" %}{% endif %}</div>
+                            <div>{% if activity_log.user %}{{ activity_log.user.get_full_name|default:activity_log.user.username }}{% else %}{% trans "System" %}{% endif %}</div>
                         </div>
                         <div class="col-md-6">
                             <div class="text-muted small">{% trans "Company" %}</div>
-                            <div>{{ audit_log.company.name|default:"-" }}</div>
+                            <div>{{ activity_log.company.name|default:"-" }}</div>
                         </div>
                         <div class="col-12">
                             <div class="text-muted small">{% trans "Description" %}</div>
-                            <div>{{ audit_log.description }}</div>
+                            <div>{{ activity_log.description }}</div>
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                     <h5 class="card-title mb-0">{% trans "Metadata" %}</h5>
                 </div>
                 <div class="card-body">
-                    {% if audit_log.metadata %}
+                    {% if activity_log.metadata %}
                     <pre class="mb-0 small">{{ metadata_json }}</pre>
                     {% else %}
                     <span class="text-muted">{% trans "No metadata recorded for this entry." %}</span>
@@ -60,7 +60,7 @@
                 </div>
             </div>
 
-            {% if audit_log.change_logs.all %}
+            {% if activity_log.field_changes.all %}
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">{% trans "Field Changes" %}</h5>
@@ -76,7 +76,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for change in audit_log.change_logs.all %}
+                                {% for change in activity_log.field_changes.all %}
                                 <tr>
                                     <td>{{ change.field_name }}</td>
                                     <td>{{ change.old_value|default:"-" }}</td>
@@ -94,21 +94,17 @@
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">{% trans "Related Object" %}</h5>
+                    <h5 class="card-title mb-0">{% trans "Related Asset" %}</h5>
                 </div>
                 <div class="card-body">
-                    <div class="text-muted small">{% trans "Model" %}</div>
-                    <div class="mb-3">{{ audit_log.content_type.name|capfirst|default:"-" }}</div>
-                    <div class="text-muted small">{% trans "Object ID" %}</div>
-                    <div class="mb-3"><code>{{ audit_log.object_id|default:"-" }}</code></div>
                     {% if related_asset_url %}
                     <a href="{{ related_asset_url }}" class="btn btn-outline-primary w-100">
                         <i class="fas fa-box me-1"></i>{% trans "Open Related Asset" %}
                     </a>
-                    {% elif audit_log.content_object %}
-                    <div>{{ audit_log.content_object }}</div>
+                    {% elif activity_log.asset %}
+                    <div>{{ activity_log.asset }}</div>
                     {% else %}
-                    <span class="text-muted">{% trans "Related object is not available." %}</span>
+                    <span class="text-muted">{% trans "Bulk operation (no single asset)." %}</span>
                     {% endif %}
                 </div>
             </div>
@@ -119,9 +115,9 @@
                 </div>
                 <div class="card-body">
                     <div class="text-muted small">{% trans "IP Address" %}</div>
-                    <div class="mb-3"><code>{{ audit_log.ip_address|default:"-" }}</code></div>
+                    <div class="mb-3"><code>{{ activity_log.ip_address|default:"-" }}</code></div>
                     <div class="text-muted small">{% trans "User Agent" %}</div>
-                    <div class="small text-break">{{ audit_log.user_agent|default:"-" }}</div>
+                    <div class="small text-break">{{ activity_log.user_agent|default:"-" }}</div>
                 </div>
             </div>
         </div>

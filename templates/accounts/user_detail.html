@@ -215,8 +215,8 @@
                                             {% trans "Manage Companies" %}
                                         </li>
                                         <li>
-                                            <i class="fas fa-{% if profile_user.can_view_audit %}check text-success{% else %}times text-danger{% endif %}"></i>
-                                            {% trans "View Audit Logs" %}
+                                            <i class="fas fa-{% if profile_user.can_view_assets %}check text-success{% else %}times text-danger{% endif %}"></i>
+                                            {% trans "View Asset Change Logs" %}
                                         </li>
                                         <li>
                                             <i class="fas fa-{% if profile_user.can_view_reports %}check text-success{% else %}times text-danger{% endif %}"></i>
