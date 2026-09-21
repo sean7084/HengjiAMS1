@@ -26,8 +26,11 @@ from rest_framework.response import Response
 
 from inspections.constants import (
     CATEGORY_CAPTURE_FIELDS,
+    CATEGORY_REQUIRED_FIELDS,
     CONFIRMATION_COUNT_LABELS,
     DEFAULT_CAPTURE_FIELDS,
+    DEFAULT_REQUIRED_FIELDS,
+    FIELD_OPTIONS,
     KERING_CHECKLIST,
 )
 from inspections.models import (
@@ -50,6 +53,7 @@ from .inspection_serializers import (
 DEVICE_READING_FIELDS = (
     'category', 'brand_model', 'sn', 'asset_id_text', 'usage', 'status',
     'ip_address', 'cpu', 'memory', 'hdd', 'windows_version', 'ios_version',
+    'is_company_phone', 'user_email',
     'drive_c_free_space', 'intact_asset_tag', 'comment',
 )
 # File parts accepted on a device upsert, mapped to photo kinds.
@@ -154,6 +158,9 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
             'checklist': KERING_CHECKLIST,
             'capture_fields': CATEGORY_CAPTURE_FIELDS,
             'default_capture_fields': DEFAULT_CAPTURE_FIELDS,
+            'field_options': FIELD_OPTIONS,
+            'required_fields': CATEGORY_REQUIRED_FIELDS,
+            'default_required_fields': DEFAULT_REQUIRED_FIELDS,
             'confirmation_count_labels': CONFIRMATION_COUNT_LABELS,
         })
 
@@ -223,6 +230,12 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
         for field in DEVICE_READING_FIELDS:
             if field in request.data:
                 setattr(device, field, request.data.get(field))
+        # Boolean readings may arrive as JSON bools or multipart strings; normalize
+        # so a submitted "false" never stores True.
+        if 'is_company_phone' in request.data:
+            device.is_company_phone = request.data.get('is_company_phone') in (
+                True, 'true', 'True', '1', 1,
+            )
         if request.data.get('is_new_device') in (True, 'true', 'True', '1', 1):
             device.is_new_device = True
         elif is_new and not device.asset_id_text and not device.sn:

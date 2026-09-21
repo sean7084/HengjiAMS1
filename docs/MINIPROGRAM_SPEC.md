@@ -16,7 +16,9 @@ HengjiAMS. The server regenerates the client deliverable:
 
 ## 2. Personas
 
-- Onsite engineer (`inspection_engineer` role): runs inspections assigned to them.
+- Onsite / field engineer (`inspection_engineer` role): runs inspections assigned to
+  them. Identified in the mini program by `chinese_name`; may cover one or more
+  `service_cities` (e.g. Beijing, Tianjin), shown on the task list for verification.
 - IT administrator / superadmin: full visibility, can generate reports.
 
 ## 3. Architecture
@@ -57,11 +59,25 @@ rows.
 Kering-specific attributes (Usage, photo requirement, 大纲/注释) live on
 `InspectionDevice`, keeping the generic `assets.Asset` model clean.
 
+Engineer identity (accounts app): `User.chinese_name` (indexed; the mini-program
+login lookup key) and `User.service_cities` (M2M to `ServiceCity` — `name_en` /
+`name_zh`, admin-managed, seeded via `python manage.py seed_service_cities`).
+`UserSerializer` exposes `chinese_name`, `english_name`, `service_cities`,
+`service_city_names`.
+
 ## 5. Authentication
 
+The bind screen identifies the engineer by **Chinese name** (not username):
+
+- Name lookup: `POST /api/v1/auth/wechat/lookup/` `{chinese_name}` →
+  `{found, matches:[{username, english_name, chinese_name}]}` (unauthenticated).
+  The client shows the resolved English name for confirmation; multiple same-name
+  matches are offered as a picker. Requires `User.chinese_name` to be populated
+  (Django admin or the user forms), else the engineer cannot log in.
 - First launch (bind): `POST /api/v1/auth/wechat/bind/` `{code, username, password}`
-  authenticates a staff `User`, calls WeChat `jscode2session`, links the openid
-  (`accounts.WechatIdentity`), and returns SimpleJWT `{access, refresh, user}`.
+  authenticates the staff `User` resolved above, calls WeChat `jscode2session`,
+  links the openid (`accounts.WechatIdentity`), and returns SimpleJWT
+  `{access, refresh, user}`.
 - Later launches: `POST /api/v1/auth/wechat/login/` `{code}` → `{bound, access, refresh, user}`.
   `bound:false` routes the client to the bind screen.
 - Refresh: `POST /api/v1/auth/token/refresh/` `{refresh}` → `{access}`.
@@ -73,6 +89,7 @@ Kering-specific attributes (Usage, photo requirement, 大纲/注释) live on
 
 | Method | Path | Purpose |
 |--------|------|---------|
+| POST | `/auth/wechat/lookup/` | Resolve a Chinese name → English name for bind confirmation |
 | GET | `/inspections/` | Inspections assigned to the caller |
 | GET | `/inspections/{id}/` | Detail incl. `devices` + `issues` (offline payload) |
 | PATCH | `/inspections/{id}/` | Store-level fields (times, wifi, rating, counts) |
@@ -85,6 +102,11 @@ Kering-specific attributes (Usage, photo requirement, 大纲/注释) live on
 
 Authorization: engineers act only on inspections assigned to them
 (`User.can_run_inspection`); writes are rejected once `status == submitted`.
+
+Localization: the client renders device `category` and `usage` values in Simplified
+Chinese via `miniprogram/utils/i18n.wxs` (`categoryZh` / `usageZh`, called from
+WXML); combined usage codes (e.g. `SK/AD/KPI`) translate part-by-part. Canonical
+English values are unchanged on the server, so the report contract still holds.
 
 ## 7. Offline-first + idempotency contract
 

@@ -79,6 +79,24 @@ Base URL: `<API_BASE>` (see `config/env.js`), all under `/api/v1/`.
    "不校验合法域名" in WeChat DevTools.
 4. Open this folder in WeChat DevTools and build.
 
+## Preview / upload (miniprogram-ci)
+
+Push a build to WeChat without opening DevTools, using the code-upload key from
+the MP console (开发管理 → 开发设置 → 小程序代码上传密钥). Put the AppID and the
+key in the repo-root `.env` (`WECHAT_MINI_APPID`, `WECHAT_CI_PRIVATE_KEY` = path
+to `private.<appid>.key`, git-ignored), then:
+
+```bash
+npm install        # one-time
+npm run preview    # -> preview-qr.jpg (scan in WeChat to try the build)
+npm run upload     # -> dev version in 版本管理 → 开发版本 (submit for review)
+```
+
+`scripts/ci.js` accepts `WECHAT_CI_PRIVATE_KEY` as a key **path** (local) or the
+raw key **contents** (the GitHub Actions secret form). Overrides:
+`node scripts/ci.js upload --version 1.2.0 --desc "notes"`. Full runbook:
+[`docs/DEPLOYMENT_MINIPROGRAM.md`](../docs/DEPLOYMENT_MINIPROGRAM.md) Step 8/8a.
+
 ## Release checklist
 
 Before submitting for WeChat review:

@@ -35,4 +35,30 @@ module.exports = [
       'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
+  {
+    // Local Node tooling (miniprogram-ci runner) — not part of the mini program
+    // bundle, so give it Node globals instead of the WeChat runtime globals.
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        require: 'readonly',
+        module: 'writable',
+        exports: 'writable',
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        Promise: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
+      'no-empty': ['error', { allowEmptyCatch: true }],
+    },
+  },
 ];

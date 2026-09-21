@@ -70,8 +70,11 @@ python manage.py shell -c "from django.conf import settings; print(bool(settings
 ```
 
 JWT config lives in `SIMPLE_JWT` (Bearer header, `UPDATE_LAST_LOGIN=True`).
-Tokens are issued by `POST /api/v1/auth/wechat/bind/` and
-`POST /api/v1/auth/wechat/login/`; refresh via `POST /api/v1/auth/token/refresh/`.
+The bind screen first resolves the engineer by Chinese name via
+`POST /api/v1/auth/wechat/lookup/` (`{chinese_name}` → matching accounts, for
+on-screen confirmation), then tokens are issued by
+`POST /api/v1/auth/wechat/bind/` and `POST /api/v1/auth/wechat/login/`; refresh via
+`POST /api/v1/auth/token/refresh/`.
 The WeChat `session_key` returned by `jscode2session` is **never persisted**.
 
 ---
@@ -176,10 +179,17 @@ python manage.py reuse_historical_photos --source /path/to/Photo
 1. Give each onsite engineer the `inspection_engineer` role
    (`accounts.AdminRole.INSPECTION_ENGINEER`) — via Django admin or shell. This
    grants `User.can_run_inspection`.
-2. Assign inspections: set `StoreInspection.engineer` (importer can set this from
+2. Set each engineer's **`chinese_name`** (Django admin → Users → *Chinese Name*).
+   The mini-program bind screen looks engineers up by this value, so an engineer
+   with no `chinese_name` **cannot log in**. Optionally set **`service_cities`**
+   (multi-select — the cities they cover); these show on the engineer's task list
+   so they can flag corrections. Seed the city list with
+   `python manage.py seed_service_cities` and maintain it under Django admin →
+   *Service Cities*.
+3. Assign inspections: set `StoreInspection.engineer` (importer can set this from
    `schedule.xlsx`, or assign in admin). Engineers only see inspections assigned
    to them (`User.get_assigned_inspections`); IT-admin/superadmin see all.
-3. Each engineer needs a staff `User` (username/password) for the **first-launch
+4. Each engineer needs a staff `User` (username/password) for the **first-launch
    bind**; afterwards `wx.login` is seamless.
 
 ---
@@ -210,6 +220,33 @@ When both are present, the job runs `miniprogram-ci preview`, generates a QR
 code, and uploads it as the `miniprogram-preview-qr` artifact — scan it in WeChat
 to try the build. To push a reviewable version instead, switch the CLI verb from
 `preview` to `upload` in that job (or run `miniprogram-ci upload` locally).
+
+### 8a. Local preview/upload (`miniprogram/scripts/ci.js`)
+
+You can run the same flow from a dev machine without waiting on CI. Two npm
+scripts wrap `miniprogram-ci` and read credentials from the repo-root `.env`:
+
+```bash
+cd miniprogram
+npm install                 # one-time: installs miniprogram-ci + eslint
+npm run preview             # -> writes miniprogram/preview-qr.jpg (git-ignored); scan in WeChat
+npm run upload              # -> pushes a dev version to 版本管理 → 开发版本
+# Optional overrides (defaults: version = package.json, desc = "<cmd> by <you> on <date>"):
+node scripts/ci.js upload --version 1.2.0 --desc "signoff fixes"
+```
+
+The runner reads `WECHAT_MINI_APPID` and `WECHAT_CI_PRIVATE_KEY` from `.env`
+(real environment variables take precedence). `WECHAT_CI_PRIVATE_KEY` may be
+**either** a path to the key file (the local convention, e.g.
+`private.wx6aafa4e05e26c068.key` at the repo root) **or** the raw key contents
+(what the GitHub Actions secret stores) — the script detects which and, for
+inline contents, writes a temporary `0600` key file. The key file is git-ignored
+(`private.*.key`); never commit it.
+
+> **IP whitelist.** If `preview`/`upload` fails with an IP/whitelist error, the MP
+> console has *小程序代码上传 → IP白名单* enabled. Either add this machine's public
+> IP there, or turn the whitelist off. `settings.py` does **not** read
+> `WECHAT_CI_PRIVATE_KEY` — it is a build/CI concern only.
 
 ---
 
@@ -260,6 +297,7 @@ backend-affecting changes in `CHANGELOG.md`.
 | Report/photo URL 404 in production | `/media/` not served | Check the Nginx `location /media/` alias (Step 4) |
 | Upload 413 | Body over Nginx cap | Raise `client_max_body_size` (Step 4) |
 | Engineer sees no inspections | Not assigned / wrong role | Set `StoreInspection.engineer` + `inspection_engineer` role (Step 6) |
+| Bind screen shows 未找到该中文名 | `chinese_name` not set on the account | Set `User.chinese_name` in admin (Step 6) |
 | CI `preview` job skips | Secrets not set | Add `WECHAT_MINI_APPID` + `WECHAT_CI_PRIVATE_KEY` (Step 8) |
 
 ---

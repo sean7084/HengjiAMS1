@@ -52,7 +52,8 @@ class InspectionDeviceSerializer(serializers.ModelSerializer):
             'asset_id_text', 'category', 'brand_model', 'sn', 'usage', 'warranty_start',
             'photo_required', 'outline', 'device_notes',
             'status', 'ip_address', 'cpu', 'memory', 'hdd', 'windows_version',
-            'ios_version', 'drive_c_free_space', 'intact_asset_tag', 'comment',
+            'ios_version', 'is_company_phone', 'user_email',
+            'drive_c_free_space', 'intact_asset_tag', 'comment',
             'is_new_device', 'collected_by', 'collected_by_name', 'collected_at',
             'photos', 'created_at', 'updated_at',
         ]
@@ -71,6 +72,7 @@ class InspectionDeviceCacheSerializer(serializers.ModelSerializer):
             'id', 'client_device_uid', 'row_order', 'asset_id_text', 'category',
             'brand_model', 'sn', 'usage', 'warranty_start', 'photo_required',
             'outline', 'device_notes', 'status', 'is_new_device',
+            'is_company_phone', 'user_email',
         ]
 
 

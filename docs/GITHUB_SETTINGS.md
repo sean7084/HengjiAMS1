@@ -279,7 +279,7 @@ The new Projects workflow engine **cannot filter by repository labels** (`Invali
 
 > **Note:** `setup-branch-protection.ps1` is the current, working branch protection script. The older `setup-github-branch-protection.ps1` is superseded and can be removed during future cleanup.
 
-All scripts read the token from `.env.local` (`GITHUB_CLASSIC_TOKEN`).
+All scripts read the token from `.env` (`GITHUB_CLASSIC_TOKEN`), falling back to a legacy `.env.local` if that is what exists. Both are gitignored.
 
 ---
 
@@ -318,7 +318,8 @@ Constraints discovered because this is a **personal** (not organization) reposit
 ### Manual Verification via API
 
 ```powershell
-$token = (Get-Content '.env.local' | Select-String '^GITHUB_CLASSIC_TOKEN=').ToString().Split('=')[1]
+$envFile = @('.env', '.env.local') | Where-Object { Test-Path $_ } | Select-Object -First 1
+$token = (Get-Content $envFile | Select-String '^GITHUB_CLASSIC_TOKEN=').ToString().Split('=')[1]
 $headers = @{ "Authorization" = "Bearer $token"; "Accept" = "application/vnd.github.v3+json" }
 
 # Branch protection

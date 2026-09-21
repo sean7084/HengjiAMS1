@@ -372,6 +372,13 @@ class InspectionDevice(models.Model):
     hdd = models.CharField(max_length=100, blank=True, verbose_name=_('HDD'))
     windows_version = models.CharField(max_length=100, blank=True, verbose_name=_('Windows Version'))
     ios_version = models.CharField(max_length=100, blank=True, verbose_name=_('iOS Version'))
+    is_company_phone = models.BooleanField(default=False, verbose_name=_('Company Phone'))
+    user_email = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('User (Email)'),
+        help_text=_('Company-phone user; stored in email format.'),
+    )
     drive_c_free_space = models.CharField(max_length=50, blank=True, verbose_name=_('Drive C Free Space'))
     intact_asset_tag = models.CharField(
         max_length=1, choices=IntactTag.choices, blank=True, verbose_name=_('Intact Asset Tag'))
