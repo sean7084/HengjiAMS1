@@ -1,0 +1,167 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Inspection Review" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="fas fa-clipboard-check text-primary me-2"></i>
+                {% trans "Inspection Review" %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% blocktrans %}Batch-review asset status for {{ start }} – {{ end }}.{% endblocktrans %}
+            </p>
+        </div>
+        <a href="{% url 'inspections:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-calendar-alt"></i> {% trans "Dashboard" %}
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">{% trans "Period" %}</label>
+                    <select name="period" class="form-select">
+                        <option value="month" {% if period == 'month' %}selected{% endif %}>{% trans "This month" %}</option>
+                        <option value="week" {% if period == 'week' %}selected{% endif %}>{% trans "This week" %}</option>
+                        <option value="custom" {% if period == 'custom' %}selected{% endif %}>{% trans "Custom range" %}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">{% trans "Batch" %}</label>
+                    <select name="batch" class="form-select">
+                        <option value="">{% trans "All batches" %}</option>
+                        {% for b in batches %}
+                        <option value="{{ b.id }}" {% if batch and b.id == batch.id %}selected{% endif %}>{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">{% trans "From" %}</label>
+                    <input type="date" name="date_from" value="{{ date_from }}" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">{% trans "To" %}</label>
+                    <input type="date" name="date_to" value="{{ date_to }}" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">{% trans "Apply" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review table -->
+    <div class="card">
+        <div class="card-body p-0">
+            {% if rows %}
+            <form method="post" action="{% url 'inspections:review_bulk' %}">
+                {% csrf_token %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                {% if can_manage %}
+                                <th style="width:36px;">
+                                    <input type="checkbox" class="form-check-input" id="selectAll"
+                                           title="{% trans 'Select all' %}">
+                                </th>
+                                {% endif %}
+                                <th>{% trans "Date" %}</th>
+                                <th>{% trans "Store" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th class="text-center">{% trans "Expected" %}</th>
+                                <th class="text-center">{% trans "Collected" %}</th>
+                                <th class="text-center">{% trans "New" %}</th>
+                                <th class="text-center">{% trans "Not Found" %}</th>
+                                <th class="text-center">{% trans "Issues" %}</th>
+                                <th>{% trans "Progress" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rows %}
+                            <tr>
+                                {% if can_manage %}
+                                <td>
+                                    <input type="checkbox" class="form-check-input row-select"
+                                           name="inspection_ids" value="{{ row.inspection.id }}">
+                                </td>
+                                {% endif %}
+                                <td class="text-nowrap small">{{ row.inspection.inspection_date|date:"Y-m-d" }}</td>
+                                <td>
+                                    <a href="{% url 'inspections:inspection_detail' row.inspection.id %}" class="text-decoration-none fw-semibold">
+                                        {{ row.inspection.store_label|default:row.inspection.store_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% with status=row.inspection.status %}
+                                    <span class="badge bg-{% if status == 'planned' %}secondary{% elif status == 'in_progress' %}info{% elif status == 'completed' %}success{% elif status == 'submitted' %}primary{% else %}light text-dark border{% endif %}">
+                                        {{ row.inspection.get_status_display }}
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                                <td class="text-center">{{ row.expected }}</td>
+                                <td class="text-center">{{ row.collected }}</td>
+                                <td class="text-center">{{ row.new_found }}</td>
+                                <td class="text-center {% if row.not_found %}text-danger fw-semibold{% endif %}">{{ row.not_found }}</td>
+                                <td class="text-center">{{ row.issue_count }}</td>
+                                <td style="width:160px;">
+                                    <div class="progress" style="height:6px;">
+                                        <div class="progress-bar bg-success" style="width:{{ row.pct }}%;"></div>
+                                    </div>
+                                    <span class="small text-muted">{{ row.collected }}/{{ row.expected }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if can_manage %}
+                <!-- Bulk action: applies to the selected sites' outstanding devices. -->
+                <div class="border-top p-3 d-flex flex-wrap gap-2 align-items-center">
+                    <span class="small text-muted">{% trans "With the selected sites:" %}</span>
+                    <select name="status" class="form-select form-select-sm" style="max-width:280px;">
+                        <option value="not_in_store">{% trans "Mark outstanding devices Not Found" %}</option>
+                        <option value="in_store">{% trans "Mark outstanding devices In Store" %}</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('{% trans "Update the outstanding devices of the selected sites?" %}');">
+                        <i class="fas fa-bolt"></i> {% trans "Apply" %}
+                    </button>
+                    <span class="small text-muted ms-auto">
+                        {% trans "Outstanding = expected devices with no onsite reading yet." %}
+                    </span>
+                </div>
+                {% endif %}
+            </form>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-clipboard-check fa-3x mb-3"></i>
+                <div>{% trans "No inspections in the selected period." %}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Select-all checkbox for the bulk review action.
+    (function () {
+        const all = document.getElementById('selectAll');
+        if (!all) return;
+        all.addEventListener('change', function () {
+            document.querySelectorAll('.row-select').forEach(function (box) {
+                box.checked = all.checked;
+            });
+        });
+    })();
+</script>
+{% endblock %}

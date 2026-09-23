@@ -1,4 +1,5 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
+<home-button />
 <view class="container">
   <view class="card">
     <view class="title">{{isNew ? '新增设备' : (i18n.categoryZh(device.category) + ' · ' + (device.brand_model || ''))}}</view>

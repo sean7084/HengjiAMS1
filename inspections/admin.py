@@ -8,6 +8,7 @@ from .models import (
     InspectionIssue,
     InspectionPhoto,
     InspectionSignoffLog,
+    InspectionWifiWeakPoint,
     StoreInspection,
 )
 
@@ -38,6 +39,12 @@ class InspectionBatchAdmin(admin.ModelAdmin):
     @admin.display(description=_('Inspections'), ordering='inspections')
     def inspection_count(self, obj):
         return obj.inspections.count()
+
+
+class InspectionWifiWeakPointInline(admin.TabularInline):
+    model = InspectionWifiWeakPoint
+    extra = 0
+    fields = ('sort_index', 'location', 'description')
 
 
 class InspectionDeviceInline(admin.TabularInline):
@@ -74,7 +81,7 @@ class StoreInspectionAdmin(admin.ModelAdmin):
     date_hierarchy = 'inspection_date'
     readonly_fields = ('created_at', 'updated_at', 'report_generated_at', 'signed_at')
     autocomplete_fields = ('batch',)
-    inlines = [InspectionDeviceInline, InspectionIssueInline]
+    inlines = [InspectionDeviceInline, InspectionIssueInline, InspectionWifiWeakPointInline]
     fieldsets = (
         (None, {
             'fields': (
@@ -91,7 +98,7 @@ class StoreInspectionAdmin(admin.ModelAdmin):
             ),
         }),
         (_('Confirmation Page'), {
-            'fields': ('wifi_covers_store', 'it_support_rating', 'it_support_comment', 'device_counts'),
+            'fields': ('it_support_rating', 'it_support_comment', 'device_counts'),
         }),
         (_('Signoff'), {
             'fields': ('store_signature', 'engineer_signature', 'signed_at'),

@@ -1,0 +1,103 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">{{ title }}</h1>
+            <p class="text-muted mb-0">{{ inspection.store_label|default:inspection }}</p>
+        </div>
+        <a href="{{ back_url }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>{% trans "Back to Inspection" %}
+        </a>
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header bg-light"><h5 class="mb-0">{% trans "Onsite Capture (editable)" %}</h5></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.engineer.label }}</label>
+                        {{ form.engineer }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.arriving_time.label }}</label>
+                        {{ form.arriving_time }}
+                        <div class="form-text">{% trans "Auto-collected when the FE starts; editable here." %}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.leaving_time.label }}</label>
+                        {{ form.leaving_time }}
+                        <div class="form-text">{% trans "Auto-collected when the FE ends; editable here." %}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.wifi_coverage.label }}</label>
+                        {{ form.wifi_coverage }}
+                        <div class="form-text">{% trans "Re-derived from weak points on save." %}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.it_support_rating.label }}</label>
+                        {{ form.it_support_rating }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.it_support_comment.label }}</label>
+                        {{ form.it_support_comment }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light"><h5 class="mb-0">{% trans "WiFi Weak Points" %}</h5></div>
+            <div class="card-body">
+                {{ weakpoint_formset.management_form }}
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width:70px;">#</th>
+                            <th>{% trans "Location" %}</th>
+                            <th>{% trans "Issue Description" %}</th>
+                            <th style="width:90px;">{% trans "Delete" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for wf in weakpoint_formset %}
+                        <tr>
+                            <td>{{ wf.id }}{{ wf.sort_index }}</td>
+                            <td>{{ wf.location }}</td>
+                            <td>{{ wf.description }}</td>
+                            <td class="text-center">{% if wf.instance.pk %}{{ wf.DELETE }}{% endif %}</td>
+                        </tr>
+                        {% if wf.errors %}
+                        <tr><td colspan="4" class="text-danger small">{{ wf.errors }}</td></tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="form-text">{% trans "Zero weak points means good coverage; each weak point needs a location and a short description." %}</div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{{ back_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{% trans "Save" %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

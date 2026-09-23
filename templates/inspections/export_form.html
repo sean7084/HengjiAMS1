@@ -68,6 +68,25 @@
                             {% if form.week.errors %}<div class="text-danger small">{{ form.week.errors|striptags }}</div>{% endif %}
                         </div>
 
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="form-label small text-muted">{% trans "Contents" %}</div>
+                                <div class="form-check">
+                                    {{ form.include_asset_list }}
+                                    <label class="form-check-label" for="{{ form.include_asset_list.id_for_label }}">{{ form.include_asset_list.label }}</label>
+                                </div>
+                                <div class="form-check">
+                                    {{ form.include_photos }}
+                                    <label class="form-check-label" for="{{ form.include_photos.id_for_label }}">{{ form.include_photos.label }}</label>
+                                </div>
+                                <div class="form-check">
+                                    {{ form.include_reports }}
+                                    <label class="form-check-label" for="{{ form.include_reports.id_for_label }}">{{ form.include_reports.label }}</label>
+                                </div>
+                                <div class="form-text">{% trans "Selecting photos or reports produces a ZIP bundle; asset-list only downloads a single XLSX." %}</div>
+                            </div>
+                        </div>
+
                         <div class="alert alert-info small mb-3">
                             <i class="fas fa-info-circle me-2"></i>
                             {% trans "Select at least one filter. Filters combine with AND. The ISO week filter overrides the date range when both are set." %}
@@ -76,7 +95,7 @@
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{% url 'inspections:inspection_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-download"></i> {% trans "Download XLSX" %}
+                                <i class="fas fa-download"></i> {% trans "Download" %}
                             </button>
                         </div>
                     </form>

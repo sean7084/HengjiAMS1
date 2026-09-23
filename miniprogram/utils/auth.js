@@ -43,9 +43,14 @@ async function seamlessLogin() {
 // Resolve a Chinese name to matching engineer(s) for the login confirmation step.
 // Returns {found, matches:[{username, english_name, chinese_name}]}.
 async function lookupByName(chineseName) {
+  return lookup({ chinese_name: chineseName });
+}
+
+// Unified field-engineer lookup: chinese_name | phone | wechat_id | invite_code.
+async function lookup(payload) {
   return request.request('/auth/wechat/lookup/', {
     method: 'POST',
-    data: { chinese_name: chineseName },
+    data: payload,
     auth: false,
   });
 }
@@ -70,4 +75,22 @@ async function ensureSession() {
   return seamlessLogin();
 }
 
-module.exports = { getUser, setUser, clearSession, seamlessLogin, lookupByName, bind, ensureSession };
+// An account created from an invite code has no contact details yet, so the
+// client collects them once after binding.
+function needsProfile(user) {
+  if (!user) return false;
+  return !(user.chinese_name || '').trim() || !(user.phone_number || '').trim();
+}
+
+// Fill in the signed-in engineer's own blank details. The server only writes
+// fields that are still empty, so the call is safe to repeat.
+async function completeProfile(payload) {
+  const data = await request.request('/auth/wechat/profile/', { method: 'POST', data: payload });
+  if (data && data.user) setUser(data.user);
+  return data;
+}
+
+module.exports = {
+  getUser, setUser, clearSession, seamlessLogin, lookupByName, lookup, bind,
+  ensureSession, needsProfile, completeProfile,
+};

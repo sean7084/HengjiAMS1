@@ -102,7 +102,33 @@
                                 {% endif %}
                             </div>
 
-                            <!-- Administrator Roles -->
+                            <!-- Field Engineer profile -->
+                            {% if form.wechat_id %}
+                            <div class="form-section mb-3">
+                                <h6>{% trans "Field Engineer Profile" %}</h6>
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <label class="form-label small">{{ form.wechat_id.label }}</label>
+                                        {{ form.wechat_id }}
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <label class="form-label small">{{ form.invite_code.label }}</label>
+                                        {{ form.invite_code }}
+                                        <div class="form-text">{% trans "Leave blank to auto-generate for field engineers." %}</div>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label small">{{ form.fe_rating.label }}</label>
+                                        {{ form.fe_rating }}
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label small">{{ form.fe_notes.label }}</label>
+                                        {{ form.fe_notes }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Roles -->
                             {% if form.roles %}
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.roles.id_for_label }}" class="form-label">

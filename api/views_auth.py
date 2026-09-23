@@ -11,7 +11,8 @@ Both endpoints are unauthenticated (AllowAny); every other API requires JWT.
 """
 from django.conf import settings
 from django.contrib.auth import authenticate
-from rest_framework.permissions import AllowAny
+from django.db.models import Q
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -28,13 +29,40 @@ def _tokens_for(user):
     return {'access': str(refresh.access_token), 'refresh': str(refresh)}
 
 
+def resolve_field_engineers(*, chinese_name='', phone='', wechat_id='', invite_code='', query=''):
+    """Return active Users matching any provided field-engineer identifier.
+
+    Supports lookup by Chinese name, phone number, WeChat id, or invite code.
+    ``query`` is a convenience that tries all four at once.
+    """
+    filters = Q()
+    if chinese_name:
+        filters |= Q(chinese_name__iexact=chinese_name)
+    if phone:
+        filters |= Q(phone_number=phone)
+    if wechat_id:
+        filters |= Q(wechat_id__iexact=wechat_id)
+    if invite_code:
+        filters |= Q(invite_code__iexact=invite_code)
+    if query:
+        filters |= (
+            Q(chinese_name__iexact=query)
+            | Q(phone_number=query)
+            | Q(wechat_id__iexact=query)
+            | Q(invite_code__iexact=query)
+        )
+    if not filters:
+        return User.objects.none()
+    return User.objects.filter(is_active=True).filter(filters)
+
+
 class WeChatLookupView(APIView):
-    """Resolve a Chinese name to matching engineer(s) for login confirmation.
+    """Resolve a field engineer to matching account(s) for login confirmation.
 
     Unauthenticated. The mini program bind screen calls this after the engineer
-    types their Chinese name, then shows the English name to confirm before the
-    password step. Returns all active matches so the client can disambiguate when
-    two engineers share a Chinese name.
+    supplies a Chinese name, phone number, WeChat id, or invite code, then shows
+    the English name to confirm before the password step. Returns all active
+    matches so the client can disambiguate.
     """
 
     permission_classes = [AllowAny]
@@ -42,19 +70,65 @@ class WeChatLookupView(APIView):
 
     def post(self, request):
         chinese_name = (request.data.get('chinese_name') or '').strip()
-        if not chinese_name:
-            return Response({'error': 'chinese_name is required.'}, status=400)
+        phone = (request.data.get('phone') or request.data.get('phone_number') or '').strip()
+        wechat_id = (request.data.get('wechat_id') or '').strip()
+        invite_code = (request.data.get('invite_code') or '').strip()
+        query = (request.data.get('query') or '').strip()
+        if not (chinese_name or phone or wechat_id or invite_code or query):
+            return Response({'error': 'A lookup identifier is required.'}, status=400)
 
-        users = User.objects.filter(is_active=True, chinese_name=chinese_name)
+        users = resolve_field_engineers(
+            chinese_name=chinese_name, phone=phone, wechat_id=wechat_id,
+            invite_code=invite_code, query=query,
+        )
         matches = [
             {
                 'username': u.username,
                 'english_name': u.get_full_name() or u.username,
                 'chinese_name': u.chinese_name,
+                'phone_number': u.phone_number,
+                'has_invite_code': bool(u.invite_code),
             }
             for u in users
         ]
         return Response({'found': bool(matches), 'matches': matches}, status=200)
+
+
+class WeChatProfileCompleteView(APIView):
+    """One-time self-service profile completion for a freshly bound engineer.
+
+    A field engineer created from an invite code has no contact details yet, so
+    the mini program collects Chinese name / phone / WeChat id on first login.
+    Only blank fields are written: admin-maintained values are never overwritten
+    by the client, which makes the call safely repeatable.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        chinese_name = (request.data.get('chinese_name') or '').strip()
+        phone = (request.data.get('phone_number') or request.data.get('phone') or '').strip()
+        wechat_id = (request.data.get('wechat_id') or '').strip()
+        if not (chinese_name or phone or wechat_id):
+            return Response({'error': 'Nothing to update.'}, status=400)
+
+        updated = []
+        if chinese_name and not user.chinese_name:
+            user.chinese_name = chinese_name
+            updated.append('chinese_name')
+        if phone and not user.phone_number:
+            user.phone_number = phone
+            updated.append('phone_number')
+        if wechat_id and not user.wechat_id:
+            user.wechat_id = wechat_id
+            updated.append('wechat_id')
+        if updated:
+            user.save(update_fields=updated + ['updated_at'])
+        return Response(
+            {'updated': updated, 'user': UserSerializer(user).data},
+            status=200,
+        )
 
 
 class WeChatBindView(APIView):

@@ -104,6 +104,30 @@
                             {{ form.description }}
                         </div>
 
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    {{ form.auto_arrange }}
+                                    <label class="form-check-label" for="{{ form.auto_arrange.id_for_label }}">
+                                        {{ form.auto_arrange.label }}
+                                    </label>
+                                    <div class="form-text">{{ form.auto_arrange.help_text }}</div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label for="{{ form.arrange_start.id_for_label }}" class="form-label small text-muted">{{ form.arrange_start.label }}</label>
+                                        {{ form.arrange_start }}
+                                        {% if form.arrange_start.errors %}<div class="text-danger small">{{ form.arrange_start.errors|striptags }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="{{ form.arrange_end.id_for_label }}" class="form-label small text-muted">{{ form.arrange_end.label }}</label>
+                                        {{ form.arrange_end }}
+                                        {% if form.arrange_end.errors %}<div class="text-danger small">{{ form.arrange_end.errors|striptags }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <a href="{{ back_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                             <button type="submit" class="btn btn-success">

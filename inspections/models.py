@@ -153,6 +153,10 @@ class StoreInspection(models.Model):
         NORMAL = 'normal', _('Normal')
         UNSATISFIED = 'unsatisfied', _('Unsatisfied')
 
+    class Slot(models.TextChoices):
+        AM = 'am', _('Morning')
+        PM = 'pm', _('Afternoon')
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Batch grouping (web-UI planning cycle; nullable so existing rows stay valid)
@@ -202,6 +206,13 @@ class StoreInspection(models.Model):
 
     # Scheduling / assignment
     inspection_date = models.DateField(verbose_name=_('Inspection Date'))
+    slot = models.CharField(
+        max_length=2,
+        choices=Slot.choices,
+        default=Slot.AM,
+        verbose_name=_('Time Slot'),
+        help_text=_('AM or PM batch within the inspection date.'),
+    )
     engineer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -230,13 +241,7 @@ class StoreInspection(models.Model):
     store_issue_found_count = models.PositiveIntegerField(default=0, verbose_name=_('Store Issue Found'))
     issue_to_follow_count = models.PositiveIntegerField(default=0, verbose_name=_('Issue To Be Followed Up'))
 
-    # confirmation_page - WiFi coverage yes/no, IT-support rating, device counts
-    wifi_covers_store = models.BooleanField(
-        null=True,
-        blank=True,
-        verbose_name=_('WiFi Covers Whole Store'),
-        help_text=_('无线信号能覆盖整个店铺且信号较强 (是/否).'),
-    )
+    # confirmation_page - IT-support rating, device counts
     it_support_rating = models.CharField(
         max_length=20,
         choices=ItSupportRating.choices,
@@ -293,6 +298,7 @@ class StoreInspection(models.Model):
             models.Index(fields=['location', 'inspection_date']),
             models.Index(fields=['jda_code']),
             models.Index(fields=['batch', 'inspection_date']),
+            models.Index(fields=['batch', 'inspection_date', 'slot']),
         ]
 
     def __str__(self):
@@ -507,6 +513,7 @@ class InspectionIssue(models.Model):
     class Status(models.TextChoices):
         FIXED = 'fixed', _('Fixed')
         TO_BE_FOLLOWED = 'to_be_followed', _('To Be Followed')
+        ESCALATED = 'escalated', _('Escalated')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     store_inspection = models.ForeignKey(
@@ -584,3 +591,36 @@ class InspectionSignoffLog(models.Model):
 
     def __str__(self):
         return f'{self.operation} - {self.store_inspection} - {self.created_at:%Y-%m-%d %H:%M}'
+
+
+class InspectionWifiWeakPoint(models.Model):
+    """A recorded WiFi weak point captured onsite under 机柜/网络.
+
+    Replaces the former boolean ``wifi_covers_store``: an inspection with zero
+    weak points is considered good coverage; each weak point carries a location
+    and a short description of the issue.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    store_inspection = models.ForeignKey(
+        StoreInspection,
+        on_delete=models.CASCADE,
+        related_name='wifi_weak_points',
+        verbose_name=_('Store Inspection'),
+    )
+    sort_index = models.PositiveIntegerField(default=0, verbose_name=_('Sort Index'))
+    location = models.CharField(max_length=120, verbose_name=_('Weak Point Location'))
+    description = models.CharField(max_length=255, verbose_name=_('Issue Description'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+
+    class Meta:
+        verbose_name = _('WiFi Weak Point')
+        verbose_name_plural = _('WiFi Weak Points')
+        ordering = ['sort_index', 'created_at']
+        indexes = [
+            models.Index(fields=['store_inspection', 'sort_index']),
+        ]
+
+    def __str__(self):
+        return f'{self.location}: {self.description[:40]}'

@@ -1,3 +1,4 @@
+<home-button />
 <view class="container">
   <view class="row" style="margin-bottom:16rpx;">
     <view class="title">我的巡检任务</view>

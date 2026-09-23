@@ -1,3 +1,4 @@
+<home-button />
 <view class="container">
   <view class="card">
     <view class="title">问题列表 Issue List</view>

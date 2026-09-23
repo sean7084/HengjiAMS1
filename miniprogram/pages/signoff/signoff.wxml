@@ -1,7 +1,29 @@
+<home-button />
 <view class="container">
   <view class="card">
     <view class="title">签字确认 Signoff</view>
     <view class="muted" style="margin-top:6rpx;">提交后巡检将标记为已提交（不可再修改）。</view>
+  </view>
+
+  <!-- Merged confirmation: device counts per category + IT rating + WiFi badge. -->
+  <view class="card">
+    <view class="title" style="font-size:30rpx;">确认概要</view>
+    <view class="muted" style="margin-top:8rpx;" wx:if="{{categoryCounts.length}}">
+      <view wx:for="{{categoryCounts}}" wx:key="category" style="margin-top:4rpx;">
+        {{item.category}}: {{item.count}}
+      </view>
+    </view>
+    <view class="muted" wx:else style="margin-top:8rpx;">暂无已记录设备。</view>
+    <view class="row" style="margin-top:12rpx;align-items:center;">
+      <text class="field-label">IT 服务评价</text>
+      <view class="tag {{itRating==='satisfied'?'tag-ok':''}}" data-value="satisfied" bindtap="setItRating">满意</view>
+      <view class="tag {{itRating==='normal'?'':'tag-warn'}}" style="margin-left:12rpx;" data-value="normal" bindtap="setItRating">一般</view>
+      <view class="tag {{itRating==='unsatisfied'?'tag-warn':''}}" style="margin-left:12rpx;" data-value="unsatisfied" bindtap="setItRating">不满意</view>
+    </view>
+    <view class="row" style="margin-top:12rpx;align-items:center;">
+      <text class="field-label">WiFi 覆盖</text>
+      <view class="tag {{wifiBadge==='good'?'tag-ok':'tag-warn'}}">{{wifiBadge==='good' ? '良好' : '存在弱点'}}</view>
+    </view>
   </view>
 
   <view class="card">

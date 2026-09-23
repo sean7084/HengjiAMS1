@@ -3,6 +3,7 @@ Models for HengJi Asset Management System - Accounts App.
 This module defines the custom user model and related authentication models.
 """
 
+import secrets
 import uuid
 
 from django.conf import settings
@@ -69,7 +70,7 @@ class User(AbstractUser):
         VIEWER = 'viewer', _('Viewer')
         ORDER_MANAGEMENT_SPECIALIST = 'order_management_specialist', _('Order Management Specialist')
         ORDER_MANAGEMENT_MANAGER = 'order_management_manager', _('Order Management Manager')
-        INSPECTION_ENGINEER = 'inspection_engineer', _('Inspection Engineer')
+        INSPECTION_ENGINEER = 'inspection_engineer', _('Field Engineer')
 
     LANGUAGE_CHOICES = [
         ('en-us', _('English (US)')),
@@ -123,6 +124,32 @@ class User(AbstractUser):
         max_length=20,
         blank=True,
         verbose_name=_('Phone Number')
+    )
+    wechat_id = models.CharField(
+        max_length=64,
+        blank=True,
+        db_index=True,
+        verbose_name=_('WeChat ID'),
+        help_text=_('WeChat account id used to look up field engineers.'),
+    )
+    invite_code = models.CharField(
+        max_length=16,
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name=_('Invite Code'),
+        help_text=_('One-time invite id offered to a field engineer on first mini-program use.'),
+    )
+    fe_rating = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_('Field Engineer Rating'),
+        help_text=_('1-5 quality rating tracked for field engineers.'),
+    )
+    fe_notes = models.TextField(
+        blank=True,
+        verbose_name=_('Field Engineer Notes'),
+        help_text=_('Free-form notes tracking field-engineer quality.'),
     )
     department = models.CharField(
         max_length=100,
@@ -269,12 +296,22 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.language_preference = self.normalize_language_code(self.language_preference)
         self.employee_id = self.normalize_employee_id(self.employee_id)
+        self._ensure_invite_code()
         result = super().save(*args, **kwargs)
         pending_role_codes = getattr(self, '_pending_admin_role_codes', None)
         if pending_role_codes is not None:
             self.set_admin_roles(pending_role_codes)
             delattr(self, '_pending_admin_role_codes')
         return result
+
+    def _ensure_invite_code(self):
+        """Auto-generate a first-login invite code for field engineers."""
+        if self.invite_code:
+            return
+        pending = getattr(self, '_pending_admin_role_codes', None)
+        codes = set(pending) if pending is not None else set(self.get_admin_role_codes())
+        if self.AdminRole.INSPECTION_ENGINEER in codes:
+            self.invite_code = secrets.token_urlsafe(8)
 
     @classmethod
     def order_admin_role_codes(cls, role_codes):
@@ -329,6 +366,12 @@ class User(AbstractUser):
             return
         roles = AdminRole.objects.filter(code__in=normalized_codes)
         self.roles.set(roles)
+        # Roles are only known after the M2M is set, so a user promoted to field
+        # engineer post-creation still needs its first-login invite code.
+        before = self.invite_code
+        self._ensure_invite_code()
+        if self.invite_code != before:
+            self.save(update_fields=['invite_code'])
 
     def get_admin_role_display(self):
         return self.admin_role_label(self.admin_role)
@@ -379,6 +422,10 @@ class User(AbstractUser):
     def is_inspection_engineer(self):
         """Check if user can run onsite store device inspections (mini program)."""
         return self.has_admin_role(self.AdminRole.INSPECTION_ENGINEER)
+
+    def is_field_engineer(self):
+        """Alias of is_inspection_engineer(); the role is labelled 'Field Engineer'."""
+        return self.is_inspection_engineer()
     
     def get_accessible_companies(self):
         """Get companies this admin can access."""

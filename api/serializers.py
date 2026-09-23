@@ -29,9 +29,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 'chinese_name',
-            'english_name', 'admin_role', 'admin_roles', 'phone_number', 'department',
-            'job_title', 'two_factor_enabled', 'language_preference', 'profile_image',
-            'service_cities', 'service_city_names',
+            'english_name', 'admin_role', 'admin_roles', 'phone_number', 'wechat_id',
+            'department', 'job_title', 'two_factor_enabled', 'language_preference',
+            'profile_image', 'service_cities', 'service_city_names',
         ]
         read_only_fields = ['id', 'two_factor_enabled', 'service_cities']
 

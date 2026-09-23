@@ -45,6 +45,11 @@
                 <i class="fas fa-images"></i> {% trans "Photos" %}
             </a>
             {% endif %}
+            {% if can_manage %}
+            <a href="{% url 'inspections:inspection_edit' inspection.id %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit"></i> {% trans "Edit" %}
+            </a>
+            {% endif %}
             <a href="javascript:history.back()" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i> {% trans "Back" %}
             </a>
@@ -93,7 +98,7 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header bg-light">
-                    <h5 class="card-title mb-0"><i class="fas fa-id-card me-2"></i>{% trans "Cover Page" %}</h5>
+                    <h5 class="card-title mb-0"><i class="fas fa-id-card me-2"></i>{% trans "Inspection Summary" %}</h5>
                 </div>
                 <div class="card-body">
                     <dl class="row small mb-0">
@@ -103,11 +108,17 @@
                         <dd class="col-6">{{ inspection.leaving_time|default:"-" }}</dd>
                         <dt class="col-6">{% trans "WiFi Coverage" %}</dt>
                         <dd class="col-6">{{ inspection.get_wifi_coverage_display|default:"-" }}</dd>
-                        <dt class="col-6">{% trans "WiFi Covers Store" %}</dt>
+                        <dt class="col-6">{% trans "WiFi Weak Points" %}</dt>
                         <dd class="col-6">
-                            {% if inspection.wifi_covers_store is None %}-
-                            {% elif inspection.wifi_covers_store %}{% trans "Yes" %}
-                            {% else %}{% trans "No" %}{% endif %}
+                            {% if wifi_weak_points %}
+                            <ul class="mb-0 ps-3">
+                                {% for weak_point in wifi_weak_points %}
+                                <li>{{ weak_point.location }} &mdash; {{ weak_point.description }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="text-success">{% trans "None recorded (good coverage)" %}</span>
+                            {% endif %}
                         </dd>
                         <dt class="col-6">{% trans "IT Support Rating" %}</dt>
                         <dd class="col-6">{{ inspection.get_it_support_rating_display|default:"-" }}</dd>
@@ -143,6 +154,44 @@
             </div>
             {% endif %}
 
+            {% if can_manage %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0"><i class="fas fa-user-cog me-2"></i>{% trans "Field Engineer" %}</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row small mb-3">
+                        <dt class="col-5">{% trans "Assigned" %}</dt>
+                        <dd class="col-7">{{ inspection.engineer.get_display_name|default:"-" }}</dd>
+                        {% if inspection.engineer %}
+                        <dt class="col-5">{% trans "Phone" %}</dt>
+                        <dd class="col-7">{{ inspection.engineer.phone_number|default:"-" }}</dd>
+                        <dt class="col-5">{% trans "Rating" %}</dt>
+                        <dd class="col-7">{{ inspection.engineer.fe_rating|default:"-" }} / 5</dd>
+                        {% if inspection.engineer.fe_notes %}
+                        <dt class="col-5">{% trans "Notes" %}</dt>
+                        <dd class="col-7">{{ inspection.engineer.fe_notes|truncatechars:120 }}</dd>
+                        {% endif %}
+                        {% endif %}
+                    </dl>
+                    <form method="post" action="{% url 'inspections:assign_fe' inspection.id %}" class="row g-2">
+                        {% csrf_token %}
+                        <div class="col-8">
+                            <input type="text" name="query" class="form-control form-control-sm"
+                                   placeholder="{% trans 'Chinese name / phone / WeChat id / invite code' %}">
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">{% trans "Assign" %}</button>
+                        </div>
+                        <div class="col-12 form-check">
+                            <input type="checkbox" name="create_if_missing" value="1" id="createFe" class="form-check-input" checked>
+                            <label for="createFe" class="form-check-label small">{% trans "Create if not exists" %}</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
             {% if store_photos %}
             <div class="card">
                 <div class="card-header bg-light">
@@ -170,7 +219,21 @@
             <div class="card mb-4">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0"><i class="fas fa-laptop me-2"></i>{% trans "Devices" %}</h5>
-                    <span class="text-muted small">{{ device_total }} {% trans "total" %}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">{{ device_collected }} / {{ device_total }} {% trans "inspected" %}</span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                {% trans "Columns" %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end p-2" id="colChooser">
+                                <li class="form-check"><input class="form-check-input col-toggle" type="checkbox" data-col="version" id="cVersion" checked><label class="form-check-label small" for="cVersion">{% trans "Version" %}</label></li>
+                                <li class="form-check"><input class="form-check-input col-toggle" type="checkbox" data-col="ip" id="cIp" checked><label class="form-check-label small" for="cIp">{% trans "IP" %}</label></li>
+                                <li class="form-check"><input class="form-check-input col-toggle" type="checkbox" data-col="specs" id="cSpecs" checked><label class="form-check-label small" for="cSpecs">{% trans "CPU/Mem/HDD" %}</label></li>
+                                <li class="form-check"><input class="form-check-input col-toggle" type="checkbox" data-col="cfree" id="cFree" checked><label class="form-check-label small" for="cFree">{% trans "C Free" %}</label></li>
+                                <li class="form-check"><input class="form-check-input col-toggle" type="checkbox" data-col="comment" id="cComment" checked><label class="form-check-label small" for="cComment">{% trans "Comment" %}</label></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     {% if devices %}
@@ -184,8 +247,13 @@
                                     <th>{% trans "SN" %}</th>
                                     <th>{% trans "Asset ID" %}</th>
                                     <th>{% trans "Usage" %}</th>
+                                    <th data-col="version">{% trans "Version" %}</th>
+                                    <th data-col="ip">{% trans "IP" %}</th>
+                                    <th data-col="specs">{% trans "CPU/Mem/HDD" %}</th>
+                                    <th data-col="cfree">{% trans "C Free" %}</th>
                                     <th>{% trans "Status" %}</th>
                                     <th>{% trans "Tag" %}</th>
+                                    <th data-col="comment">{% trans "Comment" %}</th>
                                     <th>{% trans "Collected" %}</th>
                                 </tr>
                             </thead>
@@ -198,6 +266,10 @@
                                     <td class="small"><code>{{ device.sn|default:"-" }}</code></td>
                                     <td class="small"><code>{{ device.asset_id_text|default:"-" }}</code></td>
                                     <td class="small">{{ device.usage|default:"-" }}</td>
+                                    <td class="small" data-col="version">{{ device.windows_version|default:device.ios_version|default:"-" }}</td>
+                                    <td class="small" data-col="ip">{{ device.ip_address|default:"-" }}</td>
+                                    <td class="small" data-col="specs">{{ device.cpu|default:"-" }} / {{ device.memory|default:"-" }} / {{ device.hdd|default:"-" }}</td>
+                                    <td class="small" data-col="cfree">{{ device.drive_c_free_space|default:"-" }}</td>
                                     <td>
                                         {% if device.is_new_device %}
                                         <span class="badge bg-warning text-dark">{% trans "NEW" %}</span>
@@ -214,6 +286,7 @@
                                         <span class="text-danger"><i class="fas fa-times"></i></span>
                                         {% else %}-{% endif %}
                                     </td>
+                                    <td class="small" data-col="comment">{{ device.comment|truncatechars:40|default:"-" }}</td>
                                     <td class="small text-muted">
                                         {% if device.collected_at %}{{ device.collected_at|date:"m-d H:i" }}{% else %}-{% endif %}
                                     </td>
@@ -249,9 +322,26 @@
                             {% for issue in issues %}
                             <tr>
                                 <td class="text-muted small">{{ issue.seq }}</td>
-                                <td class="small">{{ issue.description }}</td>
                                 <td>
-                                    <span class="badge bg-{% if issue.status == 'fixed' %}success{% else %}warning text-dark{% endif %}">
+                                    {% if can_manage %}
+                                    <form method="post" action="{% url 'inspections:issue_update' issue.id %}" class="row g-1 align-items-center">
+                                        {% csrf_token %}
+                                        <div class="col-6"><textarea name="description" rows="1" class="form-control form-control-sm">{{ issue.description }}</textarea></div>
+                                        <div class="col-4">
+                                            <select name="status" class="form-select form-select-sm">
+                                                {% for value, label in issue_status_choices %}
+                                                <option value="{{ value }}" {% if value == issue.status %}selected{% endif %}>{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-2"><button class="btn btn-sm btn-outline-primary w-100">{% trans "Save" %}</button></div>
+                                    </form>
+                                    {% else %}
+                                    <span class="small">{{ issue.description }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if issue.status == 'fixed' %}success{% elif issue.status == 'escalated' %}danger{% else %}warning text-dark{% endif %}">
                                         {{ issue.get_status_display }}
                                     </span>
                                 </td>
@@ -274,4 +364,32 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const KEY = 'inspections.devices.visibleColumns';
+    let prefs = {};
+    try { prefs = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { prefs = {}; }
+    function apply() {
+        document.querySelectorAll('.col-toggle').forEach(function (box) {
+            const col = box.dataset.col;
+            const visible = prefs[col] !== false;
+            box.checked = visible;
+            document.querySelectorAll('[data-col="' + col + '"]').forEach(function (cell) {
+                cell.style.display = visible ? '' : 'none';
+            });
+        });
+    }
+    document.querySelectorAll('.col-toggle').forEach(function (box) {
+        box.addEventListener('change', function () {
+            prefs[box.dataset.col] = box.checked;
+            localStorage.setItem(KEY, JSON.stringify(prefs));
+            apply();
+        });
+    });
+    apply();
+});
+</script>
 {% endblock %}

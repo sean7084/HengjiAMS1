@@ -628,7 +628,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _('Administrator Management')
+        context['title'] = _('User Management')
         context['search'] = self.request.GET.get('search', '')
         context['admin_role'] = self.request.GET.get('admin_role', '')
         context['admin_role_choices'] = AdminRole.objects.filter(is_active=True).order_by('name')

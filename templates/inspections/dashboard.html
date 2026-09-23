@@ -5,49 +5,21 @@
 
 {% block extra_css %}
 <style>
-    .fc {
-        background: #fff;
-        border-radius: var(--border-radius);
-        padding: 0.5rem;
+    .slot-grid { width: 100%; border-collapse: collapse; }
+    .slot-grid th, .slot-grid td { border: 1px solid #dee2e6; padding: 6px; vertical-align: top; }
+    .slot-grid th { background: #f8f9fa; font-size: .8rem; }
+    .day-cell { min-height: 64px; background: #fff; }
+    .day-cell.dragover { background: #eef4fb; outline: 2px dashed #3498db; }
+    .site-card {
+        border-radius: 6px; color: #fff; padding: 4px 6px; margin-bottom: 4px;
+        font-size: .78rem; cursor: grab; display: block; text-decoration: none;
     }
-    .fc .fc-button-primary {
-        background-color: var(--secondary-color);
-        border-color: var(--secondary-color);
-    }
-    .fc .fc-button-primary:not(:disabled):active,
-    .fc .fc-button-primary:not(:disabled).fc-button-active {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-    .fc-event {
-        cursor: pointer;
-        font-size: 0.78rem;
-    }
-    .status-dot {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 4px;
-    }
-    .summary-tile {
-        border-left: 4px solid;
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-    .summary-tile .count {
-        font-size: 1.6rem;
-        font-weight: 700;
-        line-height: 1;
-    }
-    .summary-tile .label {
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        color: #6c757d;
-    }
+    .site-card:hover { opacity: .9; color: #fff; text-decoration: none; }
+    .site-card .meta { opacity: .85; font-size: .7rem; }
+    .summary-tile { border-left: 4px solid; border-radius: 6px; padding: .75rem 1rem; background: #fff; }
+    .summary-tile .count { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+    .summary-tile .label { font-size: .78rem; text-transform: uppercase; letter-spacing: .4px; color: #6c757d; }
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
 </style>
 {% endblock %}
 
@@ -64,7 +36,7 @@
                 {% if batch %}
                     {% blocktrans with name=batch.name %}Monthly arrangement for batch "{{ name }}".{% endblocktrans %}
                 {% else %}
-                    {% trans "Monthly arrangement of store inspections." %}
+                    {% trans "Monthly arrangement of store inspections (AM / PM slots)." %}
                 {% endif %}
             </p>
         </div>
@@ -80,8 +52,8 @@
                 </select>
             </form>
             {% if can_manage %}
-            <a href="{% url 'inspections:batch_create' %}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus"></i> {% trans "New Batch" %}
+            <a href="{% url 'inspections:batch_list' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-layer-group"></i> {% trans "Batches" %}
             </a>
             {% endif %}
             <a href="{% url 'inspections:inspection_list' %}" class="btn btn-outline-secondary btn-sm">
@@ -93,34 +65,19 @@
     <!-- Summary tiles -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3 col-lg">
-            <div class="summary-tile" style="border-color: #2c3e50;">
-                <div class="count">{{ total_count }}</div>
-                <div class="label">{% trans "Total" %}</div>
-            </div>
+            <div class="summary-tile" style="border-color: #2c3e50;"><div class="count">{{ total_count }}</div><div class="label">{% trans "Total" %}</div></div>
         </div>
         <div class="col-6 col-md-3 col-lg">
-            <div class="summary-tile" style="border-color: #6c757d;">
-                <div class="count">{{ planned_count }}</div>
-                <div class="label">{% trans "Planned" %}</div>
-            </div>
+            <div class="summary-tile" style="border-color: #6c757d;"><div class="count">{{ planned_count }}</div><div class="label">{% trans "Planned" %}</div></div>
         </div>
         <div class="col-6 col-md-3 col-lg">
-            <div class="summary-tile" style="border-color: #0dcaf0;">
-                <div class="count">{{ in_progress_count }}</div>
-                <div class="label">{% trans "In Progress" %}</div>
-            </div>
+            <div class="summary-tile" style="border-color: #0dcaf0;"><div class="count">{{ in_progress_count }}</div><div class="label">{% trans "In Progress" %}</div></div>
         </div>
         <div class="col-6 col-md-3 col-lg">
-            <div class="summary-tile" style="border-color: #198754;">
-                <div class="count">{{ completed_count }}</div>
-                <div class="label">{% trans "Completed" %}</div>
-            </div>
+            <div class="summary-tile" style="border-color: #198754;"><div class="count">{{ completed_count }}</div><div class="label">{% trans "Completed" %}</div></div>
         </div>
         <div class="col-6 col-md-3 col-lg">
-            <div class="summary-tile" style="border-color: #6610f2;">
-                <div class="count">{{ submitted_count }}</div>
-                <div class="label">{% trans "Submitted" %}</div>
-            </div>
+            <div class="summary-tile" style="border-color: #6610f2;"><div class="count">{{ submitted_count }}</div><div class="label">{% trans "Submitted" %}</div></div>
         </div>
     </div>
 
@@ -132,54 +89,99 @@
             <span><span class="status-dot" style="background:#0dcaf0;"></span>{% trans "In Progress" %}</span>
             <span><span class="status-dot" style="background:#198754;"></span>{% trans "Completed" %}</span>
             <span><span class="status-dot" style="background:#6610f2;"></span>{% trans "Submitted" %}</span>
+            {% if can_manage %}<span class="text-muted ms-auto">{% trans "Drag a site card between AM/PM cells to rearrange." %}</span>{% endif %}
         </div>
     </div>
 
-    <!-- Calendar -->
+    <!-- Month navigation -->
+    <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+        <a class="btn btn-outline-secondary btn-sm" title="{% trans 'Previous month' %}"
+           href="?month={{ prev_month }}{% if batch %}&amp;batch={{ batch.id }}{% endif %}">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <span class="fw-semibold">{{ month_start|date:"F Y" }}</span>
+        <a class="btn btn-outline-secondary btn-sm" title="{% trans 'Next month' %}"
+           href="?month={{ next_month }}{% if batch %}&amp;batch={{ batch.id }}{% endif %}">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% if not is_current_month %}
+        <a class="btn btn-outline-primary btn-sm" href="?{% if batch %}batch={{ batch.id }}{% endif %}">
+            {% trans "This month" %}
+        </a>
+        {% endif %}
+        <span class="text-muted small ms-2">{{ month_start|date:"M j" }} &ndash; {{ month_end|date:"M j, Y" }}</span>
+    </div>
+
+    <!-- AM/PM scheduler grid -->
     <div class="card">
-        <div class="card-body">
-            <div id="calendar"></div>
+        <div class="card-body p-0 table-responsive">
+            <table class="slot-grid">
+                <thead>
+                    <tr>
+                        <th style="width:120px;">{% trans "Date" %}</th>
+                        <th>{% trans "AM (Morning)" %}</th>
+                        <th>{% trans "PM (Afternoon)" %}</th>
+                    </tr>
+                </thead>
+                <tbody id="slotBody"></tbody>
+            </table>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const events = {{ events_json|safe }};
-    const calendarEl = document.getElementById('calendar');
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listMonth'
-        },
-        events: events,
-        height: 'auto',
-        dayMaxEvents: 4,
-        eventDisplay: 'block',
-        eventClick: function(info) {
-            if (info.event.url) {
-                info.jsEvent.preventDefault();
-                window.location.href = info.event.url;
-            }
-        },
-        eventDidMount: function(info) {
-            const props = info.event.extendedProps || {};
-            const parts = [];
-            if (props.brand) parts.push(props.brand);
-            if (props.engineer) parts.push(props.engineer);
-            if (props.status) parts.push(props.status);
-            if (parts.length) {
-                info.el.setAttribute('title', parts.join(' | '));
-            }
-        },
-        locale: document.documentElement.lang || 'en',
+const DAYS = {{ days_json|safe }};
+const CAN_MANAGE = {{ can_manage|yesno:"true,false" }};
+const MOVE_URL = '{% url "inspections:inspection_move" %}';
+const CSRF = '{{ csrf_token }}';
+
+function cardHtml(card) {
+    const meta = card.collected + '/' + card.total + (card.engineer ? ' · ' + card.engineer : '');
+    return '<a class="site-card" draggable="' + CAN_MANAGE + '" data-id="' + card.id + '" href="' + card.url + '" ' +
+           'style="background:' + card.color + ';" title="' + card.status_display + '">' +
+           '<div>' + card.label + '</div><div class="meta">' + meta + '</div></a>';
+}
+
+function render() {
+    const body = document.getElementById('slotBody');
+    body.innerHTML = DAYS.map(function (day) {
+        return '<tr>' +
+            '<td class="text-nowrap small">' + day.date + '</td>' +
+            '<td class="day-cell" data-date="' + day.date + '" data-slot="am">' + day.am.map(cardHtml).join('') + '</td>' +
+            '<td class="day-cell" data-date="' + day.date + '" data-slot="pm">' + day.pm.map(cardHtml).join('') + '</td>' +
+            '</tr>';
+    }).join('');
+    bindDrag();
+}
+
+function bindDrag() {
+    document.querySelectorAll('.site-card').forEach(function (card) {
+        card.addEventListener('dragstart', function (e) {
+            e.dataTransfer.setData('text/plain', card.dataset.id);
+        });
     });
-    calendar.render();
-});
+    document.querySelectorAll('.day-cell').forEach(function (cell) {
+        cell.addEventListener('dragover', function (e) { e.preventDefault(); cell.classList.add('dragover'); });
+        cell.addEventListener('dragleave', function () { cell.classList.remove('dragover'); });
+        cell.addEventListener('drop', function (e) {
+            e.preventDefault();
+            cell.classList.remove('dragover');
+            const id = e.dataTransfer.getData('text/plain');
+            if (!id || !CAN_MANAGE) return;
+            fetch(MOVE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                body: JSON.stringify({ inspection_id: id, date: cell.dataset.date, slot: cell.dataset.slot }),
+            }).then(function (r) {
+                if (r.ok) { location.reload(); }
+                else { r.json().then(function (d) { alert(d.error || 'Move failed'); }); }
+            });
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', render);
 </script>
 {% endblock %}

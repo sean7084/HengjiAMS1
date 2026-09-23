@@ -341,10 +341,10 @@ class DashboardPermissionTests(InspectionFrontendTestBase):
         self.client.force_login(self.engineer)
         response = self.client.get(reverse('inspections:dashboard'))
         self.assertEqual(response.status_code, 200)
-        # The engineer's event should be in the payload; the other should not.
-        events_json = response.context['events_json']
-        self.assertIn('Store1', events_json)
-        self.assertNotIn('22002 Gucci Store2', events_json)
+        # The engineer's site card should be in the payload; the other should not.
+        days_json = response.context['days_json']
+        self.assertIn('Store1', days_json)
+        self.assertNotIn('22002 Gucci Store2', days_json)
 
     def test_admin_sees_all_inspections(self):
         StoreInspection.objects.create(
@@ -356,7 +356,7 @@ class DashboardPermissionTests(InspectionFrontendTestBase):
         self.client.force_login(self.superadmin)
         response = self.client.get(reverse('inspections:dashboard'))
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Store1', response.context['events_json'])
+        self.assertIn('Store1', response.context['days_json'])
 
     def test_dashboard_batch_filter(self):
         batch = InspectionBatch.objects.create(
@@ -378,9 +378,9 @@ class DashboardPermissionTests(InspectionFrontendTestBase):
         self.client.force_login(self.superadmin)
         response = self.client.get(reverse('inspections:dashboard'), {'batch': batch.id})
         self.assertEqual(response.status_code, 200)
-        events_json = response.context['events_json']
-        self.assertIn('Store1', events_json)
-        self.assertNotIn('Store2', events_json)
+        days_json = response.context['days_json']
+        self.assertIn('Store1', days_json)
+        self.assertNotIn('Store2', days_json)
 
 
 # -- inspection list / detail ------------------------------------------------
@@ -431,7 +431,10 @@ class NavPermissionTests(InspectionFrontendTestBase):
         self.client.force_login(self.it_admin)
         response = self.client.get(reverse('inspections:dashboard'))
         self.assertContains(response, 'Inspections')
-        self.assertContains(response, 'Export Asset List')
+        # The nav entry was renamed "Export Asset List" -> "Export", and a new
+        # "Review" entry was added for managers.
+        self.assertContains(response, reverse('inspections:asset_list_export'))
+        self.assertContains(response, reverse('inspections:review'))
 
     def test_nav_visible_for_engineer_but_no_new_batch(self):
         self.client.force_login(self.engineer)
