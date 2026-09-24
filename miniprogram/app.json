@@ -6,9 +6,7 @@
     "pages/device-verify/device-verify",
     "pages/rack-network/rack-network",
     "pages/issues/issues",
-    "pages/confirmation/confirmation",
     "pages/signoff/signoff",
-    "pages/report/report",
     "pages/sync/sync"
   ],
   "window": {
@@ -17,6 +15,9 @@
     "navigationBarTitleText": "Kering 店铺巡检",
     "backgroundColor": "#F2F2F2",
     "backgroundTextStyle": "light"
+  },
+  "usingComponents": {
+    "home-button": "/components/home-button/home-button"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

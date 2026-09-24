@@ -60,11 +60,24 @@ async function flushOne(item) {
   }
 
   if (type === 'signoff') {
+    // Merged confirmation fields (device counts / IT rating / wifi coverage) go
+    // through a PATCH first; signatures then upload and mark submitted.
+    if (item.fields && Object.keys(item.fields).length) {
+      await request.request(`/inspections/${inspectionId}/`, { method: 'PATCH', data: item.fields });
+    }
     // wx.uploadFile sends one file per call; the endpoint accepts each signature
     // independently and marks the inspection submitted.
     for (const sig of item.signatures || []) {
       await request.uploadFile(`/inspections/${inspectionId}/signoff/`, sig.filePath, sig.part, {});
     }
+    return;
+  }
+
+  if (type === 'wifi_weak_points') {
+    await request.request(`/inspections/${inspectionId}/wifi-weak-points/`, {
+      method: 'POST',
+      data: { weak_points: item.weak_points || [] },
+    });
     return;
   }
 

@@ -1,4 +1,5 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
+<home-button />
 <view class="container">
   <view class="card" wx:if="{{inspection}}">
     <view class="row">
@@ -11,16 +12,6 @@
     </view>
     <view wx:if="{{offline}}" class="tag tag-warn" style="margin-top:12rpx;">离线模式</view>
     <view class="btn" bindtap="downloadOffline">下载离线数据</view>
-  </view>
-
-  <view class="card" wx:if="{{inspection}}">
-    <view class="title" style="font-size:30rpx;">健康检查概要</view>
-    <view class="muted" style="margin-top:8rpx;">
-      错误修正 {{inspection.error_setting_fixed_count}} · 发现问题 {{inspection.store_issue_found_count}} · 待跟进 {{inspection.issue_to_follow_count}}
-    </view>
-    <view class="muted" style="margin-top:4rpx;">
-      WiFi覆盖 {{inspection.wifi_coverage || '—'}} · IT支持评价 {{inspection.it_support_rating || '—'}}
-    </view>
   </view>
 
   <view class="row" style="margin:8rpx 0 16rpx;">
@@ -37,7 +28,21 @@
     </view>
   </view>
 
-  <view class="muted" style="margin:8rpx 0 16rpx;">我已记录的设备（点击可修改）：</view>
+  <view class="row" style="margin:8rpx 0 16rpx;justify-content:space-between;align-items:center;">
+    <view class="muted">我已记录的设备（点击可修改）：</view>
+    <view class="tag" bindtap="toggleCols">显示字段</view>
+  </view>
+
+  <!-- Customizable detail columns: detail readings are on by default. -->
+  <view class="card" wx:if="{{showCols}}">
+    <view class="field-label" style="margin-bottom:12rpx;">选择要显示的字段</view>
+    <view class="row" style="justify-content:space-between;align-items:center;margin-top:8rpx;"
+          wx:for="{{colToggles}}" wx:key="key">
+      <text class="muted">{{item.label}}</text>
+      <switch checked="{{colPrefs[item.key]}}" data-key="{{item.key}}" bindchange="onToggleCol" color="#07c160" />
+    </view>
+  </view>
+
   <view wx:for="{{recorded}}" wx:key="client_device_uid" class="card"
         data-uid="{{item.client_device_uid}}" bindtap="openDevice">
     <view class="row">
@@ -46,6 +51,17 @@
     </view>
     <view class="muted" style="margin-top:6rpx;">序列号: {{item.sn || '—'}} · 资产编号: {{item.asset_id_text || '—'}}</view>
     <view class="muted">用途: {{item.usage ? i18n.usageZh(item.usage) : '—'}}</view>
+    <view class="muted" wx:if="{{colPrefs.status}}">
+      状态: {{item.status === 'not_in_store' ? '缺失 Not In Store' : '在店 In Store'}}
+    </view>
+    <view class="muted" wx:if="{{colPrefs.windows_version && item.windows_version}}">Windows 版本: {{item.windows_version}}</view>
+    <view class="muted" wx:if="{{colPrefs.ios_version && item.ios_version}}">iOS 版本: {{item.ios_version}}</view>
+    <view class="muted" wx:if="{{colPrefs.ip_address && item.ip_address}}">IP 地址: {{item.ip_address}}</view>
+    <view class="muted" wx:if="{{colPrefs.cpu && item.cpu}}">CPU: {{item.cpu}}</view>
+    <view class="muted" wx:if="{{colPrefs.memory && item.memory}}">内存: {{item.memory}}</view>
+    <view class="muted" wx:if="{{colPrefs.hdd && item.hdd}}">硬盘: {{item.hdd}}</view>
+    <view class="muted" wx:if="{{colPrefs.drive_c_free_space && item.drive_c_free_space}}">C盘可用空间: {{item.drive_c_free_space}}</view>
+    <view class="muted" wx:if="{{colPrefs.comment && item.comment}}">备注: {{item.comment}}</view>
   </view>
   <view wx:if="{{!recorded.length}}" class="muted">尚未记录设备，请扫码或手动新增。</view>
 
@@ -54,11 +70,9 @@
     <view class="nav-grid">
       <view class="nav-item" data-page="rack-network" bindtap="goPage">机柜/网络</view>
       <view class="nav-item" data-page="issues" bindtap="goPage">问题列表</view>
-      <view class="nav-item" data-page="confirmation" bindtap="goPage">数量确认</view>
       <view class="nav-item" data-page="signoff" bindtap="goPage">签字确认</view>
-      <view class="nav-item" data-page="report" bindtap="goPage">生成报告</view>
     </view>
   </view>
 
-  <view class="btn" bindtap="goSync">前往同步</view>
+  <view class="btn" bindtap="finishAndSubmit">完成并提交</view>
 </view>

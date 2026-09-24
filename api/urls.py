@@ -10,7 +10,9 @@ from .views import (
     AssetCategoryViewSet, AssetBrandViewSet, AssetModelViewSet,
     AssetViewSet, AssetAssignmentViewSet, AssetMaintenanceViewSet
 )
-from .views_auth import WeChatBindView, WeChatLoginView, WeChatLookupView
+from .views_auth import (
+    WeChatBindView, WeChatLoginView, WeChatLookupView, WeChatProfileCompleteView,
+)
 from .inspection_views import StoreInspectionViewSet
 
 # Create router and register viewsets
@@ -32,6 +34,7 @@ urlpatterns = [
     path('auth/wechat/lookup/', WeChatLookupView.as_view(), name='wechat-lookup'),
     path('auth/wechat/bind/', WeChatBindView.as_view(), name='wechat-bind'),
     path('auth/wechat/login/', WeChatLoginView.as_view(), name='wechat-login'),
+    path('auth/wechat/profile/', WeChatProfileCompleteView.as_view(), name='wechat-profile'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 
     path('', include(router.urls)),

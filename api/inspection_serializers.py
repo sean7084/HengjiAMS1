@@ -11,6 +11,7 @@ from inspections.models import (
     InspectionDevice,
     InspectionIssue,
     InspectionPhoto,
+    InspectionWifiWeakPoint,
     StoreInspection,
 )
 
@@ -38,6 +39,15 @@ class InspectionIssueSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
+class InspectionWifiWeakPointSerializer(serializers.ModelSerializer):
+    """A WiFi weak point captured under 机柜/网络."""
+
+    class Meta:
+        model = InspectionWifiWeakPoint
+        fields = ['id', 'sort_index', 'location', 'description', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class InspectionDeviceSerializer(serializers.ModelSerializer):
     """A device line with expected values + onsite-collected readings."""
 
@@ -62,6 +72,16 @@ class InspectionDeviceSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at',
         ]
 
+    def validate(self, attrs):
+        """A device marked not-found must carry a mandatory note."""
+        status = attrs.get('status', getattr(self.instance, 'status', None))
+        comment = attrs.get('comment', getattr(self.instance, 'comment', None))
+        if status == InspectionDevice.Status.NOT_IN_STORE and not (comment or '').strip():
+            raise serializers.ValidationError(
+                {'comment': 'A note is mandatory when the device was not found during the inspection.'}
+            )
+        return attrs
+
 
 class InspectionDeviceCacheSerializer(serializers.ModelSerializer):
     """Lightweight device payload for the offline cache download."""
@@ -84,6 +104,8 @@ class StoreInspectionSerializer(serializers.ModelSerializer):
     division_name = serializers.CharField(source='division.name', read_only=True)
     location_name = serializers.CharField(source='location.name', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
+    slot_display = serializers.CharField(source='get_slot_display', read_only=True)
+    wifi_weak_points = InspectionWifiWeakPointSerializer(many=True, read_only=True)
     completion_percentage = serializers.SerializerMethodField()
     device_total = serializers.SerializerMethodField()
     device_collected = serializers.SerializerMethodField()
@@ -93,9 +115,10 @@ class StoreInspectionSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'company', 'company_name', 'division', 'division_name',
             'location', 'location_name', 'jda_code', 'brand_name', 'store_name',
-            'store_label', 'inspection_date', 'engineer', 'engineer_name', 'status',
+            'store_label', 'inspection_date', 'slot', 'slot_display',
+            'engineer', 'engineer_name', 'status',
             'status_display', 'arriving_time', 'leaving_time', 'wifi_coverage',
-            'wifi_covers_store', 'it_support_rating', 'it_support_comment',
+            'wifi_weak_points', 'it_support_rating', 'it_support_comment',
             'error_setting_fixed_count', 'store_issue_found_count', 'issue_to_follow_count',
             'device_counts', 'cover_extras', 'notes',
             'store_signature', 'engineer_signature', 'signed_at',
@@ -113,10 +136,13 @@ class StoreInspectionSerializer(serializers.ModelSerializer):
         return obj.get_completion_percentage()
 
     def get_device_total(self, obj):
-        return obj.devices.count()
+        # Prefer the queryset annotation (set in the viewset) to avoid N+1 COUNTs.
+        annotated = getattr(obj, 'device_total', None)
+        return annotated if annotated is not None else obj.devices.count()
 
     def get_device_collected(self, obj):
-        return obj.devices.filter(collected_at__isnull=False).count()
+        annotated = getattr(obj, 'device_collected', None)
+        return annotated if annotated is not None else obj.devices.filter(collected_at__isnull=False).count()
 
 
 class StoreInspectionDetailSerializer(StoreInspectionSerializer):

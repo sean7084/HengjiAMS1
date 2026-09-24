@@ -15,10 +15,35 @@ const KINDS = [
 ];
 
 Page({
-  data: { id: '', kinds: KINDS, shots: {} },
+  data: { id: '', kinds: KINDS, shots: {}, wifiMode: 'good', weakPoints: [] },
 
   onLoad(query) {
-    this.setData({ id: query.id, shots: {} });
+    this.setData({ id: query.id, shots: {}, wifiMode: 'good', weakPoints: [] });
+  },
+
+  setWifiGood() {
+    this.setData({ wifiMode: 'good', weakPoints: [] });
+  },
+
+  setWifiWeak() {
+    const weakPoints = this.data.weakPoints.length ? this.data.weakPoints : [{ location: '', description: '' }];
+    this.setData({ wifiMode: 'weak', weakPoints });
+  },
+
+  addWeak() {
+    this.setData({ weakPoints: this.data.weakPoints.concat([{ location: '', description: '' }]) });
+  },
+
+  removeWeak(e) {
+    const index = e.currentTarget.dataset.index;
+    this.setData({ weakPoints: this.data.weakPoints.filter((_, i) => i !== index) });
+  },
+
+  weakInput(e) {
+    const { index, field } = e.currentTarget.dataset;
+    const weakPoints = this.data.weakPoints.slice();
+    weakPoints[index] = { ...weakPoints[index], [field]: e.detail.value };
+    this.setData({ weakPoints });
   },
 
   saveLocal(tempPath) {
@@ -70,12 +95,17 @@ Page({
         count += 1;
       });
     });
-    if (!count) {
-      wx.showToast({ title: '没有待保存的照片', icon: 'none' });
-      return;
-    }
+    // WiFi coverage: good = empty weak-point list; weak = the captured points.
+    queue.enqueue({
+      type: 'wifi_weak_points',
+      inspectionId: this.data.id,
+      weakPoints: this.data.wifiMode === 'weak' ? this.data.weakPoints : [],
+      weak_points: this.data.wifiMode === 'weak' ? this.data.weakPoints : [],
+      dedupeKey: `wifi:${this.data.id}`,
+    });
+    count += 1;
     this.setData({ shots: {} });
-    wx.showToast({ title: `已加入 ${count} 张，待同步`, icon: 'success' });
+    wx.showToast({ title: `已加入 ${count} 项，待同步`, icon: 'success' });
     setTimeout(() => wx.navigateBack(), 700);
   },
 });

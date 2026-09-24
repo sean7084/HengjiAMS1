@@ -13,6 +13,7 @@ app_name = 'inspections'
 urlpatterns = [
     # Calendar dashboard (default landing page for the module).
     path('', views.InspectionDashboardView.as_view(), name='dashboard'),
+    path('api/move/', views.InspectionMoveView.as_view(), name='inspection_move'),
 
     # Batch management.
     path('batches/', views.InspectionBatchListView.as_view(), name='batch_list'),
@@ -24,7 +25,12 @@ urlpatterns = [
 
     # Inspection browsing.
     path('list/', views.StoreInspectionListView.as_view(), name='inspection_list'),
+    path('review/', views.InspectionReviewView.as_view(), name='review'),
+    path('review/bulk/', views.InspectionReviewBulkUpdateView.as_view(), name='review_bulk'),
     path('<uuid:pk>/', views.StoreInspectionDetailView.as_view(), name='inspection_detail'),
+    path('<uuid:pk>/edit/', views.StoreInspectionUpdateView.as_view(), name='inspection_edit'),
+    path('<uuid:pk>/assign-fe/', views.EngineerAssignView.as_view(), name='assign_fe'),
+    path('issues/<uuid:pk>/update/', views.InspectionIssueUpdateView.as_view(), name='issue_update'),
 
     # Cross-store asset-list export (GUCCI_资产表 format).
     path('export/', views.AssetListExportView.as_view(), name='asset_list_export'),

@@ -4,11 +4,17 @@
     <view class="muted" style="margin-top:8rpx;">首次使用请绑定员工账号</view>
   </view>
 
-  <!-- Step 1: input Chinese name -->
+  <!-- Step 1: identify by chinese name / phone / wechat / invite code -->
   <view class="card" wx:if="{{stage === 'name'}}">
+    <view class="row" style="margin-bottom:12rpx;">
+      <view class="tag {{lookupMode==='name'?'tag-ok':''}}" data-mode="name" bindtap="onSetMode">中文名</view>
+      <view class="tag {{lookupMode==='phone'?'tag-ok':''}}" style="margin-left:12rpx;" data-mode="phone" bindtap="onSetMode">手机号</view>
+      <view class="tag {{lookupMode==='wechat'?'tag-ok':''}}" style="margin-left:12rpx;" data-mode="wechat" bindtap="onSetMode">微信号</view>
+      <view class="tag {{lookupMode==='invite'?'tag-ok':''}}" style="margin-left:12rpx;" data-mode="invite" bindtap="onSetMode">邀请码</view>
+    </view>
     <view class="field">
-      <text class="field-label">中文名</text>
-      <input class="input" data-field="chineseName" value="{{chineseName}}" bindinput="onInput" placeholder="请输入您的中文名" />
+      <text class="field-label">{{lookupLabel}}</text>
+      <input class="input" data-field="chineseName" value="{{chineseName}}" bindinput="onInput" placeholder="{{lookupPlaceholder}}" />
     </view>
     <view wx:if="{{error}}" class="tag tag-warn" style="margin-bottom:12rpx;">{{error}}</view>
     <view class="btn {{loading ? 'btn-disabled' : ''}}" bindtap="onLookup">
@@ -39,6 +45,27 @@
       {{loading ? '绑定中…' : '确认并登录'}}
     </view>
     <view class="muted" style="margin-top:16rpx;text-align:center;" bindtap="onBackToName">不是本人？返回重选</view>
+  </view>
+
+  <!-- Step 3: one-time profile completion (invite-code engineers) -->
+  <view class="card" wx:if="{{stage === 'profile'}}">
+    <view class="field-label">首次登录，请补充您的信息</view>
+    <view class="field">
+      <text class="field-label">中文名</text>
+      <input class="input" data-field="profileChineseName" value="{{profileChineseName}}" bindinput="onInput" placeholder="请输入中文名" />
+    </view>
+    <view class="field">
+      <text class="field-label">手机号</text>
+      <input class="input" type="number" data-field="profilePhone" value="{{profilePhone}}" bindinput="onInput" placeholder="请输入手机号" />
+    </view>
+    <view class="field">
+      <text class="field-label">微信号（可选）</text>
+      <input class="input" data-field="profileWechat" value="{{profileWechat}}" bindinput="onInput" placeholder="选填" />
+    </view>
+    <view wx:if="{{error}}" class="tag tag-warn" style="margin-bottom:12rpx;">{{error}}</view>
+    <view class="btn {{loading ? 'btn-disabled' : ''}}" bindtap="onCompleteProfile">
+      {{loading ? '保存中…' : '保存并开始巡检'}}
+    </view>
   </view>
 
   <view class="card" wx:if="{{stage === 'loading'}}">

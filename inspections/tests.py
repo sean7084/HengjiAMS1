@@ -621,7 +621,10 @@ class ReportGoldenParityTests(TestCase):
         now = timezone.now()
         devices = []
         for row in rows:
-            in_store = str(row['status'] or '').strip().lower() == 'in store'
+            # The EUS Status column also carries 'Replaced' for a device that was
+            # present on site but swapped during the visit; the golden cover_page
+            # counts it as a device, so only an explicit 'Not In Store' is absent.
+            in_store = 'not in store' not in str(row['status'] or '').strip().lower()
             devices.append(SimpleNamespace(
                 category=normalize_device_category(row['category']),
                 usage=row['usage'] or '', brand_model=row['brand_model'] or '',

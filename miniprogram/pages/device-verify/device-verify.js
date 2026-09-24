@@ -199,6 +199,12 @@ Page({
       return;
     }
 
+    // A device marked not-found during the inspection requires a mandatory note.
+    if (this.data.status === 'not_in_store' && !(this.data.fields.comment || '').trim()) {
+      wx.showToast({ title: '未找到设备时必须填写备注', icon: 'none' });
+      return;
+    }
+
     const photos = [];
     if (this.data.overallPhoto) {
       photos.push({ part: 'overall_photo', kind: 'overall', filePath: this.data.overallPhoto, uid: queue.uid(), index: 1 });

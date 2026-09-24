@@ -12,7 +12,12 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from companies.models import Company, Division, Location
-from inspections.models import InspectionBatch, StoreInspection
+from inspections.models import (
+    InspectionBatch,
+    InspectionIssue,
+    InspectionWifiWeakPoint,
+    StoreInspection,
+)
 
 User = get_user_model()
 
@@ -131,6 +136,24 @@ class ScheduleImportForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
     )
+    auto_arrange = forms.BooleanField(
+        required=False,
+        initial=True,
+        label=_('Auto-arrange dates'),
+        help_text=_('If the schedule has no inspection_date, cluster sites by city and '
+                    'assign consecutive AM/PM slots (same address/mall back-to-back).'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+    arrange_start = forms.DateField(
+        required=False,
+        label=_('Arrange From'),
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+    )
+    arrange_end = forms.DateField(
+        required=False,
+        label=_('Arrange To'),
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+    )
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -140,6 +163,17 @@ class ScheduleImportForm(forms.Form):
             self.fields['engineer'].queryset = User.objects.filter(
                 is_active=True
             ).order_by('first_name', 'last_name', 'username')
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('auto_arrange'):
+            start = cleaned.get('arrange_start')
+            end = cleaned.get('arrange_end')
+            if not start or not end:
+                self.add_error('arrange_end', _('Provide both Arrange From and Arrange To when auto-arrange is on.'))
+            elif end < start:
+                self.add_error('arrange_end', _('Arrange To must be on or after Arrange From.'))
+        return cleaned
 
 
 class AssetListExportForm(forms.Form):
@@ -177,6 +211,18 @@ class AssetListExportForm(forms.Form):
         max_length=10,
         help_text=_('e.g. 2026-W05 or 2026W5. Overrides the date range when set.'),
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '2026-W05'}),
+    )
+    include_asset_list = forms.BooleanField(
+        required=False, initial=True, label=_('Include asset list (xlsx)'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+    include_photos = forms.BooleanField(
+        required=False, initial=False, label=_('Include photos (zip bundle)'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+    include_reports = forms.BooleanField(
+        required=False, initial=False, label=_('Include per-store reports (zip bundle)'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
     )
 
     def __init__(self, *args, user=None, **kwargs):
@@ -299,3 +345,60 @@ class StoreInspectionFilterForm(forms.Form):
                 company__in=user.get_accessible_companies()
             )
             self.fields['division'].queryset = user.get_accessible_divisions()
+
+
+class StoreInspectionEditForm(forms.ModelForm):
+    """Backend editing of onsite-captured fields (auto-collected but overridable)."""
+
+    class Meta:
+        model = StoreInspection
+        fields = [
+            'engineer', 'arriving_time', 'leaving_time', 'wifi_coverage',
+            'it_support_rating', 'it_support_comment', 'notes',
+        ]
+        widgets = {
+            'engineer': forms.Select(attrs={'class': 'form-select'}),
+            'arriving_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'leaving_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'wifi_coverage': forms.Select(attrs={'class': 'form-select'}),
+            'it_support_rating': forms.Select(attrs={'class': 'form-select'}),
+            'it_support_comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+
+WifiWeakPointFormSet = forms.inlineformset_factory(
+    StoreInspection,
+    InspectionWifiWeakPoint,
+    fields=['sort_index', 'location', 'description'],
+    extra=1,
+    can_delete=True,
+)
+
+
+class InspectionIssueUpdateForm(forms.ModelForm):
+    """Inline backend editing of an issue (description + status incl. escalated)."""
+
+    class Meta:
+        model = InspectionIssue
+        fields = ['description', 'status']
+        widgets = {
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+
+class EngineerAssignForm(forms.Form):
+    """Assign (or create) a field engineer by chinese name / phone / wechat / invite."""
+
+    query = forms.CharField(
+        label=_('Field Engineer'),
+        help_text=_('Match by Chinese name, phone number, WeChat id, or invite code.'),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('e.g. 张三 / 13800000000 / invite code')}),
+    )
+    create_if_missing = forms.BooleanField(
+        required=False,
+        initial=True,
+        label=_('Create if not exists'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )

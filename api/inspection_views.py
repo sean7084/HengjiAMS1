@@ -17,9 +17,11 @@ Device/photo writes are idempotent via client_device_uid / client_photo_uid so t
 offline-first client can safely re-sync.
 """
 from django.conf import settings
+from django.db.models import Count, Q
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
@@ -38,6 +40,7 @@ from inspections.models import (
     InspectionIssue,
     InspectionPhoto,
     InspectionSignoffLog,
+    InspectionWifiWeakPoint,
     StoreInspection,
 )
 
@@ -45,6 +48,7 @@ from .inspection_serializers import (
     InspectionDeviceSerializer,
     InspectionIssueSerializer,
     InspectionPhotoSerializer,
+    InspectionWifiWeakPointSerializer,
     StoreInspectionDetailSerializer,
     StoreInspectionSerializer,
 )
@@ -115,6 +119,9 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
             return StoreInspection.objects.none()
         return user.get_assigned_inspections().select_related(
             'company', 'division', 'location', 'engineer'
+        ).annotate(
+            device_total=Count('devices', distinct=True),
+            device_collected=Count('devices', filter=Q(devices__collected_at__isnull=False), distinct=True),
         )
 
     def get_serializer_class(self):
@@ -243,6 +250,15 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
 
         device.collected_by = request.user
         device.collected_at = timezone.now()
+
+        # A device reported not-found during the inspection must carry a note.
+        # Enforced here (not only in the serializer) because this upsert path
+        # writes model fields directly; the mini program also blocks it client-side.
+        if device.status == InspectionDevice.Status.NOT_IN_STORE and not (device.comment or '').strip():
+            raise ValidationError({
+                'comment': 'A note is mandatory when the device was not found during the inspection.'
+            })
+
         device.save()
 
         # Attach any submitted photos (idempotent per client_photo_uid).
@@ -315,9 +331,110 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
         ])
         return Response(InspectionIssueSerializer(issue).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['post'], url_path='start')
+    def start(self, request, pk=None):
+        """Mark the inspection in-progress and auto-record the arriving time.
+
+        Idempotent: only transitions PLANNED -> IN_PROGRESS and stamps
+        ``arriving_time`` when it is still empty.
+        """
+        inspection = self.get_object()
+        user = request.user
+        if not user.can_run_inspection(inspection):
+            return Response({'error': 'Not permitted for this inspection.'}, status=status.HTTP_403_FORBIDDEN)
+        changed = []
+        if inspection.status == StoreInspection.Status.PLANNED:
+            inspection.status = StoreInspection.Status.IN_PROGRESS
+            changed.append('status')
+        if inspection.arriving_time is None:
+            inspection.arriving_time = timezone.localtime().time()
+            changed.append('arriving_time')
+        if changed:
+            inspection.save(update_fields=changed + ['updated_at'])
+        return Response(StoreInspectionSerializer(inspection).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get', 'post', 'delete'], url_path='wifi-weak-points')
+    def wifi_weak_points(self, request, pk=None):
+        """CRUD-lite for WiFi weak points; recomputes ``wifi_coverage``."""
+        inspection = self.get_object()
+
+        if request.method == 'GET':
+            points = inspection.wifi_weak_points.all()
+            return Response(InspectionWifiWeakPointSerializer(points, many=True).data)
+
+        if not request.user.can_run_inspection(inspection):
+            return Response({'error': 'Not permitted for this inspection.'}, status=status.HTTP_403_FORBIDDEN)
+
+        if request.method == 'DELETE':
+            inspection.wifi_weak_points.all().delete()
+        else:
+            payload = request.data.get('weak_points')
+            if payload is None:
+                return Response({'error': 'weak_points list is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            if not isinstance(payload, list):
+                # A form-encoded client can collapse the list into a single string;
+                # reject it explicitly rather than iterating characters.
+                return Response({'error': 'weak_points must be a list.'}, status=status.HTTP_400_BAD_REQUEST)
+            inspection.wifi_weak_points.all().delete()
+            for index, item in enumerate(payload):
+                InspectionWifiWeakPoint.objects.create(
+                    store_inspection=inspection,
+                    sort_index=index,
+                    location=str(item.get('location', ''))[:120],
+                    description=str(item.get('description', ''))[:255],
+                )
+        # Auto-derive coverage: good when no weak points, otherwise weak.
+        inspection.wifi_coverage = (
+            StoreInspection.WifiCoverage.GOOD
+            if not inspection.wifi_weak_points.exists()
+            else StoreInspection.WifiCoverage.WEAK
+        )
+        inspection.save(update_fields=['wifi_coverage', 'updated_at'])
+        return Response(
+            InspectionWifiWeakPointSerializer(inspection.wifi_weak_points.all(), many=True).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=['post'], url_path='assign-fe')
+    def assign_fe(self, request, pk=None):
+        """Assign (or create) a field engineer by chinese name / phone / wechat / invite code."""
+        inspection = self.get_object()
+        if not (request.user.is_superadmin() or request.user.is_it_administrator()):
+            return Response({'error': 'Not permitted.'}, status=status.HTTP_403_FORBIDDEN)
+        from accounts.models import User
+
+        query = (request.data.get('query') or '').strip()
+        create_if_missing = request.data.get('create_if_missing') in (True, 'true', 'True', '1', 1)
+        fe = None
+        if query:
+            fe = User.objects.filter(
+                Q(chinese_name__iexact=query)
+                | Q(phone_number=query)
+                | Q(wechat_id__iexact=query)
+                | Q(invite_code__iexact=query)
+            ).first()
+        if fe is None and create_if_missing and query:
+            fe = User.objects.create_user(
+                username=f'fe_{query[:20]}'.replace(' ', '_'),
+                chinese_name=query,
+                phone_number=query if query.isdigit() else '',
+            )
+            fe.set_admin_roles([User.AdminRole.INSPECTION_ENGINEER])
+        if fe is None:
+            return Response({'error': 'No field engineer matched the query.'}, status=status.HTTP_404_NOT_FOUND)
+        inspection.engineer = fe
+        inspection.save(update_fields=['engineer', 'updated_at'])
+        return Response(StoreInspectionSerializer(inspection).data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['post'], url_path='signoff')
     def signoff(self, request, pk=None):
-        """Capture store + engineer signatures and mark the inspection submitted."""
+        """Capture signatures + merged confirmation data and mark submitted.
+
+        The mini program's former 设备数量确认 page is merged into signoff, so this
+        endpoint also accepts device_counts / it_support_rating / it_support_comment
+        / wifi_coverage. Leaving time is auto-recorded and the per-store report is
+        generated server-side (the mini-program report page was removed).
+        """
         inspection = self.get_object()
         user = request.user
         if not user.can_run_inspection(inspection):
@@ -333,8 +450,21 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
             inspection.store_signature = store_signature
         if engineer_signature is not None:
             inspection.engineer_signature = engineer_signature
+
+        # Merged confirmation payload (optional keys).
+        if isinstance(request.data.get('device_counts'), dict):
+            inspection.device_counts = request.data['device_counts']
+        if request.data.get('it_support_rating'):
+            inspection.it_support_rating = request.data['it_support_rating']
+        if request.data.get('it_support_comment') is not None:
+            inspection.it_support_comment = request.data['it_support_comment']
+        if request.data.get('wifi_coverage'):
+            inspection.wifi_coverage = request.data['wifi_coverage']
+
         inspection.status = StoreInspection.Status.SUBMITTED
         inspection.signed_at = timezone.now()
+        if inspection.leaving_time is None:
+            inspection.leaving_time = timezone.localtime().time()
         inspection.save()
 
         InspectionSignoffLog.objects.create(
@@ -344,6 +474,14 @@ class StoreInspectionViewSet(viewsets.ModelViewSet):
             description=f'Submitted store inspection signoff for {inspection}',
             metadata={'inspection_id': str(inspection.id), 'operation': 'signoff'},
         )
+
+        # Generate the per-store report server-side now that signoff is final.
+        from inspections.services.report_generator import generate_inspection_report
+        try:
+            generate_inspection_report(inspection)
+            inspection.refresh_from_db()
+        except Exception:  # report generation must not block signoff
+            pass
         return Response(StoreInspectionSerializer(inspection).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='report')

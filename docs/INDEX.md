@@ -50,6 +50,18 @@ Complete list of project documentation for reference and navigation.
 | **SECURITY.md** | `docs/` | Security policy, RBAC, 2FA, encryption |
 | **BACKUP_RESTORE.md** | `docs/` | Backup & disaster-recovery runbook |
 
+### 📊 Completion & Audit Reports
+
+Point-in-time delivery reports, audits and gap analyses. New reports live in `docs/reports/`;
+the earlier ones are in the legacy `reports/` folder at the repository root.
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| **INSPECTIONS_ITERATION2_COMPLETION_REPORT_20260924.md** | `docs/reports/` | Inspections iteration 2 delivery: scope, auto-arrangement rule, endpoint surface, defects caught in verification, evidence screenshots |
+| **MINIPROGRAM_SPEC_COMPLETION_REPORT_20260914.md** | `reports/` | WeChat mini program spec completion |
+| **DOCUMENTATION_GAP_ANALYSIS_20260906.md** | `reports/` | Authoritative documentation gap analysis |
+| **DOCUMENTATION_ALIGNMENT_AUDIT_20260906.md** | `reports/` | Documentation vs implementation alignment audit |
+
 ### 🚀 Getting Started Resources
 
 | Document | Location | Use Case |
@@ -254,5 +266,5 @@ Questions about any document or suggestions for improvement?
 
 ---
 
-*Last Updated: September 15, 2026*  
+*Last Updated: September 24, 2026*  
 *Author: Sean Liu and contributors*

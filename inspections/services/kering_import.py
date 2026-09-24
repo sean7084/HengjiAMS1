@@ -27,6 +27,7 @@ from inspections.constants import (
     normalize_device_category,
 )
 from inspections.models import InspectionBatch, InspectionDevice, StoreInspection
+from inspections.services.schedule_arranger import ScheduleCapacityError, arrange
 from utils.import_rollback import finalize_import_run, record_import_change, start_import_run
 
 SCHEDULE_COLUMNS = {
@@ -34,6 +35,9 @@ SCHEDULE_COLUMNS = {
     'brand': ['Brand', 'brand', '品牌'],
     'store': ['Store Name', 'store_name', 'store', '店铺名称'],
     'date': ['inspection_date', 'date', 'Inspection Date', '日期'],
+    'address': ['Address', 'address', '地址'],
+    'city': ['City', 'city', '城市'],
+    'phone': ['Store Dir. Phone', 'phone', 'Store Dir Phone', '电话'],
 }
 ASSET_COLUMNS = {
     'store': ['STORE', 'Store', 'store'],
@@ -57,6 +61,11 @@ def _clean(value):
         return ''
     text = ' '.join(str(value).strip().split())
     return '' if text.lower() in ('nan', 'none', 'nat') else text
+
+
+def _has_cjk(text):
+    """True when the string contains CJK ideographs (used to pick chinese_address)."""
+    return any('\u4e00' <= ch <= '\u9fff' for ch in str(text or ''))
 
 
 def _clean_identifier(value):
@@ -257,7 +266,8 @@ def _ensure_asset(company, inspection, category_raw, brand_model, sn, asset_id,
 def import_kering_master(schedule_file, assets_file=None, *,
                          company_name='Kering', company_code='KER',
                          engineer=None, batch=None, user=None,
-                         dry_run=False, track_rollback=True):
+                         dry_run=False, track_rollback=True,
+                         auto_arrange=False, arrange_start=None, arrange_end=None):
     """Import a Kering schedule (+ optional master asset list) into HengjiAMS.
 
     Args:
@@ -271,6 +281,10 @@ def import_kering_master(schedule_file, assets_file=None, *,
         user: optional ``User`` recorded as the import initiator (rollback owner).
         dry_run: when True, roll back the transaction after reporting.
         track_rollback: when False, skip ImportRun tracking (faster for big runs).
+        auto_arrange: when True and schedule rows lack ``inspection_date``, assign
+            dates+slots via ``schedule_arranger.arrange`` (city clustering, same
+            address consecutive AM/PM) over [arrange_start, arrange_end].
+        arrange_start / arrange_end: the scheduling window for auto_arrange.
 
     Returns:
         dict with keys: ``stats`` (counters), ``per_store`` (jda -> summary),
@@ -278,6 +292,26 @@ def import_kering_master(schedule_file, assets_file=None, *,
     """
     schedule_rows = _read_rows(schedule_file)
     asset_rows = _read_rows(assets_file) if assets_file is not None else []
+
+    # Pre-compute auto-arranged (date, slot) for rows missing an inspection_date.
+    arranged_by_index = {}
+    if auto_arrange and arrange_start and arrange_end:
+        missing = [
+            i for i, row in enumerate(schedule_rows)
+            if _normalize_jda(_get(row, SCHEDULE_COLUMNS['jda']))
+            and _parse_date(_get(row, SCHEDULE_COLUMNS['date'])) is None
+        ]
+        if missing:
+            sub_rows = [
+                {
+                    'city': _clean(_get(schedule_rows[i], SCHEDULE_COLUMNS['city'])),
+                    'address': _clean(_get(schedule_rows[i], SCHEDULE_COLUMNS['address'])),
+                }
+                for i in missing
+            ]
+            arranged = arrange(sub_rows, arrange_start, arrange_end)
+            for i, item in zip(missing, arranged):
+                arranged_by_index[i] = (item['inspection_date'], item['slot'])
 
     stats = {
         'companies': 0, 'divisions': 0, 'locations': 0, 'inspections': 0,
@@ -311,13 +345,19 @@ def import_kering_master(schedule_file, assets_file=None, *,
 
         # Pass 1: schedule -> divisions (brands), locations (stores), inspections.
         inspection_by_jda = {}
-        for row in schedule_rows:
+        for row_index, row in enumerate(schedule_rows):
             jda = _normalize_jda(_get(row, SCHEDULE_COLUMNS['jda']))
             if not jda:
                 continue
             brand = _clean(_get(row, SCHEDULE_COLUMNS['brand']))
             store = _clean(_get(row, SCHEDULE_COLUMNS['store']))
+            address = _clean(_get(row, SCHEDULE_COLUMNS['address']))
+            city = _clean(_get(row, SCHEDULE_COLUMNS['city']))
+            phone = _clean(_get(row, SCHEDULE_COLUMNS['phone']))
             inspection_date = _parse_date(_get(row, SCHEDULE_COLUMNS['date']))
+            slot = StoreInspection.Slot.AM
+            if inspection_date is None and row_index in arranged_by_index:
+                inspection_date, slot = arranged_by_index[row_index]
 
             division = None
             if brand:
@@ -334,22 +374,41 @@ def import_kering_master(schedule_file, assets_file=None, *,
                     'name': store or jda,
                     'division': division,
                     'location_type': Location.LocationType.STORE,
+                    'address_line1': address,
+                    'city': city,
+                    'phone_number': phone[:17],
+                    'chinese_address': address if _has_cjk(address) else '',
                 },
             )
             if loc_created:
                 stats['locations'] += 1
+            else:
+                # Refresh previously-missing contact/geography fields on re-import
+                # without clobbering values an operator already set.
+                refresh = {}
+                if address and not location.address_line1:
+                    refresh['address_line1'] = address
+                    if _has_cjk(address) and not location.chinese_address:
+                        refresh['chinese_address'] = address
+                if city and not location.city:
+                    refresh['city'] = city
+                if phone and not location.phone_number:
+                    refresh['phone_number'] = phone[:17]
+                if refresh:
+                    Location.objects.filter(pk=location.pk).update(**refresh)
             _record(location, loc_created)
 
             store_label = ' '.join(part for part in [jda, brand, store] if part).strip()
             if inspection_date is None:
-                # Skip rows without a valid date; the caller can inspect per_store
-                # to see what landed.
+                # Skip rows without a valid date (and no auto-arrange window);
+                # the caller can inspect per_store to see what landed.
                 continue
 
             defaults = {
                 'company': company, 'division': division, 'jda_code': jda,
                 'brand_name': brand, 'store_name': store, 'store_label': store_label,
                 'engineer': engineer, 'status': StoreInspection.Status.PLANNED,
+                'slot': slot,
             }
             if batch is not None:
                 defaults['batch'] = batch

@@ -478,7 +478,8 @@ class SuperuserUserForm(UserCreationForm):
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name', 'chinese_name', 'employee_id',
-            'phone_number', 'department', 'job_title', 'company', 'division', 'manager',
+            'phone_number', 'wechat_id', 'invite_code', 'fe_rating', 'fe_notes',
+            'department', 'job_title', 'company', 'division', 'manager',
             'roles', 'managed_company', 'managed_divisions', 'managed_locations', 'service_cities',
             'language_preference', 'timezone', 'is_active', 'is_staff',
             'password1', 'password2', 'use_random_password', 'must_change_password'

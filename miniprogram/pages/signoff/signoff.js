@@ -2,9 +2,14 @@
 // queue a 'signoff' item. Sync uploads each signature to /inspections/{id}/signoff/,
 // which marks the inspection submitted on the server.
 const queue = require('../../utils/queue');
+const db = require('../../utils/db');
+const request = require('../../utils/request');
 
 Page({
-  data: { id: '', storeSigned: false, engineerSigned: false },
+  data: {
+    id: '', storeSigned: false, engineerSigned: false,
+    categoryCounts: [], itRating: '', wifiBadge: '',
+  },
 
   onLoad(query) {
     this.setData({ id: query.id });
@@ -12,6 +17,28 @@ Page({
     this.engCtx = wx.createCanvasContext('engineerPad', this);
     this.lastStore = null;
     this.lastEng = null;
+    this.loadSummary();
+  },
+
+  // Merged confirmation summary: device counts per category, IT rating, and an
+  // auto-derived WiFi good/bad badge (from recorded weak points).
+  async loadSummary() {
+    let inspection = db.getInspection(this.data.id);
+    if (!inspection) {
+      try { inspection = await request.request(`/inspections/${this.data.id}/`); } catch (e) { inspection = null; }
+    }
+    if (!inspection) return;
+    const devices = (inspection.devices || []).filter((d) => d.collected_at);
+    const byCat = {};
+    devices.forEach((d) => { byCat[d.category || '其他'] = (byCat[d.category || '其他'] || 0) + 1; });
+    const categoryCounts = Object.keys(byCat).map((k) => ({ category: k, count: byCat[k] }));
+    const weak = (inspection.wifi_weak_points || []).length;
+    const wifiBadge = inspection.wifi_coverage === 'weak' || weak > 0 ? 'bad' : 'good';
+    this.setData({ categoryCounts, itRating: inspection.it_support_rating || '', wifiBadge });
+  },
+
+  setItRating(e) {
+    this.setData({ itRating: e.currentTarget.dataset.value });
   },
 
   saveLocal(tempPath) {
@@ -95,6 +122,11 @@ Page({
       type: 'signoff',
       inspectionId: this.data.id,
       signatures,
+      fields: {
+        it_support_rating: this.data.itRating || undefined,
+        device_counts: this.data.categoryCounts.reduce((acc, c) => { acc[c.category] = c.count; return acc; }, {}),
+        wifi_coverage: this.data.wifiBadge === 'bad' ? 'weak' : 'good',
+      },
       dedupeKey: `signoff:${this.data.id}`,
     });
     wx.showToast({ title: '已保存，待同步', icon: 'success' });

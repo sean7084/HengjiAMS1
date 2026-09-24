@@ -1,3 +1,4 @@
+<home-button />
 <view class="container">
   <view class="card">
     <view class="row">

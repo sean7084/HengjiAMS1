@@ -31,11 +31,21 @@ from django.views.generic import (
 from companies.models import Location
 from inspections.forms import (
     AssetListExportForm,
+    EngineerAssignForm,
     InspectionBatchByBrandForm,
+    InspectionIssueUpdateForm,
     ScheduleImportForm,
+    StoreInspectionEditForm,
     StoreInspectionFilterForm,
+    WifiWeakPointFormSet,
 )
-from inspections.models import InspectionBatch, InspectionDevice, StoreInspection
+from inspections.models import (
+    InspectionBatch,
+    InspectionDevice,
+    InspectionIssue,
+    InspectionSignoffLog,
+    StoreInspection,
+)
 from inspections.services.asset_list_export import export_asset_list
 from inspections.services.kering_import import import_kering_master
 
@@ -70,6 +80,26 @@ def _scoped_inspections(user):
     )
 
 
+def _month_bounds(value):
+    """Parse a ``YYYY-MM`` (or ``YYYY-MM-DD``) selector into (first_day, last_day).
+
+    Returns ``None`` when the value is missing or malformed so the caller can
+    fall back to its default window.
+    """
+    text = (value or '').strip()
+    if not text:
+        return None
+    try:
+        if len(text) == 7:
+            text += '-01'
+        parsed = date.fromisoformat(text)
+    except ValueError:
+        return None
+    start = parsed.replace(day=1)
+    end = (start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    return start, end
+
+
 # -- dashboard ---------------------------------------------------------------
 class InspectionDashboardView(InspectionAccessMixin, TemplateView):
     """Monthly FullCalendar view of the user's inspections."""
@@ -90,29 +120,23 @@ class InspectionDashboardView(InspectionAccessMixin, TemplateView):
             if batch:
                 inspections = inspections.filter(batch=batch)
 
-        # Build FullCalendar event payloads.
-        events = []
-        for inspection in inspections:
-            events.append({
-                'id': str(inspection.id),
-                'title': inspection.store_label or str(inspection),
-                'start': inspection.inspection_date.isoformat() if inspection.inspection_date else None,
-                'url': reverse('inspections:inspection_detail', args=[inspection.id]),
-                'backgroundColor': _STATUS_COLORS.get(inspection.status, '#6c757d'),
-                'borderColor': _STATUS_COLORS.get(inspection.status, '#6c757d'),
-                'extendedProps': {
-                    'brand': inspection.brand_name or (inspection.division.name if inspection.division else ''),
-                    'engineer': inspection.engineer.get_full_name() if inspection.engineer else '',
-                    'status': inspection.get_status_display(),
-                    'jda': inspection.jda_code,
-                },
-            })
+        # Annotate device counts once (avoids per-row COUNTs) and group into a
+        # date x (AM|PM) grid for the drag-and-drop scheduler.
+        inspections = inspections.annotate(
+            device_total=Count('devices', distinct=True),
+            device_collected=Count(
+                'devices', filter=Q(devices__collected_at__isnull=False), distinct=True
+            ),
+        )
 
-        # Summary tiles for the current month (or the batch's date range).
+        # Window: an explicit ?month=YYYY-MM wins (calendar-style navigation),
+        # then the batch's own date range, then the current month.
         today = timezone.localdate()
-        if batch:
-            month_start = batch.start_date
-            month_end = batch.end_date
+        bounds = _month_bounds(self.request.GET.get('month'))
+        if bounds:
+            month_start, month_end = bounds
+        elif batch:
+            month_start, month_end = batch.start_date, batch.end_date
         else:
             month_start = today.replace(day=1)
             month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
@@ -120,14 +144,45 @@ class InspectionDashboardView(InspectionAccessMixin, TemplateView):
         in_range = inspections.filter(
             inspection_date__gte=month_start, inspection_date__lte=month_end
         )
+
+        by_key = {}
+        for inspection in in_range:
+            card = {
+                'id': str(inspection.id),
+                'label': inspection.store_label or str(inspection),
+                'brand': inspection.brand_name or (inspection.division.name if inspection.division else ''),
+                'engineer': inspection.engineer.get_full_name() if inspection.engineer else '',
+                'status': inspection.status,
+                'status_display': inspection.get_status_display(),
+                'collected': inspection.device_collected,
+                'total': inspection.device_total,
+                'url': reverse('inspections:inspection_detail', args=[inspection.id]),
+                'color': _STATUS_COLORS.get(inspection.status, '#6c757d'),
+            }
+            by_key.setdefault((inspection.inspection_date, inspection.slot), []).append(card)
+
+        days = []
+        cursor = month_start
+        while cursor <= month_end:
+            days.append({
+                'date': cursor.isoformat(),
+                'am': by_key.get((cursor, StoreInspection.Slot.AM), []),
+                'pm': by_key.get((cursor, StoreInspection.Slot.PM), []),
+            })
+            cursor += timedelta(days=1)
+
         context.update({
-            'events_json': json.dumps(events),
+            'days_json': json.dumps(days),
             'batch': batch,
             'batches': InspectionBatch.objects.filter(
                 company__in=user.get_accessible_companies()
             ).order_by('-start_date')[:50],
             'month_start': month_start,
             'month_end': month_end,
+            'current_month': month_start.strftime('%Y-%m'),
+            'prev_month': (month_start - timedelta(days=1)).replace(day=1).strftime('%Y-%m'),
+            'next_month': (month_end + timedelta(days=1)).strftime('%Y-%m'),
+            'is_current_month': month_start == today.replace(day=1),
             'total_count': in_range.count(),
             'planned_count': in_range.filter(status=StoreInspection.Status.PLANNED).count(),
             'in_progress_count': in_range.filter(status=StoreInspection.Status.IN_PROGRESS).count(),
@@ -136,6 +191,42 @@ class InspectionDashboardView(InspectionAccessMixin, TemplateView):
             'can_manage': user.can_manage_inspections(),
         })
         return context
+
+
+class InspectionMoveView(InspectionManageMixin, View):
+    """POST {inspection_id, date, slot} to rearrange a site on the AM/PM grid."""
+
+    def post(self, request):
+        import json as _json
+        try:
+            payload = _json.loads(request.body or b'{}')
+        except ValueError:
+            payload = {}
+        inspection_id = payload.get('inspection_id')
+        new_date = payload.get('date')
+        new_slot = payload.get('slot')
+        inspection = get_object_or_404(StoreInspection, pk=inspection_id)
+        if new_slot not in (StoreInspection.Slot.AM, StoreInspection.Slot.PM):
+            return HttpResponse(_json.dumps({'error': 'invalid slot'}), status=400,
+                                content_type='application/json')
+        try:
+            from datetime import date as _date
+            parsed = _date.fromisoformat(new_date)
+        except (TypeError, ValueError):
+            return HttpResponse(_json.dumps({'error': 'invalid date'}), status=400,
+                                content_type='application/json')
+        with transaction.atomic():
+            inspection.inspection_date = parsed
+            inspection.slot = new_slot
+            inspection.save(update_fields=['inspection_date', 'slot', 'updated_at'])
+            InspectionSignoffLog.objects.create(
+                user=request.user,
+                store_inspection=inspection,
+                operation='reschedule',
+                description=f'Rescheduled to {parsed} {new_slot.upper()}',
+                metadata={'inspection_id': str(inspection.id), 'date': str(parsed), 'slot': new_slot},
+            )
+        return HttpResponse(_json.dumps({'ok': True}), status=200, content_type='application/json')
 
 
 # -- batch list / create / detail / update -----------------------------------
@@ -286,19 +377,20 @@ class InspectionBatchImportView(InspectionManageMixin, View):
         assets_file = form.cleaned_data.get('assets_file')
         engineer = form.cleaned_data.get('engineer')
         description = form.cleaned_data.get('description', '')
+        auto_arrange = form.cleaned_data.get('auto_arrange', False)
+        arrange_start = form.cleaned_data.get('arrange_start')
+        arrange_end = form.cleaned_data.get('arrange_end')
 
-        # Derive a provisional date range from the schedule contents so the batch
-        # record has sensible start/end dates even before the import runs.
-        # The importer will create the inspections; we just need a placeholder
-        # range that the user can edit later.
+        # Use the arrange window as the batch range when supplied, else a
+        # provisional 30-day placeholder the user can edit later.
         today = timezone.localdate()
         batch = InspectionBatch.objects.create(
             name=name,
             company=company,
             division=None,
             engineer=engineer,
-            start_date=today,
-            end_date=today + timedelta(days=30),
+            start_date=arrange_start or today,
+            end_date=arrange_end or (today + timedelta(days=30)),
             description=description,
             source=InspectionBatch.Source.UPLOAD,
             created_by=request.user,
@@ -315,6 +407,9 @@ class InspectionBatchImportView(InspectionManageMixin, View):
                 user=request.user,
                 dry_run=False,
                 track_rollback=True,
+                auto_arrange=auto_arrange,
+                arrange_start=arrange_start,
+                arrange_end=arrange_end,
             )
         except Exception as exc:  # pragma: no cover - surfaced to the user
             batch.delete()
@@ -501,6 +596,8 @@ class StoreInspectionDetailView(InspectionAccessMixin, DetailView):
             'device_collected': devices.filter(collected_at__isnull=False).count(),
             'completion_pct': inspection.get_completion_percentage(),
             'can_manage': self.request.user.can_manage_inspections(),
+            'issue_status_choices': InspectionIssue.Status.choices,
+            'wifi_weak_points': inspection.wifi_weak_points.all(),
         })
         return context
 
@@ -522,7 +619,7 @@ class AssetListExportView(InspectionAccessMixin, View):
                 form = AssetListExportForm(initial={'batch': batch}, user=request.user)
         return render(request, self.template_name, {
             'form': form,
-            'title': _('Export Asset List'),
+            'title': _('Export'),
         })
 
     def post(self, request):
@@ -530,7 +627,7 @@ class AssetListExportView(InspectionAccessMixin, View):
         if not form.is_valid():
             return render(request, self.template_name, {
                 'form': form,
-                'title': _('Export Asset List'),
+                'title': _('Export'),
             })
 
         inspections = list(form.resolve_inspections())
@@ -538,10 +635,24 @@ class AssetListExportView(InspectionAccessMixin, View):
             messages.warning(request, _('No inspections match the selected filters.'))
             return render(request, self.template_name, {
                 'form': form,
-                'title': _('Export Asset List'),
+                'title': _('Export'),
             })
 
         batch = form.cleaned_data.get('batch')
+        include_asset_list = form.cleaned_data.get('include_asset_list', True)
+        include_photos = form.cleaned_data.get('include_photos', False)
+        include_reports = form.cleaned_data.get('include_reports', False)
+
+        # Photos/reports require the ZIP bundle; asset-list-only stays a plain xlsx.
+        if include_photos or include_reports:
+            from inspections.services.bundle_export import bundle_as_file_response
+            return bundle_as_file_response(
+                inspections, batch=batch,
+                include_asset_list=include_asset_list,
+                include_photos=include_photos,
+                include_reports=include_reports,
+            )
+
         content, filename = export_asset_list(inspections, batch=batch)
 
         response = HttpResponse(
@@ -550,3 +661,216 @@ class AssetListExportView(InspectionAccessMixin, View):
         )
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
+
+
+# -- backend editing of onsite-captured data ---------------------------------
+class StoreInspectionUpdateView(InspectionManageMixin, UpdateView):
+    """Edit arriving/leaving/wifi/IT-rating/notes + WiFi weak points from the backend."""
+
+    model = StoreInspection
+    form_class = StoreInspectionEditForm
+    template_name = 'inspections/inspection_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['weakpoint_formset'] = WifiWeakPointFormSet(
+                self.request.POST, instance=self.object
+            )
+        else:
+            context['weakpoint_formset'] = WifiWeakPointFormSet(instance=self.object)
+        context['title'] = _('Edit Inspection')
+        # The template addresses the record as ``inspection`` (UpdateView only
+        # supplies ``object`` / ``storeinspection``).
+        context['inspection'] = self.object
+        context['back_url'] = reverse('inspections:inspection_detail', args=[self.object.pk])
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['weakpoint_formset']
+        if not formset.is_valid():
+            return self.render_to_response(context)
+        with transaction.atomic():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            # Re-derive coverage from weak points after backend edits.
+            self.object.wifi_coverage = (
+                StoreInspection.WifiCoverage.GOOD
+                if not self.object.wifi_weak_points.exists()
+                else StoreInspection.WifiCoverage.WEAK
+            )
+            self.object.save(update_fields=['wifi_coverage', 'updated_at'])
+        messages.success(self.request, _('Inspection updated.'))
+        return redirect('inspections:inspection_detail', pk=self.object.pk)
+
+
+class InspectionIssueUpdateView(InspectionManageMixin, View):
+    """Inline backend edit of an issue's description/status (incl. escalated)."""
+
+    def post(self, request, pk):
+        issue = get_object_or_404(InspectionIssue, pk=pk)
+        form = InspectionIssueUpdateForm(request.POST, instance=issue)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _('Issue updated.'))
+        else:
+            messages.error(request, '; '.join(f'{k}: {v[0]}' for k, v in form.errors.items()))
+        return redirect('inspections:inspection_detail', pk=issue.store_inspection_id)
+
+
+class EngineerAssignView(InspectionManageMixin, View):
+    """Assign (or create) a field engineer by chinese name / phone / wechat / invite."""
+
+    def post(self, request, pk):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        inspection = get_object_or_404(StoreInspection, pk=pk)
+        form = EngineerAssignForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, _('Enter a field-engineer identifier.'))
+            return redirect('inspections:inspection_detail', pk=pk)
+        query = form.cleaned_data['query']
+        fe = User.objects.filter(
+            Q(chinese_name__iexact=query)
+            | Q(phone_number=query)
+            | Q(wechat_id__iexact=query)
+            | Q(invite_code__iexact=query)
+        ).first()
+        if fe is None and form.cleaned_data['create_if_missing']:
+            fe = User.objects.create_user(
+                username=f'fe_{query[:20]}'.replace(' ', '_'),
+                chinese_name=query,
+                phone_number=query if query.isdigit() else '',
+            )
+            fe.set_admin_roles([User.AdminRole.INSPECTION_ENGINEER])
+        if fe is None:
+            messages.error(request, _('No field engineer matched "%(q)s".') % {'q': query})
+            return redirect('inspections:inspection_detail', pk=pk)
+        inspection.engineer = fe
+        inspection.save(update_fields=['engineer', 'updated_at'])
+        messages.success(request, _('Assigned %(fe)s.') % {'fe': fe.get_display_name()})
+        return redirect('inspections:inspection_detail', pk=pk)
+
+
+# -- review (batch status review) --------------------------------------------
+class InspectionReviewView(InspectionAccessMixin, TemplateView):
+    """Batch-review asset/device status per batch / week / month / custom range."""
+
+    template_name = 'inspections/review.html'
+
+    def _resolve_range(self, request):
+        period = request.GET.get('period', 'month')
+        today = timezone.localdate()
+        if period == 'week':
+            iso = today.isocalendar()
+            start = date.fromisocalendar(iso[0], iso[1], 1)
+            end = start + timedelta(days=6)
+        elif period == 'custom':
+            start = request.GET.get('date_from') or today.replace(day=1)
+            end = request.GET.get('date_to') or today
+            if isinstance(start, str):
+                start = date.fromisoformat(start)
+            if isinstance(end, str):
+                end = date.fromisoformat(end)
+        else:  # month
+            start = today.replace(day=1)
+            end = (start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        return period, start, end
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        qs = _scoped_inspections(user)
+
+        period, start, end = self._resolve_range(self.request)
+        batch_id = self.request.GET.get('batch')
+        batch = None
+        if batch_id:
+            batch = InspectionBatch.objects.filter(id=batch_id).first()
+            if batch:
+                qs = qs.filter(batch=batch)
+                start, end = batch.start_date, batch.end_date
+        qs = qs.filter(inspection_date__gte=start, inspection_date__lte=end)
+
+        qs = qs.annotate(
+            expected=Count('devices', filter=Q(devices__is_new_device=False), distinct=True),
+            collected=Count('devices', filter=Q(devices__collected_at__isnull=False), distinct=True),
+            new_found=Count('devices', filter=Q(devices__is_new_device=True), distinct=True),
+            not_found=Count('devices', filter=Q(devices__status='not_in_store'), distinct=True),
+            issue_count=Count('issues', distinct=True),
+        ).order_by('inspection_date', 'jda_code')
+
+        rows = [
+            {
+                'inspection': i,
+                'expected': i.expected,
+                'collected': i.collected,
+                'new_found': i.new_found,
+                'not_found': i.not_found,
+                'issue_count': i.issue_count,
+                'pct': round((i.collected / i.expected) * 100, 1) if i.expected else 0,
+            }
+            for i in qs
+        ]
+        context.update({
+            'rows': rows,
+            'period': period,
+            'start': start,
+            'end': end,
+            'batch': batch,
+            'batches': InspectionBatch.objects.filter(
+                company__in=user.get_accessible_companies()
+            ).order_by('-start_date')[:50],
+            'date_from': self.request.GET.get('date_from', ''),
+            'date_to': self.request.GET.get('date_to', ''),
+            'can_manage': user.can_manage_inspections(),
+        })
+        return context
+
+
+class InspectionReviewBulkUpdateView(InspectionManageMixin, View):
+    """Bulk-set device status from the review page.
+
+    Accepts explicit ``device_ids`` and/or ``inspection_ids``. For inspections the
+    update targets their *outstanding* expected devices (no onsite reading yet) -
+    the common review action for sites that were never visited. Everything is
+    scoped to the inspections the requester may see.
+    """
+
+    def post(self, request):
+        new_status = request.POST.get('status')
+        back = request.META.get('HTTP_REFERER') or reverse('inspections:review')
+        valid = {value for value, _label in InspectionDevice.Status.choices}
+        if new_status not in valid:
+            messages.error(request, _('Invalid status.'))
+            return redirect(back)
+
+        device_ids = request.POST.getlist('device_ids')
+        inspection_ids = request.POST.getlist('inspection_ids')
+        query = Q()
+        if device_ids:
+            query |= Q(id__in=device_ids)
+        if inspection_ids:
+            query |= Q(
+                store_inspection_id__in=inspection_ids,
+                is_new_device=False,
+                collected_at__isnull=True,
+            )
+        if not query:
+            messages.error(request, _('Select at least one site or device.'))
+            return redirect(back)
+
+        devices = InspectionDevice.objects.filter(query).filter(
+            store_inspection__in=_scoped_inspections(request.user)
+        )
+        updated = devices.update(status=new_status)
+        if updated and new_status == InspectionDevice.Status.NOT_IN_STORE:
+            # Preserve the mandatory-note invariant for not-found devices.
+            devices.filter(comment='').update(
+                comment=_('Marked not found during batch review.')
+            )
+        messages.success(request, _('Updated %(n)s device(s).') % {'n': updated})
+        return redirect(back)

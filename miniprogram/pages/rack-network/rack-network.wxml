@@ -1,7 +1,27 @@
+<home-button />
 <view class="container">
   <view class="card">
     <view class="title">机柜与网络照片</view>
     <view class="muted" style="margin-top:6rpx;">拍照 / 选择后点击底部“保存”加入同步队列。</view>
+  </view>
+
+  <!-- WiFi coverage: good OR N weak points (location + description). -->
+  <view class="card">
+    <view class="title" style="font-size:30rpx;">WiFi 覆盖</view>
+    <view class="row" style="margin-top:12rpx;">
+      <view class="tag {{wifiMode==='good' ? 'tag-ok' : ''}}" bindtap="setWifiGood">覆盖良好</view>
+      <view class="tag {{wifiMode==='weak' ? 'tag-warn' : ''}}" bindtap="setWifiWeak" style="margin-left:16rpx;">存在弱点</view>
+    </view>
+    <block wx:if="{{wifiMode==='weak'}}">
+      <view wx:for="{{weakPoints}}" wx:key="index" class="card" style="margin-top:12rpx;">
+        <view class="row">
+          <input class="input" style="flex:1;" placeholder="弱点位置" value="{{item.location}}" data-index="{{index}}" data-field="location" bindinput="weakInput" />
+          <view class="thumb-del" style="position:static;" data-index="{{index}}" catchtap="removeWeak">×</view>
+        </view>
+        <input class="input" style="margin-top:8rpx;" placeholder="问题简述" value="{{item.description}}" data-index="{{index}}" data-field="description" bindinput="weakInput" />
+      </view>
+      <view class="btn" style="margin-top:12rpx;" bindtap="addWeak">+ 添加弱点</view>
+    </block>
   </view>
 
   <view wx:for="{{kinds}}" wx:key="kind" class="card">
