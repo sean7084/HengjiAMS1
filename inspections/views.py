@@ -46,6 +46,11 @@ from inspections.models import (
     InspectionSignoffLog,
     StoreInspection,
 )
+from inspections.scoping import (
+    scoped_batches,
+    scoped_inspections,
+    unbatched_inspection_count,
+)
 from inspections.services.asset_list_export import export_asset_list
 from inspections.services.kering_import import import_kering_master
 
@@ -71,13 +76,6 @@ class InspectionManageMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
         return self.request.user.can_manage_inspections()
-
-
-def _scoped_inspections(user):
-    """Return the StoreInspection queryset the given user may see."""
-    return user.get_assigned_inspections().select_related(
-        'batch', 'company', 'division', 'location', 'engineer'
-    )
 
 
 def _month_bounds(value):
@@ -109,7 +107,7 @@ class InspectionDashboardView(InspectionAccessMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        inspections = _scoped_inspections(user)
+        inspections = scoped_inspections(user)
 
         # Optional batch filter (query string) so the dashboard can be scoped
         # to one planning cycle from the batch detail page.
@@ -174,9 +172,7 @@ class InspectionDashboardView(InspectionAccessMixin, TemplateView):
         context.update({
             'days_json': json.dumps(days),
             'batch': batch,
-            'batches': InspectionBatch.objects.filter(
-                company__in=user.get_accessible_companies()
-            ).order_by('-start_date')[:50],
+            'batches': scoped_batches(user).order_by('-start_date')[:50],
             'month_start': month_start,
             'month_end': month_end,
             'current_month': month_start.strftime('%Y-%m'),
@@ -238,9 +234,9 @@ class InspectionBatchListView(InspectionAccessMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = InspectionBatch.objects.filter(
-            company__in=user.get_accessible_companies()
-        ).select_related('company', 'division', 'engineer').annotate(
+        qs = scoped_batches(user).select_related(
+            'company', 'division', 'engineer'
+        ).annotate(
             inspection_count=Count('inspections')
         )
         search = self.request.GET.get('search', '').strip()
@@ -261,6 +257,9 @@ class InspectionBatchListView(InspectionAccessMixin, ListView):
         context['source'] = self.request.GET.get('source', '')
         context['source_choices'] = InspectionBatch.Source.choices
         context['can_manage'] = self.request.user.can_manage_inspections()
+        # Explains an empty list: inspections imported without a planning cycle
+        # are not batches, so they never show up here until they are adopted.
+        context['unbatched_count'] = unbatched_inspection_count(self.request.user)
         return context
 
 
@@ -460,9 +459,9 @@ class InspectionBatchDetailView(InspectionAccessMixin, DetailView):
     context_object_name = 'batch'
 
     def get_queryset(self):
-        return InspectionBatch.objects.filter(
-            company__in=self.request.user.get_accessible_companies()
-        ).select_related('company', 'division', 'engineer', 'import_run', 'created_by')
+        return scoped_batches(self.request.user).select_related(
+            'company', 'division', 'engineer', 'import_run', 'created_by'
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -508,9 +507,7 @@ class InspectionBatchUpdateView(InspectionManageMixin, UpdateView):
     template_name = 'inspections/batch_form.html'
 
     def get_queryset(self):
-        return InspectionBatch.objects.filter(
-            company__in=self.request.user.get_accessible_companies()
-        )
+        return scoped_batches(self.request.user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -537,7 +534,7 @@ class StoreInspectionListView(InspectionAccessMixin, ListView):
     paginate_by = 30
 
     def get_queryset(self):
-        qs = _scoped_inspections(self.request.user)
+        qs = scoped_inspections(self.request.user)
         form = StoreInspectionFilterForm(self.request.GET, user=self.request.user)
         self.filter_form = form
         if form.is_valid():
@@ -577,7 +574,7 @@ class StoreInspectionDetailView(InspectionAccessMixin, DetailView):
     context_object_name = 'inspection'
 
     def get_queryset(self):
-        return _scoped_inspections(self.request.user)
+        return scoped_inspections(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -783,7 +780,7 @@ class InspectionReviewView(InspectionAccessMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        qs = _scoped_inspections(user)
+        qs = scoped_inspections(user)
 
         period, start, end = self._resolve_range(self.request)
         batch_id = self.request.GET.get('batch')
@@ -821,9 +818,7 @@ class InspectionReviewView(InspectionAccessMixin, TemplateView):
             'start': start,
             'end': end,
             'batch': batch,
-            'batches': InspectionBatch.objects.filter(
-                company__in=user.get_accessible_companies()
-            ).order_by('-start_date')[:50],
+            'batches': scoped_batches(user).order_by('-start_date')[:50],
             'date_from': self.request.GET.get('date_from', ''),
             'date_to': self.request.GET.get('date_to', ''),
             'can_manage': user.can_manage_inspections(),
@@ -864,7 +859,7 @@ class InspectionReviewBulkUpdateView(InspectionManageMixin, View):
             return redirect(back)
 
         devices = InspectionDevice.objects.filter(query).filter(
-            store_inspection__in=_scoped_inspections(request.user)
+            store_inspection__in=scoped_inspections(request.user)
         )
         updated = devices.update(status=new_status)
         if updated and new_status == InspectionDevice.Status.NOT_IN_STORE:

@@ -55,6 +55,30 @@
         </div>
     </div>
 
+    {% if unbatched_count %}
+    <!-- Inspections that no planning cycle owns yet: they show on the dashboard,
+         list and review pages, but a batch list can only ever show batches. -->
+    <div class="alert alert-warning">
+        <div class="d-flex gap-2">
+            <i class="fas fa-triangle-exclamation mt-1"></i>
+            <div>
+                <strong>
+                    {% blocktrans count count=unbatched_count %}
+                        {{ count }} inspection is not assigned to any batch
+                    {% plural %}
+                        {{ count }} inspections are not assigned to any batch
+                    {% endblocktrans %}
+                </strong>
+                <div class="small mb-0">
+                    {% trans "They still appear on the dashboard, list and review pages, but batch-scoped scheduling and export need a batch." %}
+                    {% trans "Adopt them by re-importing the same schedule through New Batch, or run" %}
+                    <code>python manage.py group_unbatched_inspections --dry-run</code>.
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Table -->
     <div class="card">
         <div class="card-body p-0">

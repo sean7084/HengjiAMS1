@@ -18,6 +18,7 @@ from inspections.models import (
     InspectionWifiWeakPoint,
     StoreInspection,
 )
+from inspections.scoping import scoped_batches
 
 User = get_user_model()
 
@@ -229,9 +230,7 @@ class AssetListExportForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.user = user
         if user is not None:
-            self.fields['batch'].queryset = InspectionBatch.objects.filter(
-                company__in=user.get_accessible_companies()
-            )
+            self.fields['batch'].queryset = scoped_batches(user)
             self.fields['division'].queryset = user.get_accessible_divisions()
 
     def clean_week(self):
@@ -341,9 +340,7 @@ class StoreInspectionFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.user = user
         if user is not None:
-            self.fields['batch'].queryset = InspectionBatch.objects.filter(
-                company__in=user.get_accessible_companies()
-            )
+            self.fields['batch'].queryset = scoped_batches(user)
             self.fields['division'].queryset = user.get_accessible_divisions()
 
 
